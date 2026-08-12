@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Mutex};
 
-use crate::data::{DirEntry, FileInfo};
+use crate::types::{DirEntry, FileInfo};
 
 pub struct AppState {
     pub new_id: Mutex<u64>,

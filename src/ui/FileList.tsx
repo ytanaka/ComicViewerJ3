@@ -5,11 +5,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 
 import { unixTime2str } from "../utils/util";
-import { DirEntry, FileInfo, getDirectoryEntries, getFileInfo } from "../commands/commands";
+import { commands, DirEntry, FileInfo } from "../lib/bindings";
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | null | undefined }) {
     let icon: String;
-    if (fileInfo?.metadata === null) {
+    if (fileInfo === undefined) {
+        icon = " ";
+    } else if (fileInfo === null || fileInfo.metadata === null) {
         icon = "⬛";
     } else if (fileInfo?.metadata.is_dir) {
         icon = "📁";
@@ -18,14 +20,14 @@ function Icon({ fileInfo }: { fileInfo: FileInfo | null | undefined }) {
     }
 
     return (
-        <div className="file-list-item-elm" >
+        <div className="file-list-row-elm" style={{ width: "2ch" }}>
             {icon}
         </div>
     )
 }
 function Name({ dirEntry }: { dirEntry: DirEntry }) {
     return (
-        <div className="file-list-item-elm" style={{ flex: "1" }}>
+        <div className="file-list-row-elm" style={{ flex: "1" }}>
             {dirEntry.name}
         </div>
     )
@@ -46,7 +48,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry, fileInfo: FileInf
     }, [dirEntry.name]);
 
     return (
-        <div className="file-list-item-elm" style={{ width: "5ch" }} >
+        <div className="file-list-row-elm" style={{ width: "5ch" }} >
             {ext}
         </div>
     )
@@ -57,26 +59,28 @@ function Size({ fileInfo }: { fileInfo: FileInfo | null | undefined }) {
         size = fileInfo?.metadata?.size;
     }
     return (
-        <div className="file-list-item-elm" style={{ width: "8ch", textAlign: "right" }} >
+        <div className="file-list-row-elm" style={{ width: "8ch", textAlign: "right" }} >
             {size}
         </div>
     )
 }
 function Modified({ fileInfo }: { fileInfo: FileInfo | null | undefined }) {
     return (
-        <div className="file-list-item-elm" >
+        <div className="file-list-row-elm" >
             {unixTime2str(fileInfo?.metadata?.modified)}
         </div>
     )
 }
 
-function FileListItem({ index, dirEntry, isSelected }: { index: number, dirEntry: DirEntry, isSelected: boolean }) {
+function FileListRow({ index, dirEntry, isSelected }: { index: number, dirEntry: DirEntry, isSelected: boolean }) {
     const { data } = useQuery({
         staleTime: 0,
         queryKey: [dirEntry.id],
         queryFn: async () => {
-            const x = await getFileInfo(dirEntry.id)
-            return x;
+            const ret = await commands.getFileInfo(dirEntry.id.toString())
+            if (ret.status === 'error') throw Error(ret.error)
+            console.log('getFileInfo(', dirEntry.name, ') => ', ret.data)
+            return ret.data
         }
     })
 
@@ -103,11 +107,14 @@ export default function FileList() {
     const virtuoso = useRef<VirtuosoHandle>(null);
 
     const refreshList = async (path: string) => {
-        getDirectoryEntries(path).then((ret) => {
-            setCurrentPath(ret[0]);
-            setEntries(ret[1]);
-            localStorage.setItem("path", path);
-        });
+        const ret = await commands.getDirEntries(path)
+        if (ret.status === 'error') {
+            // TODO
+            return
+        }
+        setCurrentPath(ret.data[0]);
+        setEntries(ret.data[1]);
+        localStorage.setItem("path", path);
     }
 
     // 初期ロード
@@ -128,7 +135,7 @@ export default function FileList() {
                 totalCount={entries.length}
                 itemContent={(index) => {
                     return (
-                        <FileListItem index={index} dirEntry={entries[index]} isSelected={false} />
+                        <FileListRow index={index} dirEntry={entries[index]} isSelected={false} />
                     )
                 }}
             />

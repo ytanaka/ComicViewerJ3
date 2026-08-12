@@ -33,7 +33,7 @@ body {
 }
 
 /* ファイル一覧の行の中の各要素 (名前、サイズ、日付...) */
-.file-list-item-elm {
+.file-list-row-elm {
   margin-left: 3px;
   margin-right: 3px;
 }
