@@ -7,7 +7,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const [theme, setTheme] = useState<Theme>('light');
 
     useEffect(() => {
-        getCurrentWindow().theme().then((theme) => { theme && setTheme(theme) });
+        getCurrentWindow().theme().then((theme) => { if (theme !== null) { setTheme(theme) } });
 
         const unlistenPromise = getCurrentWindow().onThemeChanged(({ payload }) => {
             setTheme(payload);

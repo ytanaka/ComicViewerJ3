@@ -6,10 +6,10 @@ import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 
 import { unixTime2str } from "../utils/util";
 import { commands, DirEntry, FileInfo } from "../lib/bindings";
-import { resolve } from "@tauri-apps/api/path";
+import { resolve as tauri_path_resolve } from "@tauri-apps/api/path";
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
-    let icon: String;
+    let icon: string;
     if (fileInfo === undefined || fileInfo.metadata === null) {
         icon = " ";
     } else if (fileInfo?.metadata.is_dir) {
@@ -37,10 +37,8 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry, fileInfo: FileInf
     useEffect(() => {
         async function getExt() {
             if (!fileInfo?.metadata?.is_dir) {
-                try {
-                    const ext = await path.extname(dirEntry.name);
-                    if (ext !== "") setExt(ext);
-                } catch { }
+                const ext = await path.extname(dirEntry.name).catch(() => { return "" });
+                if (ext !== "") setExt(ext);
             }
         }
         getExt();
@@ -108,9 +106,13 @@ export default function FileList() {
     const [entries, setEntries] = useState<DirEntry[]>([]);
     const virtuoso = useRef<VirtuosoHandle>(null);
 
-    const refreshList = async (path: string) => {
-        const absPath = await resolve(path);
+    const refreshList = async (canceled: AbortController, path: string) => {
+        const absPath = await tauri_path_resolve(path);
         const ret = await commands.getDirEntries(absPath);
+        if (canceled.signal.aborted) {
+            console.debug("FileList getDirEntries(", absPath, ") aborted");
+            return;
+        }
         if (ret.status === 'error') {
             console.error("FileList getDirEntries(", absPath, ") error: ", ret.error);
             return
@@ -118,14 +120,16 @@ export default function FileList() {
         console.log("FileList getDirEntries(", absPath, ") success => data.length = ", ret.data.length);
         setCurrentPath(absPath);
         setEntries(ret.data);
-        localStorage.setItem("path", path);
+        localStorage.setItem("path", absPath);
     }
 
     // 初期ロード
     useEffect(() => {
         let path = localStorage.getItem("path");
         if (path === null) path = ".";
-        refreshList(path);
+        const canceled = new AbortController();
+        refreshList(canceled, path);
+        return () => { canceled.abort() };
     }, []);
 
     return (
