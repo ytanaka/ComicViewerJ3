@@ -10,6 +10,8 @@ impl AppState {
     pub fn new() -> Self {
         AppState {
             new_file_id: Mutex::new(0),
+
+            // FileInfos のメンバーを操作するときに個別にロックするとデッドロックの危険があるので、構造体に入れてまとめてロックする
             file_infos: Mutex::new(FileInfos {
                 map: HashMap::new(),
                 list: Vec::new(),
@@ -24,15 +26,14 @@ pub struct FileInfos {
 }
 impl FileInfos {
     pub fn set_files(&mut self, files: Vec<FileInfo>) {
-        {
-            self.list.clear();
-            self.map.clear();
+        self.list.clear();
+        self.map.clear();
 
-            for i in files {
-                self.list.push(i.id);
-                self.map.insert(i.id, i);
-            }
+        for i in files {
+            self.list.push(i.id);
+            self.map.insert(i.id, i);
         }
+
         self.sort_items();
     }
 
@@ -44,6 +45,7 @@ impl FileInfos {
         });
     }
 
+    /// UI表示用にソート済みのファイル一覧を取得
     pub fn get_dir_entries(&mut self) -> Vec<DirEntry> {
         let mut ret: Vec<DirEntry> = Vec::new();
         for i in &self.list {
