@@ -4,6 +4,7 @@ import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 import reactCompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
+import prettierConfig from 'eslint-config-prettier'
 import { defineConfig } from "eslint/config";
 
 export default defineConfig([
@@ -25,6 +26,7 @@ export default defineConfig([
     },
     languageOptions: { globals: globals.browser }
   },
+  prettierConfig,
   {
     ignores: [
       'dist/**',

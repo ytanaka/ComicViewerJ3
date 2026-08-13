@@ -49,7 +49,7 @@ impl FileInfos {
     pub fn get_dir_entries(&mut self) -> Vec<DirEntry> {
         let mut ret: Vec<DirEntry> = Vec::new();
         for i in &self.list {
-            if let Some(info) = self.map.get(&i) {
+            if let Some(info) = self.map.get(i) {
                 if let Some(name) = info.path.file_name() {
                     ret.push(DirEntry {
                         id: *i,

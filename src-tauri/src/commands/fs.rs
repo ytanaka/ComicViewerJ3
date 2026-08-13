@@ -25,13 +25,13 @@ fn get_dir_entries_impl(
 ) -> anyhow::Result<Vec<DirEntry>> {
     let path = Path::new(&path);
     if !path.is_dir() {
-        return Err(io::Error::new(
+        Err(io::Error::new(
             ErrorKind::NotADirectory,
             path.to_string_lossy(),
-        ))?;
+        ))?
     }
 
-    let list = get_dir_entries_impl2(state, &path)?;
+    let list = get_dir_entries_impl2(state, path)?;
     let mut file_infos = state.file_infos.lock().unwrap();
     file_infos.set_files(list);
     Ok(file_infos.get_dir_entries())
@@ -42,7 +42,7 @@ fn get_dir_entries_impl2(
 ) -> anyhow::Result<Vec<FileInfo>> {
     let mut list = Vec::<FileInfo>::new();
     let mut new_id = state.new_file_id.lock().unwrap();
-    for entry in fs::read_dir(&path)? {
+    for entry in fs::read_dir(path)? {
         let entry = entry?;
         *new_id += 1;
 

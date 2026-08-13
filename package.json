@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "rust:fmt": "cd src-tauri && cargo fmt",
+    "rust:clippy": "cd src-tauri && cargo clippy -- -D warnings",
     "tauri": "tauri"
   },
   "dependencies": {
@@ -25,6 +29,7 @@
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-compiler": "19.1.0-rc.2",
     "eslint-plugin-react-hooks": "^7.1.1",
