@@ -16,6 +16,7 @@ use crate::{
 #[tauri::command]
 #[specta::specta]
 pub fn get_dir_entries(state: State<'_, AppState>, path: String) -> Result<Vec<DirEntry>, String> {
+    log::trace!("get_dir_entries({path})");
     get_dir_entries_impl(&state, path).map_err(|e| e.to_string())
 }
 fn get_dir_entries_impl(
@@ -61,8 +62,9 @@ fn get_dir_entries_impl2(
 #[tauri::command]
 #[specta::specta]
 pub fn get_file_info(state: State<'_, AppState>, id: &str) -> Result<FileInfo, String> {
-    let map = &mut state.file_infos.lock().unwrap().map;
+    log::trace!("get_file_info({id})");
 
+    let map = &mut state.file_infos.lock().unwrap().map;
     let info = match map.get_mut(&try_u64(id)?) {
         None => return Err(format!("invalid file id: {}", id)),
         Some(i) => match i.path.metadata() {

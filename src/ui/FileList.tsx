@@ -77,7 +77,10 @@ function FileListRow({ index, dirEntry, isSelected }: { index: number, dirEntry:
         queryKey: [dirEntry.id],
         queryFn: async () => {
             const ret = await commands.getFileInfo(dirEntry.id.toString())
-            if (ret.status === 'error') throw Error(ret.error)
+            if (ret.status === 'error') {
+                console.error('getFileInfo(', dirEntry.name, ') => ', ret.error);
+                throw Error(ret.error)
+            }
             console.log('getFileInfo(', dirEntry.name, ') => ', ret.data)
             return ret.data
         }
@@ -109,9 +112,10 @@ export default function FileList() {
         const absPath = await resolve(path);
         const ret = await commands.getDirEntries(absPath);
         if (ret.status === 'error') {
-            // TODO
+            console.error("FileList getDirEntries(", absPath, ") error: ", ret.error);
             return
         }
+        console.log("FileList getDirEntries(", absPath, ") success => data.length = ", ret.data.length);
         setCurrentPath(absPath);
         setEntries(ret.data);
         localStorage.setItem("path", path);
