@@ -1,5 +1,3 @@
-use std::{collections::HashMap, env, sync::Mutex};
-
 use tauri::Manager;
 
 use crate::state::AppState;
@@ -30,11 +28,7 @@ pub fn run() {
     }));
 
     app_builder
-        .manage(AppState {
-            new_id: Mutex::new(0),
-            item_map: Mutex::new(HashMap::new()),
-            item_list: Mutex::new(Vec::new()),
-        })
+        .manage(AppState::new())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(builder.invoke_handler())
         .run(tauri::generate_context!())

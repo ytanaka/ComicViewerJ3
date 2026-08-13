@@ -8,12 +8,8 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 
 /** Commands */
 export const commands = {
-	getDirEntries: (path: string) => typedError<[string, DirEntry[]], string>(__TAURI_INVOKE("get_dir_entries", { path })),
-	getFileInfo: (id: string) => typedError<{
-	id: number,
-	path: string,
-	metadata: FileMetadata | null,
-} | null, string>(__TAURI_INVOKE("get_file_info", { id })),
+	getDirEntries: (path: string) => typedError<DirEntry[], string>(__TAURI_INVOKE("get_dir_entries", { path })),
+	getFileInfo: (id: string) => typedError<FileInfo, string>(__TAURI_INVOKE("get_file_info", { id })),
 };
 
 /* Types */

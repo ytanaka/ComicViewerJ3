@@ -3,6 +3,10 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+// u64 は JS の number に完全に変換できないが、53bitまでの値なら大丈夫
+// ファイルid、ファイルサイズ、更新日時は 53bit 以内になるはず
+// Rust の u64 を JS の number にするために、specta_typescript::Number を指定する (tauri_specta でエラーになる)
+
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct DirEntry {
     #[specta(type = specta_typescript::Number)]
@@ -36,18 +40,3 @@ pub struct FileMetadata {
     #[specta(type = Option<specta_typescript::Number>)]
     pub created: Option<u64>,
 }
-
-// #[derive(Debug, Clone, Serialize, Deserialize, Type)]
-// pub struct TsU64 {
-//     // u64 はJS側で必ず number になってしまう。
-//     // ※ TSの型指定で string や bigint にしても、実体は number になる。
-//     // とりあえず number でも 53bit までは正確に扱えるので
-//     #[specta(type = specta_typescript::Number)]
-//     pub i: u64,
-// }
-
-// impl From<u64> for TsU64 {
-//     fn from(i: u64) -> Self {
-//         TsU64 { i }
-//     }
-// }

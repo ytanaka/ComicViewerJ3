@@ -6,13 +6,12 @@ import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 
 import { unixTime2str } from "../utils/util";
 import { commands, DirEntry, FileInfo } from "../lib/bindings";
+import { resolve } from "@tauri-apps/api/path";
 
-function Icon({ fileInfo }: { fileInfo: FileInfo | null | undefined }) {
+function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
     let icon: String;
-    if (fileInfo === undefined) {
+    if (fileInfo === undefined || fileInfo.metadata === null) {
         icon = " ";
-    } else if (fileInfo === null || fileInfo.metadata === null) {
-        icon = "⬛";
     } else if (fileInfo?.metadata.is_dir) {
         icon = "📁";
     } else {
@@ -32,7 +31,7 @@ function Name({ dirEntry }: { dirEntry: DirEntry }) {
         </div>
     )
 }
-function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry, fileInfo: FileInfo | null | undefined }) {
+function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry, fileInfo: FileInfo | undefined }) {
     const [ext, setExt] = useState("");
 
     useEffect(() => {
@@ -53,7 +52,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry, fileInfo: FileInf
         </div>
     )
 }
-function Size({ fileInfo }: { fileInfo: FileInfo | null | undefined }) {
+function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
     let size = undefined;
     if (!fileInfo?.metadata?.is_dir) {
         size = fileInfo?.metadata?.size;
@@ -64,7 +63,7 @@ function Size({ fileInfo }: { fileInfo: FileInfo | null | undefined }) {
         </div>
     )
 }
-function Modified({ fileInfo }: { fileInfo: FileInfo | null | undefined }) {
+function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
     return (
         <div className="file-list-row-elm" >
             {unixTime2str(fileInfo?.metadata?.modified)}
@@ -107,13 +106,14 @@ export default function FileList() {
     const virtuoso = useRef<VirtuosoHandle>(null);
 
     const refreshList = async (path: string) => {
-        const ret = await commands.getDirEntries(path)
+        const absPath = await resolve(path);
+        const ret = await commands.getDirEntries(absPath);
         if (ret.status === 'error') {
             // TODO
             return
         }
-        setCurrentPath(ret.data[0]);
-        setEntries(ret.data[1]);
+        setCurrentPath(absPath);
+        setEntries(ret.data);
         localStorage.setItem("path", path);
     }
 

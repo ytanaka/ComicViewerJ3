@@ -1,7 +1,7 @@
 use std::{
     fs::{self},
     io::{self, ErrorKind},
-    path::{absolute, Path},
+    path::Path,
 };
 
 use tauri::State;
@@ -15,15 +15,14 @@ use crate::{
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
-pub fn get_dir_entries(
-    state: State<'_, AppState>,
-    path: String,
-) -> Result<(String, Vec<DirEntry>), String> {
-    let path = get_dir_entries_impl(&state, path).map_err(|e| e.to_string())?;
-    Ok((path, state.get_dir_entries()))
+pub fn get_dir_entries(state: State<'_, AppState>, path: String) -> Result<Vec<DirEntry>, String> {
+    get_dir_entries_impl(&state, path).map_err(|e| e.to_string())
 }
-fn get_dir_entries_impl(state: &State<'_, AppState>, path: String) -> anyhow::Result<String> {
-    let path = absolute(Path::new(&path))?;
+fn get_dir_entries_impl(
+    state: &State<'_, AppState>,
+    path: String,
+) -> anyhow::Result<Vec<DirEntry>> {
+    let path = Path::new(&path);
     if !path.is_dir() {
         return Err(io::Error::new(
             ErrorKind::NotADirectory,
@@ -31,8 +30,17 @@ fn get_dir_entries_impl(state: &State<'_, AppState>, path: String) -> anyhow::Re
         ))?;
     }
 
-    let mut new_id = state.new_id.lock().unwrap();
+    let list = get_dir_entries_impl2(state, &path)?;
+    let mut file_infos = state.file_infos.lock().unwrap();
+    file_infos.set_files(list);
+    Ok(file_infos.get_dir_entries())
+}
+fn get_dir_entries_impl2(
+    state: &State<'_, AppState>,
+    path: &Path,
+) -> anyhow::Result<Vec<FileInfo>> {
     let mut list = Vec::<FileInfo>::new();
+    let mut new_id = state.new_file_id.lock().unwrap();
     for entry in fs::read_dir(&path)? {
         let entry = entry?;
         *new_id += 1;
@@ -44,19 +52,19 @@ fn get_dir_entries_impl(state: &State<'_, AppState>, path: String) -> anyhow::Re
         };
         list.push(info);
     }
-    state.set_files(list);
 
-    Ok(path.to_string_lossy().into_owned())
+    Ok(list)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// id は u64 にしたかったが、tauri_specta でエラーになるので文字列にする
 #[tauri::command]
 #[specta::specta]
-pub fn get_file_info(state: State<'_, AppState>, id: &str) -> Result<Option<FileInfo>, String> {
-    let mut map = state.item_map.lock().unwrap();
+pub fn get_file_info(state: State<'_, AppState>, id: &str) -> Result<FileInfo, String> {
+    let map = &mut state.file_infos.lock().unwrap().map;
 
     let info = match map.get_mut(&try_u64(id)?) {
-        None => return Ok(None),
+        None => return Err(format!("invalid file id: {}", id)),
         Some(i) => match i.path.metadata() {
             Err(e) => return Err(e.to_string()),
             Ok(m) => {
@@ -71,5 +79,5 @@ pub fn get_file_info(state: State<'_, AppState>, id: &str) -> Result<Option<File
             }
         },
     };
-    Ok(Some(info.clone()))
+    Ok(info.clone())
 }
