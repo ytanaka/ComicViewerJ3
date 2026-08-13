@@ -34,15 +34,17 @@ function Name({ dirEntry }: { dirEntry: DirEntry }) {
 function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry, fileInfo: FileInfo | undefined }) {
     const [ext, setExt] = useState("");
 
+    const isFile = !fileInfo?.metadata?.is_dir;
+
     useEffect(() => {
         async function getExt() {
-            if (!fileInfo?.metadata?.is_dir) {
+            if (isFile) {
                 const ext = await path.extname(dirEntry.name).catch(() => { return "" });
                 if (ext !== "") setExt(ext);
             }
         }
         getExt();
-    }, [dirEntry.name]);
+    }, [dirEntry.name, isFile]);
 
     return (
         <div className="file-list-row-elm" style={{ width: "5ch" }} >
@@ -106,29 +108,30 @@ export default function FileList() {
     const [entries, setEntries] = useState<DirEntry[]>([]);
     const virtuoso = useRef<VirtuosoHandle>(null);
 
-    const refreshList = async (canceled: AbortController, path: string) => {
-        const absPath = await tauri_path_resolve(path);
-        const ret = await commands.getDirEntries(absPath);
-        if (canceled.signal.aborted) {
-            console.debug("FileList getDirEntries(", absPath, ") aborted");
-            return;
-        }
-        if (ret.status === 'error') {
-            console.error("FileList getDirEntries(", absPath, ") error: ", ret.error);
-            return
-        }
-        console.log("FileList getDirEntries(", absPath, ") success => data.length = ", ret.data.length);
-        setCurrentPath(absPath);
-        setEntries(ret.data);
-        localStorage.setItem("path", absPath);
-    }
 
     // 初期ロード
     useEffect(() => {
+        const canceled = new AbortController();
+        const refreshList = async (path: string) => {
+            const absPath = await tauri_path_resolve(path);
+            const ret = await commands.getDirEntries(absPath);
+            if (canceled.signal.aborted) {
+                console.debug("FileList getDirEntries(", absPath, ") aborted");
+                return;
+            }
+            if (ret.status === 'error') {
+                console.error("FileList getDirEntries(", absPath, ") error: ", ret.error);
+                return
+            }
+            console.log("FileList getDirEntries(", absPath, ") success => data.length = ", ret.data.length);
+            setCurrentPath(absPath);
+            setEntries(ret.data);
+            localStorage.setItem("path", absPath);
+        }
+
         let path = localStorage.getItem("path");
         if (path === null) path = ".";
-        const canceled = new AbortController();
-        refreshList(canceled, path);
+        refreshList(path);
         return () => { canceled.abort() };
     }, []);
 
