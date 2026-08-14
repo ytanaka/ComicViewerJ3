@@ -3,11 +3,10 @@
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/geist';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --bg-color: #fff;
-  --bg-color2: #ddd;
   --text-color: #000;
   --border-color: #ddd;
   --background: oklch(1 0 0);
@@ -44,37 +43,11 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #000;
-    --bg-color2: #1b1b1b;
-    --text-color: #eee;
-    --border-color: #444;
-  }
-}
-
 body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-}
-
-.xxx {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-}
-
-/* ファイル一覧の行 */
-.file-list-item2 {
-  background-color: var(--bg-color2);
-}
-
-/* ファイル一覧の行の中の各要素 (名前、サイズ、日付...) */
-.file-list-row-elm {
-  margin-left: 3px;
-  margin-right: 3px;
 }
 
 @theme inline {

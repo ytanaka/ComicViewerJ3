@@ -4,8 +4,8 @@ import { path } from '@tauri-apps/api';
 import { useQuery } from '@tanstack/react-query';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
-import { unixTime2str } from '../utils/util';
-import { commands, DirEntry, FileInfo } from '../lib/bindings';
+import { unixTime2str } from '../../utils/util';
+import { commands, DirEntry, FileInfo } from '../../lib/bindings';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
@@ -17,23 +17,13 @@ function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   } else {
     icon = '📄';
   }
-
-  return (
-    <div className="file-list-row-elm" style={{ width: '2ch' }}>
-      {icon}
-    </div>
-  );
+  return <div className="w-[2ch] ml-1 mr-1">{icon}</div>;
 }
 function Name({ dirEntry }: { dirEntry: DirEntry }) {
-  return (
-    <div className="file-list-row-elm" style={{ flex: '1' }}>
-      {dirEntry.name}
-    </div>
-  );
+  return <div className="flex-1 ml-1 mr-1">{dirEntry.name}</div>;
 }
 function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
   const [ext, setExt] = useState('');
-
   const isFile = !fileInfo?.metadata?.is_dir;
 
   useEffect(() => {
@@ -48,25 +38,17 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
     getExt();
   }, [dirEntry.name, isFile]);
 
-  return (
-    <div className="file-list-row-elm" style={{ width: '5ch' }}>
-      {ext}
-    </div>
-  );
+  return <div className="w-[5ch] ml-1 mr-1">{ext}</div>;
 }
 function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let size = undefined;
   if (!fileInfo?.metadata?.is_dir) {
     size = fileInfo?.metadata?.size;
   }
-  return (
-    <div className="file-list-row-elm" style={{ width: '8ch', textAlign: 'right' }}>
-      {size}
-    </div>
-  );
+  return <div className="w-[8ch] ml-1 mr-1 text-right">{size}</div>;
 }
 function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
-  return <div className="file-list-row-elm">{unixTime2str(fileInfo?.metadata?.modified)}</div>;
+  return <div className="ml-1 mr-1">{unixTime2str(fileInfo?.metadata?.modified)}</div>;
 }
 
 function FileListRow({ index, dirEntry, isSelected }: { index: number; dirEntry: DirEntry; isSelected: boolean }) {
@@ -86,12 +68,9 @@ function FileListRow({ index, dirEntry, isSelected }: { index: number; dirEntry:
 
   return (
     <div
-      className={index % 2 == 0 ? '' : 'file-list-item2'}
+      className={`${index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900'} flex pl-1.5 pr-1.5 h-7`}
       style={{
-        display: 'flex',
-        padding: '4px 8px',
         background: isSelected ? '#0078d4' : '',
-        height: '1lh',
       }}
     >
       <Icon fileInfo={data} />
@@ -137,8 +116,8 @@ export default function FileList() {
   }, []);
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: 8 }}>Current: {currentPath}</div>
+    <div className="flex flex-col h-screen">
+      <div className="p-2 border-2">Current: {currentPath}</div>
 
       <Virtuoso
         ref={virtuoso}
