@@ -3,7 +3,7 @@ import FileList from './components/file-list/FileList';
 
 function App() {
   return (
-    <div className="bg-white text-black dark:bg-black dark:text-white">
+    <div className="bg-white text-black dark:bg-black dark:text-white text-sm">
       <FileList></FileList>
     </div>
   );

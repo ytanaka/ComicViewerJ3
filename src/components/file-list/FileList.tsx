@@ -7,6 +7,7 @@ import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { unixTime2str } from '../../utils/util';
 import { commands, DirEntry, FileInfo } from '../../lib/bindings';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let icon: string;
@@ -68,7 +69,7 @@ function FileListRow({ index, dirEntry, isSelected }: { index: number; dirEntry:
 
   return (
     <div
-      className={`${index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900'} flex pl-1.5 pr-1.5 h-7`}
+      className={`${index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900'} flex pl-1.5 pr-1.5 h-6`}
       style={{
         background: isSelected ? '#0078d4' : '',
       }}
@@ -102,6 +103,7 @@ export default function FileList() {
         return;
       }
       console.log('FileList getDirEntries(', absPath, ') success => data.length = ', ret.data.length);
+      await getCurrentWindow().setTitle(absPath);
       setCurrentPath(absPath);
       setEntries(ret.data);
       localStorage.setItem('path', absPath);
