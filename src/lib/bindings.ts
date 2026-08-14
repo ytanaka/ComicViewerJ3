@@ -8,6 +8,7 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 
 /** Commands */
 export const commands = {
+	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
 	getDirEntries: (path: string) => typedError<DirEntry[], string>(__TAURI_INVOKE("get_dir_entries", { path })),
 	getFileInfo: (id: string) => typedError<FileInfo, string>(__TAURI_INVOKE("get_file_info", { id })),
 };

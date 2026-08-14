@@ -1,10 +1,14 @@
 use tauri_specta::{collect_commands, Builder};
 
 pub fn generate_bindings() -> Builder<tauri::Wry> {
+    use crate::commands::app;
     use crate::commands::fs;
 
-    Builder::<tauri::Wry>::new()
-        .commands(collect_commands![fs::get_dir_entries, fs::get_file_info,])
+    Builder::<tauri::Wry>::new().commands(collect_commands![
+        app::exit_app,
+        fs::get_dir_entries,
+        fs::get_file_info,
+    ])
 }
 
 /// Export TypeScript bindings to the frontend.

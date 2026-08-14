@@ -20,6 +20,7 @@ package-lock.json
 pnpm-lock.yaml
 .git/
 src/lib/bindings.ts
+src/components/ui/
 
 # Logs
 *.log
