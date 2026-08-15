@@ -84,7 +84,6 @@ function FileListRow({ index, dirEntry, isSelected }: { index: number; dirEntry:
 }
 
 export default function FileList({ className = '' }: { className: string }) {
-  const [currentPath, setCurrentPath] = useState('.');
   const [entries, setEntries] = useState<DirEntry[]>([]);
   const virtuoso = useRef<VirtuosoHandle>(null);
 
@@ -104,7 +103,6 @@ export default function FileList({ className = '' }: { className: string }) {
       }
       console.log('FileList getDirEntries(', absPath, ') success => data.length = ', ret.data.length);
       await getCurrentWindow().setTitle(absPath);
-      setCurrentPath(absPath);
       setEntries(ret.data);
       localStorage.setItem('path', absPath);
     };
@@ -119,7 +117,6 @@ export default function FileList({ className = '' }: { className: string }) {
 
   return (
     <div className={`${className} flex flex-col`}>
-      <div className="p-2 border-2">Current: {currentPath}</div>
       <div className="flex-1">
         <Virtuoso
           ref={virtuoso}
