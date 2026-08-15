@@ -58,8 +58,12 @@ pub fn run() {
     );
 
     app_builder
-        .setup(|_app| {
+        .setup(|app| {
             log::info!("app start");
+            #[cfg(debug_assertions)]
+            {
+                app.get_webview_window("main").map(|w| w.open_devtools());
+            }
             Ok(())
         })
         .on_window_event(|_window, event| {

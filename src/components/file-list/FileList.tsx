@@ -8,6 +8,7 @@ import { unixTime2str } from '../../utils/util';
 import { commands, DirEntry, FileInfo } from '../../lib/bindings';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { toast } from 'sonner';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let icon: string;
@@ -103,6 +104,7 @@ export default function FileList({ className = '' }: { className: string }) {
       }
       console.log('FileList getDirEntries(', absPath, ') success => data.length = ', ret.data.length);
       await getCurrentWindow().setTitle(absPath);
+      toast.info(absPath);
       setEntries(ret.data);
       localStorage.setItem('path', absPath);
     };
