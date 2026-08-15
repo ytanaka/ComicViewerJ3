@@ -12,6 +12,28 @@ import {
 } from './ui/menubar';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
+function ShortcutKey({ k }: { k: string[] }) {
+  if (k.length === 3) {
+    return (
+      <MenubarShortcut>
+        <KbdGroup>
+          <Kbd>{k[0]}</Kbd>
+          <span>{k[1]}</span>
+          <Kbd>{k[2]}</Kbd>
+        </KbdGroup>
+      </MenubarShortcut>
+    );
+  } else {
+    return (
+      <MenubarShortcut>
+        <KbdGroup>
+          <Kbd>s[0]</Kbd>
+        </KbdGroup>
+      </MenubarShortcut>
+    );
+  }
+}
+
 export function Menu() {
   return (
     <Menubar>
@@ -21,13 +43,7 @@ export function Menu() {
           <MenubarGroup>
             <MenubarItem>
               ディレクトリを開く
-              <MenubarShortcut>
-                <KbdGroup>
-                  <Kbd>Ctrl</Kbd>
-                  <span>+</span>
-                  <Kbd>O</Kbd>
-                </KbdGroup>
-              </MenubarShortcut>
+              <ShortcutKey k={['Ctrl', '+', 'O']} />
             </MenubarItem>
             <MenubarItem>
               ファイル作成

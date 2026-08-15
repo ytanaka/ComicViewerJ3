@@ -83,7 +83,7 @@ function FileListRow({ index, dirEntry, isSelected }: { index: number; dirEntry:
   );
 }
 
-export default function FileList() {
+export default function FileList({ className = '' }: { className: string }) {
   const [currentPath, setCurrentPath] = useState('.');
   const [entries, setEntries] = useState<DirEntry[]>([]);
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -118,16 +118,17 @@ export default function FileList() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className={`${className} flex flex-col`}>
       <div className="p-2 border-2">Current: {currentPath}</div>
-
-      <Virtuoso
-        ref={virtuoso}
-        totalCount={entries.length}
-        itemContent={index => {
-          return <FileListRow index={index} dirEntry={entries[index]} isSelected={false} />;
-        }}
-      />
+      <div className="flex-1">
+        <Virtuoso
+          ref={virtuoso}
+          totalCount={entries.length}
+          itemContent={index => {
+            return <FileListRow index={index} dirEntry={entries[index]} isSelected={false} />;
+          }}
+        />
+      </div>
     </div>
   );
 }
