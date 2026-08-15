@@ -21,7 +21,17 @@ pub fn run() {
     bindings::export_ts_bindings();
 
     // Build with common plugins
-    let mut app_builder = tauri::Builder::default().plugin(
+    let mut app_builder = tauri::Builder::default();
+
+    app_builder = app_builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        if let Some(window) = app.get_webview_window("main") {
+            let _ = window.unminimize();
+            let _ = window.show();
+            let _ = window.set_focus();
+        }
+    }));
+
+    app_builder = app_builder.plugin(
         tauri_plugin_log::Builder::new()
             .level(tauri_plugin_log::log::LevelFilter::Trace)
             .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepSome(10))
@@ -37,13 +47,15 @@ pub fn run() {
             .build(),
     );
 
-    app_builder = app_builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-        if let Some(window) = app.get_webview_window("main") {
-            let _ = window.unminimize();
-            let _ = window.show();
-            let _ = window.set_focus();
-        }
-    }));
+    app_builder = app_builder.plugin(
+        tauri_plugin_window_state::Builder::new()
+            .with_state_flags(
+                tauri_plugin_window_state::StateFlags::POSITION
+                    | tauri_plugin_window_state::StateFlags::MAXIMIZED
+                    | tauri_plugin_window_state::StateFlags::SIZE,
+            )
+            .build(),
+    );
 
     app_builder
         .setup(|_app| {
