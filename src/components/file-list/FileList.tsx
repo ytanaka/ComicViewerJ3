@@ -61,6 +61,7 @@ function FileListRow({ index, dirEntry, isSelected }: { index: number; dirEntry:
       const ret = await commands.getFileInfo(dirEntry.id.toString());
       if (ret.status === 'error') {
         console.error('getFileInfo(', dirEntry.name, ') => ', ret.error);
+        toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
         throw Error(ret.error);
       }
       console.log('getFileInfo(', dirEntry.name, ') => ', ret.data);
@@ -100,6 +101,7 @@ export default function FileList({ className = '' }: { className: string }) {
       }
       if (ret.status === 'error') {
         console.error('FileList getDirEntries(', absPath, ') error: ', ret.error);
+        toast.error(`ディレクトリ情報が取得できません`);
         return;
       }
       console.log('FileList getDirEntries(', absPath, ') success => data.length = ', ret.data.length);

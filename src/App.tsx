@@ -18,6 +18,7 @@ function App() {
         position="bottom-right"
         expand={false}
         duration={2000}
+        visibleToasts={5}
         theme={resolvedTheme as ToasterProps['theme']}
       />
     </div>
