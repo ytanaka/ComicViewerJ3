@@ -9,8 +9,10 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 /** Commands */
 export const commands = {
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
-	getDirEntries: (path: string) => typedError<DirEntry[], string>(__TAURI_INVOKE("get_dir_entries", { path })),
-	getFileInfo: (id: string) => typedError<FileInfo, string>(__TAURI_INVOKE("get_file_info", { id })),
+	createTab: () => __TAURI_INVOKE<number>("create_tab"),
+	removeTab: (tabId: number) => __TAURI_INVOKE<void>("remove_tab", { tabId }),
+	readDirEntries: (tabId: number, path: string) => typedError<DirEntry[], string>(__TAURI_INVOKE("read_dir_entries", { tabId, path })),
+	getFileInfo: (tabId: number, fileId: string) => typedError<FileInfo, string>(__TAURI_INVOKE("get_file_info", { tabId, fileId })),
 };
 
 /* Types */
@@ -20,8 +22,7 @@ export type DirEntry = {
 };
 
 export type FileInfo = {
-	id: number,
-	path: string,
+	name: string,
 	metadata: FileMetadata | null,
 };
 

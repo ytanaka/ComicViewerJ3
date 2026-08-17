@@ -6,8 +6,12 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         app::exit_app,
+        fs::create_tab,
+        fs::remove_tab,
+        fs::read_dir_entries,
         fs::get_dir_entries,
         fs::get_file_info,
+        fs::sort,
     ])
 }
 
