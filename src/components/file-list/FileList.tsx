@@ -53,12 +53,12 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   return <div className="ml-1 mr-1">{unixTime2str(fileInfo?.metadata?.modified)}</div>;
 }
 
-function FileListRow({ index, dirEntry, isSelected }: { index: number; dirEntry: DirEntry; isSelected: boolean }) {
+function FileListRow({ index, tabId, dirEntry, isSelected }: { index: number; tabId: number; dirEntry: DirEntry; isSelected: boolean }) {
   const { data } = useQuery({
     staleTime: 0,
     queryKey: [dirEntry.id],
     queryFn: async () => {
-      const ret = await commands.getFileInfo(dirEntry.id.toString());
+      const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
       if (ret.status === 'error') {
         console.error('getFileInfo(', dirEntry.name, ') => ', ret.error);
         toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
@@ -86,49 +86,71 @@ function FileListRow({ index, dirEntry, isSelected }: { index: number; dirEntry:
 }
 
 export default function FileList({ className = '' }: { className: string }) {
-  const [entries, setEntries] = useState<DirEntry[]>([]);
+  // const [tabId, setTabId] = useState<number | undefined>(undefined);
+  // const [entries, setEntries] = useState<DirEntry[]>([]);
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const [path, setPath] = useState<string | undefined>(undefined);
 
-  // 初期ロード
-  useEffect(() => {
-    const canceled = new AbortController();
-    const refreshList = async (path: string) => {
-      const absPath = await tauri_path_resolve(path);
-      const ret = await commands.getDirEntries(absPath);
-      if (canceled.signal.aborted) {
-        console.debug('FileList getDirEntries(', absPath, ') aborted');
-        return;
-      }
+  const { data: tabId } = useQuery({
+    staleTime: 0,
+    queryKey: [],
+    queryFn: async () => {
+      const ret = await commands.createTab();
+      console.log('createTab() => ', ret);
+      return ret;
+    },
+  });
+  const { data: entries } = useQuery({
+    staleTime: 0,
+    enabled: tabId !== undefined && path !== undefined,
+    queryKey: [tabId, path],
+    queryFn: async () => {
+      if (tabId === undefined || path === undefined) throw Error("ありえない");
+      const ret = await commands.readDirEntries(tabId, path);
+      console.log('readDirEntries() => ', ret);
       if (ret.status === 'error') {
-        console.error('FileList getDirEntries(', absPath, ') error: ', ret.error);
+        console.error(`FileList getDirEntries(${tabId}, ${path}) error: `, ret.error);
         toast.error(`ディレクトリ情報が取得できません`);
         return;
       }
-      console.log('FileList getDirEntries(', absPath, ') success => data.length = ', ret.data.length);
-      await getCurrentWindow().setTitle(absPath);
-      toast.info(absPath);
-      setEntries(ret.data);
-      localStorage.setItem('path', absPath);
+      return ret.data;
+    },
+  });
+  useEffect(() => {
+    const setTitle = async () => {
+      if (entries === undefined || path === undefined) return;
+      await getCurrentWindow().setTitle(path);
+      toast.info(path);
+      localStorage.setItem('path', path);
+    };
+    setTitle();
+  }, [entries, path]);
+
+  // 初期ロード
+  useEffect(() => {
+    const refreshList = async (path: string) => {
+      const absPath = await tauri_path_resolve(path);
+      setPath(absPath);
     };
 
     let path = localStorage.getItem('path');
     if (path === null) path = '.';
     refreshList(path);
-    return () => {
-      canceled.abort();
-    };
-  }, []);
+  });
+
+
 
   return (
     <div className={`${className} flex flex-col`}>
       <div className="flex-1">
-        <Virtuoso
-          ref={virtuoso}
-          totalCount={entries.length}
-          itemContent={index => {
-            return <FileListRow index={index} dirEntry={entries[index]} isSelected={false} />;
-          }}
-        />
+        {entries === undefined || tabId === undefined ? <div /> :
+          <Virtuoso
+            ref={virtuoso}
+            totalCount={entries.length}
+            itemContent={index => {
+              return <FileListRow index={index} tabId={tabId} dirEntry={entries[index]} isSelected={false} />;
+            }}
+          />}
       </div>
     </div>
   );

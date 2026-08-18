@@ -12,20 +12,26 @@ export const commands = {
 	createTab: () => __TAURI_INVOKE<number>("create_tab"),
 	removeTab: (tabId: number) => __TAURI_INVOKE<void>("remove_tab", { tabId }),
 	readDirEntries: (tabId: number, path: string) => typedError<DirEntry[], string>(__TAURI_INVOKE("read_dir_entries", { tabId, path })),
+	getDirEntries: (tabId: number) => typedError<DirEntry[], string>(__TAURI_INVOKE("get_dir_entries", { tabId })),
 	getFileInfo: (tabId: number, fileId: string) => typedError<FileInfo, string>(__TAURI_INVOKE("get_file_info", { tabId, fileId })),
+	/**  ファイル一覧をソートする */
+	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
 };
 
 /* Types */
+/**  UIからのファイル一覧取得で返す要素 */
 export type DirEntry = {
 	id: number,
 	name: string,
 };
 
+/**  詳細ファイル情報 */
 export type FileInfo = {
 	name: string,
 	metadata: FileMetadata | null,
 };
 
+/**  詳細ファイル情報のメタデータ */
 export type FileMetadata = {
 	is_dir: boolean,
 	size: number | null,
@@ -33,6 +39,17 @@ export type FileMetadata = {
 	accessed: number | null,
 	created: number | null,
 };
+
+/**  ファイルのソート条件 */
+export type SortType = 
+/**  名前でソート */
+{ type: "Name"; asc: boolean } | 
+/**  拡張子でソート */
+{ type: "Ext"; asc: boolean } | 
+/**  ファイルサイズでソート */
+{ type: "Size"; asc: boolean } | 
+/**  更新日時でソート */
+{ type: "Time"; asc: boolean };
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {

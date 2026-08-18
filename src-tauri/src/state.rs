@@ -35,11 +35,11 @@ pub struct TabInfo {
     pub files: HashMap<FileId, FileInfo>,
     pub file_names: HashMap<OsString, FileId>,
 
-    sort_type: SortType,
+    _sort_type: SortType,
     pub sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
-    pending_metadata: usize, // filesのmetada未取得の項目数。「ファイル名」以外でソートするときは取得済みである必要がある
-    tab_generation: u64, // current_dir が更新された回数。メタデータ取得タスクで比較して処理が必要かどうかを判定する
+    _pending_metadata: usize, // filesのmetada未取得の項目数。「ファイル名」以外でソートするときは取得済みである必要がある
+    _tab_generation: u64, // current_dir が更新された回数。メタデータ取得タスクで比較して処理が必要かどうかを判定する
 }
 impl TabInfo {
     pub fn new(tab_id: TabId) -> Self {
@@ -49,10 +49,10 @@ impl TabInfo {
             next_file_id: 1,
             files: HashMap::new(),
             file_names: HashMap::new(),
-            sort_type: SortType::Name(true),
+            _sort_type: SortType::Name { asc: true },
             sorted_list: None,
-            pending_metadata: 0,
-            tab_generation: 1,
+            _pending_metadata: 0,
+            _tab_generation: 1,
         }
     }
 }

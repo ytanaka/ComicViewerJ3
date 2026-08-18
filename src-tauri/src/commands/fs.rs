@@ -19,6 +19,9 @@ use crate::{
 #[tauri::command]
 #[specta::specta]
 pub fn create_tab(state: State<'_, AppState>) -> TabId {
+    create_tab_imp(&state)
+}
+fn create_tab_imp(state: &AppState) -> TabId {
     let tab_id = state.next_tab_id.fetch_add(1, SeqCst);
     state
         .tabs
@@ -29,7 +32,7 @@ pub fn create_tab(state: State<'_, AppState>) -> TabId {
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
-pub fn remove_tab(state: State<'_, AppState>, tab_id: TabId) {
+pub fn remove_tab(_state: State<'_, AppState>, _tab_id: TabId) {
     todo!("")
 }
 
@@ -41,14 +44,14 @@ pub fn read_dir_entries(
     tab_id: TabId,
     path: String,
 ) -> Result<Vec<DirEntry>, String> {
-    log::trace!("read_dir_entries({path})");
     read_dir_entries_impl(&state, tab_id, path).map_err(|e| e.to_string())
 }
 fn read_dir_entries_impl(
-    state: &State<'_, AppState>,
+    state: &AppState,
     tab_id: TabId,
     path: String,
 ) -> anyhow::Result<Vec<DirEntry>> {
+    log::trace!("read_dir_entries({tab_id}, {path})");
     let path = Path::new(&path);
     if !path.is_dir() {
         Err(io::Error::new(
@@ -74,6 +77,7 @@ fn read_dir_entries_impl2(
     let mut ret = HashMap::<FileId, FileInfo>::new();
     for entry in fs::read_dir(path)? {
         let entry = entry?;
+        println!("entry: {entry:?}");
         let info = FileInfo {
             name: entry.file_name(),
             metadata: None,
@@ -93,10 +97,12 @@ pub fn get_file_info(
     tab_id: TabId,
     file_id: &str,
 ) -> Result<FileInfo, String> {
-    log::trace!("get_file_info(${tab_id}, ${file_id})");
-
+    get_file_info_impl(&state, tab_id, file_id)
+}
+fn get_file_info_impl(state: &AppState, tab_id: TabId, file_id: &str) -> Result<FileInfo, String> {
+    log::trace!("get_file_info({tab_id}, {file_id})");
     match state.tabs.get_mut(&tab_id) {
-        None => Err(format!("invalid tab_id: ${tab_id}"))?,
+        None => Err(format!("invalid tab_id: {tab_id}"))?,
         Some(tab) => {
             let mut tab = tab.write().unwrap();
             Ok(tab.get_file_info(try_u64(file_id)?)?)
@@ -107,13 +113,32 @@ pub fn get_file_info(
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
-pub fn sort(state: State<'_, AppState>, tab_id: TabId, sort_type: SortType) -> bool {
+/// ファイル一覧をソートする
+pub fn sort_files(_state: State<'_, AppState>, _tab_id: TabId, _sort_type: SortType) -> bool {
     todo!("")
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
-pub fn get_dir_entries(state: State<'_, AppState>, tab_id: TabId) -> Result<Vec<DirEntry>, String> {
+pub fn get_dir_entries(
+    _state: State<'_, AppState>,
+    _tab_id: TabId,
+) -> Result<Vec<DirEntry>, String> {
     todo!("")
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_create_tab() {
+        let state = AppState::new();
+        assert_eq!(0, create_tab_imp(&state));
+        assert_eq!(1, create_tab_imp(&state));
+    }
 }

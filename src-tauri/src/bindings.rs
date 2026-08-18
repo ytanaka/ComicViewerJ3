@@ -11,7 +11,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::read_dir_entries,
         fs::get_dir_entries,
         fs::get_file_info,
-        fs::sort,
+        fs::sort_files,
     ])
 }
 

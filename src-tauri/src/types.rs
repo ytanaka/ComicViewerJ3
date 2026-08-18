@@ -10,6 +10,7 @@ pub type FileId = u64;
 // ファイルid、ファイルサイズ、更新日時は 53bit 以内になるはず
 // Rust の u64 を JS の number にするために、specta_typescript::Number を指定する (tauri_specta でエラーになる)
 
+/// UIからのファイル一覧取得で返す要素
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct DirEntry {
     #[specta(type = specta_typescript::Number)]
@@ -18,21 +19,28 @@ pub struct DirEntry {
     pub name: String,
 }
 
+/// ファイルのソート条件
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(tag = "type")]
 pub enum SortType {
-    Name(bool),
-    Ext(bool),
-    Size(bool),
-    Time(bool),
+    /// 名前でソート
+    Name { asc: bool },
+    /// 拡張子でソート
+    Ext { asc: bool },
+    /// ファイルサイズでソート
+    Size { asc: bool },
+    /// 更新日時でソート
+    Time { asc: bool },
 }
 
+/// 詳細ファイル情報
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct FileInfo {
     pub name: OsString,
     pub metadata: Option<FileMetadata>,
 }
 
+/// 詳細ファイル情報のメタデータ
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct FileMetadata {
     pub is_dir: bool,

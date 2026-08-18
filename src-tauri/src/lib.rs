@@ -10,7 +10,10 @@ mod util;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    println!("run() start");
+
     std::panic::set_hook(Box::new(|info| {
+        eprintln!("{:?}", info);
         log::error!("Application panicked: {:?}", info);
     }));
 
