@@ -32,8 +32,14 @@ fn create_tab_imp(state: &AppState) -> TabId {
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
-pub fn remove_tab(_state: State<'_, AppState>, _tab_id: TabId) {
-    todo!("")
+pub fn remove_tab(state: State<'_, AppState>, tab_id: TabId) -> Result<(), String> {
+    remove_tab_impl(&state, tab_id)
+}
+pub fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
+    match state.tabs.remove(&tab_id) {
+        None => Err(format!("no tab: {tab_id}")),
+        Some(_kv) => Ok(()),
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -136,9 +142,29 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create_tab() {
+    fn test_create_tab_remove_tab() {
+        let state = AppState::new();
+        assert_eq!(state.tabs.len(), 0);
+        assert_eq!(state.next_tab_id.load(SeqCst), 0);
+
+        assert_eq!(0, create_tab_imp(&state));
+        assert_eq!(state.tabs.len(), 1);
+        assert_eq!(1, create_tab_imp(&state));
+
+        assert_eq!(state.tabs.len(), 2);
+        assert_eq!(remove_tab_impl(&state, 99), Err("no tab: 99".to_string()));
+
+        assert_eq!(remove_tab_impl(&state, 0), Ok(()));
+        assert_eq!(remove_tab_impl(&state, 0), Err("no tab: 0".to_string()));
+        assert_eq!(remove_tab_impl(&state, 1), Ok(()));
+
+        assert_eq!(state.tabs.len(), 0);
+        assert_eq!(state.next_tab_id.load(SeqCst), 2);
+    }
+
+    #[test]
+    fn test_read_dir_entries() {
         let state = AppState::new();
         assert_eq!(0, create_tab_imp(&state));
-        assert_eq!(1, create_tab_imp(&state));
     }
 }
