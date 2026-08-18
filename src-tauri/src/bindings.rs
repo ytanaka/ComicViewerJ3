@@ -27,7 +27,23 @@ pub fn export_ts_bindings() {
         .expect("Failed to export TypeScript bindings");
 }
 
+// Windowsでこのテストが呼ばれると以下のエラーが発生するので無効にする
+// ※ デバッグビルド実行時に lib.rs で呼ばれる bindings::export_ts_bindings() はエラーにならないので、bindings.ts は生成できる
+//
+// $ pnpm rust:bindings
+// $ cd src-tauri && cargo test export_bindings --lib
+//    Compiling comicviewerj3 v0.1.0 (C:\Users\xxx\Downloads\ComicViewerJ3\src-tauri)
+//     Finished `test` profile [unoptimized + debuginfo] target(s) in 4.28s
+//      Running unittests src\lib.rs (target\debug\deps\comicviewerj3_lib-51c14de9ef555d88.exe)
+// error: test failed, to rerun pass `--lib`
+//
+// Caused by:
+//   process didn't exit successfully: `C:\Users\xxx\Downloads\ComicViewerJ3\src-tauri\target\debug\deps\comicviewerj3_lib-51c14de9ef555d88.exe export_bindings` (exit code: 0xc0000139, STATUS_ENTRYPOINT_NOT_FOUND)
+// note: test exited abnormally; to see the full output pass --no-capture to the harness.
+// [ELIFECYCLE] Command failed with exit code 3221225785.
+//
 #[cfg(test)]
+#[cfg(not(target_os = "windows"))]
 mod tests {
     use super::*;
 
