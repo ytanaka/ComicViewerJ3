@@ -1,14 +1,52 @@
 import { create } from 'zustand'
 
-type UIStore = {
-    tabId?: number,
+interface UIStore {
+    currentTabId?: number,
+    tabs: TabInfo[],
 
-    setTabId: (tabId: number) => void,
+    setCurrentTabId: (tabId: number) => void,
+
+    addTab: (tab: TabInfo) => void,
+    moveTab: (fromIndex: number, toIndex: number) => void,
+    removeTab: (index: number) => void,
+}
+
+export type TabInfo = {
+    id: number,
+    path: string,
 }
 
 export const useUIStore = create<UIStore>((set) => (
     {
-        tabId: undefined,
-        setTabId: (tabId) => set(() => ({ tabId })),
+        currentTabId: undefined,
+        tabs: [],
+
+        setCurrentTabId: (tabId: number) => {
+            set(() => ({ currentTabId: tabId }))
+        },
+
+        addTab: (tab) => {
+            set((prev) => ({ tabs: [...prev.tabs, tab] }))
+        },
+
+        moveTab: (fromIndex: number, toIndex: number) => {
+            set((prev) => {
+                if (fromIndex === toIndex) return prev;
+
+                const newList = [...prev.tabs];
+                const [removed] = newList.splice(fromIndex, 1); // 1つ削除
+                newList.splice(toIndex, 0, removed); // 1つ追加
+                return { tabs: newList };
+            })
+        },
+
+        removeTab: (index: number) => {
+            set((prev) => {
+                const newList = [...prev.tabs];
+                newList.slice(index, 1); // 1つ削除
+                return { tabs: newList }
+            })
+        }
+
     }
 ))

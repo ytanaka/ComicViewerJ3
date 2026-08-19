@@ -5,6 +5,7 @@ import FileList from './components/file-list/FileList';
 import { Menu } from './components/Menu';
 import { Toolbar } from './components/Toolbar';
 import { useTheme } from 'next-themes';
+import { TabBar } from './components/TabBar';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -13,6 +14,7 @@ function App() {
     <div className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm">
       <Menu></Menu>
       <Toolbar></Toolbar>
+      <TabBar></TabBar>
       <FileList className="flex-1"></FileList>
       <Toaster
         position="bottom-right"

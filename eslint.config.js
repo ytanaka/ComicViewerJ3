@@ -18,6 +18,8 @@ export default defineConfig([
     extends: ["js/recommended"],
     rules: {
       'react/react-in-jsx-scope': 'off',
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "error",
     },
     settings: {
       React: {
