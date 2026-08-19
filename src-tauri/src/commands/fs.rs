@@ -17,6 +17,7 @@ use crate::{
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
+/// 新規タブ作成
 pub fn create_tab(state: State<'_, AppState>) -> TabId {
     create_tab_imp(&state)
 }
@@ -31,6 +32,7 @@ fn create_tab_imp(state: &AppState) -> TabId {
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
+/// タブ削除
 pub fn remove_tab(state: State<'_, AppState>, tab_id: TabId) -> Result<(), String> {
     remove_tab_impl(&state, tab_id)
 }
@@ -44,6 +46,7 @@ pub fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
+/// タブ一覧
 pub fn get_tab_ids(state: State<'_, AppState>) -> Vec<TabId> {
     get_tab_ids_impl(&state)
 }
@@ -54,6 +57,7 @@ pub fn get_tab_ids_impl(state: &AppState) -> Vec<TabId> {
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
+/// ディレクトリ中のファイル一覧を読み込む
 pub fn read_dir_entries(
     state: State<'_, AppState>,
     tab_id: TabId,
@@ -105,7 +109,8 @@ fn read_dir_entries_impl2(
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// id は u64 にしたかったが、tauri_specta でエラーになるので文字列にする
+/// ファイル情報取得
+// ※ id は u64 にしたかったが、tauri_specta でエラーになるので文字列にする
 #[tauri::command]
 #[specta::specta]
 pub fn get_file_info(
@@ -138,6 +143,7 @@ pub fn sort_files(_state: State<'_, AppState>, _tab_id: TabId, _sort_type: SortT
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
+/// ファイル一覧取得 (ソート後やファイル状態が更新された後で呼ぶ)
 pub fn get_dir_entries(
     _state: State<'_, AppState>,
     _tab_id: TabId,

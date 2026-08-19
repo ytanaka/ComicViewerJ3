@@ -8,11 +8,19 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 
 /** Commands */
 export const commands = {
+	/**  アプリ終了 */
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
+	/**  新規タブ作成 */
 	createTab: () => __TAURI_INVOKE<number>("create_tab"),
-	removeTab: (tabId: number) => __TAURI_INVOKE<void>("remove_tab", { tabId }),
+	/**  タブ削除 */
+	removeTab: (tabId: number) => typedError<null, string>(__TAURI_INVOKE("remove_tab", { tabId })),
+	/**  タブ一覧 */
+	getTabIds: () => __TAURI_INVOKE<number[]>("get_tab_ids"),
+	/**  ディレクトリ中のファイル一覧を読み込む */
 	readDirEntries: (tabId: number, path: string) => typedError<DirEntry[], string>(__TAURI_INVOKE("read_dir_entries", { tabId, path })),
+	/**  ファイル一覧取得 (ソート後やファイル状態が更新された後で呼ぶ) */
 	getDirEntries: (tabId: number) => typedError<DirEntry[], string>(__TAURI_INVOKE("get_dir_entries", { tabId })),
+	/**  ファイル情報取得 */
 	getFileInfo: (tabId: number, fileId: string) => typedError<FileInfo, string>(__TAURI_INVOKE("get_file_info", { tabId, fileId })),
 	/**  ファイル一覧をソートする */
 	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
