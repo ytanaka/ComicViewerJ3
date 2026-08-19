@@ -19,29 +19,39 @@ pub struct AppState {
 impl AppState {
     pub fn new() -> Self {
         AppState {
-            next_tab_id: AtomicU32::new(0),
+            next_tab_id: AtomicU32::new(1),
             tabs: DashMap::new(),
         }
+    }
+    pub fn get_tab_ids(&self) -> Vec<TabId> {
+        let mut ret: Vec<_> = self.tabs.iter().map(|elm| *elm.key()).collect();
+        ret.sort();
+        ret
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct TabInfo {
-    pub tab_id: TabId,
+    tab_id: TabId,
 
-    pub current_dir: Option<PathBuf>, // タブ作成直後はNone
-    pub next_file_id: FileId,
+    current_dir: Option<PathBuf>, // タブ作成直後はNone
+    next_file_id: FileId,
 
-    pub files: HashMap<FileId, FileInfo>,
-    pub file_names: HashMap<OsString, FileId>,
+    files: HashMap<FileId, FileInfo>,
+    file_names: HashMap<OsString, FileId>,
 
-    _sort_type: SortType,
-    pub sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
+    sort_type: SortType,
+    sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
     _pending_metadata: usize, // filesのmetada未取得の項目数。「ファイル名」以外でソートするときは取得済みである必要がある
     _tab_generation: u64, // current_dir が更新された回数。メタデータ取得タスクで比較して処理が必要かどうかを判定する
 }
 impl TabInfo {
+    pub fn inc_file_id(&mut self) -> FileId {
+        let ret = self.next_file_id;
+        self.next_file_id += 1;
+        ret
+    }
     pub fn new(tab_id: TabId) -> Self {
         TabInfo {
             tab_id,
@@ -49,19 +59,17 @@ impl TabInfo {
             next_file_id: 1,
             files: HashMap::new(),
             file_names: HashMap::new(),
-            _sort_type: SortType::Name { asc: true },
+            sort_type: SortType::default(),
             sorted_list: None,
             _pending_metadata: 0,
             _tab_generation: 1,
         }
     }
-}
-
-impl TabInfo {
     pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfo>) {
         self.current_dir = Some(current_dir);
         self.files.clear();
         self.file_names.clear();
+        self.sort_type = SortType::default();
         self.sorted_list = None;
 
         for (i, f) in files {
@@ -71,7 +79,7 @@ impl TabInfo {
     }
 
     pub fn sort_items(&mut self) {
-        let mut list = Vec::<FileId>::with_capacity(self.files.len());
+        let mut list: Vec<_> = self.files.keys().copied().collect();
         list.sort_by(|a, b| {
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
@@ -104,8 +112,8 @@ impl TabInfo {
             .as_ref()
             .ok_or(format!("not initialized tab: {}", self.tab_id))?;
         let file_info = self.files.get_mut(&file_id).ok_or(format!(
-            "invalid tab_id: {}, file_id: {}",
-            self.tab_id, file_id
+            "invalid file_id: {} for tab_id[{}]",
+            file_id, self.tab_id
         ))?;
         let metadata = current_dir
             .join(&file_info.name)
@@ -119,5 +127,63 @@ impl TabInfo {
             accessed: to_unix_time(metadata.accessed()),
         });
         Ok(file_info.clone())
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+#[cfg(test)]
+mod tests {
+    use maplit::hashmap;
+
+    use super::*;
+
+    fn mk_dummy_files(tab: &mut TabInfo, file_names: Vec<&str>) -> HashMap<FileId, FileInfo> {
+        let mut ret = HashMap::new();
+        for fname in file_names {
+            ret.insert(
+                tab.inc_file_id(),
+                FileInfo {
+                    name: OsString::from(fname),
+                    metadata: None,
+                },
+            );
+        }
+        ret
+    }
+
+    #[test]
+    fn test_tab_info() {
+        let mut tab = TabInfo::new(123);
+
+        // 初期状態を確認
+        assert_eq!(tab.current_dir, None);
+
+        // データの準備
+        let current_dir = PathBuf::from("/a/b/c");
+        let files = mk_dummy_files(&mut tab, vec!["f1.txt", "f2.txt", "f3.txt"]);
+        tab.sort_type = SortType::Size { asc: false };
+        tab.set_files(current_dir.clone(), files.clone());
+
+        // データを set した結果を確認
+        assert_eq!(tab.current_dir, Some(current_dir.clone()));
+        assert_eq!(tab.files, files);
+        assert_eq!(
+            tab.file_names,
+            hashmap! { OsString::from("f1.txt") => 1, OsString::from("f2.txt") => 2, OsString::from("f3.txt") => 3 }
+        );
+        assert_eq!(tab.sort_type, SortType::default()); // 初期状態に戻っている
+
+        let dir_entries = tab.get_dir_entries();
+        assert_eq!(dir_entries.len(), 3);
+        assert_eq!(dir_entries[0].name, "f1.txt");
+        assert_eq!(dir_entries[1].name, "f2.txt");
+        assert_eq!(dir_entries[2].name, "f3.txt");
+
+        // 空のデータをセットする
+        tab.set_files(current_dir.clone(), HashMap::new());
+        assert!(tab.files.is_empty());
+        assert!(tab.file_names.is_empty());
     }
 }

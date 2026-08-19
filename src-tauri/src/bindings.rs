@@ -8,6 +8,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         app::exit_app,
         fs::create_tab,
         fs::remove_tab,
+        fs::get_tab_ids,
         fs::read_dir_entries,
         fs::get_dir_entries,
         fs::get_file_info,
