@@ -89,6 +89,16 @@ describe('removeTab', () => {
         st().removeTab(0);
         expect(getTabIds()).toEqual([]);
     })
+
+    test('空の状態で削除するとエラー', () => {
+        add3tabs();
+
+        st().removeTab(0);
+        st().removeTab(0);
+        st().removeTab(0);
+
+        expect(() => st().removeTab(0)).toThrow('invalid index: 0 tabs.length = 0');
+    })
 })
 
 describe('currentTabId', () => {
@@ -109,10 +119,10 @@ describe('currentTabId', () => {
     })
 
     test('空の状態で addTab するとそのIDになる', () => {
-        st().addTab({id: 9, path: 'xxx'});
+        st().addTab({ id: 9, path: 'xxx' });
         expect(st().currentTabId).toBe(9);
 
-        st().addTab({id: 1, path: 'xxx'});
+        st().addTab({ id: 1, path: 'xxx' });
         expect(st().currentTabId).toBe(9);
     })
 
@@ -132,10 +142,19 @@ describe('currentTabId', () => {
 
     test('カレントタブを削除すると、カレントが移動する', () => {
         add3tabs();
+        expect(getTabIds()).toEqual([1, 2, 3]);
         st().setCurrentTabId(2);
 
         st().removeTab(1);
         expect(getTabIds()).toEqual([1, 3]);
         expect(st().currentTabId).toBe(3);
+
+        st().removeTab(1);
+        expect(getTabIds()).toEqual([1]);
+        expect(st().currentTabId).toBe(1);
+
+        st().removeTab(0);
+        expect(getTabIds()).toEqual([]);
+        expect(st().currentTabId).toBeUndefined();
     })
 })

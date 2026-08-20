@@ -55,12 +55,30 @@ export const useUIStore = create<UIStore>((set) => (
             })
         },
 
-        // ※) カレントタブが削除されたら、currentTabId は右のタブに移動する。右のタブがない場合は左。タブがなくなったら、undefined
+        // ※) カレントタブが削除されたら currentTabId は右のタブに移動する。右のタブがない場合は左。タブがなくなったら、undefined
         removeTab: (index: number) => {
             set((prev) => {
+                if (index < 0 || prev.tabs.length <= index) throw Error(`invalid index: ${index} tabs.length = ${prev.tabs.length}`);
+
+                let newCurrent: number | null = null;
+                if (prev.tabs.length === 1) {
+                    newCurrent = -1; // tabs が空になる場合
+                } else if (prev.tabs[index].id === prev.currentTabId) {
+                    if (index === prev.tabs.length - 1) {
+                        newCurrent = prev.tabs[index - 1].id; // 右端タブを削除する場合
+                    } else {
+                        newCurrent = prev.tabs[index + 1].id; // それ以外
+                    }
+                }
+
                 const newList = [...prev.tabs];
                 newList.splice(index, 1); // 1つ削除
-                return { tabs: newList }
+
+                if (newCurrent !== null) {
+                    return { tabs: newList, currentTabId: (newCurrent < 0 ? undefined : newCurrent) }
+                } else {
+                    return { tabs: newList }
+                }
             })
         }
 
