@@ -7,13 +7,14 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "cd src-tauri && cargo test",
+    "rust:test": "cd src-tauri && cargo test",
     "rust:fmt": "cd src-tauri && cargo fmt",
     "rust:clippy": "cd src-tauri && cargo clippy -- -D warnings",
     "rust:bindings": "cd src-tauri && cargo test export_bindings --lib",
-    "checkall": "pnpm lint && pnpm format && pnpm rust:fmt && pnpm rust:clippy",
+    "check": "pnpm lint && pnpm format && pnpm rust:fmt && pnpm rust:clippy",
     "tauri": "tauri"
   },
   "dependencies": {
@@ -57,6 +58,7 @@
     "prettier": "^3.9.6",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.67.0",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "vitest": "^4.1.11"
   }
 }

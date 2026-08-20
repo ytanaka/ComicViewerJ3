@@ -22,15 +22,30 @@ export const useUIStore = create<UIStore>((set) => (
         tabs: [],
 
         setCurrentTabId: (tabId: number) => {
-            set(() => ({ currentTabId: tabId }))
+            set((prev) => {
+                if (prev.tabs.findIndex((t) => t.id == tabId) < 0) throw Error(`no tabId: ${tabId}`);
+                return ({ currentTabId: tabId })
+            })
         },
 
+        // ※) 空の状態からタブが追加されたら、currentTabId が更新される
         addTab: (tab) => {
-            set((prev) => ({ tabs: [...prev.tabs, tab] }))
+            set((prev) => {
+                if (0 <= prev.tabs.findIndex((t) => t.id === tab.id)) throw Error(`dup tab.id: ${tab.id}`);
+
+                if (prev.tabs.length === 0) {
+                    return { tabs: [...prev.tabs, tab], currentTabId: tab.id };
+                } else {
+                    return { tabs: [...prev.tabs, tab] };
+                }
+            })
         },
 
         moveTab: (fromIndex: number, toIndex: number) => {
             set((prev) => {
+                if (prev.tabs.length === 0) throw Error(`empty tabs`);
+                if (fromIndex < 0 || prev.tabs.length <= fromIndex ||
+                    toIndex < 0 || prev.tabs.length <= toIndex) throw Error(`invalid index: ${fromIndex},${toIndex} tabs.length = ${prev.tabs.length}`);
                 if (fromIndex === toIndex) return prev;
 
                 const newList = [...prev.tabs];
@@ -40,10 +55,11 @@ export const useUIStore = create<UIStore>((set) => (
             })
         },
 
+        // ※) カレントタブが削除されたら、currentTabId は右のタブに移動する。右のタブがない場合は左。タブがなくなったら、undefined
         removeTab: (index: number) => {
             set((prev) => {
                 const newList = [...prev.tabs];
-                newList.slice(index, 1); // 1つ削除
+                newList.splice(index, 1); // 1つ削除
                 return { tabs: newList }
             })
         }
