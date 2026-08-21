@@ -10,6 +10,8 @@ interface UIStore {
   addTab: (tab: TabInfo) => void;
   removeTab: (index: number) => void;
   moveTab: (fromIndex: number, toIndex: number) => void;
+
+  setPath: (index: number, path: string) => void;
 }
 
 export type TabInfo = {
@@ -77,4 +79,13 @@ export const useUIStore = create<UIStore>(set => ({
       return { tabs: newList, currentTabIndex: Math.max(0, Math.min(prev.currentTabIndex, prev.tabs.length - 2)) };
     });
   },
+
+  setPath: (index: number, path: string) => {
+    set(prev => {
+      const tabs = [...prev.tabs];
+      const tab = tabs[index];
+      tab.path = path;
+      return { tabs };
+    })
+  }
 }));

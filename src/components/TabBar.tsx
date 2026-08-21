@@ -32,16 +32,13 @@ export function TabBar() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex border">
       <DragDropProvider
         onDragEnd={e => {
           if (e.canceled) return;
-          console.log('onDropEnd: source=', e.operation.source?.id, ' target=', e.operation.target?.id);
-
           // initialIndex, index を読むため
           if (!isSortable(e.operation.source)) return;
           const { initialIndex, index } = e.operation.source;
-          console.log('    initialIndex=', initialIndex, ' index=', index);
           moveTab(initialIndex, index);
         }}
         modifiers={defaults => [...defaults, RestrictToHorizontalAxis]}
@@ -52,15 +49,15 @@ export function TabBar() {
           ))}
         </div>
       </DragDropProvider>
-      <NewTabButton onClick={createNewTabHandler} />
+      <NewTabButton onClick={createNewTabHandler} noTabs={tabs.length === 0} />
     </div>
   );
 }
 
-function NewTabButton({ onClick }: { onClick: () => void }) {
+function NewTabButton({ onClick, noTabs }: { onClick: () => void, noTabs: boolean }) {
   return (
-    <Button onClick={onClick}>
-      <Plus />
+    <Button variant={noTabs ? "default" : "outline"} onClick={onClick}>
+      <Plus />{noTabs ? "Add Tab" : ""}
     </Button>
   );
 }
@@ -82,7 +79,7 @@ function TabButton({
   });
   return (
     <div ref={ref} className="relative inline-block group">
-      <Button ref={handleRef} className={`${isSelected ? 'border-2' : ''}`}>
+      <Button ref={handleRef} variant={`${isSelected ? 'outline' : 'secondary'}`} className={`${isSelected ? '' : 'font-light'}`}>
         {tab.path}
       </Button>
       <div className="w5 flex justify-end">

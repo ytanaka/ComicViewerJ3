@@ -9,6 +9,7 @@ import { commands, DirEntry, FileInfo } from '../../lib/bindings';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { toast } from 'sonner';
+import { useUIStore } from '@/store/ui-store';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let icon: string;
@@ -96,30 +97,24 @@ function FileListRow({
 }
 
 export default function FileList({ className = '' }: { className: string }) {
-  // const [tabId, setTabId] = useState<number | undefined>(undefined);
-  // const [entries, setEntries] = useState<DirEntry[]>([]);
   const virtuoso = useRef<VirtuosoHandle>(null);
-  const [path, setPath] = useState<string | undefined>(undefined);
 
-  const { data: tabId } = useQuery({
-    staleTime: 0,
-    queryKey: [],
-    queryFn: async () => {
-      const ret = await commands.createTab();
-      console.log('createTab() => ', ret);
-      return ret;
-    },
-  });
+  const tabs = useUIStore(state => state.tabs);
+  const currentTabIndex = useUIStore(state => state.currentTabIndex);
+  const tab = tabs[currentTabIndex];
+  const setPath = useUIStore(state => state.setPath);
+
+  console.log("<FileList> tab={", tab.id, tab.path, "}, currentTabIndex=", currentTabIndex);
+
   const { data: entries } = useQuery({
     staleTime: 0,
-    enabled: tabId !== undefined && path !== undefined,
-    queryKey: [tabId, path],
+    enabled: tab.id !== undefined && tab.path !== undefined,
+    queryKey: [tab.id, tab.path],
     queryFn: async () => {
-      if (tabId === undefined || path === undefined) throw Error('ありえない');
-      const ret = await commands.readDirEntries(tabId, path);
+      const ret = await commands.readDirEntries(tab.id, tab.path);
       console.log('readDirEntries() => ', ret);
       if (ret.status === 'error') {
-        console.error(`FileList getDirEntries(${tabId}, ${path}) error: `, ret.error);
+        console.error(`FileList getDirEntries(${tab.id}, ${tab.path}) error: `, ret.error);
         toast.error(`ディレクトリ情報が取得できません`);
         return;
       }
@@ -128,37 +123,33 @@ export default function FileList({ className = '' }: { className: string }) {
   });
   useEffect(() => {
     const setTitle = async () => {
-      if (entries === undefined || path === undefined) return;
-      await getCurrentWindow().setTitle(path);
-      toast.info(path);
-      localStorage.setItem('path', path);
+      if (entries === undefined) return;
+      await getCurrentWindow().setTitle(tab.path);
+      toast.info(tab.path);
     };
     setTitle();
-  }, [entries, path]);
+  }, [entries, tab.path]);
 
   // 初期ロード
   useEffect(() => {
     const refreshList = async (path: string) => {
       const absPath = await tauri_path_resolve(path);
-      setPath(absPath);
+      if (absPath !== path) setPath(currentTabIndex, absPath);
     };
-
-    let path = localStorage.getItem('path');
-    if (path === null) path = '.';
-    refreshList(path);
+    refreshList(tab.path);
   });
 
   return (
     <div className={`${className} flex flex-col`}>
       <div className="flex-1">
-        {entries === undefined || tabId === undefined ? (
+        {entries === undefined ? (
           <div />
         ) : (
           <Virtuoso
             ref={virtuoso}
             totalCount={entries.length}
             itemContent={index => {
-              return <FileListRow index={index} tabId={tabId} dirEntry={entries[index]} isSelected={false} />;
+              return <FileListRow index={index} tabId={tab.id} dirEntry={entries[index]} isSelected={false} />;
             }}
           />
         )}
