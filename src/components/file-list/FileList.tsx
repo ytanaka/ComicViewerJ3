@@ -53,7 +53,17 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   return <div className="ml-1 mr-1">{unixTime2str(fileInfo?.metadata?.modified)}</div>;
 }
 
-function FileListRow({ index, tabId, dirEntry, isSelected }: { index: number; tabId: number; dirEntry: DirEntry; isSelected: boolean }) {
+function FileListRow({
+  index,
+  tabId,
+  dirEntry,
+  isSelected,
+}: {
+  index: number;
+  tabId: number;
+  dirEntry: DirEntry;
+  isSelected: boolean;
+}) {
   const { data } = useQuery({
     staleTime: 0,
     queryKey: [dirEntry.id],
@@ -105,7 +115,7 @@ export default function FileList({ className = '' }: { className: string }) {
     enabled: tabId !== undefined && path !== undefined,
     queryKey: [tabId, path],
     queryFn: async () => {
-      if (tabId === undefined || path === undefined) throw Error("ありえない");
+      if (tabId === undefined || path === undefined) throw Error('ありえない');
       const ret = await commands.readDirEntries(tabId, path);
       console.log('readDirEntries() => ', ret);
       if (ret.status === 'error') {
@@ -138,19 +148,20 @@ export default function FileList({ className = '' }: { className: string }) {
     refreshList(path);
   });
 
-
-
   return (
     <div className={`${className} flex flex-col`}>
       <div className="flex-1">
-        {entries === undefined || tabId === undefined ? <div /> :
+        {entries === undefined || tabId === undefined ? (
+          <div />
+        ) : (
           <Virtuoso
             ref={virtuoso}
             totalCount={entries.length}
             itemContent={index => {
               return <FileListRow index={index} tabId={tabId} dirEntry={entries[index]} isSelected={false} />;
             }}
-          />}
+          />
+        )}
       </div>
     </div>
   );

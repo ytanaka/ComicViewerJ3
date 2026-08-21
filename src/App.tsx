@@ -1,5 +1,5 @@
 import './App.css';
-import { Toaster, ToasterProps } from 'sonner'
+import { Toaster, ToasterProps } from 'sonner';
 
 import FileList from './components/file-list/FileList';
 import { Menu } from './components/Menu';

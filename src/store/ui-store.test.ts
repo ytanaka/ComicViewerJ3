@@ -1,160 +1,183 @@
-import { beforeEach, describe, expect, test } from 'vitest'
-import { useUIStore } from './ui-store'
+import { beforeEach, describe, expect, test } from 'vitest';
+import { useUIStore } from './ui-store';
 
 function st() {
-    return useUIStore.getState()
+  return useUIStore.getState();
 }
 function add3tabs() {
-    const { addTab } = st();
+  const { addTab } = st();
 
-    addTab({ id: 1, path: "a" });
-    addTab({ id: 2, path: "b" });
-    addTab({ id: 3, path: "c" });
+  addTab({ id: 1, path: 'a' });
+  addTab({ id: 2, path: 'b' });
+  addTab({ id: 3, path: 'c' });
 }
 function getTabIds() {
-    return st().tabs.map((tab) => tab.id);
+  return st().tabs.map(tab => tab.id);
 }
 
 beforeEach(() => {
-    useUIStore.setState({
-        currentTabId: undefined,
-        tabs: [],
-    })
-
-})
+  useUIStore.setState({
+    currentTabIndex: undefined,
+    tabs: [],
+  });
+});
 
 test('初期状態の確認', () => {
-    expect(st().currentTabId).toBeUndefined();
-    expect(st().tabs).toEqual([]);
-})
+  expect(st().currentTabIndex).toBeUndefined();
+  expect(st().tabs).toEqual([]);
+});
 
 describe('addTab', () => {
-    test('正常動作', () => {
-        add3tabs();
+  test('正常動作', () => {
+    add3tabs();
 
-        expect(st().tabs).toEqual([
-            { id: 1, path: "a" },
-            { id: 2, path: "b" },
-            { id: 3, path: "c" },
-        ]);
-    })
-    test('重複するタブIDはエラーにする', () => {
-        add3tabs();
+    expect(st().tabs).toEqual([
+      { id: 1, path: 'a' },
+      { id: 2, path: 'b' },
+      { id: 3, path: 'c' },
+    ]);
+  });
+  test('重複するタブIDはエラーにする', () => {
+    add3tabs();
 
-        expect(() => st().addTab({ id: 1, path: "xxx" })).toThrow('dup tab.id: 1');
-        expect(() => st().addTab({ id: 2, path: "xxx" })).toThrow('dup tab.id: 2');
-        expect(() => st().addTab({ id: 3, path: "xxx" })).toThrow('dup tab.id: 3');
-    })
-})
+    expect(() => st().addTab({ id: 1, path: 'xxx' })).toThrow('dup tab.id: 1');
+    expect(() => st().addTab({ id: 2, path: 'xxx' })).toThrow('dup tab.id: 2');
+    expect(() => st().addTab({ id: 3, path: 'xxx' })).toThrow('dup tab.id: 3');
+  });
+});
 
 describe('moveTab', () => {
-    test('正常動作', () => {
-        add3tabs();
+  test('正常動作', () => {
+    add3tabs();
 
-        st().moveTab(0, 0);
-        expect(getTabIds()).toEqual([1, 2, 3]);
-        st().moveTab(2, 2);
-        expect(getTabIds()).toEqual([1, 2, 3]);
+    st().moveTab(0, 0);
+    expect(getTabIds()).toEqual([1, 2, 3]);
+    st().moveTab(2, 2);
+    expect(getTabIds()).toEqual([1, 2, 3]);
 
-        st().moveTab(0, 1);
-        expect(getTabIds()).toEqual([2, 1, 3]);
+    st().moveTab(0, 1);
+    expect(getTabIds()).toEqual([2, 1, 3]);
 
-        st().moveTab(2, 0);
-        expect(getTabIds()).toEqual([3, 2, 1]);
-    })
+    st().moveTab(2, 0);
+    expect(getTabIds()).toEqual([3, 2, 1]);
+  });
 
-    test('タブがないときエラー', () => {
-        expect(() => st().moveTab(0, 0)).toThrow('empty tabs');
-    })
+  test('タブがないときエラー', () => {
+    expect(() => st().moveTab(0, 0)).toThrow('empty tabs');
+  });
 
-    test('from,to インデックスが範囲外の場合はエラー', () => {
-        add3tabs();
+  test('from,to インデックスが範囲外の場合はエラー', () => {
+    add3tabs();
 
-        expect(() => st().moveTab(-1, 0)).toThrow('invalid index: -1,0 tabs.length = 3');
-        expect(() => st().moveTab(0, -1)).toThrow('invalid index: 0,-1 tabs.length = 3');
+    expect(() => st().moveTab(-1, 0)).toThrow('invalid index: -1,0 tabs.length = 3');
+    expect(() => st().moveTab(0, -1)).toThrow('invalid index: 0,-1 tabs.length = 3');
 
-        expect(() => st().moveTab(0, 3)).toThrow('invalid index: 0,3 tabs.length = 3');
-        expect(() => st().moveTab(3, 0)).toThrow('invalid index: 3,0 tabs.length = 3');
-    })
-})
+    expect(() => st().moveTab(0, 3)).toThrow('invalid index: 0,3 tabs.length = 3');
+    expect(() => st().moveTab(3, 0)).toThrow('invalid index: 3,0 tabs.length = 3');
+  });
+});
 
 describe('removeTab', () => {
-    test('正常動作', () => {
-        add3tabs();
+  test('正常動作', () => {
+    add3tabs();
 
-        st().removeTab(0);
-        expect(getTabIds()).toEqual([2, 3]);
-        st().removeTab(1);
-        expect(getTabIds()).toEqual([2]);
-        st().removeTab(0);
-        expect(getTabIds()).toEqual([]);
-    })
+    st().removeTab(0);
+    expect(getTabIds()).toEqual([2, 3]);
+    st().removeTab(1);
+    expect(getTabIds()).toEqual([2]);
+    st().removeTab(0);
+    expect(getTabIds()).toEqual([]);
+  });
 
-    test('空の状態で削除するとエラー', () => {
-        add3tabs();
+  test('空の状態で削除するとエラー', () => {
+    add3tabs();
 
-        st().removeTab(0);
-        st().removeTab(0);
-        st().removeTab(0);
+    st().removeTab(0);
+    st().removeTab(0);
+    st().removeTab(0);
 
-        expect(() => st().removeTab(0)).toThrow('invalid index: 0 tabs.length = 0');
-    })
-})
+    expect(() => st().removeTab(0)).toThrow('invalid index: 0 tabs.length = 0');
+  });
+});
 
 describe('currentTabId', () => {
-    test('通常動作', () => {
-        add3tabs();
+  test('通常動作', () => {
+    add3tabs();
 
-        st().setCurrentTabId(1);
-        expect(st().currentTabId).toBe(1);
-        st().setCurrentTabId(2);
-        expect(st().currentTabId).toBe(2);
-        st().setCurrentTabId(3);
-        expect(st().currentTabId).toBe(3);
-    })
+    st().setCurrentTabIndex(0);
+    expect(st().currentTabIndex).toBe(0);
+    st().setCurrentTabIndex(1);
+    expect(st().currentTabIndex).toBe(1);
+    st().setCurrentTabIndex(2);
+    expect(st().currentTabIndex).toBe(2);
+  });
 
-    test('存在しないタブIDを渡すとエラー', () => {
-        expect(() => st().setCurrentTabId(0)).toThrow('no tabId: 0');
-        expect(() => st().setCurrentTabId(3)).toThrow('no tabId: 3');
-    })
+  test('存在しないインデックスを渡すとエラー', () => {
+    expect(() => st().setCurrentTabIndex(0)).not.toThrow();
+    expect(() => st().setCurrentTabIndex(1)).toThrow('setCurrentTabIndex(): invalid tab index: 1');
+    expect(() => st().setCurrentTabIndex(-1)).toThrow('setCurrentTabIndex(): invalid tab index: -1');
 
-    test('空の状態で addTab するとそのIDになる', () => {
-        st().addTab({ id: 9, path: 'xxx' });
-        expect(st().currentTabId).toBe(9);
+    add3tabs();
+    expect(() => st().setCurrentTabIndex(2)).not.toThrow();
+    expect(() => st().setCurrentTabIndex(3)).toThrow('setCurrentTabIndex(): invalid tab index: 3');
+  });
 
-        st().addTab({ id: 1, path: 'xxx' });
-        expect(st().currentTabId).toBe(9);
-    })
+  test('addTab するとそのタブになる', () => {
+    st().addTab({ id: 9, path: 'xxx' });
+    expect(st().currentTabIndex).toBe(0);
 
-    test('タブを add, move, remove してもカレントIDは変化しない', () => {
-        add3tabs();
-        st().setCurrentTabId(1);
+    st().addTab({ id: 1, path: 'xxx' });
+    expect(st().currentTabIndex).toBe(1);
 
-        st().addTab({ id: 9, path: "x" });
-        expect(st().currentTabId).toBe(1);
+    st().addTab({ id: 2, path: 'xxx' });
+    expect(st().currentTabIndex).toBe(2);
+  });
 
-        st().moveTab(0, 3);
-        expect(st().currentTabId).toBe(1);
+  test('タブを move するとカレントも移動する', () => {
+    add3tabs();
+    st().setCurrentTabIndex(0);
+    expect(st().currentTabIndex).toBe(0);
 
-        st().removeTab(0);
-        expect(st().currentTabId).toBe(1);
-    })
+    // [(a)bc] => [bc(a)]
+    st().moveTab(0, 2);
+    expect(st().currentTabIndex).toBe(2);
 
-    test('カレントタブを削除すると、カレントが移動する', () => {
-        add3tabs();
-        expect(getTabIds()).toEqual([1, 2, 3]);
-        st().setCurrentTabId(2);
+    // [bc(a)] => [c(a)b]
+    st().moveTab(0, 2);
+    expect(st().currentTabIndex).toBe(1);
 
-        st().removeTab(1);
-        expect(getTabIds()).toEqual([1, 3]);
-        expect(st().currentTabId).toBe(3);
+    // [c(a)b] => [(a)bc]
+    st().moveTab(0, 2);
+    expect(st().currentTabIndex).toBe(0);
 
-        st().removeTab(1);
-        expect(getTabIds()).toEqual([1]);
-        expect(st().currentTabId).toBe(1);
+    // [(a)bc] => [b(a)c]
+    st().moveTab(0, 1);
+    expect(st().currentTabIndex).toBe(1);
 
-        st().removeTab(0);
-        expect(getTabIds()).toEqual([]);
-        expect(st().currentTabId).toBeUndefined();
-    })
-})
+    // [b(a)c] => [(a)bc]
+    st().moveTab(1, 0);
+    expect(st().currentTabIndex).toBe(0);
+
+    // [(a)bc] => [c(a)b]
+    st().moveTab(2, 0);
+    expect(st().currentTabIndex).toBe(1);
+  });
+
+  test('カレントタブを削除すると、カレントが移動する', () => {
+    add3tabs();
+    expect(getTabIds()).toEqual([1, 2, 3]);
+    st().setCurrentTabIndex(2);
+
+    st().removeTab(1);
+    expect(getTabIds()).toEqual([1, 3]);
+    expect(st().currentTabIndex).toBe(1);
+
+    st().removeTab(1);
+    expect(getTabIds()).toEqual([1]);
+    expect(st().currentTabIndex).toBe(0);
+
+    st().removeTab(0);
+    expect(getTabIds()).toEqual([]);
+    expect(st().currentTabIndex).toBe(0);
+  });
+});

@@ -65,7 +65,7 @@ pub fn run() {
             log::info!("app start");
             #[cfg(debug_assertions)]
             {
-                app.get_webview_window("main").map(|w| w.open_devtools());
+                let _ = app.get_webview_window("main").map(|w| w.open_devtools());
             }
             Ok(())
         })

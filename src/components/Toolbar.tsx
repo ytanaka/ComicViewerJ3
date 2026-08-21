@@ -1,6 +1,19 @@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { LogOut, Fullscreen, Moon, Sun, FolderOpen, Scissors, Copy, ClipboardPaste, Trash2, TextCursorInput, Grid2x2, Rows3 } from 'lucide-react';
+import {
+  LogOut,
+  Fullscreen,
+  Moon,
+  Sun,
+  FolderOpen,
+  Scissors,
+  Copy,
+  ClipboardPaste,
+  Trash2,
+  TextCursorInput,
+  Grid2x2,
+  Rows3,
+} from 'lucide-react';
 import { Toggle } from './ui/toggle';
 
 export function Toolbar() {
@@ -14,7 +27,7 @@ export function Toolbar() {
         <LogOut />
       </Button>
 
-      <Separator orientation="vertical" className='m-1' />
+      <Separator orientation="vertical" className="m-1" />
 
       <Button variant="outline" size="sm">
         <Scissors />
@@ -26,7 +39,7 @@ export function Toolbar() {
         <ClipboardPaste />
       </Button>
 
-      <Separator orientation="vertical" className='m-1' />
+      <Separator orientation="vertical" className="m-1" />
 
       <Button variant="outline" size="sm">
         <Trash2 />
@@ -35,16 +48,16 @@ export function Toolbar() {
         <TextCursorInput />
       </Button>
 
-      <Separator orientation="vertical" className='m-1' />
+      <Separator orientation="vertical" className="m-1" />
 
-      <Toggle variant='outline' size="sm">
+      <Toggle variant="outline" size="sm">
         <Rows3 />
       </Toggle>
-      <Toggle variant='outline' size="sm">
+      <Toggle variant="outline" size="sm">
         <Grid2x2 />
       </Toggle>
 
-      <Separator orientation="vertical" className='m-1' />
+      <Separator orientation="vertical" className="m-1" />
 
       <Button variant="outline" size="sm">
         <Sun />
