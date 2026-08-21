@@ -1,4 +1,6 @@
+import { DirEntry } from '@/lib/bindings';
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware'
 
 interface UIStore {
   // tabs が空の場合は0
@@ -11,81 +13,104 @@ interface UIStore {
   removeTab: (index: number) => void;
   moveTab: (fromIndex: number, toIndex: number) => void;
 
-  setPath: (index: number, path: string) => void;
+  setTab: (index: number, tab: TabInfo) => void;
 }
 
 export type TabInfo = {
   id: number;
   path: string;
+  dirEntries: DirEntry[] | undefined;
 };
 
-export const useUIStore = create<UIStore>(set => ({
-  currentTabIndex: 0,
-  tabs: [],
+export const useUIStore = create<UIStore>()(
+  persist(
+    set => ({
+      currentTabIndex: 0,
+      tabs: [],
 
-  setCurrentTabIndex: (index: number) => {
-    set(prev => {
-      if (index < 0 || (index !== 0 && prev.tabs.length <= index))
-        throw Error(`setCurrentTabIndex(): invalid tab index: ${index}`);
-      return { currentTabIndex: index };
-    });
-  },
+      setCurrentTabIndex: (index: number) => {
+        set(prev => {
+          if (index < 0 || (index !== 0 && prev.tabs.length <= index))
+            throw Error(`setCurrentTabIndex(): invalid tab index: ${index}`);
+          return { currentTabIndex: index };
+        });
+      },
 
-  // ※ カレントタブは追加されたタブに移る
-  addTab: tab => {
-    set(prev => {
-      if (0 <= prev.tabs.findIndex(t => t.id === tab.id)) throw Error(`addTab(): dup tab.id: ${tab.id}`);
-      return { tabs: [...prev.tabs, tab], currentTabIndex: prev.tabs.length };
-    });
-  },
+      // ※ カレントタブは追加されたタブに移る
+      addTab: (tab) => {
+        set(prev => {
+          if (0 <= prev.tabs.findIndex(t => t.id === tab.id)) throw Error(`addTab(): dup tab.id: ${tab.id}`);
+          return { tabs: [...prev.tabs, tab], currentTabIndex: prev.tabs.length };
+        });
+      },
 
-  moveTab: (fromIndex: number, toIndex: number) => {
-    set(prev => {
-      if (prev.tabs.length === 0) throw Error(`moveTab(): empty tabs`);
-      if (fromIndex < 0 || prev.tabs.length <= fromIndex || toIndex < 0 || prev.tabs.length <= toIndex)
-        throw Error(`moveTab(): invalid index: ${fromIndex},${toIndex} tabs.length = ${prev.tabs.length}`);
-      if (fromIndex === toIndex) return prev;
+      moveTab: (fromIndex: number, toIndex: number) => {
+        set(prev => {
+          if (prev.tabs.length === 0) throw Error(`moveTab(): empty tabs`);
+          if (fromIndex < 0 || prev.tabs.length <= fromIndex || toIndex < 0 || prev.tabs.length <= toIndex)
+            throw Error(`moveTab(): invalid index: ${fromIndex},${toIndex} tabs.length = ${prev.tabs.length}`);
+          if (fromIndex === toIndex) return prev;
 
-      // 新しいカレントタブIndex
-      let tIndex = prev.currentTabIndex;
-      if (fromIndex === tIndex) {
-        tIndex = toIndex;
-      } else {
-        if (fromIndex < tIndex) {
-          tIndex -= 1;
+          // 新しいカレントタブIndex
+          let tIndex = prev.currentTabIndex;
+          if (fromIndex === tIndex) {
+            tIndex = toIndex;
+          } else {
+            if (fromIndex < tIndex) {
+              tIndex -= 1;
+            }
+            if (toIndex <= tIndex) {
+              tIndex += 1;
+            }
+          }
+
+          const newList = [...prev.tabs];
+          const [removed] = newList.splice(fromIndex, 1); // 1つ削除
+          newList.splice(toIndex, 0, removed); // 1つ追加
+          return { tabs: newList, currentTabIndex: tIndex };
+        })
+      },
+
+      // ※ カレントタブが削除されたら、カレントは右のタブに移る
+      removeTab: (index: number) => {
+        set(prev => {
+          if (index < 0 || prev.tabs.length <= index)
+            throw Error(`removeTab(): invalid index: ${index} tabs.length = ${prev.tabs.length}`);
+
+          const newList = [...prev.tabs];
+          newList.splice(index, 1); // 1つ削除
+
+          // 最後のタブが削除されたら、左側のタブをカレントにする
+          return { tabs: newList, currentTabIndex: Math.max(0, Math.min(prev.currentTabIndex, prev.tabs.length - 2)) };
+        });
+      },
+
+      setTab: (index: number, tab: TabInfo) => {
+        set(prev => {
+          const tabs = [...prev.tabs];
+          tabs[index] = tab;
+          return { tabs };
+        })
+      },
+    }),
+    {
+      name: "ui-store",
+      partialize: (state) => {
+        console.log("UIState: partialize !!!");
+        return {
+          currentTabIndex: state.currentTabIndex,
+          tabs: state.tabs.map((t) => ({
+            path: t.path
+          }))
         }
-        if (toIndex <= tIndex) {
-          tIndex += 1;
+      },
+      onRehydrateStorage: () => (state) => {
+        console.log("UIState: onRehydrateStorage !!!", state);
+        if (!state) return;
+        for (let i = 0; i < state.tabs.length; i++) {
+          state.tabs[i].dirEntries = undefined;
         }
-      }
-
-      const newList = [...prev.tabs];
-      const [removed] = newList.splice(fromIndex, 1); // 1つ削除
-      newList.splice(toIndex, 0, removed); // 1つ追加
-      return { tabs: newList, currentTabIndex: tIndex };
-    });
-  },
-
-  // ※ カレントタブが削除されたら、カレントは右のタブに移る
-  removeTab: (index: number) => {
-    set(prev => {
-      if (index < 0 || prev.tabs.length <= index)
-        throw Error(`removeTab(): invalid index: ${index} tabs.length = ${prev.tabs.length}`);
-
-      const newList = [...prev.tabs];
-      newList.splice(index, 1); // 1つ削除
-
-      // 最後のタブが削除されたら、左側のタブをカレントにする
-      return { tabs: newList, currentTabIndex: Math.max(0, Math.min(prev.currentTabIndex, prev.tabs.length - 2)) };
-    });
-  },
-
-  setPath: (index: number, path: string) => {
-    set(prev => {
-      const tabs = [...prev.tabs];
-      const tab = tabs[index];
-      tab.path = path;
-      return { tabs };
-    })
-  }
-}));
+      },
+    },
+  )
+);

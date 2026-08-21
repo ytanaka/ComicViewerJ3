@@ -26,6 +26,7 @@ fn create_tab_imp(state: &AppState) -> TabId {
     state
         .tabs
         .insert(tab_id, Arc::new(RwLock::new(TabInfo::new(tab_id))));
+    log::trace!("create_tab() => {tab_id}");
     tab_id
 }
 
@@ -37,6 +38,7 @@ pub fn remove_tab(state: State<'_, AppState>, tab_id: TabId) -> Result<(), Strin
     remove_tab_impl(&state, tab_id)
 }
 pub fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
+    log::trace!("remove_tab({tab_id})");
     match state.tabs.remove(&tab_id) {
         None => Err(format!("no tab: {tab_id}")),
         Some(_kv) => Ok(()),
@@ -85,7 +87,7 @@ fn read_dir_entries_impl(
     let tab = state
         .tabs
         .get_mut(&tab_id)
-        .ok_or_else(|| anyhow!("invalid tab_id: ${tab_id}"))?;
+        .ok_or_else(|| anyhow!("invalid tab_id: {tab_id}"))?;
 
     let mut tab = tab.write().unwrap();
     let list = read_dir_entries_impl2(&mut tab, path)?;

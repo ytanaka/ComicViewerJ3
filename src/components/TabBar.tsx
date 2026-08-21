@@ -22,7 +22,7 @@ export function TabBar() {
     const tabId = await commands.createTab();
     const path = await homeDir();
     const absPath = await tauri_path_resolve(path);
-    addTab({ id: tabId, path: absPath });
+    addTab({ id: tabId, path: absPath, dirEntries: undefined });
   };
 
   const removeTabHandler = (index: number) => async () => {
@@ -30,6 +30,8 @@ export function TabBar() {
     await commands.removeTab(tabs[currentTabIndex].id);
     removeTab(index);
   };
+
+  console.log("<TabBar> tabs=", tabs);
 
   return (
     <div className="flex border">

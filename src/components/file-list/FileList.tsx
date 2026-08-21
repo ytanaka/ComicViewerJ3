@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { path } from '@tauri-apps/api';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useQuery } from '@tanstack/react-query';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-
-import { unixTime2str } from '../../utils/util';
-import { commands, DirEntry, FileInfo } from '../../lib/bindings';
-import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 import { toast } from 'sonner';
+
+import { commands, DirEntry, FileInfo } from '@/lib/bindings';
+import { unixTime2str } from '@/utils/util';
 import { useUIStore } from '@/store/ui-store';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
@@ -102,13 +101,11 @@ export default function FileList({ className = '' }: { className: string }) {
   const tabs = useUIStore(state => state.tabs);
   const currentTabIndex = useUIStore(state => state.currentTabIndex);
   const tab = tabs[currentTabIndex];
-  const setPath = useUIStore(state => state.setPath);
 
-  console.log("<FileList> tab={", tab.id, tab.path, "}, currentTabIndex=", currentTabIndex);
+  console.log("<FileList> tab=", tab, ", currentTabIndex=", currentTabIndex);
 
   const { data: entries } = useQuery({
     staleTime: 0,
-    enabled: tab.id !== undefined && tab.path !== undefined,
     queryKey: [tab.id, tab.path],
     queryFn: async () => {
       const ret = await commands.readDirEntries(tab.id, tab.path);
@@ -123,21 +120,11 @@ export default function FileList({ className = '' }: { className: string }) {
   });
   useEffect(() => {
     const setTitle = async () => {
-      if (entries === undefined) return;
       await getCurrentWindow().setTitle(tab.path);
       toast.info(tab.path);
     };
     setTitle();
-  }, [entries, tab.path]);
-
-  // 初期ロード
-  useEffect(() => {
-    const refreshList = async (path: string) => {
-      const absPath = await tauri_path_resolve(path);
-      if (absPath !== path) setPath(currentTabIndex, absPath);
-    };
-    refreshList(tab.path);
-  });
+  }, [tab.path]);
 
   return (
     <div className={`${className} flex flex-col`}>
