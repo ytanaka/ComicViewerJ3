@@ -102,7 +102,7 @@ export default function FileList({ className = '' }: { className: string }) {
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tab = tabs[currentTabIndex];
 
-  console.log("<FileList> tab=", tab, ", currentTabIndex=", currentTabIndex);
+  console.log('<FileList> tab=', tab, ', currentTabIndex=', currentTabIndex);
 
   const { data: entries } = useQuery({
     staleTime: 0,

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 
 import App from './App';
+import { TabStateInitializer } from './components/TabStateInitializer';
 
 const queryClient = new QueryClient();
 
@@ -11,7 +12,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class">
-        <App />
+        <TabStateInitializer>
+          <App />
+        </TabStateInitializer>
       </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>

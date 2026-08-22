@@ -31,7 +31,7 @@ describe('addTab', () => {
   test('正常動作', () => {
     add3tabs();
 
-    expect(st().tabs).toEqual([
+    expect(st().tabs).toMatchObject([
       { id: 1, path: 'a' },
       { id: 2, path: 'b' },
       { id: 3, path: 'c' },

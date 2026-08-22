@@ -22,7 +22,7 @@ export function TabBar() {
     const tabId = await commands.createTab();
     const path = await homeDir();
     const absPath = await tauri_path_resolve(path);
-    addTab({ id: tabId, path: absPath, dirEntries: undefined });
+    addTab({ id: tabId, path: absPath });
   };
 
   const removeTabHandler = (index: number) => async () => {
@@ -31,7 +31,7 @@ export function TabBar() {
     removeTab(index);
   };
 
-  console.log("<TabBar> tabs=", tabs);
+  console.log('<TabBar> tabs=', tabs);
 
   return (
     <div className="flex border">
@@ -56,10 +56,11 @@ export function TabBar() {
   );
 }
 
-function NewTabButton({ onClick, noTabs }: { onClick: () => void, noTabs: boolean }) {
+function NewTabButton({ onClick, noTabs }: { onClick: () => void; noTabs: boolean }) {
   return (
-    <Button variant={noTabs ? "default" : "outline"} onClick={onClick}>
-      <Plus />{noTabs ? "Add Tab" : ""}
+    <Button variant={noTabs ? 'default' : 'outline'} onClick={onClick}>
+      <Plus />
+      {noTabs ? 'Add Tab' : ''}
     </Button>
   );
 }
@@ -81,7 +82,11 @@ function TabButton({
   });
   return (
     <div ref={ref} className="relative inline-block group">
-      <Button ref={handleRef} variant={`${isSelected ? 'outline' : 'secondary'}`} className={`${isSelected ? '' : 'font-light'}`}>
+      <Button
+        ref={handleRef}
+        variant={`${isSelected ? 'outline' : 'secondary'}`}
+        className={`${isSelected ? '' : 'font-light'}`}
+      >
         {tab.path}
       </Button>
       <div className="w5 flex justify-end">
