@@ -5,17 +5,17 @@ import { Plus, X } from 'lucide-react';
 
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
-import { TabInfo, useUIStore } from '@/store/ui-store';
+import { TabInfo, useTabState } from '@/store/tab-state';
 import { Button } from './ui/button';
 import { commands } from '@/lib/bindings';
 import { homeDir } from '@tauri-apps/api/path';
 
 export function TabBar() {
-  const tabs = useUIStore(state => state.tabs);
-  const moveTab = useUIStore(state => state.moveTab);
-  const addTab = useUIStore(state => state.addTab);
-  const currentTabIndex = useUIStore(state => state.currentTabIndex);
-  const removeTab = useUIStore(state => state.removeTab);
+  const tabs = useTabState(state => state.tabs);
+  const moveTab = useTabState(state => state.moveTab);
+  const addTab = useTabState(state => state.addTab);
+  const currentTabIndex = useTabState(state => state.currentTabIndex);
+  const removeTab = useTabState(state => state.removeTab);
 
   const createNewTabHandler = async () => {
     if (10 <= tabs.length) return;

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test } from 'vitest';
-import { useUIStore } from './ui-store';
+import { useTabState } from './tab-state';
 
 function st() {
-  return useUIStore.getState();
+  return useTabState.getState();
 }
 function add3tabs() {
   const { addTab } = st();
@@ -16,7 +16,7 @@ function getTabIds() {
 }
 
 beforeEach(() => {
-  useUIStore.setState({
+  useTabState.setState({
     currentTabIndex: undefined,
     tabs: [],
   });

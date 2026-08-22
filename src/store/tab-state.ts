@@ -2,7 +2,7 @@ import { DirEntry } from '@/lib/bindings';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware'
 
-interface UIStore {
+interface TabState {
   // tabs が空の場合は0
   currentTabIndex: number;
   tabs: TabInfo[];
@@ -19,10 +19,10 @@ interface UIStore {
 export type TabInfo = {
   id: number;
   path: string;
-  dirEntries: DirEntry[] | undefined;
+  dirEntries?: DirEntry[];
 };
 
-export const useUIStore = create<UIStore>()(
+export const useTabState = create<TabState>()(
   persist(
     set => ({
       currentTabIndex: 0,
@@ -94,9 +94,9 @@ export const useUIStore = create<UIStore>()(
       },
     }),
     {
-      name: "ui-store",
+      name: "tab-state",
       partialize: (state) => {
-        console.log("UIState: partialize !!!");
+        console.log("TabState: partialize !!!");
         return {
           currentTabIndex: state.currentTabIndex,
           tabs: state.tabs.map((t) => ({
@@ -105,7 +105,7 @@ export const useUIStore = create<UIStore>()(
         }
       },
       onRehydrateStorage: () => (state) => {
-        console.log("UIState: onRehydrateStorage !!!", state);
+        console.log("TabState: onRehydrateStorage !!!", state);
         if (!state) return;
         for (let i = 0; i < state.tabs.length; i++) {
           state.tabs[i].dirEntries = undefined;

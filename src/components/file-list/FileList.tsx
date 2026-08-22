@@ -7,8 +7,8 @@ import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { toast } from 'sonner';
 
 import { commands, DirEntry, FileInfo } from '@/lib/bindings';
-import { unixTime2str } from '@/utils/util';
-import { useUIStore } from '@/store/ui-store';
+import { unixTime2str } from '@/lib/date-time-util';
+import { useTabState } from '@/store/tab-state';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let icon: string;
@@ -98,8 +98,8 @@ function FileListRow({
 export default function FileList({ className = '' }: { className: string }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
 
-  const tabs = useUIStore(state => state.tabs);
-  const currentTabIndex = useUIStore(state => state.currentTabIndex);
+  const tabs = useTabState(state => state.tabs);
+  const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tab = tabs[currentTabIndex];
 
   console.log("<FileList> tab=", tab, ", currentTabIndex=", currentTabIndex);

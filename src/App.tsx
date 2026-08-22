@@ -6,15 +6,15 @@ import { Toolbar } from './components/Toolbar';
 import { useTheme } from 'next-themes';
 import { TabBar } from './components/TabBar';
 import { TabContent } from './components/TabContent';
-import { useUIStore } from './store/ui-store';
+import { useTabState } from './store/tab-state';
 import { useEffect, useRef } from 'react';
 import { commands } from './lib/bindings';
 
 function App() {
   const { resolvedTheme } = useTheme();
 
-  const tabs = useUIStore(state => state.tabs);
-  const setTab = useUIStore(state => state.setTab);
+  const tabs = useTabState(state => state.tabs);
+  const setTab = useTabState(state => state.setTab);
   const tabNotInitialized = (0 <= tabs.findIndex((tab) => tab.id === undefined));
 
   const initializing = useRef(false);
