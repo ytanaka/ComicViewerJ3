@@ -99,13 +99,13 @@ export default function FileList({ className = '' }: { className: string }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
 
   const tabs = useTabState(state => state.tabs);
+  const setTab = useTabState(state => state.setTab);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tab = tabs[currentTabIndex];
 
-  console.log('<FileList> tab=', tab, ', currentTabIndex=', currentTabIndex);
-
-  const { data: entries } = useQuery({
+  const { data, isFetching } = useQuery({
     staleTime: 0,
+    enabled: !tab.list.initialized(),
     queryKey: [tab.id, tab.path],
     queryFn: async () => {
       const ret = await commands.readDirEntries(tab.id, tab.path);
@@ -119,6 +119,13 @@ export default function FileList({ className = '' }: { className: string }) {
     },
   });
   useEffect(() => {
+    if (data) {
+      tab.list.updateDirEntries(data);
+      setTab(currentTabIndex, tab);
+    }
+  }, [setTab, data, currentTabIndex, tab])
+
+  useEffect(() => {
     const setTitle = async () => {
       await getCurrentWindow().setTitle(tab.path);
       toast.info(tab.path);
@@ -129,14 +136,14 @@ export default function FileList({ className = '' }: { className: string }) {
   return (
     <div className={`${className} flex flex-col`}>
       <div className="flex-1">
-        {entries === undefined ? (
+        {isFetching || data === undefined ? (
           <div />
         ) : (
           <Virtuoso
             ref={virtuoso}
-            totalCount={entries.length}
+            totalCount={data.length}
             itemContent={index => {
-              return <FileListRow index={index} tabId={tab.id} dirEntry={entries[index]} isSelected={false} />;
+              return <FileListRow index={index} tabId={tab.id} dirEntry={data[index]} isSelected={false} />;
             }}
           />
         )}

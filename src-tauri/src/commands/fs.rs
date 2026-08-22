@@ -12,6 +12,7 @@ use tauri::State;
 use crate::{
     state::{AppState, TabInfo},
     types::{DirEntry, FileId, FileInfo, SortType, TabId},
+    LOG_RESULT,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -35,10 +36,11 @@ fn create_tab_imp(state: &AppState) -> TabId {
 #[specta::specta]
 /// タブ削除
 pub fn remove_tab(state: State<'_, AppState>, tab_id: TabId) -> Result<(), String> {
-    remove_tab_impl(&state, tab_id)
+    LOG_RESULT!(format!("remove_tab({tab_id})"), {
+        remove_tab_impl(&state, tab_id)
+    })
 }
 pub fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
-    log::trace!("remove_tab({tab_id})");
     match state.tabs.remove(&tab_id) {
         None => Err(format!("no tab: {tab_id}")),
         Some(_kv) => Ok(()),
@@ -65,15 +67,15 @@ pub fn read_dir_entries(
     tab_id: TabId,
     path: String,
 ) -> Result<Vec<DirEntry>, String> {
-    read_dir_entries_impl(&state, tab_id, path).map_err(|e| e.to_string())
+    LOG_RESULT!(format!("read_dir_entries({}, {})", tab_id, path), {
+        read_dir_entries_impl(&state, tab_id, path).map_err(|e| e.to_string())
+    })
 }
 fn read_dir_entries_impl(
     state: &AppState,
     tab_id: TabId,
     path: String,
 ) -> anyhow::Result<Vec<DirEntry>> {
-    log::trace!("read_dir_entries({tab_id}, {path})");
-
     // path 存在確認
     let path = Path::new(&path);
     if !path.is_dir() {
@@ -120,10 +122,11 @@ pub fn get_file_info(
     tab_id: TabId,
     file_id: &str,
 ) -> Result<FileInfo, String> {
-    get_file_info_impl(&state, tab_id, file_id)
+    LOG_RESULT!(format!("get_file_info({tab_id}, {file_id})"), {
+        get_file_info_impl(&state, tab_id, file_id)
+    })
 }
 fn get_file_info_impl(state: &AppState, tab_id: TabId, file_id: &str) -> Result<FileInfo, String> {
-    log::trace!("get_file_info({tab_id}, {file_id})");
     match state.tabs.get_mut(&tab_id) {
         None => Err(format!("invalid tab_id: {tab_id}"))?,
         Some(tab) => {

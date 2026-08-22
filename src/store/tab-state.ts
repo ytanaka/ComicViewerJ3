@@ -19,7 +19,7 @@ interface TabState {
 export type TabInfo = {
   id: number;
   path: string;
-  list?: ListFiles;
+  list: ListFiles;
 };
 
 export const useTabState = create<TabState>()(
@@ -37,10 +37,9 @@ export const useTabState = create<TabState>()(
       },
 
       // ※ カレントタブは追加されたタブに移る
-      addTab: tab => {
+      addTab: (tab) => {
         set(prev => {
           if (0 <= prev.tabs.findIndex(t => t.id === tab.id)) throw Error(`addTab(): dup tab.id: ${tab.id}`);
-          if (tab.list === undefined) tab.list = new ListFiles();
           return { tabs: [...prev.tabs, tab], currentTabIndex: prev.tabs.length };
         });
       },
@@ -97,7 +96,6 @@ export const useTabState = create<TabState>()(
     {
       name: 'tab-state',
       partialize: state => {
-        console.log('TabState: partialize !!!');
         return {
           currentTabIndex: state.currentTabIndex,
           tabs: state.tabs.map(t => ({
@@ -109,7 +107,7 @@ export const useTabState = create<TabState>()(
         console.log('TabState: onRehydrateStorage !!!', state);
         if (!state) return;
         for (let i = 0; i < state.tabs.length; i++) {
-          state.tabs[i].list = undefined;
+          state.tabs[i].list = new ListFiles();
         }
       },
     }

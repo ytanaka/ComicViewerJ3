@@ -1,14 +1,22 @@
 import { DirEntry } from './bindings';
 
 export class ListFiles {
-  list?: DirEntry[] = undefined;
+  private list?: DirEntry[] = undefined;
 
   focusIndex: number = 0; //
   focusName?: string = undefined;
   anchorIndex: number = 0;
   selectionIndexes: Set<number> = new Set();
 
-  constructor() {}
+  constructor() { }
+
+  initialized(): boolean {
+    return this.list !== undefined
+  }
+  dirEntries(): DirEntry[] {
+    if (this.list === undefined) throw new ReferenceError("list not initialized");
+    return this.list;
+  }
 
   updateDirEntries(list: DirEntry[]) {
     // 以前のフォーカス状態をなるべく保持する

@@ -9,6 +9,7 @@ import { TabInfo, useTabState } from '@/store/tab-state';
 import { Button } from './ui/button';
 import { commands } from '@/lib/bindings';
 import { homeDir } from '@tauri-apps/api/path';
+import { ListFiles } from '@/lib/list-files';
 
 export function TabBar() {
   const tabs = useTabState(state => state.tabs);
@@ -16,26 +17,29 @@ export function TabBar() {
   const addTab = useTabState(state => state.addTab);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const removeTab = useTabState(state => state.removeTab);
+  const setCurrentTabIndex = useTabState(state => state.setCurrentTabIndex);
 
   const createNewTabHandler = async () => {
     if (10 <= tabs.length) return;
     const tabId = await commands.createTab();
     const path = await homeDir();
     const absPath = await tauri_path_resolve(path);
-    addTab({ id: tabId, path: absPath });
+    addTab({ id: tabId, path: absPath, list: new ListFiles() });
   };
 
   const removeTabHandler = (index: number) => async () => {
     console.log(`remove ${index}`);
-    await commands.removeTab(tabs[currentTabIndex].id);
+    await commands.removeTab(tabs[index].id);
     removeTab(index);
   };
-
-  console.log('<TabBar> tabs=', tabs);
 
   return (
     <div className="flex border">
       <DragDropProvider
+        onDragStart={e => {
+          if (!isSortable(e.operation.source)) return;
+          setCurrentTabIndex(e.operation.source.index);
+        }}
         onDragEnd={e => {
           if (e.canceled) return;
           // initialIndex, index を読むため
