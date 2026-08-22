@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { path } from '@tauri-apps/api';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useQuery } from '@tanstack/react-query';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { toast } from 'sonner';
 
 import { commands, DirEntry, FileInfo } from '@/lib/bindings';
 import { unixTime2str } from '@/lib/date-time-util';
 import { useTabState } from '@/store/tab-state';
+import { ListFilesKeyHandler } from '@/lib/list-files-key-handler';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let icon: string;
@@ -99,7 +100,7 @@ export default function FileList({ className = '' }: { className: string }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
 
   const tabs = useTabState(state => state.tabs);
-  const setTab = useTabState(state => state.setTab);
+  const updateTab = useTabState(state => state.updateTab);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tab = tabs[currentTabIndex];
 
@@ -121,10 +122,11 @@ export default function FileList({ className = '' }: { className: string }) {
   useEffect(() => {
     if (data) {
       tab.list.updateDirEntries(data);
-      setTab(currentTabIndex, tab);
+      updateTab(currentTabIndex, tab);
     }
-  }, [setTab, data, currentTabIndex, tab])
+  }, [updateTab, data, currentTabIndex, tab])
 
+  // タイトルバー設定
   useEffect(() => {
     const setTitle = async () => {
       await getCurrentWindow().setTitle(tab.path);
@@ -132,6 +134,28 @@ export default function FileList({ className = '' }: { className: string }) {
     };
     setTitle();
   }, [tab.path]);
+
+  // スクロール位置
+  const visibleListRange = useRef(1);
+  const handleRangeChanged = (range: ListRange) => {
+    visibleListRange.current = Math.max(1, range.endIndex - range.startIndex);
+  };
+
+  // キー操作
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const keyHandler = new ListFilesKeyHandler(tab.list, visibleListRange.current);
+      if (keyHandler.handleKey(e)) {
+        updateTab(currentTabIndex, tab);
+        virtuoso.current?.scrollIntoView({
+          index: tab.list.focusIndex,
+          behavior: 'auto',
+        });
+      }
+    }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  })
 
   return (
     <div className={`${className} flex flex-col`}>
@@ -142,8 +166,15 @@ export default function FileList({ className = '' }: { className: string }) {
           <Virtuoso
             ref={virtuoso}
             totalCount={data.length}
+            rangeChanged={handleRangeChanged}
             itemContent={index => {
-              return <FileListRow index={index} tabId={tab.id} dirEntry={data[index]} isSelected={false} />;
+              return (
+                <FileListRow
+                  index={index}
+                  tabId={tab.id}
+                  dirEntry={data[index]}
+                  isSelected={tab.list.focusIndex === index}
+                />);
             }}
           />
         )}

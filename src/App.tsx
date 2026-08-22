@@ -4,8 +4,8 @@ import { Toaster, ToasterProps } from 'sonner';
 import { Menu } from './components/Menu';
 import { Toolbar } from './components/Toolbar';
 import { useTheme } from 'next-themes';
-import { TabBar } from './components/TabBar';
 import { TabContent } from './components/TabContent';
+import { TabBarWrapper } from './components/TabBarWrapper';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -14,7 +14,7 @@ function App() {
     <div className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm">
       <Menu></Menu>
       <Toolbar></Toolbar>
-      <TabBar></TabBar>
+      <TabBarWrapper />
       <TabContent />
       <Toaster
         position="bottom-right"

@@ -13,7 +13,7 @@ interface TabState {
   removeTab: (index: number) => void;
   moveTab: (fromIndex: number, toIndex: number) => void;
 
-  setTab: (index: number, tab: TabInfo) => void;
+  updateTab: (index: number, tab: TabInfo) => void;
 }
 
 export type TabInfo = {
@@ -85,7 +85,7 @@ export const useTabState = create<TabState>()(
         });
       },
 
-      setTab: (index: number, tab: TabInfo) => {
+      updateTab: (index: number, tab: TabInfo) => {
         set(prev => {
           const tabs = [...prev.tabs];
           tabs[index] = tab;

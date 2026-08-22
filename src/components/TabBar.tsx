@@ -3,35 +3,14 @@ import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { RestrictToHorizontalAxis } from '@dnd-kit/abstract/modifiers';
 import { Plus, X } from 'lucide-react';
 
-import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
-
 import { TabInfo, useTabState } from '@/store/tab-state';
 import { Button } from './ui/button';
-import { commands } from '@/lib/bindings';
-import { homeDir } from '@tauri-apps/api/path';
-import { ListFiles } from '@/lib/list-files';
 
-export function TabBar() {
+export function TabBar({ onNewTab, onRemoveTab }: { onNewTab: () => void, onRemoveTab: (index: number) => void }) {
   const tabs = useTabState(state => state.tabs);
   const moveTab = useTabState(state => state.moveTab);
-  const addTab = useTabState(state => state.addTab);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
-  const removeTab = useTabState(state => state.removeTab);
   const setCurrentTabIndex = useTabState(state => state.setCurrentTabIndex);
-
-  const createNewTabHandler = async () => {
-    if (10 <= tabs.length) return;
-    const tabId = await commands.createTab();
-    const path = await homeDir();
-    const absPath = await tauri_path_resolve(path);
-    addTab({ id: tabId, path: absPath, list: new ListFiles() });
-  };
-
-  const removeTabHandler = (index: number) => async () => {
-    console.log(`remove ${index}`);
-    await commands.removeTab(tabs[index].id);
-    removeTab(index);
-  };
 
   return (
     <div className="flex border">
@@ -51,11 +30,11 @@ export function TabBar() {
       >
         <div className="flex">
           {tabs.map((t, i) => (
-            <TabButton key={t.id} tab={t} index={i} isSelected={i == currentTabIndex} onRemove={removeTabHandler(i)} />
+            <TabButton key={t.id} tab={t} index={i} isSelected={i == currentTabIndex} onRemove={() => onRemoveTab(i)} />
           ))}
         </div>
       </DragDropProvider>
-      <NewTabButton onClick={createNewTabHandler} noTabs={tabs.length === 0} />
+      <NewTabButton onClick={onNewTab} noTabs={tabs.length === 0} />
     </div>
   );
 }
