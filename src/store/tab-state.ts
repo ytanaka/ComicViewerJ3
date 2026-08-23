@@ -10,7 +10,7 @@ interface TabState {
   setCurrentTabIndex: (index: number) => void;
 
   addTab: (tab: TabInfo) => void;
-  removeTab: (index: number) => void;
+  removeTab: (index: number) => number;
   moveTab: (fromIndex: number, toIndex: number) => void;
 
   updateTab: (index: number, tab: TabInfo) => void;
@@ -24,7 +24,7 @@ export type TabInfo = {
 
 export const useTabState = create<TabState>()(
   persist(
-    set => ({
+    (set, get) => ({
       currentTabIndex: 0,
       tabs: [],
 
@@ -73,16 +73,20 @@ export const useTabState = create<TabState>()(
 
       // ※ カレントタブが削除されたら、カレントは右のタブに移る
       removeTab: (index: number) => {
-        set(prev => {
-          if (index < 0 || prev.tabs.length <= index)
-            throw Error(`removeTab(): invalid index: ${index} tabs.length = ${prev.tabs.length}`);
+        const { tabs } = get();
+        if (index < 0 || tabs.length <= index)
+          throw Error(`removeTab(): invalid index: ${index} tabs.length = ${tabs.length}`);
+        const removeId = tabs[index].id;
 
+        set(prev => {
           const newList = [...prev.tabs];
           newList.splice(index, 1); // 1つ削除
 
           // 最後のタブが削除されたら、左側のタブをカレントにする
           return { tabs: newList, currentTabIndex: Math.max(0, Math.min(prev.currentTabIndex, prev.tabs.length - 2)) };
         });
+        
+        return removeId;
       },
 
       updateTab: (index: number, tab: TabInfo) => {
