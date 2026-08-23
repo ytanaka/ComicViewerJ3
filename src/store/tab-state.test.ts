@@ -1,15 +1,19 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { useTabState } from './tab-state';
+import { ListFiles } from '@/lib/list-files';
 
 function st() {
   return useTabState.getState();
 }
-function add3tabs() {
-  const { addTab } = st();
 
-  addTab({ id: 1, path: 'a' });
-  addTab({ id: 2, path: 'b' });
-  addTab({ id: 3, path: 'c' });
+function addTab(id: number, path: string) {
+  st().addTab({ id, path, list: new ListFiles() });
+}
+
+function add3tabs() {
+  addTab(1, 'a');
+  addTab(2, 'b');
+  addTab(3, 'c');
 }
 function getTabIds() {
   return st().tabs.map(tab => tab.id);
@@ -40,9 +44,9 @@ describe('addTab', () => {
   test('重複するタブIDはエラーにする', () => {
     add3tabs();
 
-    expect(() => st().addTab({ id: 1, path: 'xxx' })).toThrow('dup tab.id: 1');
-    expect(() => st().addTab({ id: 2, path: 'xxx' })).toThrow('dup tab.id: 2');
-    expect(() => st().addTab({ id: 3, path: 'xxx' })).toThrow('dup tab.id: 3');
+    expect(() => addTab(1, 'xxx')).toThrow('dup tab.id: 1');
+    expect(() => addTab(2, 'xxx')).toThrow('dup tab.id: 2');
+    expect(() => addTab(3, 'xxx')).toThrow('dup tab.id: 3');
   });
 });
 
@@ -123,13 +127,13 @@ describe('currentTabId', () => {
   });
 
   test('addTab するとそのタブになる', () => {
-    st().addTab({ id: 9, path: 'xxx' });
+    addTab(9, 'xxx');
     expect(st().currentTabIndex).toBe(0);
 
-    st().addTab({ id: 1, path: 'xxx' });
+    addTab(1, 'xxx');
     expect(st().currentTabIndex).toBe(1);
 
-    st().addTab({ id: 2, path: 'xxx' });
+    addTab(2, 'xxx');
     expect(st().currentTabIndex).toBe(2);
   });
 

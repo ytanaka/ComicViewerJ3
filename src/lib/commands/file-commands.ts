@@ -6,13 +6,18 @@ function st() {
   return useTabState.getState()
 }
 
-export const tabCommands = {
+export const fileCommands = {
   async moveParentDir() {
     const tab = st().getCurrentTab();
     if (!tab) return;
 
-    const parent = await tauri_dirname(tab.path);
-    this.movePath(tab, parent);
+    try {
+      const parent = await tauri_dirname(tab.path);
+      this.movePath(tab, parent);
+    } catch (e) {
+      console.log(`moveParentDir(): current = ${tab.path}, error = ${e}`);
+      return;
+    }
   },
 
   async moveChildDirectory(name: string) {

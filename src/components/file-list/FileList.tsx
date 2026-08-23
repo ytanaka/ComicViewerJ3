@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { commands, DirEntry, FileInfo } from '@/lib/bindings';
 import { unixTime2str } from '@/lib/date-time-util';
 import { useTabState } from '@/store/tab-state';
-import { ListFilesSelectionKeyHandler } from '@/lib/list-files-key-handler';
+import { ListFilesDirWalkerKeyHandler, ListFilesSelectionKeyHandler } from '@/lib/list-files-key-handler';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let icon: string;
@@ -75,7 +75,7 @@ function FileListRow({
         toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
         throw Error(ret.error);
       }
-      console.log('getFileInfo(', dirEntry.name, ') => ', ret.data);
+      // console.log('getFileInfo(', dirEntry.name, ') => ', ret.data);
       return ret.data;
     },
   });
@@ -115,7 +115,7 @@ export default function FileList({ className = '' }: { className: string }) {
     queryKey: [tab.id, tab.path],
     queryFn: async () => {
       const ret = await commands.readDirEntries(tab.id, tab.path);
-      console.log('readDirEntries() => ', ret);
+      console.log(`readDirEntries(${tab.path}) => `, ret);
       if (ret.status === 'error') {
         console.error(`FileList getDirEntries(${tab.id}, ${tab.path}) error: `, ret.error);
         toast.error(`ディレクトリ情報が取得できません`);
@@ -135,7 +135,6 @@ export default function FileList({ className = '' }: { className: string }) {
   useEffect(() => {
     const setTitle = async () => {
       await getCurrentWindow().setTitle(tab.path);
-      toast.info(tab.path);
     };
     setTitle();
   }, [tab.path]);
@@ -157,7 +156,11 @@ export default function FileList({ className = '' }: { className: string }) {
           behavior: 'auto',
         });
       }
+
+      const keyHandlerDir = new ListFilesDirWalkerKeyHandler();
+      keyHandlerDir.handleKey(e);
     }
+
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   })

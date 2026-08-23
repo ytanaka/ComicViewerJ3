@@ -1,4 +1,5 @@
 import { useTabState } from "@/store/tab-state";
+import { fileCommands } from "./commands/file-commands";
 
 export class ListFilesSelectionKeyHandler {
   pageNum: number;
@@ -41,17 +42,25 @@ export class ListFilesSelectionKeyHandler {
   }
 }
 
-// export class ListFilesDirWalkerKeyHandler {
-//   handleKey(e: KeyboardEvent): boolean {
-//     const tab = useTabState.getState().getCurrentTab();
-//     const list = tab?.list;
-//     if (!list) return false;
-//     const focus = list.focusIndex;
-//     const files = list.getDirEntries();
-//     if (files.length === 0) return false;
+export class ListFilesDirWalkerKeyHandler {
+  handleKey(e: KeyboardEvent): boolean {
+    const tab = useTabState.getState().getCurrentTab();
+    if (!tab) return false;
+    const list = tab.list;
 
+    if (e.key === "Enter") {
+      const info = list.getFocusFileInfo();
+      if (!info || !info.metadata?.is_dir) return false;
 
-//     return false;
-//   }
+      fileCommands.moveChildDirectory(info.name);
+      e.preventDefault();
+    } else if (e.key === 'Backspace') {
+      fileCommands.moveParentDir();
+      e.preventDefault();
+    } else {
+      return false;
+    }
 
-// }
+    return true;
+  }
+}

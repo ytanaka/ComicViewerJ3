@@ -22,11 +22,14 @@ export class ListFiles {
     return this.dirEntries;
   }
 
-
   clearPath() {
     this.path = undefined;
     this.dirEntries = undefined;
     this.fileInfoList = undefined;
+  }
+
+  getFocusFileInfo(): FileInfo | undefined {
+    return this.fileInfoList?.[this.focusIndex];
   }
 
   updateDirEntries(path: string, list: DirEntry[]) {
@@ -47,7 +50,7 @@ export class ListFiles {
         this.anchorIndex = this.focusIndex;
       } else {
         // フォーカスしていたファイルがなくなった
-        this.focusIndex = Math.max(0, Math.min(this.focusIndex, list.length - 1));
+        this.focusIndex = 0;
         this.selectionIndexes = new Set();
         this.anchorIndex = this.focusIndex;
       }
@@ -111,7 +114,7 @@ export class ListFiles {
     const ent = this.dirEntries?.[index];
     if (!ent) return;
     if (fileInfo.name !== ent.name) {
-      console.error(`？？？？`)
+      console.error(`BUG: path = ${this.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`)
     }
     if (this.fileInfoList) this.fileInfoList[index] = fileInfo;
   }

@@ -8,7 +8,7 @@ use std::{
 use dashmap::DashMap;
 
 use crate::{
-    types::{DirEntry, FileId, FileInfo, FileMetadata, SortType, TabId},
+    types::{DirEntry, FileId, FileInfoOs, FileMetadata, SortType, TabId},
     util::to_unix_time,
 };
 
@@ -37,7 +37,7 @@ pub struct TabInfo {
     current_dir: Option<PathBuf>, // タブ作成直後はNone
     next_file_id: FileId,
 
-    files: HashMap<FileId, FileInfo>,
+    files: HashMap<FileId, FileInfoOs>,
     file_names: HashMap<OsString, FileId>,
 
     sort_type: SortType,
@@ -65,7 +65,7 @@ impl TabInfo {
             _tab_generation: 1,
         }
     }
-    pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfo>) {
+    pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOs>) {
         self.current_dir = Some(current_dir);
         self.files.clear();
         self.file_names.clear();
@@ -106,7 +106,7 @@ impl TabInfo {
         ret
     }
 
-    pub fn get_file_info(&mut self, file_id: FileId) -> Result<FileInfo, String> {
+    pub fn get_file_info(&mut self, file_id: FileId) -> Result<FileInfoOs, String> {
         let current_dir = self
             .current_dir
             .as_ref()
@@ -139,12 +139,12 @@ mod tests {
 
     use super::*;
 
-    fn mk_dummy_files(tab: &mut TabInfo, file_names: Vec<&str>) -> HashMap<FileId, FileInfo> {
+    fn mk_dummy_files(tab: &mut TabInfo, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOs> {
         let mut ret = HashMap::new();
         for fname in file_names {
             ret.insert(
                 tab.inc_file_id(),
-                FileInfo {
+                FileInfoOs {
                     name: OsString::from(fname),
                     metadata: None,
                 },

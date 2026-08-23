@@ -10,9 +10,7 @@ use anyhow::anyhow;
 use tauri::State;
 
 use crate::{
-    state::{AppState, TabInfo},
-    types::{DirEntry, FileId, FileInfo, SortType, TabId},
-    LOG_RESULT,
+    LOG_RESULT, state::{AppState, TabInfo}, types::{DirEntry, FileId, FileInfo, FileInfoOs, SortType, TabId},
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -99,11 +97,11 @@ fn read_dir_entries_impl(
 fn read_dir_entries_impl2(
     tab: &mut TabInfo,
     path: &Path,
-) -> anyhow::Result<HashMap<FileId, FileInfo>> {
-    let mut ret = HashMap::<FileId, FileInfo>::new();
+) -> anyhow::Result<HashMap<FileId, FileInfoOs>> {
+    let mut ret = HashMap::<FileId, FileInfoOs>::new();
     for entry in fs::read_dir(path)? {
         let entry = entry?;
-        let info = FileInfo {
+        let info = FileInfoOs {
             name: entry.file_name(),
             metadata: None,
         };
@@ -132,7 +130,7 @@ fn get_file_info_impl(state: &AppState, tab_id: TabId, file_id: &str) -> Result<
         Some(tab) => {
             let mut tab = tab.write().unwrap();
             let file_id: u64 = file_id.parse().map_err(|_| "invalid file_id")?;
-            Ok(tab.get_file_info(file_id)?)
+            Ok(tab.get_file_info(file_id).map(|f|f.to_js()) ?)
         }
     }
 }
@@ -244,17 +242,17 @@ mod tests {
 
         // f3-1.txt
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].id)).unwrap();
-        assert_eq!(finfo.name, OsString::from("f3-1.txt"));
+        assert_eq!(finfo.name, String::from("f3-1.txt"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, false);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(1));
         // f3-3.txt
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id)).unwrap();
-        assert_eq!(finfo.name, OsString::from("f3-3.txt"));
+        assert_eq!(finfo.name, String::from("f3-3.txt"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, false);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id)).unwrap();
-        assert_eq!(finfo.name, OsString::from("xxx"));
+        assert_eq!(finfo.name, String::from("xxx"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, true);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(0));
     }
