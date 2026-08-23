@@ -5,16 +5,18 @@ import { Menu } from './components/Menu';
 import { Toolbar } from './components/Toolbar';
 import { useTheme } from 'next-themes';
 import { TabContent } from './components/TabContent';
-import { TabBarWrapper } from './components/TabBarWrapper';
+import { HotKeys } from './components/HotKeys';
+import { TabBar } from './components/TabBar';
 
 function App() {
   const { resolvedTheme } = useTheme();
 
   return (
     <div className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm">
+      <HotKeys />
       <Menu></Menu>
       <Toolbar></Toolbar>
-      <TabBarWrapper />
+      <TabBar />
       <TabContent />
       <Toaster
         position="bottom-right"

@@ -1,4 +1,3 @@
-import { commands } from '@/lib/bindings';
 import { Kbd, KbdGroup } from './ui/kbd';
 import {
   Menubar,
@@ -10,28 +9,29 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from './ui/menubar';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 
-function ShortcutKey({ k }: { k: string[] }) {
-  if (k.length === 3) {
-    return (
-      <MenubarShortcut>
-        <KbdGroup>
-          <Kbd>{k[0]}</Kbd>
-          <span>{k[1]}</span>
-          <Kbd>{k[2]}</Kbd>
-        </KbdGroup>
-      </MenubarShortcut>
-    );
-  } else {
-    return (
-      <MenubarShortcut>
-        <KbdGroup>
-          <Kbd>s[0]</Kbd>
-        </KbdGroup>
-      </MenubarShortcut>
-    );
-  }
+import { AppHotkey, AppMenuItem, menuItems } from '@/lib/menu-items';
+
+function MyHotkey({ k }: { k: AppHotkey }) {
+  return (
+    <MenubarShortcut>
+      <KbdGroup>
+        {k.alt && <><Kbd>Alt</Kbd><span>+</span></>}
+        {k.shift && <><Kbd>Shift</Kbd><span>+</span></>}
+        {k.ctrl && <><Kbd>Ctrl</Kbd><span>+</span></>}
+        <Kbd>{k.key}</Kbd>
+      </KbdGroup>
+    </MenubarShortcut>
+  );
+}
+
+function MyMenuItem({ m }: { m: AppMenuItem }) {
+  return (
+    <MenubarItem onClick={m.exec}>
+      {m.value}
+      {m.hotkey && <MyHotkey k={m.hotkey} />}
+    </MenubarItem>
+  )
 }
 
 export function Menu() {
@@ -41,57 +41,41 @@ export function Menu() {
         <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
           <MenubarGroup>
-            <MenubarItem>
-              ディレクトリを開く
-              <ShortcutKey k={['Ctrl', '+', 'O']} />
-            </MenubarItem>
-            <MenubarItem>
-              ファイル作成
-              <MenubarShortcut>
-                <KbdGroup>
-                  <Kbd>Ctrl</Kbd>
-                  <span>+</span>
-                  <Kbd>F</Kbd>
-                </KbdGroup>
-              </MenubarShortcut>
-            </MenubarItem>
-            <MenubarItem>
-              ディレクトリ作成
-              <MenubarShortcut>
-                <KbdGroup>
-                  <Kbd>Ctrl</Kbd>
-                  <span>+</span>
-                  <Kbd>K</Kbd>
-                </KbdGroup>
-              </MenubarShortcut>
-            </MenubarItem>
+            <MyMenuItem m={menuItems.openDir} />
+            <MyMenuItem m={menuItems.createEmptyFile} />
+            <MyMenuItem m={menuItems.createDir} />
+            <MyMenuItem m={menuItems.openDir} />
+            <MyMenuItem m={menuItems.openFileProperty} />
           </MenubarGroup>
           <MenubarSeparator />
           <MenubarGroup>
-            <MenubarItem
-              onClick={async () => {
-                const window = getCurrentWindow();
-                await window.close();
-                commands.exitApp();
-              }}
-            >
-              終了
-              <MenubarShortcut>
-                <KbdGroup>
-                  <Kbd>Ctrl</Kbd>
-                  <span>+</span>
-                  <Kbd>Q</Kbd>
-                </KbdGroup>
-              </MenubarShortcut>
-            </MenubarItem>
+            <MyMenuItem m={menuItems.exitApp} />
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
         <MenubarTrigger>Edit</MenubarTrigger>
+        <MenubarContent className="w-auto min-w-max">
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.cutFile} />
+            <MyMenuItem m={menuItems.copyFile} />
+            <MyMenuItem m={menuItems.pasteFile} />
+          </MenubarGroup>
+          <MenubarSeparator />
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.deleteFile} />
+            <MyMenuItem m={menuItems.renameFile} />
+          </MenubarGroup>
+        </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
-        <MenubarTrigger>View</MenubarTrigger>
+        <MenubarTrigger>Tab</MenubarTrigger>
+        <MenubarContent className="w-auto min-w-max">
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.cloneTab} />
+            <MyMenuItem m={menuItems.closeCurrentTab} />
+          </MenubarGroup>
+        </MenubarContent>
       </MenubarMenu>
     </Menubar>
   );

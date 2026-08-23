@@ -1,16 +1,19 @@
 import { DirEntry } from './bindings';
+import { FileFocusHistory } from './file-focus-history';
 
 export class ListFiles {
+  private path?: string = undefined;
   private list?: DirEntry[] = undefined;
 
-  focusIndex: number = 0; //
-  focusName?: string = undefined;
+  private focusHistory: FileFocusHistory = new FileFocusHistory();
+
+  focusIndex: number = 0; // listが空のときも0
   anchorIndex: number = 0;
   selectionIndexes: Set<number> = new Set();
 
   constructor() { }
 
-  initialized(): boolean {
+  isInitialized(): boolean {
     return this.list !== undefined
   }
   dirEntries(): DirEntry[] {
@@ -18,9 +21,16 @@ export class ListFiles {
     return this.list;
   }
 
-  updateDirEntries(list: DirEntry[]) {
+
+  clearPath() {
+    this.path = undefined;
+    this.list = undefined;
+  }
+
+  updateDirEntries(path: string, list: DirEntry[]) {
     // 以前のフォーカス状態をなるべく保持する
-    const prevName: string | undefined = this.list?.[this.focusIndex]?.name;
+    this.path = path;
+    const prevName: string | undefined = this.focusHistory.find(path);
     const newName: string | undefined = list[this.focusIndex]?.name;
     if (!!prevName && prevName === newName) {
       // 新しいリストの同じ位置に同じ名前がある
@@ -36,7 +46,6 @@ export class ListFiles {
       } else {
         // フォーカスしていたファイルがなくなった
         this.focusIndex = Math.max(0, Math.min(this.focusIndex, list.length - 1));
-        this.focusName = list[this.focusIndex]?.name;
         this.selectionIndexes = new Set();
         this.anchorIndex = this.focusIndex;
       }
@@ -44,7 +53,11 @@ export class ListFiles {
     this.list = list;
   }
 
-  get(index: number): DirEntry {
+  #updateHistory() {
+    if (this.path === undefined || this.list === undefined || this.list.length === 0) return;
+    this.focusHistory.push(this.path, this.list[this.focusIndex].name);
+  }
+  #checkIndex(index: number): DirEntry {
     const ret = this.list?.[index];
     if (ret === undefined)
       throw RangeError(`index: ${index} is out of array. ListFiles.list.length=${this.list?.length}`);
@@ -54,28 +67,27 @@ export class ListFiles {
   // ↑↓で普通にフォーカス移動、マウスクリックでファイル選択
   // Focus, Anchor, Select が変わる
   moveFocusNormal(index: number) {
-    const sel = this.get(index);
+    this.#checkIndex(index);
     this.focusIndex = index;
-    this.focusName = sel.name;
     this.anchorIndex = index;
     this.selectionIndexes = new Set([index]);
+    this.#updateHistory();
   }
 
   // Ctrl + ↑↓でフォーカスだけが移動する
   // Select が変化せずに Focus, Anchor が変わる
   moveFocusOnly(index: number) {
-    const sel = this.get(index);
+    this.#checkIndex(index);
     this.focusIndex = index;
-    this.focusName = sel.name;
     this.anchorIndex = index;
+    this.#updateHistory();
   }
 
   // Shift + ↑↓で選択エリアを変更する
   // Anchor が変化せずに Focus, Select が変わる
   moveFocusWithSelectionArea(index: number) {
-    const sel = this.get(index);
+    this.#checkIndex(index);
     this.focusIndex = index;
-    this.focusName = sel.name;
 
     // 選択状態は、anchor -> focus まで
     this.selectionIndexes.clear();
@@ -88,5 +100,6 @@ export class ListFiles {
     for (let i = from; i <= to; i++) {
       this.selectionIndexes.add(i);
     }
+    this.#updateHistory();
   }
 }

@@ -106,7 +106,7 @@ export default function FileList({ className = '' }: { className: string }) {
 
   const { data, isFetching } = useQuery({
     staleTime: 0,
-    enabled: !tab.list.initialized(),
+    enabled: !tab.list.isInitialized(),
     queryKey: [tab.id, tab.path],
     queryFn: async () => {
       const ret = await commands.readDirEntries(tab.id, tab.path);
@@ -121,7 +121,7 @@ export default function FileList({ className = '' }: { className: string }) {
   });
   useEffect(() => {
     if (data) {
-      tab.list.updateDirEntries(data);
+      tab.list.updateDirEntries(tab.path, data);
       updateTab(currentTabIndex, tab);
     }
   }, [updateTab, data, currentTabIndex, tab])
