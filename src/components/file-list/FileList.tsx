@@ -67,7 +67,7 @@ function FileListRow({
 }) {
   const { data } = useQuery({
     staleTime: 0,
-    queryKey: [dirEntry.id],
+    queryKey: [tabId, dirEntry.id],
     queryFn: async () => {
       const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
       if (ret.status === 'error') {
@@ -101,7 +101,7 @@ function FileListRow({
   );
 }
 
-export default function FileList({ className = '' }: { className: string }) {
+export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
 
   const tabs = useTabState(state => state.tabs);
@@ -166,7 +166,7 @@ export default function FileList({ className = '' }: { className: string }) {
   })
 
   return (
-    <div className={`${className} flex flex-col`}>
+    <div className={"flex-1 flex flex-col"}>
       <div className="flex-1">
         {isFetching || data === undefined ? (
           <div />
