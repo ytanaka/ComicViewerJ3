@@ -14,6 +14,8 @@ interface TabState {
   moveTab: (fromIndex: number, toIndex: number) => void;
 
   updateTab: (index: number, tab: TabInfo) => void;
+
+  getCurrentTab: () => TabInfo | undefined;
 }
 
 export type TabInfo = {
@@ -85,7 +87,7 @@ export const useTabState = create<TabState>()(
           // 最後のタブが削除されたら、左側のタブをカレントにする
           return { tabs: newList, currentTabIndex: Math.max(0, Math.min(prev.currentTabIndex, prev.tabs.length - 2)) };
         });
-        
+
         return removeId;
       },
 
@@ -96,6 +98,12 @@ export const useTabState = create<TabState>()(
           return { tabs };
         });
       },
+
+      getCurrentTab: (): TabInfo | undefined => {
+        const { tabs, currentTabIndex } = get();
+        if (tabs.length === 0) return undefined;
+        return tabs[currentTabIndex];
+      }
     }),
     {
       name: 'tab-state',

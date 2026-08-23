@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { commands, DirEntry, FileInfo } from '@/lib/bindings';
 import { unixTime2str } from '@/lib/date-time-util';
 import { useTabState } from '@/store/tab-state';
-import { ListFilesKeyHandler } from '@/lib/list-files-key-handler';
+import { ListFilesSelectionKeyHandler } from '@/lib/list-files-key-handler';
 
 function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let icon: string;
@@ -79,6 +79,11 @@ function FileListRow({
       return ret.data;
     },
   });
+  useEffect(() => {
+    if (data === undefined) return;
+    const tab = useTabState.getState().getCurrentTab();
+    if (tab) tab.list.setFileInfo(index, data);
+  }, [data, index]);
 
   return (
     <div
@@ -144,7 +149,7 @@ export default function FileList({ className = '' }: { className: string }) {
   // キー操作
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      const keyHandler = new ListFilesKeyHandler(tab.list, visibleListRange.current);
+      const keyHandler = new ListFilesSelectionKeyHandler(visibleListRange.current);
       if (keyHandler.handleKey(e)) {
         updateTab(currentTabIndex, tab);
         virtuoso.current?.scrollIntoView({

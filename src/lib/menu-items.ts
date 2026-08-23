@@ -36,7 +36,6 @@ export class AppHotkey {
       }
     })
   }
-
 }
 
 export const menuItems = {
@@ -58,7 +57,6 @@ export const menuItems = {
   nextTab: M("次のタブ", () => tabCommands.setCurrentTabNextPrev(1), "Ctrl+PageDown"),
   prevTab: M("前のタブ", () => tabCommands.setCurrentTabNextPrev(-1), "Ctrl+PageUp"),
 };
-
 
 export function getAllMenuItems() {
   return Object.values(menuItems);

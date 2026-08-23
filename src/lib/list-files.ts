@@ -1,9 +1,10 @@
-import { DirEntry } from './bindings';
+import { DirEntry, FileInfo } from './bindings';
 import { FileFocusHistory } from './file-focus-history';
 
 export class ListFiles {
   private path?: string = undefined;
-  private list?: DirEntry[] = undefined;
+  private dirEntries?: DirEntry[] = undefined;
+  private fileInfoList?: FileInfo[] = undefined; // sparse array
 
   private focusHistory: FileFocusHistory = new FileFocusHistory();
 
@@ -14,17 +15,18 @@ export class ListFiles {
   constructor() { }
 
   isInitialized(): boolean {
-    return this.list !== undefined
+    return this.dirEntries !== undefined
   }
-  dirEntries(): DirEntry[] {
-    if (this.list === undefined) throw new ReferenceError("list not initialized");
-    return this.list;
+  getDirEntries(): DirEntry[] {
+    if (this.dirEntries === undefined) throw new ReferenceError("list not initialized");
+    return this.dirEntries;
   }
 
 
   clearPath() {
     this.path = undefined;
-    this.list = undefined;
+    this.dirEntries = undefined;
+    this.fileInfoList = undefined;
   }
 
   updateDirEntries(path: string, list: DirEntry[]) {
@@ -50,17 +52,18 @@ export class ListFiles {
         this.anchorIndex = this.focusIndex;
       }
     }
-    this.list = list;
+    this.dirEntries = list;
+    this.fileInfoList = [];
   }
 
   #updateHistory() {
-    if (this.path === undefined || this.list === undefined || this.list.length === 0) return;
-    this.focusHistory.push(this.path, this.list[this.focusIndex].name);
+    if (this.path === undefined || this.dirEntries === undefined || this.dirEntries.length === 0) return;
+    this.focusHistory.push(this.path, this.dirEntries[this.focusIndex].name);
   }
   #checkIndex(index: number): DirEntry {
-    const ret = this.list?.[index];
+    const ret = this.dirEntries?.[index];
     if (ret === undefined)
-      throw RangeError(`index: ${index} is out of array. ListFiles.list.length=${this.list?.length}`);
+      throw RangeError(`index: ${index} is out of array. ListFiles.list.length=${this.dirEntries?.length}`);
     return ret;
   }
 
@@ -101,5 +104,15 @@ export class ListFiles {
       this.selectionIndexes.add(i);
     }
     this.#updateHistory();
+  }
+
+  // Rustから取得したファイル情報を格納する
+  setFileInfo(index: number, fileInfo: FileInfo) {
+    const ent = this.dirEntries?.[index];
+    if (!ent) return;
+    if (fileInfo.name !== ent.name) {
+      console.error(`？？？？`)
+    }
+    if (this.fileInfoList) this.fileInfoList[index] = fileInfo;
   }
 }
