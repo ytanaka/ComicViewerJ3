@@ -1,0 +1,7 @@
+[target.x86_64-unknown-linux-gnu]
+
+# ChatGPTによると、
+# Rust 1.96/1.97 + LLVM 22 系では、Linux/x86_64 で LLVM 関連のクラッシュが報告
+# cc 経由で GNU ld を使わせると、この LLVM/lld クラッシュを回避できる可能性
+
+linker = "cc"
