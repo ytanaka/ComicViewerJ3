@@ -29,7 +29,7 @@ export const tabCommands = {
 
   async removeTab(index: number) {
     if (st().tabs.length === 0) return;
-    console.log(`remove ${index}`);
+    console.log(`tabCommands.removeTab(${index})`);
     const removedId = st().removeTab(index);
     await commands.removeTab(removedId);
   },

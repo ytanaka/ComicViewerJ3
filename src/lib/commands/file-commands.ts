@@ -15,7 +15,7 @@ export const fileCommands = {
       const parent = await tauri_dirname(tab.path);
       this.movePath(tab, parent);
     } catch (e) {
-      console.log(`moveParentDir(): current = ${tab.path}, error = ${e}`);
+      console.log(`fileCommands.moveParentDir(): current = ${tab.path}, error = ${e}`);
       return;
     }
   },

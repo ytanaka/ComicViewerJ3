@@ -11,6 +11,8 @@ import { TabBar } from './components/TabBar';
 function App() {
   const { resolvedTheme } = useTheme();
 
+  console.log("<App>");
+
   return (
     <div className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm">
       <HotKeys />

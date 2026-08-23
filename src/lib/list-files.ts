@@ -14,6 +14,10 @@ export class ListFiles {
 
   constructor() { }
 
+  toDebugString() {
+    return `path:${this.path}, dirEntries:[${this.dirEntries?.length}], focus:${this.focusIndex}`;
+  }
+
   isInitialized(): boolean {
     return this.dirEntries !== undefined
   }
@@ -114,7 +118,7 @@ export class ListFiles {
     const ent = this.dirEntries?.[index];
     if (!ent) return;
     if (fileInfo.name !== ent.name) {
-      console.error(`BUG: path = ${this.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`)
+      console.error(`BUG: ListFiles.setFileInfo() path = ${this.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`)
     }
     if (this.fileInfoList) this.fileInfoList[index] = fileInfo;
   }

@@ -71,11 +71,11 @@ function FileListRow({
     queryFn: async () => {
       const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
       if (ret.status === 'error') {
-        console.error('getFileInfo(', dirEntry.name, ') => ', ret.error);
+        console.error('FileList: getFileInfo(', dirEntry.name, ') => ', ret.error);
         toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
         throw Error(ret.error);
       }
-      // console.log('getFileInfo(', dirEntry.name, ') => ', ret.data);
+      // console.log('FileList: getFileInfo(', dirEntry.name, ') => ', ret.data);
       return ret.data;
     },
   });
@@ -115,7 +115,7 @@ export default function FileList() {
     queryKey: [tab.id, tab.path],
     queryFn: async () => {
       const ret = await commands.readDirEntries(tab.id, tab.path);
-      console.log(`readDirEntries(${tab.path}) => `, ret);
+      console.log(`FileList: readDirEntries(${tab.path}) => `, ret);
       if (ret.status === 'error') {
         console.error(`FileList getDirEntries(${tab.id}, ${tab.path}) error: `, ret.error);
         toast.error(`ディレクトリ情報が取得できません`);
@@ -164,6 +164,8 @@ export default function FileList() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   })
+
+  console.log(`<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.list = ${tab.list.toDebugString()}`);
 
   return (
     <div className={"flex-1 flex flex-col"}>
