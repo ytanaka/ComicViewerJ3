@@ -21,6 +21,7 @@ export class ListFiles {
   private path?: string = undefined;
   private dirEntries?: DirEntry[] = undefined;
   private fileInfoList?: FileInfo[] = undefined; // sparse array
+  private fileErrorList?: string[] = undefined; // sparse array
 
   private focusHistory: FileFocusHistory = new FileFocusHistory();
 
@@ -49,7 +50,24 @@ export class ListFiles {
   }
 
   getFocusFileInfo(): FileInfo | undefined {
-    return this.fileInfoList?.[this.focusIndex];
+    return this.getFileInfo(this.focusIndex);
+  }
+  getFileInfo(index: number): FileInfo | undefined {
+    return this.fileInfoList?.[index];
+  }
+  setFileInfo(index: number, fileInfo: FileInfo) {
+    const ent = this.dirEntries?.[index];
+    if (!ent) return;
+    if (fileInfo.name !== ent.name) {
+      console.error(`BUG: ListFiles.setFileInfo() path = ${this.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`)
+    }
+    if (this.fileInfoList) this.fileInfoList[index] = fileInfo;
+  }
+  getFileError(index: number): string | undefined {
+    return this.fileErrorList?.[index];
+  }
+  setFileError(index: number, msg: string) {
+    if (this.fileErrorList) this.fileErrorList[index] = msg;
   }
 
   updateDirEntries(path: string, list: DirEntry[]) {
@@ -77,6 +95,7 @@ export class ListFiles {
     }
     this.dirEntries = list;
     this.fileInfoList = [];
+    this.fileErrorList = [];
   }
 
   #updateHistory() {
@@ -127,15 +146,5 @@ export class ListFiles {
       this.selectionIndexes.add(i);
     }
     this.#updateHistory();
-  }
-
-  // Rustから取得したファイル情報を格納する
-  setFileInfo(index: number, fileInfo: FileInfo) {
-    const ent = this.dirEntries?.[index];
-    if (!ent) return;
-    if (fileInfo.name !== ent.name) {
-      console.error(`BUG: ListFiles.setFileInfo() path = ${this.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`)
-    }
-    if (this.fileInfoList) this.fileInfoList[index] = fileInfo;
   }
 }

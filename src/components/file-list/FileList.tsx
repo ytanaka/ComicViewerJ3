@@ -6,14 +6,18 @@ import { useQuery } from '@tanstack/react-query';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { toast } from 'sonner';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+
 import { commands, DirEntry, FileInfo } from '@/lib/bindings';
 import { unixTime2str } from '@/lib/date-time-util';
 import { useTabState } from '@/store/tab-state';
 import { ListFilesDirWalkerKeyHandler, ListFilesSelectionKeyHandler } from '@/lib/list-files-key-handler';
 
-function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
+function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined, errorMsg: string | undefined }) {
   let icon: string;
-  if (fileInfo === undefined || fileInfo.metadata === null) {
+  if (errorMsg) {
+    icon = '❌';
+  } else if (fileInfo === undefined || fileInfo.metadata === null) {
     icon = ' ';
   } else if (fileInfo?.metadata.is_dir) {
     icon = '📁';
@@ -23,7 +27,9 @@ function Icon({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   return <div className="w-[2ch] ml-1 mr-1">{icon}</div>;
 }
 function Name({ dirEntry }: { dirEntry: DirEntry }) {
-  return <div className="flex-1 ml-1 mr-1">{dirEntry.name}</div>;
+  return (
+    <div className="flex-1 ml-1 mr-1">{dirEntry.name}</div>
+  );
 }
 function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
   const [ext, setExt] = useState('');
@@ -66,15 +72,21 @@ function FileListRow({
   isSelected: boolean;
 }) {
   const updateCurrentTab = useTabState(state => state.updateCurrentTab);
+  const getCurrentTab = useTabState(state => state.getCurrentTab);
+  const tab = getCurrentTab();
 
   const { data } = useQuery({
     staleTime: 0,
     queryKey: [tabId, dirEntry.id],
+    enabled: tab.list.getFileInfo(index) === undefined && tab.list.getFileError(index) === undefined,
     queryFn: async () => {
       const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
       if (ret.status === 'error') {
         console.error('FileList: getFileInfo(', dirEntry.name, ') => ', ret.error);
         toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
+        updateCurrentTab((tab) => {
+          tab.list.setFileError(index, ret.error);
+        });
         throw Error(ret.error);
       }
       // console.log('FileList: getFileInfo(', dirEntry.name, ') => ', ret.data);
@@ -88,20 +100,33 @@ function FileListRow({
     });
   }, [data, index, updateCurrentTab]);
 
-  return (
+  const baseComponent = (
     <div
       className={`${index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900'} flex pl-1.5 pr-1.5 h-6`}
       style={{
         background: isSelected ? '#0078d4' : '',
       }}
     >
-      <Icon fileInfo={data} />
+      <Icon fileInfo={data} errorMsg={tab.list.getFileError(index)} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry} fileInfo={data} />
       <Size fileInfo={data} />
       <Modified fileInfo={data} />
     </div>
   );
+  const errorMsg = tab.list.getFileError(index);
+  if (errorMsg) {
+    return (
+      <Tooltip>
+        <TooltipTrigger render={baseComponent} />
+        <TooltipContent>
+          <p>{errorMsg}</p>
+        </TooltipContent>
+      </Tooltip>
+    )
+  } else {
+    return (baseComponent);
+  }
 }
 
 export default function FileList() {
@@ -153,7 +178,7 @@ export default function FileList() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const keyHandler = new ListFilesSelectionKeyHandler(visibleListRange.current);
-      if (!keyHandler.handleKey(e)) {
+      if (keyHandler.handleKey(e)) {
         virtuoso.current?.scrollIntoView({
           index: tab.list.focusIndex,
           behavior: 'auto',
@@ -174,7 +199,7 @@ export default function FileList() {
     <div className={"flex-1 flex flex-col"}>
       <div className="flex-1">
         {isFetching || data === undefined ? (
-          <div />
+          <div>更新中</div>
         ) : (
           <Virtuoso
             ref={virtuoso}
