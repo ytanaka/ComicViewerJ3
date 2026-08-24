@@ -122,7 +122,7 @@ export const useTabState = create<TabState>()(
         };
       },
       onRehydrateStorage: () => state => {
-        console.log('TabState: onRehydrateStorage !!!', state);
+        console.info('TabState: onRehydrateStorage !!!', state);
         if (!state) return;
         for (let i = 0; i < state.tabs.length; i++) {
           state.tabs[i].list = new ListFiles();

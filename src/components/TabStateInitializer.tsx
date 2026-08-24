@@ -13,7 +13,7 @@ export function TabStateInitializer({ children }: { children: ReactNode }) {
   useEffect(() => {
     const init = async () => {
       for (const tabId of await commands.getTabIds()) {
-        console.log('TabStateInitializer: remove unused old tabId: ', tabId);
+        console.info('TabStateInitializer: remove unused old tabId: ', tabId);
         await commands.removeTab(tabId);
       }
 

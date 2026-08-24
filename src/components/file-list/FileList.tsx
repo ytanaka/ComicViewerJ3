@@ -82,14 +82,14 @@ function FileListRow({
     queryFn: async () => {
       const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
       if (ret.status === 'error') {
-        console.error('FileList: getFileInfo(', dirEntry.name, ') => ', ret.error);
+        console.warn('FileList: getFileInfo(', dirEntry.name, ') => ', ret.error);
         toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
         updateCurrentTab((tab) => {
           tab.list.setFileError(index, ret.error);
         });
         throw Error(ret.error);
       }
-      // console.log('FileList: getFileInfo(', dirEntry.name, ') => ', ret.data);
+      // console.debug('FileList: getFileInfo(', dirEntry.name, ') => ', ret.data);
       return ret.data;
     },
   });
@@ -143,7 +143,7 @@ export default function FileList() {
     queryKey: [tab.id, tab.path],
     queryFn: async () => {
       const ret = await commands.readDirEntries(tab.id, tab.path);
-      console.log(`FileList: readDirEntries(${tab.path}) => `, ret);
+      console.info(`FileList: readDirEntries(${tab.path}) => `, ret);
       if (ret.status === 'error') {
         console.error(`FileList getDirEntries(${tab.id}, ${tab.path}) error: `, ret.error);
         toast.error(`ディレクトリ情報が取得できません`);
@@ -193,7 +193,7 @@ export default function FileList() {
     return () => window.removeEventListener("keydown", handler);
   })
 
-  console.log(`<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.list = ${tab.list.toDebugString()}`);
+  console.debug(`<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.list = ${tab.list.toDebugString()}`);
 
   return (
     <div className={"flex-1 flex flex-col"}>
