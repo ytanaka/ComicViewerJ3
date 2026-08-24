@@ -9,15 +9,14 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 import { commands, DirEntry, FileInfo } from '@/lib/bindings';
-import { unixTime2str } from '@/lib/date-time-util';
 import { useTabState } from '@/store/tab-state';
 import { ListFilesDirWalkerKeyHandler, ListFilesSelectionKeyHandler } from '@/lib/list-files-key-handler';
 import { FileListHeader } from './FileListHeader';
 import { FileListHeaderN, useUiState } from '@/store/ui-state';
+import { unixTime2str } from '@/lib/date-time-util';
 
 function useHeaderSize(n: FileListHeaderN): number {
-  const get = useUiState(state => state.getFileListHeaderSizes)
-  return get()[n];
+  return useUiState(state => state.fileListHeaderSizes)[n];
 }
 
 function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined, errorMsg: string | undefined }) {

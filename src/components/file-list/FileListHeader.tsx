@@ -1,6 +1,7 @@
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resizable"
-import { FileListHeaderN, useUiState } from "@/store/ui-state";
 import { useRef } from "react";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resizable"
+
+import { FileListHeaderN, useUiState } from "@/store/ui-state";
 
 export function FileListHeader() {
   const getFileListHeaderSize = useUiState(state => state.getFileListHeaderSizes);
