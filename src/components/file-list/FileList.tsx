@@ -12,6 +12,7 @@ import { commands, DirEntry, FileInfo } from '@/lib/bindings';
 import { unixTime2str } from '@/lib/date-time-util';
 import { useTabState } from '@/store/tab-state';
 import { ListFilesDirWalkerKeyHandler, ListFilesSelectionKeyHandler } from '@/lib/list-files-key-handler';
+import { FileListHeader } from './FileListHeader';
 
 function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined, errorMsg: string | undefined }) {
   let icon: string;
@@ -28,7 +29,7 @@ function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined, errorMsg
 }
 function Name({ dirEntry }: { dirEntry: DirEntry }) {
   return (
-    <div className="flex-1 ml-1 mr-1">{dirEntry.name}</div>
+    <div className="flex-1 truncate ml-1 mr-1">{dirEntry.name}</div>
   );
 }
 function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
@@ -47,7 +48,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
     getExt();
   }, [dirEntry.name, isFile]);
 
-  return <div className="w-[5ch] ml-1 mr-1">{ext}</div>;
+  return <div className="w-[5ch] truncate ml-1 mr-1">{ext}</div>;
 }
 function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let size = undefined;
@@ -197,6 +198,7 @@ export default function FileList() {
 
   return (
     <div className={"flex-1 flex flex-col"}>
+      <FileListHeader />
       <div className="flex-1">
         {isFetching || data === undefined ? (
           <div>更新中</div>

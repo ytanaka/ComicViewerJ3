@@ -27,7 +27,7 @@ export function TabBar() {
         }}
         modifiers={defaults => [...defaults, RestrictToHorizontalAxis]}
       >
-        <div className="flex">
+        <div className="flex overflow-hidden">
           {tabs.map((t, i) => (
             <TabButton
               key={t.id}
@@ -66,11 +66,11 @@ function TabButton({
     index: index,
   });
   return (
-    <div ref={ref} className="relative inline-block group">
+    <div ref={ref} className="flex-1 truncate relative inline-block group">
       <Button
         ref={handleRef}
         variant={`${isSelected ? 'outline' : 'secondary'}`}
-        className={`${isSelected ? '' : 'font-light'}`}
+        className={`block truncate text-left w-full max-w-full ${isSelected ? '' : 'font-light'}`}
       >
         {tab.path}
       </Button>
