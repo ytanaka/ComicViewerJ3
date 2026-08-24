@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export enum FileListHeaderN {
-  Name = 0,
+  Icon = 0,
+  Name,
   Ext,
   Size,
   Date
@@ -18,7 +19,7 @@ export interface UiState {
 export const useUiState = create<UiState>()(
   persist(
     (set, get) => ({
-      fileListHeaderSizes: [70, 10, 10, 20],
+      fileListHeaderSizes: [40, 600, 80, 80, 160],
 
       getFileListHeaderSizes: () => {
         return get().fileListHeaderSizes;

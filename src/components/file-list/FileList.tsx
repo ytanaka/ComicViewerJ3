@@ -21,6 +21,7 @@ function useHeaderSize(n: FileListHeaderN): number {
 }
 
 function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined, errorMsg: string | undefined }) {
+  const width = useHeaderSize(FileListHeaderN.Icon);
   let icon: string;
   if (errorMsg) {
     icon = '❌';
@@ -31,12 +32,11 @@ function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined, errorMsg
   } else {
     icon = '📄';
   }
-  return <div className="w-[3%] ml-1 mr-1">{icon}</div>;
+  return <div style={{ width: `${width}px` }} className="box-border w-[3%] pl-1 pr-1">{icon}</div>;
 }
 function Name({ dirEntry }: { dirEntry: DirEntry }) {
-  const width = useHeaderSize(FileListHeaderN.Name);
   return (
-    <div className={`shrink-0 min-w-0 w-[${width}%] truncate ml-1 mr-1`}>{dirEntry.name}</div>
+    <div className={"box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1"}>{dirEntry.name}</div>
   );
 }
 function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
@@ -56,7 +56,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
     getExt();
   }, [dirEntry.name, isFile]);
 
-  return <div className={`w-[${width}%] truncate ml-1 mr-1`}>{ext}</div>;
+  return <div style={{ width: `${width}px` }} className={"box-border truncate pl-1 pr-1"}>{ext}</div>;
 }
 function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   const width = useHeaderSize(FileListHeaderN.Size);
@@ -64,11 +64,11 @@ function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   if (!fileInfo?.metadata?.is_dir) {
     size = fileInfo?.metadata?.size;
   }
-  return <div className={`w-[${width}%] ml-1 mr-1 text-right`}>{size}</div>;
+  return <div style={{ width: `${width}px` }} className={"box-border truncate pl-1 pr-1 text-right"}>{size}</div>;
 }
 function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   const width = useHeaderSize(FileListHeaderN.Date);
-  return <div className={`w-[${width}%] ml-1 mr-1`}>{unixTime2str(fileInfo?.metadata?.modified)}</div>;
+  return <div style={{ width: `${width}px` }} className={"box-border truncate pl-1 pr-1"}>{unixTime2str(fileInfo?.metadata?.modified)}</div>;
 }
 
 function FileListRow({
