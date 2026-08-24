@@ -1,6 +1,22 @@
 import { DirEntry, FileInfo } from './bindings';
 import { FileFocusHistory } from './file-focus-history';
 
+// Zustand で管理している TabState の内部で使用するクラス
+// 
+// ※ このクラスの更新メソッドを呼ぶときは、TabState.updateTab(), updateCurrentTab() を使うこと
+//    そうしないと、zustand のデータ不整合が発生する
+//
+// コンポーネントの中では、
+//   const updateCurrentTab = useTabState(state => state.updateCurrentTab);
+//   updateCurrentTab(tab => {
+//     tab.list.setFileInfo(index, data);
+//   });
+//
+// ロジックの中では、
+//   useTabState.getState().updateCurrentTab((tab) => {
+//     tab.list.clearPath();
+//   }
+
 export class ListFiles {
   private path?: string = undefined;
   private dirEntries?: DirEntry[] = undefined;

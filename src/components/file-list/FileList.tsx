@@ -65,6 +65,8 @@ function FileListRow({
   dirEntry: DirEntry;
   isSelected: boolean;
 }) {
+  const updateCurrentTab = useTabState(state => state.updateCurrentTab);
+
   const { data } = useQuery({
     staleTime: 0,
     queryKey: [tabId, dirEntry.id],
@@ -81,9 +83,10 @@ function FileListRow({
   });
   useEffect(() => {
     if (data === undefined) return;
-    const tab = useTabState.getState().getCurrentTab();
-    if (tab) tab.list.setFileInfo(index, data);
-  }, [data, index]);
+    updateCurrentTab(tab => {
+      tab.list.setFileInfo(index, data);
+    });
+  }, [data, index, updateCurrentTab]);
 
   return (
     <div
@@ -104,10 +107,10 @@ function FileListRow({
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
 
-  const tabs = useTabState(state => state.tabs);
-  const updateTab = useTabState(state => state.updateTab);
+  const getCurrentTab = useTabState(state => state.getCurrentTab);
+  const updateCurrentTab = useTabState(state => state.updateCurrentTab);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
-  const tab = tabs[currentTabIndex];
+  const tab = getCurrentTab();
 
   const { data, isFetching } = useQuery({
     staleTime: 0,
@@ -126,10 +129,11 @@ export default function FileList() {
   });
   useEffect(() => {
     if (data) {
-      tab.list.updateDirEntries(tab.path, data);
-      updateTab(currentTabIndex, tab);
+      updateCurrentTab((tab) => {
+        tab.list.updateDirEntries(tab.path, data);
+      });
     }
-  }, [updateTab, data, currentTabIndex, tab])
+  }, [updateCurrentTab, data, currentTabIndex])
 
   // タイトルバー設定
   useEffect(() => {
@@ -149,13 +153,12 @@ export default function FileList() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const keyHandler = new ListFilesSelectionKeyHandler(visibleListRange.current);
-      if (keyHandler.handleKey(e)) {
-        updateTab(currentTabIndex, tab);
+      if (!keyHandler.handleKey(e)) {
         virtuoso.current?.scrollIntoView({
           index: tab.list.focusIndex,
           behavior: 'auto',
         });
-      }
+      };
 
       const keyHandlerDir = new ListFilesDirWalkerKeyHandler();
       keyHandlerDir.handleKey(e);

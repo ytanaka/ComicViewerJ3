@@ -13,9 +13,10 @@ interface TabState {
   removeTab: (index: number) => number;
   moveTab: (fromIndex: number, toIndex: number) => void;
 
-  updateTab: (index: number, tab: TabInfo) => void;
+  updateTab: (index: number, fn: (tab: TabInfo) => void) => void;
+  updateCurrentTab: (fn: (tab: TabInfo) => void) => void;
 
-  getCurrentTab: () => TabInfo | undefined;
+  getCurrentTab: () => TabInfo;
 }
 
 export type TabInfo = {
@@ -91,17 +92,22 @@ export const useTabState = create<TabState>()(
         return removeId;
       },
 
-      updateTab: (index: number, tab: TabInfo) => {
+      updateTab: (index: number, fn: (tab: TabInfo) => void) => {
         set(prev => {
-          const tabs = [...prev.tabs];
-          tabs[index] = tab;
-          return { tabs };
+          fn(prev.tabs[index]);
+          return { tabs: [...prev.tabs] };
+        });
+      },
+      updateCurrentTab: (fn: (tab: TabInfo) => void) => {
+        set(prev => {
+          prev.updateTab(prev.currentTabIndex, fn);
+          return {};
         });
       },
 
-      getCurrentTab: (): TabInfo | undefined => {
+      getCurrentTab: (): TabInfo => {
         const { tabs, currentTabIndex } = get();
-        if (tabs.length === 0) return undefined;
+        if (tabs.length === 0) throw new Error("no tabs");
         return tabs[currentTabIndex];
       }
     }),
