@@ -43,11 +43,13 @@ function Name({ dirEntry }: { dirEntry: DirEntry }) {
 function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
   const width = useHeaderSize(FileListHeaderN.Ext);
   const [ext, setExt] = useState('');
-  const isFile = !fileInfo?.metadata?.is_dir;
 
   useEffect(() => {
     async function getExt() {
-      if (isFile) {
+      setExt('');
+      if (!fileInfo || !fileInfo.metadata) return;
+      const isDir = fileInfo.metadata.is_dir;
+      if (!isDir) {
         const ext = await path.extname(dirEntry.name).catch(() => {
           return '';
         });
@@ -55,7 +57,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
       }
     }
     getExt();
-  }, [dirEntry.name, isFile]);
+  }, [dirEntry.name, fileInfo]);
 
   return (
     <div style={{ width: `${width}px` }} className={'box-border truncate pl-1 pr-1'}>
@@ -71,7 +73,7 @@ function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   }
   return (
     <div style={{ width: `${width}px` }} className={'box-border truncate pl-1 pr-1 text-right'}>
-      {size}
+      {size?.toLocaleString()}
     </div>
   );
 }
@@ -225,7 +227,7 @@ export default function FileList() {
   const dirEntries = tab.files.isInitialized() ? tab.files.getDirEntries() : undefined;
 
   return (
-    <div className={'flex-1 flex flex-col'}>
+    <div className="flex flex-1 flex-col">
       <div className="flex-1">
         {isFetching || dirEntries === undefined ? (
           <div>更新中</div>

@@ -59,7 +59,6 @@ export function Menu() {
             <MyMenuItem m={menuItems.openDir} />
             <MyMenuItem m={menuItems.createEmptyFile} />
             <MyMenuItem m={menuItems.createDir} />
-            <MyMenuItem m={menuItems.openDir} />
             <MyMenuItem m={menuItems.openFileProperty} />
           </MenubarGroup>
           <MenubarSeparator />
