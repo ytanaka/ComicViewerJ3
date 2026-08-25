@@ -10,7 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 import { commands, DirEntry, FileInfo } from '@/lib/bindings';
 import { useTabState } from '@/store/tab-state';
-import { ListFilesDirWalkerKeyHandler, ListFilesSelectionKeyHandler } from '@/lib/list-files-key-handler';
+import { TabFilesDirWalkerKeyHandler, TabFilesSelectionKeyHandler } from '@/lib/tab-files-key-handler';
 import { FileListHeader } from './FileListHeader';
 import { FileListHeaderN, useUiState } from '@/store/ui-state';
 import { unixTime2str } from '@/lib/string-util';
@@ -19,7 +19,7 @@ function useHeaderSize(n: FileListHeaderN): number {
   return useUiState(state => state.fileListHeaderSizes)[n];
 }
 
-function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined, errorMsg: string | undefined }) {
+function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined; errorMsg: string | undefined }) {
   const width = useHeaderSize(FileListHeaderN.Icon);
   let icon: string;
   if (errorMsg) {
@@ -31,12 +31,14 @@ function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined, errorMsg
   } else {
     icon = '📄';
   }
-  return <div style={{ width: `${width}px` }} className="box-border w-[3%] pl-1 pr-1">{icon}</div>;
+  return (
+    <div style={{ width: `${width}px` }} className="box-border w-[3%] pl-1 pr-1">
+      {icon}
+    </div>
+  );
 }
 function Name({ dirEntry }: { dirEntry: DirEntry }) {
-  return (
-    <div className={"box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1"}>{dirEntry.name}</div>
-  );
+  return <div className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>{dirEntry.name}</div>;
 }
 function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
   const width = useHeaderSize(FileListHeaderN.Ext);
@@ -55,7 +57,11 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
     getExt();
   }, [dirEntry.name, isFile]);
 
-  return <div style={{ width: `${width}px` }} className={"box-border truncate pl-1 pr-1"}>{ext}</div>;
+  return (
+    <div style={{ width: `${width}px` }} className={'box-border truncate pl-1 pr-1'}>
+      {ext}
+    </div>
+  );
 }
 function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   const width = useHeaderSize(FileListHeaderN.Size);
@@ -63,11 +69,19 @@ function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   if (!fileInfo?.metadata?.is_dir) {
     size = fileInfo?.metadata?.size;
   }
-  return <div style={{ width: `${width}px` }} className={"box-border truncate pl-1 pr-1 text-right"}>{size}</div>;
+  return (
+    <div style={{ width: `${width}px` }} className={'box-border truncate pl-1 pr-1 text-right'}>
+      {size}
+    </div>
+  );
 }
 function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   const width = useHeaderSize(FileListHeaderN.Date);
-  return <div style={{ width: `${width}px` }} className={"box-border truncate pl-1 pr-1"}>{unixTime2str(fileInfo?.metadata?.modified)}</div>;
+  return (
+    <div style={{ width: `${width}px` }} className={'box-border truncate pl-1 pr-1'}>
+      {unixTime2str(fileInfo?.metadata?.modified)}
+    </div>
+  );
 }
 
 function FileListRow({
@@ -89,14 +103,14 @@ function FileListRow({
   const { data } = useQuery({
     staleTime: 0,
     queryKey: [tabId, dirEntry.id],
-    enabled: tab.list.getFileInfo(index) === undefined && tab.list.getFileError(index) === undefined,
+    enabled: tab.files.getFileInfo(index) === undefined && tab.files.getFileError(index) === undefined,
     queryFn: async () => {
       const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
       if (ret.status === 'error') {
         console.warn('FileList: getFileInfo(', dirEntry.name, ') => ', ret.error);
         toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
-        updateCurrentTab((tab) => {
-          tab.list.setFileError(index, ret.error);
+        updateCurrentTab(tab => {
+          tab.files.setFileError(index, ret.error);
         });
         throw Error(ret.error);
       }
@@ -107,11 +121,11 @@ function FileListRow({
   useEffect(() => {
     if (!data) return;
     updateCurrentTab(tab => {
-      tab.list.setFileInfo(index, data);
+      tab.files.setFileInfo(index, data);
     });
   }, [data, index, updateCurrentTab]);
 
-  const fileInfo = tab.list.getFileInfo(index);
+  const fileInfo = tab.files.getFileInfo(index);
   const baseComponent = (
     <div
       className={`${index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900'} flex w-full pl-1.5 pr-1.5 h-6`}
@@ -119,14 +133,14 @@ function FileListRow({
         background: isSelected ? '#0078d4' : '',
       }}
     >
-      <Icon fileInfo={fileInfo} errorMsg={tab.list.getFileError(index)} />
+      <Icon fileInfo={fileInfo} errorMsg={tab.files.getFileError(index)} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
       <Size fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </div>
   );
-  const errorMsg = tab.list.getFileError(index);
+  const errorMsg = tab.files.getFileError(index);
   if (errorMsg) {
     return (
       <Tooltip>
@@ -135,9 +149,9 @@ function FileListRow({
           <p>{errorMsg}</p>
         </TooltipContent>
       </Tooltip>
-    )
+    );
   } else {
-    return (baseComponent);
+    return baseComponent;
   }
 }
 
@@ -151,7 +165,7 @@ export default function FileList() {
 
   const { data, isFetching } = useQuery({
     staleTime: 0,
-    enabled: !tab.list.isInitialized(),
+    enabled: !tab.files.isInitialized(),
     queryKey: [tab.id, tab.path],
     queryFn: async () => {
       const ret = await commands.readDirEntries(tab.id, tab.path);
@@ -166,11 +180,11 @@ export default function FileList() {
   });
   useEffect(() => {
     if (data) {
-      updateCurrentTab((tab) => {
-        tab.list.updateDirEntries(tab.path, data);
+      updateCurrentTab(tab => {
+        tab.files.updateDirEntries(tab.path, data);
       });
     }
-  }, [updateCurrentTab, data])
+  }, [updateCurrentTab, data]);
 
   // タイトルバー設定
   useEffect(() => {
@@ -189,27 +203,29 @@ export default function FileList() {
   // キー操作
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      const keyHandler = new ListFilesSelectionKeyHandler(visibleListRange.current - 1); // ヘッダーがあるので -1
+      const keyHandler = new TabFilesSelectionKeyHandler(visibleListRange.current - 1); // ヘッダーがあるので -1
       if (keyHandler.handleKey(e)) {
         virtuoso.current?.scrollIntoView({
-          index: tab.list.focusIndex + 1, // ヘッダーがあるので +1
+          index: tab.files.focusIndex + 1, // ヘッダーがあるので +1
           behavior: 'auto',
         });
-      };
+      }
 
-      const keyHandlerDir = new ListFilesDirWalkerKeyHandler();
+      const keyHandlerDir = new TabFilesDirWalkerKeyHandler();
       keyHandlerDir.handleKey(e);
-    }
+    };
 
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  })
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  });
 
-  console.debug(`<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.list = ${tab.list.toDebugString()}`);
-  const dirEntries = tab.list.isInitialized() ? tab.list.getDirEntries() : undefined;
+  console.debug(
+    `<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.list = ${tab.files.toDebugString()}`
+  );
+  const dirEntries = tab.files.isInitialized() ? tab.files.getDirEntries() : undefined;
 
   return (
-    <div className={"flex-1 flex flex-col"}>
+    <div className={'flex-1 flex flex-col'}>
       <div className="flex-1">
         {isFetching || dirEntries === undefined ? (
           <div>更新中</div>
@@ -221,15 +237,16 @@ export default function FileList() {
             rangeChanged={handleRangeChanged}
             itemContent={index => {
               if (index === 0) {
-                return (<FileListHeader />)
+                return <FileListHeader />;
               } else {
                 return (
                   <FileListRow
                     index={index - 1}
                     tabId={tab.id}
                     dirEntry={dirEntries[index - 1]}
-                    isSelected={tab.list.focusIndex === index - 1}
-                  />);
+                    isSelected={tab.files.focusIndex === index - 1}
+                  />
+                );
               }
             }}
           />

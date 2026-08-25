@@ -1,5 +1,5 @@
-import { expect, test } from "vitest";
-import { FileFocusHistory } from "./file-focus-history";
+import { expect, test } from 'vitest';
+import { FileFocusHistory } from './file-focus-history';
 
 test('追加されること', () => {
   const hist = new FileFocusHistory(10);

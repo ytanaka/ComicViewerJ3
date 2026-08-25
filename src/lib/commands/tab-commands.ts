@@ -1,12 +1,12 @@
-import { homeDir } from "@tauri-apps/api/path";
+import { homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
-import { useTabState } from "@/store/tab-state";
-import { ListFiles } from "../list-files";
-import { commands } from "../bindings";
+import { useTabState } from '@/store/tab-state';
+import { TabFiles } from '../tab-files';
+import { commands } from '../bindings';
 
 function st() {
-  return useTabState.getState()
+  return useTabState.getState();
 }
 
 export const tabCommands = {
@@ -24,7 +24,7 @@ export const tabCommands = {
     const tabId = await commands.createTab();
     const path = index !== undefined ? st().tabs[index].path : await homeDir();
     const absPath = await tauri_path_resolve(path);
-    st().addTab({ id: tabId, path: absPath, list: new ListFiles() });
+    st().addTab({ id: tabId, path: absPath, files: new TabFiles() });
   },
 
   async removeTab(index: number) {
@@ -48,5 +48,5 @@ export const tabCommands = {
     if (index < 0) index = st().tabs.length - 1;
     else if (st().tabs.length <= index) index = 0;
     this.setCurrentTabIndex(index);
-  }
-}
+  },
+};

@@ -2,7 +2,7 @@ import { DirEntry, FileInfo } from './bindings';
 import { FileFocusHistory } from './file-focus-history';
 
 // Zustand で管理している TabState の内部で使用するクラス
-// 
+//
 // ※ このクラスの更新メソッドを呼ぶときは、TabState.updateTab(), updateCurrentTab() を使うこと
 //    そうしないと、zustand のデータ不整合が発生する
 //
@@ -17,7 +17,7 @@ import { FileFocusHistory } from './file-focus-history';
 //     tab.list.clearPath();
 //   }
 
-export class ListFiles {
+export class TabFiles {
   private path?: string = undefined;
   private dirEntries?: DirEntry[] = undefined;
   private fileInfoList?: FileInfo[] = undefined; // sparse array
@@ -29,17 +29,17 @@ export class ListFiles {
   anchorIndex: number = 0;
   selectionIndexes: Set<number> = new Set();
 
-  constructor() { }
+  constructor() {}
 
   toDebugString() {
     return `path:${this.path}, dirEntries:[${this.dirEntries?.length}], focus:${this.focusIndex}`;
   }
 
   isInitialized(): boolean {
-    return this.dirEntries !== undefined
+    return this.dirEntries !== undefined;
   }
   getDirEntries(): DirEntry[] {
-    if (this.dirEntries === undefined) throw new ReferenceError("list not initialized");
+    if (this.dirEntries === undefined) throw new ReferenceError('list not initialized');
     return this.dirEntries;
   }
 
@@ -59,7 +59,9 @@ export class ListFiles {
     const ent = this.dirEntries?.[index];
     if (!ent) return;
     if (fileInfo.name !== ent.name) {
-      console.error(`BUG: ListFiles.setFileInfo() path = ${this.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`)
+      console.error(
+        `BUG: TabFiles.setFileInfo() path = ${this.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`
+      );
     }
     if (this.fileInfoList) this.fileInfoList[index] = fileInfo;
   }
@@ -105,7 +107,7 @@ export class ListFiles {
   #checkIndex(index: number): DirEntry {
     const ret = this.dirEntries?.[index];
     if (ret === undefined)
-      throw RangeError(`index: ${index} is out of array. ListFiles.list.length=${this.dirEntries?.length}`);
+      throw RangeError(`index: ${index} is out of array. TabFiles.list.length=${this.dirEntries?.length}`);
     return ret;
   }
 

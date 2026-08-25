@@ -20,7 +20,9 @@ export function TabStateInitializer({ children }: { children: ReactNode }) {
       for (let i = 0; i < tabs.length; i++) {
         if (tabs[i].id === undefined) {
           const tabId = await commands.createTab();
-          updateTab(i, (t) => { t.id = tabId });
+          updateTab(i, t => {
+            t.id = tabId;
+          });
         }
       }
       initializing.current = false;

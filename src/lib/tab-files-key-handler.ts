@@ -1,7 +1,7 @@
-import { useTabState } from "@/store/tab-state";
-import { fileCommands } from "./commands/file-commands";
+import { useTabState } from '@/store/tab-state';
+import { fileCommands } from './commands/file-commands';
 
-export class ListFilesSelectionKeyHandler {
+export class TabFilesSelectionKeyHandler {
   pageNum: number;
 
   constructor(pageNum: number) {
@@ -13,27 +13,27 @@ export class ListFilesSelectionKeyHandler {
   handleKey(e: KeyboardEvent): boolean {
     let newIndex: number | null = null;
     const tab = useTabState.getState().getCurrentTab();
-    const focus = tab.list.focusIndex;
+    const focus = tab.files.focusIndex;
 
-    if (e.key === "ArrowDown") {
+    if (e.key === 'ArrowDown') {
       newIndex = focus + 1;
-    } else if (e.key === "ArrowUp") {
+    } else if (e.key === 'ArrowUp') {
       newIndex = focus - 1;
-    } else if (e.key === "PageDown") {
+    } else if (e.key === 'PageDown') {
       newIndex = focus + this.pageNum;
-    } else if (e.key === "PageUp") {
+    } else if (e.key === 'PageUp') {
       newIndex = focus - this.pageNum;
-    } else if (e.key === "Home") {
+    } else if (e.key === 'Home') {
       newIndex = 0;
-    } else if (e.key === "End") {
-      newIndex = tab.list.getDirEntries().length - 1;
+    } else if (e.key === 'End') {
+      newIndex = tab.files.getDirEntries().length - 1;
     }
 
     if (newIndex !== null) {
-      newIndex = Math.min(newIndex, tab.list.getDirEntries().length - 1);
+      newIndex = Math.min(newIndex, tab.files.getDirEntries().length - 1);
       newIndex = Math.max(newIndex, 0);
-      useTabState.getState().updateCurrentTab((tab) => {
-        tab.list.moveFocusNormal(newIndex as number);
+      useTabState.getState().updateCurrentTab(tab => {
+        tab.files.moveFocusNormal(newIndex as number);
       });
       e.preventDefault();
       return true;
@@ -43,12 +43,12 @@ export class ListFilesSelectionKeyHandler {
   }
 }
 
-export class ListFilesDirWalkerKeyHandler {
+export class TabFilesDirWalkerKeyHandler {
   handleKey(e: KeyboardEvent): boolean {
     const tab = useTabState.getState().getCurrentTab();
 
-    if (e.key === "Enter") {
-      const info = tab.list.getFocusFileInfo();
+    if (e.key === 'Enter') {
+      const info = tab.files.getFocusFileInfo();
       if (!info || !info.metadata?.is_dir) return false;
 
       fileCommands.moveToChildDirectory(info.name);

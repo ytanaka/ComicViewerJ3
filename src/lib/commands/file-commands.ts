@@ -1,9 +1,8 @@
-import { useTabState } from "@/store/tab-state"
-import { resolve as tauri_resolve, dirname as tauri_dirname } from "@tauri-apps/api/path";
-
+import { useTabState } from '@/store/tab-state';
+import { resolve as tauri_resolve, dirname as tauri_dirname } from '@tauri-apps/api/path';
 
 function st() {
-  return useTabState.getState()
+  return useTabState.getState();
 }
 
 export const fileCommands = {
@@ -29,9 +28,9 @@ export const fileCommands = {
   },
 
   movePath(path: string) {
-    useTabState.getState().updateCurrentTab((tab) => {
-      tab.list.clearPath();
+    useTabState.getState().updateCurrentTab(tab => {
+      tab.files.clearPath();
       tab.path = path;
     });
-  }
-}
+  },
+};

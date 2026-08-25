@@ -16,9 +16,24 @@ function MyHotkey({ k }: { k: AppHotkey }) {
   return (
     <MenubarShortcut>
       <KbdGroup>
-        {k.alt && <><Kbd>Alt</Kbd><span>+</span></>}
-        {k.shift && <><Kbd>Shift</Kbd><span>+</span></>}
-        {k.ctrl && <><Kbd>Ctrl</Kbd><span>+</span></>}
+        {k.alt && (
+          <>
+            <Kbd>Alt</Kbd>
+            <span>+</span>
+          </>
+        )}
+        {k.shift && (
+          <>
+            <Kbd>Shift</Kbd>
+            <span>+</span>
+          </>
+        )}
+        {k.ctrl && (
+          <>
+            <Kbd>Ctrl</Kbd>
+            <span>+</span>
+          </>
+        )}
         <Kbd>{k.key}</Kbd>
       </KbdGroup>
     </MenubarShortcut>
@@ -31,7 +46,7 @@ function MyMenuItem({ m }: { m: AppMenuItem }) {
       {m.value}
       {m.hotkey && <MyHotkey k={m.hotkey} />}
     </MenubarItem>
-  )
+  );
 }
 
 export function Menu() {

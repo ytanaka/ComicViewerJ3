@@ -1,4 +1,4 @@
-import { getAllMenuItems } from '@/lib/menu-items'
+import { getAllMenuItems } from '@/lib/menu-items';
 import { useEffect } from 'react';
 
 export function HotKeys() {
@@ -24,7 +24,5 @@ export function HotKeys() {
     return () => window.removeEventListener('keydown', handler);
   });
 
-  return (
-    <></>
-  )
+  return <></>;
 }

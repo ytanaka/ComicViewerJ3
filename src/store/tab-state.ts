@@ -1,4 +1,4 @@
-import { ListFiles } from '@/lib/list-files';
+import { TabFiles as TabFiles } from '@/lib/tab-files';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -23,7 +23,7 @@ interface TabState {
 export type TabInfo = {
   id: number;
   path: string;
-  list: ListFiles;
+  files: TabFiles;
 };
 
 export const useTabState = create<TabState>()(
@@ -41,7 +41,7 @@ export const useTabState = create<TabState>()(
       },
 
       // ※ カレントタブは追加されたタブに移る
-      addTab: (tab) => {
+      addTab: tab => {
         set(prev => {
           if (0 <= prev.tabs.findIndex(t => t.id === tab.id)) throw Error(`addTab(): dup tab.id: ${tab.id}`);
           return { tabs: [...prev.tabs, tab], currentTabIndex: prev.tabs.length };
@@ -108,9 +108,9 @@ export const useTabState = create<TabState>()(
 
       getCurrentTab: (): TabInfo => {
         const { tabs, currentTabIndex } = get();
-        if (tabs.length === 0) throw new Error("no tabs");
+        if (tabs.length === 0) throw new Error('no tabs');
         return tabs[currentTabIndex];
-      }
+      },
     }),
     {
       name: 'tab-state',
@@ -126,7 +126,7 @@ export const useTabState = create<TabState>()(
         console.info('TabState: onRehydrateStorage !!!', state);
         if (!state) return;
         for (let i = 0; i < state.tabs.length; i++) {
-          state.tabs[i].list = new ListFiles();
+          state.tabs[i].files = new TabFiles();
         }
       },
     }

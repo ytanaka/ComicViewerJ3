@@ -30,16 +30,11 @@ export function TabBar() {
       >
         <div className="flex overflow-hidden">
           {tabs.map((t, i) => (
-            <TabButton
-              key={t.id}
-              tab={t}
-              index={i}
-              isSelected={i == currentTabIndex} />
+            <TabButton key={t.id} tab={t} index={i} isSelected={i == currentTabIndex} />
           ))}
         </div>
       </DragDropProvider>
-      <NewTabButton
-        noTabs={tabs.length === 0} />
+      <NewTabButton noTabs={tabs.length === 0} />
     </div>
   );
 }
@@ -53,15 +48,7 @@ function NewTabButton({ noTabs }: { noTabs: boolean }) {
   );
 }
 
-function TabButton({
-  tab,
-  index,
-  isSelected,
-}: {
-  tab: TabInfo;
-  index: number;
-  isSelected: boolean;
-}) {
+function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; isSelected: boolean }) {
   const { ref, handleRef } = useSortable({
     id: tab.id,
     index: index,
