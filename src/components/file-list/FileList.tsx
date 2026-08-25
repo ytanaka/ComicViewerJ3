@@ -87,9 +87,8 @@ export default function FileList() {
 
   // スクロール位置調整
   useEffect(() => {
-    virtuoso.current?.scrollToIndex({
+    virtuoso.current?.scrollIntoView({
       index: tab.files.focusIndex + 1, // ヘッダーがあるので +1
-      align: "center",
     });
   });
 
