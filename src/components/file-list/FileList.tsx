@@ -3,7 +3,6 @@ import { useEffect, useRef } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useQuery } from '@tanstack/react-query';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { toast } from 'sonner';
 
 import { commands } from '@/lib/bindings';
 import { useTabState } from '@/store/tab-state';
@@ -30,7 +29,9 @@ export default function FileList() {
       console.info(`FileList: readDirEntries(${tab.path}) => `, ret);
       if (ret.status === 'error') {
         console.error(`FileList getDirEntries(${tab.id}, ${tab.path}) error: `, ret.error);
-        toast.error(`ディレクトリ情報が取得できません`);
+        updateCurrentTab(tab => {
+          tab.files.setErrMsg(ret.error);
+        })
         return;
       }
       return ret.data;

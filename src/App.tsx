@@ -7,6 +7,7 @@ import { useTheme } from 'next-themes';
 import { TabContent } from './components/TabContent';
 import { HotKeys } from './components/HotKeys';
 import { TabBar } from './components/TabBar';
+import { StatusBar } from './components/StatusBar';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -20,6 +21,7 @@ function App() {
       <Toolbar></Toolbar>
       <TabBar />
       <TabContent />
+      <StatusBar />
       <Toaster
         position="bottom-right"
         expand={false}

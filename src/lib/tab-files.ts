@@ -19,6 +19,8 @@ import { FileFocusHistory } from './file-focus-history';
 
 export class TabFiles {
   private path?: string = undefined;
+  private errMsg?: string = undefined;
+
   private dirEntries?: DirEntry[] = undefined;
   private fileInfoList?: FileInfo[] = undefined; // sparse array
   private fileErrorList?: string[] = undefined; // sparse array
@@ -29,7 +31,7 @@ export class TabFiles {
   anchorIndex: number = 0;
   selectionIndexes: Set<number> = new Set();
 
-  constructor() {}
+  constructor() { }
 
   toDebugString() {
     return `path:${this.path}, dirEntries:[${this.dirEntries?.length}], focus:${this.focusIndex}`;
@@ -71,6 +73,16 @@ export class TabFiles {
   setFileError(index: number, msg: string) {
     if (this.fileErrorList) this.fileErrorList[index] = msg;
   }
+  setErrMsg(err: string) {
+    this.errMsg = err;
+  }
+  getErrMsg() {
+    return this.errMsg;
+  }
+
+  getSelectionIndexes() {
+    return this.selectionIndexes;
+  }
 
   updateDirEntries(path: string, list: DirEntry[]) {
     // 以前のフォーカス状態をなるべく保持する
@@ -91,11 +103,12 @@ export class TabFiles {
       } else {
         // フォーカスしていたファイルがなくなった
         this.focusIndex = 0;
-        this.selectionIndexes = new Set();
+        this.selectionIndexes = list.length === 0 ? new Set() : new Set([this.focusIndex]);
         this.anchorIndex = this.focusIndex;
       }
     }
     this.dirEntries = list;
+    this.errMsg = undefined;
     this.fileInfoList = [];
     this.fileErrorList = [];
   }
