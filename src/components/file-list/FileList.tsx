@@ -10,6 +10,7 @@ import { useTabState } from '@/store/tab-state';
 import { TabFilesDirWalkerKeyHandler, TabFilesSelectionKeyHandler } from '@/lib/tab-files-key-handler';
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
+import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -19,6 +20,7 @@ export default function FileList() {
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tab = tabs[currentTabIndex];
 
+  // データ取得
   const { data, isFetching } = useQuery({
     staleTime: 0,
     enabled: !tab.files.isInitialized(),
@@ -42,6 +44,18 @@ export default function FileList() {
     }
   }, [updateCurrentTab, data]);
 
+  // 親ディレクトリに移動したときに、このディレクトリが選択されてほしいので、履歴に追加しておく
+  useEffect(() => {
+    const setHist = async () => {
+      const parent = await tauri_dirname(tab.path);
+      const base = await tauri_basename(tab.path);
+      updateCurrentTab(tab => {
+        tab.files.pushHistory(parent, base);
+      });
+    };
+    setHist();
+  }, [tab.path, updateCurrentTab]);
+
   // タイトルバー設定
   useEffect(() => {
     const setTitle = async () => {
@@ -50,7 +64,7 @@ export default function FileList() {
     setTitle();
   }, [tab.path]);
 
-  // スクロール位置
+  // スクロール位置検知
   const visibleListRange = useRef(1);
   const handleRangeChanged = (range: ListRange) => {
     visibleListRange.current = Math.max(1, range.endIndex - range.startIndex);
@@ -60,12 +74,7 @@ export default function FileList() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const keyHandler = new TabFilesSelectionKeyHandler(visibleListRange.current - 1); // ヘッダーがあるので -1
-      if (keyHandler.handleKey(e)) {
-        virtuoso.current?.scrollIntoView({
-          index: tab.files.focusIndex + 1, // ヘッダーがあるので +1
-          behavior: 'auto',
-        });
-      }
+      if (keyHandler.handleKey(e)) return;
 
       const keyHandlerDir = new TabFilesDirWalkerKeyHandler();
       keyHandlerDir.handleKey(e);
@@ -73,6 +82,14 @@ export default function FileList() {
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
+  });
+
+  // スクロール位置調整
+  useEffect(() => {
+    virtuoso.current?.scrollToIndex({
+      index: tab.files.focusIndex + 1, // ヘッダーがあるので +1
+      align: "center",
+    });
   });
 
   console.debug(

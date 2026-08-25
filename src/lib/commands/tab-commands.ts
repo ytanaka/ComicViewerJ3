@@ -1,4 +1,4 @@
-import { homeDir } from '@tauri-apps/api/path';
+import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabState } from '@/store/tab-state';
@@ -22,7 +22,7 @@ export const tabCommands = {
     if (20 <= st().tabs.length) return;
 
     const tabId = await commands.createTab();
-    const path = index !== undefined ? st().tabs[index].path : await homeDir();
+    const path = index !== undefined ? st().tabs[index].path : await tauri_homeDir();
     const absPath = await tauri_path_resolve(path);
     st().addTab({ id: tabId, path: absPath, files: new TabFiles() });
   },

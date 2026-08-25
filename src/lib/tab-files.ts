@@ -100,6 +100,10 @@ export class TabFiles {
     this.fileErrorList = [];
   }
 
+  pushHistory(dir: string, name: string) {
+    this.focusHistory.push(dir, name);
+  }
+
   #updateHistory() {
     if (this.path === undefined || this.dirEntries === undefined || this.dirEntries.length === 0) return;
     this.focusHistory.push(this.path, this.dirEntries[this.focusIndex].name);
