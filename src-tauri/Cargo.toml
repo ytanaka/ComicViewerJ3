@@ -34,6 +34,7 @@ log = "0.4.33"
 chrono = "0.4.45"
 dashmap = "6.2.1"
 maplit = "1.0.2"
+tauri-plugin-dialog = "2"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-window-state = "2"

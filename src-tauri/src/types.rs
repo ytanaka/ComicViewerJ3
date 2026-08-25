@@ -41,13 +41,13 @@ impl SortType {
 /// 詳細ファイル情報
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileInfo {
-    pub name: String,  // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
+    pub name: String, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
     pub metadata: Option<FileMetadata>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FileInfoOs {
-    pub name: OsString,  
+    pub name: OsString,
     pub metadata: Option<FileMetadata>,
 }
 

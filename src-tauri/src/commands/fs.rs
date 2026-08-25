@@ -10,7 +10,9 @@ use anyhow::anyhow;
 use tauri::State;
 
 use crate::{
-    LOG_RESULT, state::{AppState, TabInfo}, types::{DirEntry, FileId, FileInfo, FileInfoOs, SortType, TabId},
+    state::{AppState, TabInfo},
+    types::{DirEntry, FileId, FileInfo, FileInfoOs, SortType, TabId},
+    LOG_RESULT,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -130,7 +132,7 @@ fn get_file_info_impl(state: &AppState, tab_id: TabId, file_id: &str) -> Result<
         Some(tab) => {
             let mut tab = tab.write().unwrap();
             let file_id: u64 = file_id.parse().map_err(|_| "invalid file_id")?;
-            Ok(tab.get_file_info(file_id).map(|f|f.to_js()) ?)
+            Ok(tab.get_file_info(file_id).map(|f| f.to_js())?)
         }
     }
 }

@@ -48,7 +48,7 @@ export class AppHotkey {
 export const menuItems = {
   exitApp: M('終了', () => windowCommands.exitApp(), 'Ctrl+Q'),
 
-  openDir: M('ディレクトリを開く', () => console.log('OPEN DIR!!!'), 'Ctrl+O'),
+  openDir: M('ディレクトリを開く', () => windowCommands.openDirectory(), 'Ctrl+O'),
   createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl+F'),
   createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl+K'),
   openFileProperty: M('プロパティ', () => console.log('CREATE DIR!!!'), 'Alt+Enter'),

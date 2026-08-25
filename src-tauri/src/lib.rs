@@ -60,6 +60,8 @@ pub fn run() {
             .build(),
     );
 
+    app_builder = app_builder.plugin(tauri_plugin_dialog::init());
+
     app_builder
         .setup(|app| {
             log::info!("app start");
