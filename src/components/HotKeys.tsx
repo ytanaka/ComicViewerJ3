@@ -14,6 +14,7 @@ export function HotKeys() {
         if (m.hotkey.shift && !e.shiftKey) continue;
         if (m.hotkey.key !== e.key.toLowerCase()) continue;
         e.preventDefault();
+        e.stopImmediatePropagation();
         m.exec();
         return;
       }

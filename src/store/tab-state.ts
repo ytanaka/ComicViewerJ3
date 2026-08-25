@@ -16,6 +16,7 @@ interface TabState {
   updateTab: (index: number, fn: (tab: TabInfo) => void) => void;
   updateCurrentTab: (fn: (tab: TabInfo) => void) => void;
 
+  // ※ コンポーネントの中で使用すると currentTabIndex が変化しても再描画が発生しないので注意
   getCurrentTab: () => TabInfo;
 }
 

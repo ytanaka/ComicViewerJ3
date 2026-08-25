@@ -82,8 +82,9 @@ function FileListRow({
   isSelected: boolean;
 }) {
   const updateCurrentTab = useTabState(state => state.updateCurrentTab);
-  const getCurrentTab = useTabState(state => state.getCurrentTab);
-  const tab = getCurrentTab();
+  const currentTabIndex = useTabState(state => state.currentTabIndex);
+  const tabs = useTabState(state => state.tabs);
+  const tab = tabs[currentTabIndex];
 
   const { data } = useQuery({
     staleTime: 0,
@@ -104,12 +105,13 @@ function FileListRow({
     },
   });
   useEffect(() => {
-    if (data === undefined) return;
+    if (!data) return;
     updateCurrentTab(tab => {
       tab.list.setFileInfo(index, data);
     });
   }, [data, index, updateCurrentTab]);
 
+  const fileInfo = tab.list.getFileInfo(index);
   const baseComponent = (
     <div
       className={`${index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900'} flex w-full pl-1.5 pr-1.5 h-6`}
@@ -117,11 +119,11 @@ function FileListRow({
         background: isSelected ? '#0078d4' : '',
       }}
     >
-      <Icon fileInfo={data} errorMsg={tab.list.getFileError(index)} />
+      <Icon fileInfo={fileInfo} errorMsg={tab.list.getFileError(index)} />
       <Name dirEntry={dirEntry} />
-      <FileExt dirEntry={dirEntry} fileInfo={data} />
-      <Size fileInfo={data} />
-      <Modified fileInfo={data} />
+      <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
+      <Size fileInfo={fileInfo} />
+      <Modified fileInfo={fileInfo} />
     </div>
   );
   const errorMsg = tab.list.getFileError(index);
@@ -142,10 +144,10 @@ function FileListRow({
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
 
-  const getCurrentTab = useTabState(state => state.getCurrentTab);
   const updateCurrentTab = useTabState(state => state.updateCurrentTab);
+  const tabs = useTabState(state => state.tabs);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
-  const tab = getCurrentTab();
+  const tab = tabs[currentTabIndex];
 
   const { data, isFetching } = useQuery({
     staleTime: 0,
@@ -168,7 +170,7 @@ export default function FileList() {
         tab.list.updateDirEntries(tab.path, data);
       });
     }
-  }, [updateCurrentTab, data, currentTabIndex])
+  }, [updateCurrentTab, data])
 
   // タイトルバー設定
   useEffect(() => {
@@ -204,16 +206,17 @@ export default function FileList() {
   })
 
   console.debug(`<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.list = ${tab.list.toDebugString()}`);
+  const dirEntries = tab.list.isInitialized() ? tab.list.getDirEntries() : undefined;
 
   return (
     <div className={"flex-1 flex flex-col"}>
       <div className="flex-1">
-        {isFetching || data === undefined ? (
+        {isFetching || dirEntries === undefined ? (
           <div>更新中</div>
         ) : (
           <Virtuoso
             ref={virtuoso}
-            totalCount={data.length + 1}
+            totalCount={dirEntries.length + 1}
             topItemCount={1}
             rangeChanged={handleRangeChanged}
             itemContent={index => {
@@ -224,7 +227,7 @@ export default function FileList() {
                   <FileListRow
                     index={index - 1}
                     tabId={tab.id}
-                    dirEntry={data[index - 1]}
+                    dirEntry={dirEntries[index - 1]}
                     isSelected={tab.list.focusIndex === index - 1}
                   />);
               }
