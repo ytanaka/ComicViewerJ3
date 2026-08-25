@@ -4,9 +4,8 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resi
 import { FileListHeaderN, useUiState } from "@/store/ui-state";
 
 export function FileListHeader() {
-  const getFileListHeaderSize = useUiState(state => state.getFileListHeaderSizes);
+  const sizes = useUiState(state => state.fileListHeaderSizes);
   const setFileListHeaderSize = useUiState(state => state.setFileListHeaderSizes);
-  const sizes = getFileListHeaderSize();
 
   const ref0 = useRef<HTMLDivElement>(null);
   const ref1 = useRef<HTMLDivElement>(null);
@@ -24,7 +23,7 @@ export function FileListHeader() {
   }
 
   return (
-    <div className="w-full ">
+    <div className="w-full bg-gray-200 dark:bg-gray-900">
       <ResizablePanelGroup
         orientation="horizontal"
         className="flex w-full"
@@ -32,27 +31,24 @@ export function FileListHeader() {
       >
         <ResizablePanel
           id={`${FileListHeaderN.Icon}`}
-          // style={{ width: sizes[FileListHeaderN.Name] }}
           className="box-border"
           defaultSize={sizes[FileListHeaderN.Icon]}
         >
-          <div ref={ref0} className="pl-5 text-ellipsis overflow-hidden text-nowrap"></div>
+          <div ref={ref0} className="pl-1 text-ellipsis overflow-hidden text-nowrap"></div>
         </ResizablePanel>
         <ResizableHandle />
 
         <ResizablePanel
           id={`${FileListHeaderN.Name}`}
-          // style={{ width: sizes[FileListHeaderN.Name] }}
           className="box-border"
           defaultSize={sizes[FileListHeaderN.Name]}
         >
-          <div ref={ref1} className="pl-5 text-ellipsis overflow-hidden text-nowrap">名前</div>
+          <div ref={ref1} className="pl-1 text-ellipsis overflow-hidden text-nowrap">名前</div>
         </ResizablePanel>
         <ResizableHandle />
 
         <ResizablePanel
           id={`${FileListHeaderN.Ext}`}
-          // style={{ width: sizes[FileListHeaderN.Ext], maxWidth: sizes[FileListHeaderN.Ext] }}
           className="box-border"
           defaultSize={sizes[FileListHeaderN.Ext]}
         >
@@ -62,7 +58,6 @@ export function FileListHeader() {
 
         <ResizablePanel
           id={`${FileListHeaderN.Size}`}
-          // style={{ width: sizes[FileListHeaderN.Size], maxWidth: sizes[FileListHeaderN.Size] }}
           className="box-border"
           defaultSize={sizes[FileListHeaderN.Size]}
         >
@@ -72,7 +67,6 @@ export function FileListHeader() {
 
         <ResizablePanel
           id={`${FileListHeaderN.Date}`}
-          // style={{ width: sizes[FileListHeaderN.Date], maxWidth: sizes[FileListHeaderN.Date] }}
           className="box-border"
           defaultSize={sizes[FileListHeaderN.Date]}
         >

@@ -187,10 +187,10 @@ export default function FileList() {
   // キー操作
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      const keyHandler = new ListFilesSelectionKeyHandler(visibleListRange.current);
+      const keyHandler = new ListFilesSelectionKeyHandler(visibleListRange.current - 1); // ヘッダーがあるので -1
       if (keyHandler.handleKey(e)) {
         virtuoso.current?.scrollIntoView({
-          index: tab.list.focusIndex,
+          index: tab.list.focusIndex + 1, // ヘッダーがあるので +1
           behavior: 'auto',
         });
       };
@@ -207,23 +207,27 @@ export default function FileList() {
 
   return (
     <div className={"flex-1 flex flex-col"}>
-      <FileListHeader />
       <div className="flex-1">
         {isFetching || data === undefined ? (
           <div>更新中</div>
         ) : (
           <Virtuoso
             ref={virtuoso}
-            totalCount={data.length}
+            totalCount={data.length + 1}
+            topItemCount={1}
             rangeChanged={handleRangeChanged}
             itemContent={index => {
-              return (
-                <FileListRow
-                  index={index}
-                  tabId={tab.id}
-                  dirEntry={data[index]}
-                  isSelected={tab.list.focusIndex === index}
-                />);
+              if (index === 0) {
+                return (<FileListHeader />)
+              } else {
+                return (
+                  <FileListRow
+                    index={index - 1}
+                    tabId={tab.id}
+                    dirEntry={data[index - 1]}
+                    isSelected={tab.list.focusIndex === index - 1}
+                  />);
+              }
             }}
           />
         )}
