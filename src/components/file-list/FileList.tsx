@@ -13,7 +13,7 @@ import { useTabState } from '@/store/tab-state';
 import { ListFilesDirWalkerKeyHandler, ListFilesSelectionKeyHandler } from '@/lib/list-files-key-handler';
 import { FileListHeader } from './FileListHeader';
 import { FileListHeaderN, useUiState } from '@/store/ui-state';
-import { unixTime2str } from '@/lib/date-time-util';
+import { unixTime2str } from '@/lib/string-util';
 
 function useHeaderSize(n: FileListHeaderN): number {
   return useUiState(state => state.fileListHeaderSizes)[n];

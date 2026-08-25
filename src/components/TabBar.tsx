@@ -6,6 +6,7 @@ import { Plus, X } from 'lucide-react';
 import { TabInfo, useTabState } from '@/store/tab-state';
 import { Button } from './ui/button';
 import { tabCommands } from '@/lib/commands/tab-commands';
+import { getPathBasename } from '@/lib/string-util';
 
 export function TabBar() {
   const tabs = useTabState(state => state.tabs);
@@ -66,15 +67,15 @@ function TabButton({
     index: index,
   });
   return (
-    <div ref={ref} className="flex-1 truncate relative inline-block group">
+    <div ref={ref} className="truncate relative inline-block group">
       <Button
         ref={handleRef}
         variant={`${isSelected ? 'outline' : 'secondary'}`}
         className={`block truncate text-left w-full max-w-full ${isSelected ? '' : 'font-light'}`}
       >
-        {tab.path}
+        {isSelected ? tab.path : getPathBasename(tab.path)}
       </Button>
-      <div className="w5 flex justify-end">
+      <div className="flex justify-end">
         <div
           onClick={() => tabCommands.removeTab(index)}
           className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-black rounded-md"

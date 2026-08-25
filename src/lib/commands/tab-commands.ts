@@ -19,7 +19,7 @@ export const tabCommands = {
   },
 
   async cloneTab(index?: number) {
-    if (10 <= st().tabs.length) return;
+    if (20 <= st().tabs.length) return;
 
     const tabId = await commands.createTab();
     const path = index !== undefined ? st().tabs[index].path : await homeDir();
