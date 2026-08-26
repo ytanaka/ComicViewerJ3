@@ -45,6 +45,9 @@ encoding_rs = "0.8.35"
 unicode-normalization = "0.1.25"
 kanaria = "0.2.0"
 
+#[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-window-state = "2"
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 reqwest = { version = "0.13.4", features = ["blocking"] }
@@ -53,5 +56,3 @@ tar = "0.4.46"
 flate2 = "1.1.9"
 zip = "8.6.0"
 
-[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-window-state = "2"
