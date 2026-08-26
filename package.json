@@ -13,7 +13,7 @@
     "rust:test": "cd src-tauri && cargo test",
     "rust:fmt": "cd src-tauri && cargo fmt",
     "rust:clippy": "cd src-tauri && cargo clippy -- -D warnings",
-    "rust:bindings": "cd src-tauri && cargo test export_bindings --lib",
+    "rust:bindings": "cd src-tauri && cargo test export_bindings --lib -- --ignored",
     "check": "pnpm lint && pnpm format && pnpm rust:fmt && pnpm rust:clippy",
     "tauri": "tauri"
   },

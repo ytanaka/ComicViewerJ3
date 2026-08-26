@@ -14,7 +14,7 @@ use crate::{
 pub fn search_next_filename(
     state: State<'_, AppState>,
     tab_id: TabId,
-    start_index: usize,
+    start_index: u32,
     romaji: String,
 ) -> Result<Option<FileSearchResult>, String> {
     LOG_RESULT!(
@@ -32,7 +32,7 @@ pub fn search_next_filename(
 fn search_next_filename_impl(
     state: &AppState,
     tab_id: TabId,
-    start_index: usize,
+    start_index: u32,
     romaji: String,
 ) -> anyhow::Result<Option<FileSearchResult>> {
     let katakana = state.romaji_cnv.cnv(&romaji);
@@ -44,8 +44,8 @@ fn search_next_filename_impl(
 
     // [start_index -> 最後] + [0 -> start_index] で、FileIdのリストを作る
     let sorted_list = tab.get_sorted_list();
-    let list1 = sorted_list.iter().enumerate().skip(start_index);
-    let list2 = sorted_list.iter().enumerate().take(start_index);
+    let list1 = sorted_list.iter().enumerate().skip(start_index as usize);
+    let list2 = sorted_list.iter().enumerate().take(start_index as usize);
     let list = list1.chain(list2);
 
     for (index, file) in

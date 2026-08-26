@@ -65,14 +65,14 @@ impl FileInfoOs {
 /// ファイル検索結果
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileSearchResult {
-    pub index: u32,        // ファイルのインデックス
+    pub index: i32,        // ファイルのインデックス
     pub name: String,      // ファイル名
     pub match_str: String, // ファイル名の中のマッチした部分
 }
 impl FileSearchResult {
     pub fn new(index: usize, name: &str, start: usize, end: usize) -> Self {
         FileSearchResult {
-            index: index as u32,
+            index: index as i32,
             name: name.to_string(),
             match_str: name.get(start..end).unwrap_or("").to_string(),
         }

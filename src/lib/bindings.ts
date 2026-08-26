@@ -27,7 +27,11 @@ export const commands = {
 	/**  ファイル一覧をソートする */
 	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
 	/**  ローマ字入力からファイル名をあいまい検索 */
-	searchNextFilename: (tabId: number, startIndex: number, romaji: string) => typedError<number, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji })),
+	searchNextFilename: (tabId: number, startIndex: number, romaji: string) => typedError<{
+	index: number,
+	name: string,
+	match_str: string,
+} | null, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji })),
 };
 
 /* Types */
@@ -50,6 +54,13 @@ export type FileMetadata = {
 	modified: number | null,
 	accessed: number | null,
 	created: number | null,
+};
+
+/**  ファイル検索結果 */
+export type FileSearchResult = {
+	index: number,
+	name: string,
+	match_str: string,
 };
 
 /**  ファイルのソート条件 */
