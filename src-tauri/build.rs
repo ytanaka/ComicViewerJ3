@@ -4,6 +4,7 @@ use zip::ZipArchive;
 
 // build.rs
 fn main() {
+    tauri_build::build();
     download_rustmigemo_dict();
     download_vibrato_dict();
     download_migemo();

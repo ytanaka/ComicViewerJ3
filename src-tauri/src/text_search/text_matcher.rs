@@ -8,10 +8,7 @@ use std::{
 
 use crate::{
     state::app_state::AppState,
-    text_search::{
-        migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv, vibrato::Vibrato,
-        vibrato_data::SplStr,
-    },
+    text_search::{reverse_migemo::ReverseMigemo, vibrato::Vibrato, vibrato_data::SplStr},
 };
 
 pub struct TextMatcher {
@@ -21,8 +18,6 @@ pub struct TextMatcher {
 
     vibrato: Arc<Vibrato>,
     reverse_migemo: Arc<ReverseMigemo>,
-    migemo: Arc<Migemo>,
-    romaji_cnv: Arc<RomajiCnv>,
 }
 
 impl TextMatcher {
@@ -34,17 +29,17 @@ impl TextMatcher {
             yomi_cache: Arc::new(DashMap::new()),
             reverse_migemo: state.reverse_migemo.get().unwrap().clone(),
             vibrato: state.vibrato.get().unwrap().clone(),
-            migemo: state.migemo.get().unwrap().clone(),
-            romaji_cnv: state.romaji_cnv.clone(),
         });
         let ret2 = ret.clone();
 
         thread::spawn(move || loop {
             let list = rx.recv().unwrap();
-            list.par_iter().for_each(|s| {
-                ret.get_cache(s);
-            });
-            log::debug!("TextMatcher worker: tokenized {} strings", list.len());
+            let n = list
+                .par_iter()
+                .map(|s| ret.put_cache(s).0)
+                .filter(|x| *x)
+                .count();
+            log::debug!("TextMatcher worker: tokenized {}/{} strings", n, list.len());
         });
         ret2
     }
@@ -54,12 +49,17 @@ impl TextMatcher {
     }
 
     fn get_cache(&self, s: &str) -> Arc<SplStr> {
+        let ret = self.put_cache(s);
+        ret.1
+    }
+    // まだキャッシュに存在しなかったら true
+    fn put_cache(&self, s: &str) -> (bool, Arc<SplStr>) {
         match self.yomi_cache.get(s) {
-            Some(kv) => kv.value().clone(),
+            Some(kv) => (false, kv.value().clone()),
             None => {
                 let tok = Arc::new(self.vibrato.tokenize(&s, self.reverse_migemo.clone()));
                 self.yomi_cache.insert(s.to_string(), tok.clone());
-                tok
+                (true, tok)
             }
         }
     }

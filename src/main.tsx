@@ -7,19 +7,22 @@ import { TooltipProvider } from './components/ui/tooltip';
 
 import App from './App';
 import { TabStateInitializer } from './components/TabStateInitializer';
+import { RustLibInitializer } from './components/RustLibInitializer';
 
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class">
-        <TooltipProvider>
-          <TabStateInitializer>
-            <App />
-          </TabStateInitializer>
-        </TooltipProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <ThemeProvider attribute="class">
+          <RustLibInitializer>
+            <TabStateInitializer>
+              <App />
+            </TabStateInitializer>
+          </RustLibInitializer>
+        </ThemeProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );

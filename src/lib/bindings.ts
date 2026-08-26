@@ -10,6 +10,8 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 export const commands = {
 	/**  アプリ終了 */
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
+	/**  Rust側の初期化 (ほかのコマンドを使用する前に呼ぶ) */
+	init: () => __TAURI_INVOKE<void>("init"),
 	/**  新規タブ作成 */
 	createTab: () => __TAURI_INVOKE<number>("create_tab"),
 	/**  タブ削除 */
@@ -24,6 +26,7 @@ export const commands = {
 	getFileInfo: (tabId: number, fileId: string) => typedError<FileInfo, string>(__TAURI_INVOKE("get_file_info", { tabId, fileId })),
 	/**  ファイル一覧をソートする */
 	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
+	searchNextFilename: (tabId: number, startIndex: number, romaji: string) => __TAURI_INVOKE<number | null>("search_next_filename", { tabId, startIndex, romaji }),
 };
 
 /* Types */
