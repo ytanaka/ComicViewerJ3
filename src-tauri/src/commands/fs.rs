@@ -10,7 +10,7 @@ use anyhow::anyhow;
 use tauri::State;
 
 use crate::{
-    state::{AppState, TabInfo},
+    state::{app_state::AppState, tab_info::TabInfo},
     types::{DirEntry, FileId, FileInfo, FileInfoOs, SortType, TabId},
     LOG_RESULT,
 };
@@ -40,7 +40,7 @@ pub fn remove_tab(state: State<'_, AppState>, tab_id: TabId) -> Result<(), Strin
         remove_tab_impl(&state, tab_id)
     })
 }
-pub fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
+fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
     match state.tabs.remove(&tab_id) {
         None => Err(format!("no tab: {tab_id}")),
         Some(_kv) => Ok(()),
@@ -54,7 +54,7 @@ pub fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
 pub fn get_tab_ids(state: State<'_, AppState>) -> Vec<TabId> {
     get_tab_ids_impl(&state)
 }
-pub fn get_tab_ids_impl(state: &AppState) -> Vec<TabId> {
+fn get_tab_ids_impl(state: &AppState) -> Vec<TabId> {
     state.get_tab_ids()
 }
 

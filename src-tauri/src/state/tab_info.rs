@@ -1,34 +1,7 @@
-use std::{
-    collections::HashMap,
-    ffi::OsString,
-    path::PathBuf,
-    sync::{atomic::AtomicU32, Arc, RwLock},
-};
+use std::{collections::HashMap, ffi::OsString, path::PathBuf};
 
-use dashmap::DashMap;
+use crate::{types::{DirEntry, FileId, FileInfoOs, FileMetadata, SortType, TabId}, util::to_unix_time};
 
-use crate::{
-    types::{DirEntry, FileId, FileInfoOs, FileMetadata, SortType, TabId},
-    util::to_unix_time,
-};
-
-pub struct AppState {
-    pub next_tab_id: AtomicU32,
-    pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,
-}
-impl AppState {
-    pub fn new() -> Self {
-        AppState {
-            next_tab_id: AtomicU32::new(1),
-            tabs: DashMap::new(),
-        }
-    }
-    pub fn get_tab_ids(&self) -> Vec<TabId> {
-        let mut ret: Vec<_> = self.tabs.iter().map(|elm| *elm.key()).collect();
-        ret.sort();
-        ret
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct TabInfo {

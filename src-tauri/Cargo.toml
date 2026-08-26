@@ -14,27 +14,44 @@ edition = "2021"
 name = "comicviewerj3_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
-[build-dependencies]
-tauri-build = { version = "2", features = [] }
-
 [dependencies]
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tauri-plugin-single-instance = "2.4.3"
+tauri-plugin-log = "2"
+tauri-plugin-dialog = "2"
 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-anyhow = "1.0.104"
 
 specta = { version = "=2.0.0-rc.25", features = ["derive", "serde_json"] }
 tauri-specta = { version = "=2.0.0-rc.25", features = ["typescript"] }
 specta-typescript = "=0.0.12"
-tauri-plugin-log = "2"
+
+rayon = "1.12.0"
+anyhow = "1.0.104"
 log = "0.4.33"
 chrono = "0.4.45"
 dashmap = "6.2.1"
 maplit = "1.0.2"
-tauri-plugin-dialog = "2"
+regex = "1.13.1"
+
+vibrato = "0.5.2"
+wana_kana = "5.0.0"
+zstd = "0.13.3"
+csv = "1.4.0"
+rustmigemo = { git = "https://github.com/oguna/rustmigemo", tag = "v0.1.7-rc.0" }
+encoding_rs = "0.8.35"
+unicode-normalization = "0.1.25"
+kanaria = "0.2.0"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+reqwest = { version = "0.13.4", features = ["blocking"] }
+xz2 = "0.1.7"
+tar = "0.4.46"
+flate2 = "1.1.9"
+zip = "8.6.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-window-state = "2"

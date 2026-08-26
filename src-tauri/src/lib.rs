@@ -1,9 +1,10 @@
 use tauri::{Manager, WindowEvent};
 
-use crate::state::AppState;
+use crate::state::app_state::AppState;
 
 mod bindings;
 mod commands;
+mod text_search;
 mod state;
 mod types;
 mod util;

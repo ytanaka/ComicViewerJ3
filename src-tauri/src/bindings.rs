@@ -3,9 +3,11 @@ use tauri_specta::{collect_commands, Builder};
 pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::app;
     use crate::commands::fs;
+    use crate::commands::migemo;
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         app::exit_app,
+        app::init,
         fs::create_tab,
         fs::remove_tab,
         fs::get_tab_ids,
@@ -13,6 +15,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::get_dir_entries,
         fs::get_file_info,
         fs::sort_files,
+        migemo::search_next_filename,
     ])
 }
 
