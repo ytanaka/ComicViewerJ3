@@ -91,10 +91,17 @@ fn read_dir_entries_impl(
         .get_mut(&tab_id)
         .ok_or_else(|| anyhow!("invalid tab_id: {tab_id}"))?;
 
+    // タブにファイル一覧を読み込む
     let mut tab = tab.write().unwrap();
     let list = read_dir_entries_impl2(&mut tab, path)?;
     tab.set_files(path.to_path_buf(), list);
-    Ok(tab.get_dir_entries())
+    let ret = tab.get_dir_entries();
+    
+    // 形態素解析する
+    let names: Vec<_> = ret.iter().map(|f| f.name.to_string()).collect();
+    state.text_matcher.get().unwrap().send_to_worker(names);
+    
+    Ok(ret)
 }
 fn read_dir_entries_impl2(
     tab: &mut TabInfo,

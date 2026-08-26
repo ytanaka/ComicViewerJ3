@@ -45,8 +45,16 @@ impl SplStr {
         &self.normalized
     }
 
-    pub fn get_org_str(&self) -> Vec<&String> {
+    pub fn get_org_str_vec(&self) -> Vec<&String> {
         self.list.iter().map(|i| &i.org_str).collect()
+    }
+
+    pub fn get_org_str(&self) -> String {
+        self.get_org_str_vec()
+            .iter()
+            .map(|s| s.as_ref())
+            .collect::<Vec<_>>()
+            .join("")
     }
 
     // 読み候補を全て取得する (Migemo辞書も使用する)
@@ -64,6 +72,7 @@ impl SplStr {
     // 単語区切り中の何番目から何番目に一致したかを返す
     // ※) カタカナ読みで一致せるので、オリジナル文字列のどの文字に一致したかはわからない。
     //     単語区切り単位でしか位置を返せない
+    // ※) 1つの単語内部で一致したら、同じインデックスを返す
     //
     // "DE" を探す場合の処理例
     // AB/CD/EF の中から検索する場合
@@ -159,6 +168,28 @@ impl SplStr {
                 return self.find_from_list_idx(start_idx + 1, katakana2);
             }
         }
+    }
+
+    // find() で返された要素のインデックスをStringのインデックスに変換する
+    pub fn elmidx_to_stridx(&self, elmidx: (usize, usize)) -> (usize, usize) {
+        UT_LOG!("elmidx_to_stridx({elmidx:?})");
+        let mut start: Option<usize> = None;
+        let mut end: Option<usize> = None;
+        let mut n = 0;
+        for (i, s) in self.get_org_str_vec().iter().enumerate() {
+            UT_LOG!("i: {i}, s: {s}");
+            if start.is_none() && elmidx.0 <= i {
+                start = Some(n);
+            }
+            n += s.len();
+            if end.is_none() && elmidx.1 <= i {
+                end = Some(n);
+            }
+            if start.is_some() && end.is_some() {
+                return (start.unwrap(), end.unwrap());
+            }
+        }
+        (0, n)
     }
 }
 
@@ -306,5 +337,43 @@ mod tests {
         assert_eq!(s.find("フウノ"), Some((0, 1)));
         assert_eq!(s.find("フウノコクノナウシカ"), Some((0, 4)));
         assert_eq!(s.find("ウノコクノナウシ"), Some((0, 4)));
+    }
+
+    #[test]
+    fn test_elmidx_to_stridx() {
+        let empty_reverse_migemo = Arc::new(ReverseMigemo::with_dict(""));
+        let s = SplStr::new(
+            "",
+            vec![
+                SplStrElm::new("0123", ""),
+                SplStrElm::new("45", ""),
+                SplStrElm::new("67890", ""),
+            ],
+            empty_reverse_migemo.clone(),
+        );
+        // 正常範囲
+        assert_eq!(s.elmidx_to_stridx((0, 0)), (0, 4));
+        assert_eq!(s.elmidx_to_stridx((1, 1)), (4, 6));
+        assert_eq!(s.elmidx_to_stridx((2, 2)), (6, 11));
+        assert_eq!(s.elmidx_to_stridx((0, 2)), (0, 11));
+        // 異常範囲
+        assert_eq!(s.elmidx_to_stridx((0, 9)), (0, 11));
+        assert_eq!(s.elmidx_to_stridx((9, 9)), (0, 11));
+        assert_eq!(s.elmidx_to_stridx((9, 0)), (0, 11));
+        assert_eq!(s.elmidx_to_stridx((3, 1)), (0, 11));
+
+        let s = SplStr::new(
+            "",
+            vec![
+                SplStrElm::new("あいうえお", ""), // 0 から 15 バイト
+                SplStrElm::new("かき", ""),       // 15 から 6 バイト
+                SplStrElm::new("くけこ", ""),     // 21 から 9 バイト
+            ],
+            empty_reverse_migemo.clone(),
+        );
+        assert_eq!(s.elmidx_to_stridx((0, 0)), (0, 15));
+        assert_eq!(s.elmidx_to_stridx((1, 1)), (15, 21));
+        assert_eq!(s.elmidx_to_stridx((2, 2)), (21, 30));
+        assert_eq!(s.elmidx_to_stridx((0, 2)), (0, 30));
     }
 }

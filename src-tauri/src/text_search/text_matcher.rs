@@ -1,7 +1,7 @@
 use dashmap::DashMap;
 use rayon::prelude::*;
+use regex::Regex;
 use std::{
-    rc::Rc,
     sync::{mpsc, Arc},
     thread,
 };
@@ -26,57 +26,68 @@ pub struct TextMatcher {
 }
 
 impl TextMatcher {
-    pub fn new(state: &AppState) -> Self {
+    pub fn new(state: &AppState) -> Arc<Self> {
         let (tx, rx) = mpsc::channel::<Vec<String>>();
-        let vibrato = state.vibrato.get().unwrap().clone();
-        let reverse_migemo = state.reverse_migemo.get().unwrap().clone();
-        let yomi_cache = Arc::new(DashMap::new());
-        let yomi_cache2 = yomi_cache.clone();
 
-        thread::spawn(move || loop {
-            rx.recv().unwrap().par_iter().for_each(|s| {
-                let _ = TextMatcher::get_cache_impl(s, &yomi_cache, &vibrato, &reverse_migemo);
-            });
-        });
-        TextMatcher {
+        let ret = Arc::new(TextMatcher {
             tx,
-            yomi_cache: yomi_cache2,
+            yomi_cache: Arc::new(DashMap::new()),
             reverse_migemo: state.reverse_migemo.get().unwrap().clone(),
             vibrato: state.vibrato.get().unwrap().clone(),
             migemo: state.migemo.get().unwrap().clone(),
             romaji_cnv: state.romaji_cnv.clone(),
-        }
+        });
+        let ret2 = ret.clone();
+
+        thread::spawn(move || loop {
+            let list = rx.recv().unwrap();
+            list.par_iter().for_each(|s| {
+                ret.get_cache(s);
+            });
+            log::debug!("TextMatcher worker: tokenized {} strings", list.len());
+        });
+        ret2
     }
 
-    pub fn send_to_worker(&self, romaji_list: Vec<String>) {
-        self.tx.send(romaji_list).unwrap();
+    pub fn send_to_worker(&self, list: Vec<String>) {
+        self.tx.send(list).unwrap();
     }
 
-    fn get_cache_impl(
-        s: &str,
-        yomi_cache: &Arc<DashMap<String, Arc<SplStr>>>,
-        vibrato: &Arc<Vibrato>,
-        reverse_migemo: &Arc<ReverseMigemo>,
-    ) -> Arc<SplStr> {
-        match yomi_cache.get(s) {
+    fn get_cache(&self, s: &str) -> Arc<SplStr> {
+        match self.yomi_cache.get(s) {
             Some(kv) => kv.value().clone(),
             None => {
-                let tok = Arc::new(vibrato.tokenize(&s, reverse_migemo.clone()));
-                yomi_cache.insert(s.to_string(), tok.clone());
+                let tok = Arc::new(self.vibrato.tokenize(&s, self.reverse_migemo.clone()));
+                self.yomi_cache.insert(s.to_string(), tok.clone());
                 tok
             }
         }
     }
 
-    pub fn get_cache(&self, s: &str) -> Arc<SplStr> {
-        Self::get_cache_impl(s, &self.yomi_cache, &self.vibrato, &self.reverse_migemo)
-    }
+    pub fn find(
+        &self,
+        input_katakana: &str,
+        input_migemo_re: &Regex,
+        input_normalized: &str,
+        target: &str,
+    ) -> Option<(usize, usize)> {
+        // Migemo で検索
+        if let Some(m) = input_migemo_re.captures_iter(target).next() {
+            let m = m.get_match();
+            return Some((m.start(), m.end()));
+        }
 
-    pub fn find(&self, romaji: &str, target: &str) {
-        let migemo_re = self.migemo.get_query_regex(romaji);
-        let katakana = self.romaji_cnv.cnv(romaji);
-        let x = self.get_cache(target);
-        
-        ()
+        // Vibrato で検索
+        let vstr = self.get_cache(target);
+        if let Some(m) = vstr.find(input_katakana) {
+            return Some(vstr.elmidx_to_stridx(m));
+        }
+
+        // 正規化した文字列に対して単純検索 (アルファベットや数字に一致するかも)
+        if let Some(n) = vstr.get_normalized_str().find(input_normalized) {
+            return Some((0, vstr.get_org_str().len()));
+        }
+
+        None
     }
 }

@@ -1,6 +1,7 @@
 use std::sync::{atomic::AtomicU32, Arc, OnceLock, RwLock};
 
 use dashmap::DashMap;
+use tauri::State;
 
 use crate::{
     state::tab_info::TabInfo,
@@ -21,7 +22,7 @@ pub struct AppState {
     pub vibrato: OnceLock<Arc<Vibrato>>,
     pub migemo: OnceLock<Arc<Migemo>>,
     pub romaji_cnv: Arc<RomajiCnv>,
-    pub text_matcher: OnceLock<TextMatcher>,
+    pub text_matcher: OnceLock<Arc<TextMatcher>>,
 }
 impl AppState {
     pub fn new() -> Self {
@@ -41,5 +42,17 @@ impl AppState {
         let mut ret: Vec<_> = self.tabs.iter().map(|elm| *elm.key()).collect();
         ret.sort();
         ret
+    }
+
+    pub fn init(&self, state: &AppState) {
+        state
+            .reverse_migemo
+            .get_or_init(|| Arc::new(ReverseMigemo::new()));
+
+        state.vibrato.get_or_init(|| Arc::new(Vibrato::new()));
+
+        state.migemo.get_or_init(|| Arc::new(Migemo::new()));
+
+        state.text_matcher.get_or_init(|| TextMatcher::new(&state));
     }
 }
