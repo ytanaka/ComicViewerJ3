@@ -15,6 +15,12 @@ export class TabFilesSelectionKeyHandler {
     const tab = useTabState.getState().getCurrentTab();
     const focus = tab.files.focusIndex;
 
+    const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
+    const CTRL = C && !S && !A;
+    const SHIFT = !C && S && !A;
+    const NO_MOD = !C && !S && !A;
+
+    // フォーカス移動
     if (e.key === 'ArrowDown') {
       newIndex = focus + 1;
     } else if (e.key === 'ArrowUp') {
@@ -28,13 +34,36 @@ export class TabFilesSelectionKeyHandler {
     } else if (e.key === 'End') {
       newIndex = tab.files.getDirEntries().length - 1;
     }
-
     if (newIndex !== null) {
       newIndex = Math.min(newIndex, tab.files.getDirEntries().length - 1);
       newIndex = Math.max(newIndex, 0);
       useTabState.getState().updateCurrentTab(tab => {
-        tab.files.moveFocusNormal(newIndex as number);
+        if (NO_MOD) {
+          tab.files.moveFocusNormal(newIndex as number);
+        } else if (CTRL) {
+          tab.files.moveFocusOnly(newIndex as number);
+        } else if (SHIFT) {
+          tab.files.moveFocusWithSelectionArea(newIndex as number);
+        }
       });
+      e.preventDefault();
+      return true;
+    }
+
+    // 選択ON/OFF
+    if (CTRL && e.key === ' ') {
+      useTabState.getState().updateCurrentTab(tab => {
+        tab.files.toggleSelection(focus);
+      })
+      e.preventDefault();
+      return true;
+    }
+
+    // 全選択切替
+    if (CTRL && e.key === 'a') {
+      useTabState.getState().updateCurrentTab(tab => {
+        tab.files.toggleAllSelection();
+      })
       e.preventDefault();
       return true;
     }

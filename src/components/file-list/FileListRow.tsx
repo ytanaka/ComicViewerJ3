@@ -87,11 +87,13 @@ export function FileListRow({
   tabId,
   dirEntry,
   isSelected,
+  isFocused,
 }: {
   index: number;
   tabId: number;
   dirEntry: DirEntry;
   isSelected: boolean;
+  isFocused: boolean;
 }) {
   const updateCurrentTab = useTabState(state => state.updateCurrentTab);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
@@ -124,9 +126,11 @@ export function FileListRow({
   }, [data, index, updateCurrentTab]);
 
   const fileInfo = tab.files.getFileInfo(index);
+  const bg = index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
+  const border = isFocused && 'border-dashed border dark:border-white border-black'
   const baseComponent = (
     <div
-      className={`${index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900'} flex w-full pl-1.5 pr-1.5 h-6`}
+      className={`${bg} ${border} flex w-full pl-1.5 pr-1.5 h-6`}
       style={{
         background: isSelected ? '#0078d4' : '',
       }}

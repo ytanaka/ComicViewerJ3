@@ -74,14 +74,20 @@ export default function FileList() {
   // キー操作
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      // 遅延が発生していたらイベントを無視
       const delay = performance.now() - e.timeStamp;
-      if (100 < delay) {console.info("ignore keyboard event");return;} // 遅延が発生していたら無視
+      if (100 < delay) {
+        console.info("ignore keyboard event");
+        return;
+      }
+
+      // console.debug('key ', e);
 
       const keyHandler = new TabFilesSelectionKeyHandler(visibleListRange.current - 1); // ヘッダーがあるので -1
       if (keyHandler.handleKey(e)) return;
 
       const keyHandlerDir = new TabFilesDirWalkerKeyHandler();
-      keyHandlerDir.handleKey(e);
+      if (keyHandlerDir.handleKey(e)) return;
     };
 
     window.addEventListener('keydown', handler);
@@ -96,7 +102,7 @@ export default function FileList() {
   });
 
   console.debug(
-    `<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.list = ${tab.files.toDebugString()}`
+    `<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.files = ${tab.files.toDebugString()}`
   );
   const dirEntries = tab.files.isInitialized() ? tab.files.getDirEntries() : undefined;
 
@@ -120,7 +126,8 @@ export default function FileList() {
                     index={index - 1}
                     tabId={tab.id}
                     dirEntry={dirEntries[index - 1]}
-                    isSelected={tab.files.focusIndex === index - 1}
+                    isSelected={tab.files.selectionIndexes.has(index - 1)}
+                    isFocused={tab.files.focusIndex === index - 1}
                   />
                 );
               }

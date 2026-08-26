@@ -65,9 +65,9 @@ function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; is
       <div className="flex justify-end">
         <div
           onClick={() => tabCommands.removeTab(index)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-black rounded-md"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-gray-500 rounded-md "
         >
-          <X />
+          <X size='15' />
         </div>
       </div>
     </div>

@@ -10,12 +10,12 @@ import { FileFocusHistory } from './file-focus-history';
 // コンポーネントの中では、
 //   const updateCurrentTab = useTabState(state => state.updateCurrentTab);
 //   updateCurrentTab(tab => {
-//     tab.list.setFileInfo(index, data);
+//     tab.files.setFileInfo(index, data);
 //   });
 //
 // ロジックの中では、
 //   useTabState.getState().updateCurrentTab((tab) => {
-//     tab.list.clearPath();
+//     tab.files.clearPath();
 //   }
 
 export class TabFiles {
@@ -35,7 +35,7 @@ export class TabFiles {
   constructor() { }
 
   toDebugString() {
-    return `path:${this.path}, dirEntries:[${this.dirEntries?.length}], focus:${this.focusIndex}`;
+    return `path:${this.path}, dirEntries:[${this.dirEntries?.length}], focus:${this.focusIndex}, sel:${this.selectionIndexes.size}`;
   }
 
   isInitialized(): boolean {
@@ -86,6 +86,9 @@ export class TabFiles {
   }
 
   updateDirEntries(path: string, list: DirEntry[]) {
+    // タブ切り替えの時に FileList.tsx から呼ばれるケースを無視する (選択状態がリセットされないように)
+    if (list === this.dirEntries) return;
+
     // 以前のフォーカス状態をなるべく保持する
     this.path = path;
     const prevName: string | undefined = this.focusHistory.find(path);
@@ -166,5 +169,26 @@ export class TabFiles {
       this.selectionIndexes.add(i);
     }
     this.#updateHistory();
+  }
+
+  // Ctrl + 'Space' でフォーカス一の選択をON/OFF
+  toggleSelection(index: number) {
+    if (this.selectionIndexes.has(index)) {
+      this.selectionIndexes.delete(index);
+    } else {
+      this.selectionIndexes.add(index);
+    }
+  }
+
+  // Ctrl+A で全選択切替
+  toggleAllSelection() {
+    if (!this.dirEntries) return;
+    if (this.selectionIndexes.size === this.dirEntries.length) {
+      this.selectionIndexes.clear()
+    } else {
+      for (let i = 0; i < this.dirEntries.length; i++) {
+        this.selectionIndexes.add(i);
+      }
+    }
   }
 }
