@@ -1,13 +1,13 @@
 import './App.css';
 import { Toaster, ToasterProps } from 'sonner';
-
-import { Menu } from './components/Menu';
-import { Toolbar } from './components/Toolbar';
 import { useTheme } from 'next-themes';
-import { TabContent } from './components/TabContent';
-import { HotKeys } from './components/HotKeys';
-import { TabBar } from './components/TabBar';
-import { StatusBar } from './components/StatusBar';
+
+import { Menu } from './components/misc/Menu';
+import { Toolbar } from './components/misc/Toolbar';
+import { TabContent } from './components/misc/TabContent';
+import { HotKeys } from './components/util/HotKeys';
+import { TabBar } from './components/misc/TabBar';
+import { StatusBar } from './components/misc/StatusBar';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -17,8 +17,8 @@ function App() {
   return (
     <div className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm">
       <HotKeys />
-      <Menu></Menu>
-      <Toolbar></Toolbar>
+      <Menu />
+      <Toolbar />
       <TabBar />
       <TabContent />
       <StatusBar />

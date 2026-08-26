@@ -16,7 +16,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { windowCommands } from '@/lib/commands/window-commands';
 
 function B({ icon, onClick, toolTip }: { icon: ReactNode, onClick?: () => void, toolTip?: string }) {

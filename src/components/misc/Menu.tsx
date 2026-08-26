@@ -1,4 +1,4 @@
-import { Kbd, KbdGroup } from './ui/kbd';
+import { Kbd, KbdGroup } from '@/components/ui/kbd';
 import {
   Menubar,
   MenubarContent,
@@ -8,9 +8,10 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from './ui/menubar';
+} from '@/components/ui/menubar';
 
 import { AppHotkey, AppMenuItem, menuItems } from '@/lib/menu-items';
+
 
 function MyHotkey({ k }: { k: AppHotkey }) {
   return (

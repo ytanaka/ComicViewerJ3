@@ -1,6 +1,6 @@
-import { TabFiles as TabFiles } from '@/lib/tab-files';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { TabFiles } from './tab-files';
 
 interface TabState {
   // tabs が空の場合は0

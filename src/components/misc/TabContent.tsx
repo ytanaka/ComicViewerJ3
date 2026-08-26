@@ -1,5 +1,5 @@
 import { useTabState } from '@/store/tab-state';
-import FileList from './file-list/FileList';
+import FileList from '../file-list/FileList';
 import { useEffect, useRef } from 'react';
 
 export function TabContent() {

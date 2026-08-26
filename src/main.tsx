@@ -6,8 +6,8 @@ import { ThemeProvider } from 'next-themes';
 import { TooltipProvider } from './components/ui/tooltip';
 
 import App from './App';
-import { TabStateInitializer } from './components/TabStateInitializer';
-import { RustLibInitializer } from './components/RustLibInitializer';
+import { TabStateInitializer } from './components/util/TabStateInitializer';
+import { RustLibInitializer } from './components/util/RustLibInitializer';
 
 const queryClient = new QueryClient();
 

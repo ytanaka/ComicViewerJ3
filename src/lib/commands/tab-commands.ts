@@ -2,7 +2,7 @@ import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabState } from '@/store/tab-state';
-import { TabFiles } from '../tab-files';
+import { TabFiles } from '@/store/tab-files';
 import { commands } from '../bindings';
 
 function st() {

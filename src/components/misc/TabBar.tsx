@@ -4,7 +4,7 @@ import { RestrictToHorizontalAxis } from '@dnd-kit/abstract/modifiers';
 import { Plus, X } from 'lucide-react';
 
 import { TabInfo, useTabState } from '@/store/tab-state';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { tabCommands } from '@/lib/commands/tab-commands';
 import { getPathBasename } from '@/lib/string-util';
 

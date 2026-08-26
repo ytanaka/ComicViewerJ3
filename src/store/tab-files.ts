@@ -1,4 +1,5 @@
-import { DirEntry, FileInfo } from './bindings';
+
+import { DirEntry, FileInfo } from '@/lib/bindings';
 import { FileFocusHistory } from './file-focus-history';
 
 // Zustand で管理している TabState の内部で使用するクラス
