@@ -74,6 +74,9 @@ export default function FileList() {
   // キー操作
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      const delay = performance.now() - e.timeStamp;
+      if (100 < delay) {console.info("ignore keyboard event");return;} // 遅延が発生していたら無視
+
       const keyHandler = new TabFilesSelectionKeyHandler(visibleListRange.current - 1); // ヘッダーがあるので -1
       if (keyHandler.handleKey(e)) return;
 
