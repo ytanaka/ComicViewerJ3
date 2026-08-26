@@ -1,14 +1,18 @@
 use std::{collections::HashMap, ffi::OsString, path::PathBuf};
 
-use crate::{types::{DirEntry, FileId, FileInfoOs, FileMetadata, SortType, TabId}, util::to_unix_time};
+use anyhow::anyhow;
 
+use crate::{
+    types::{DirEntry, FileId, FileInfoOs, FileMetadata, SortType, TabId},
+    util::to_unix_time,
+};
 
 #[derive(Debug, Clone)]
 pub struct TabInfo {
     tab_id: TabId,
+    next_file_id: FileId,
 
     current_dir: Option<PathBuf>, // タブ作成直後はNone
-    next_file_id: FileId,
 
     files: HashMap<FileId, FileInfoOs>,
     file_names: HashMap<OsString, FileId>,
@@ -28,8 +32,8 @@ impl TabInfo {
     pub fn new(tab_id: TabId) -> Self {
         TabInfo {
             tab_id,
-            current_dir: None,
             next_file_id: 1,
+            current_dir: None,
             files: HashMap::new(),
             file_names: HashMap::new(),
             sort_type: SortType::default(),
@@ -51,7 +55,7 @@ impl TabInfo {
         }
     }
 
-    pub fn sort_items(&mut self) {
+    fn sort_items(&mut self) {
         let mut list: Vec<_> = self.files.keys().copied().collect();
         list.sort_by(|a, b| {
             let a = self.files.get(a).unwrap();
@@ -61,17 +65,22 @@ impl TabInfo {
         self.sorted_list = Some(list);
     }
 
-    /// UI表示用にソート済みのファイル一覧を取得
-    pub fn get_dir_entries(&mut self) -> Vec<DirEntry> {
+    // ソート済みのファイルIDリストを取得 (未ソートの場合はソートする)
+    pub fn get_sorted_list(&mut self) -> Vec<FileId> {
         if self.sorted_list.is_none() {
             self.sort_items();
         }
+        let x = self.sorted_list.clone();
+        x.unwrap()
+    }
 
+    /// UI表示用のファイル一覧を取得
+    pub fn create_dir_entries(&mut self) -> Vec<DirEntry> {
         let mut ret: Vec<DirEntry> = Vec::new();
-        for i in self.sorted_list.as_ref().unwrap() {
-            if let Some(info) = self.files.get(i) {
+        for i in self.get_sorted_list() {
+            if let Some(info) = self.files.get(&i) {
                 ret.push(DirEntry {
-                    id: *i,
+                    id: i,
                     name: info.name.to_string_lossy().to_string(),
                 });
             }
@@ -79,26 +88,38 @@ impl TabInfo {
         ret
     }
 
-    pub fn get_file_info(&mut self, file_id: FileId) -> Result<FileInfoOs, String> {
+    pub fn get_file(&self, file_id: FileId) -> Option<FileInfoOs> {
+        self.files.get(&file_id).map(|f| f.clone())
+    }
+
+    // ファイル情報取得 (メタデータが未取得の場合は取得する)
+    pub fn get_file_info(&mut self, file_id: FileId) -> anyhow::Result<FileInfoOs> {
         let current_dir = self
             .current_dir
             .as_ref()
-            .ok_or(format!("not initialized tab: {}", self.tab_id))?;
-        let file_info = self.files.get_mut(&file_id).ok_or(format!(
+            .ok_or(anyhow!("not initialized tab: {}", self.tab_id))?;
+        let file_info = self.files.get_mut(&file_id).ok_or(anyhow!(
             "invalid file_id: {} for tab_id[{}]",
-            file_id, self.tab_id
+            file_id,
+            self.tab_id
         ))?;
-        let metadata = current_dir
-            .join(&file_info.name)
-            .metadata()
-            .map_err(|e| e.to_string())?;
-        file_info.metadata = Some(FileMetadata {
-            is_dir: metadata.is_dir(),
-            size: Some(metadata.len()),
-            created: to_unix_time(metadata.created()),
-            modified: to_unix_time(metadata.modified()),
-            accessed: to_unix_time(metadata.accessed()),
-        });
+        if file_info.metadata.is_some() || file_info.metadata_error.is_some() {
+            return Ok(file_info.clone());
+        }
+        match current_dir.join(&file_info.name).metadata() {
+            Err(err) => {
+                file_info.metadata_error = Some(err.to_string());
+            }
+            Ok(metadata) => {
+                file_info.metadata = Some(FileMetadata {
+                    is_dir: metadata.is_dir(),
+                    size: Some(metadata.len()),
+                    created: to_unix_time(metadata.created()),
+                    modified: to_unix_time(metadata.modified()),
+                    accessed: to_unix_time(metadata.accessed()),
+                });
+            }
+        };
         Ok(file_info.clone())
     }
 }
@@ -120,6 +141,7 @@ mod tests {
                 FileInfoOs {
                     name: OsString::from(fname),
                     metadata: None,
+                    metadata_error: None,
                 },
             );
         }
@@ -148,7 +170,7 @@ mod tests {
         );
         assert_eq!(tab.sort_type, SortType::default()); // 初期状態に戻っている
 
-        let dir_entries = tab.get_dir_entries();
+        let dir_entries = tab.create_dir_entries();
         assert_eq!(dir_entries.len(), 3);
         assert_eq!(dir_entries[0].name, "f1.txt");
         assert_eq!(dir_entries[1].name, "f2.txt");

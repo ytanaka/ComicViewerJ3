@@ -85,22 +85,19 @@ fn read_dir_entries_impl(
         ))?
     }
 
-    // tab_id 存在確認
-    let tab = state
-        .tabs
-        .get_mut(&tab_id)
-        .ok_or_else(|| anyhow!("invalid tab_id: {tab_id}"))?;
-
     // タブにファイル一覧を読み込む
+    let tab = state.get_tab(tab_id)?;
     let mut tab = tab.write().unwrap();
     let list = read_dir_entries_impl2(&mut tab, path)?;
     tab.set_files(path.to_path_buf(), list);
-    let ret = tab.get_dir_entries();
-    
+    let ret = tab.create_dir_entries();
+
     // 形態素解析する
     let names: Vec<_> = ret.iter().map(|f| f.name.to_string()).collect();
-    state.text_matcher.get().unwrap().send_to_worker(names);
-    
+    if state.isInitialized() {
+        state.text_matcher.get().unwrap().send_to_worker(names);
+    }
+
     Ok(ret)
 }
 fn read_dir_entries_impl2(
@@ -113,6 +110,7 @@ fn read_dir_entries_impl2(
         let info = FileInfoOs {
             name: entry.file_name(),
             metadata: None,
+            metadata_error: None,
         };
         ret.insert(tab.inc_file_id(), info);
     }
@@ -130,18 +128,14 @@ pub fn get_file_info(
     file_id: &str,
 ) -> Result<FileInfo, String> {
     LOG_RESULT!(format!("get_file_info({tab_id}, {file_id})"), {
-        get_file_info_impl(&state, tab_id, file_id)
+        get_file_info_impl(&state, tab_id, file_id).map_err(|e| e.to_string())
     })
 }
-fn get_file_info_impl(state: &AppState, tab_id: TabId, file_id: &str) -> Result<FileInfo, String> {
-    match state.tabs.get_mut(&tab_id) {
-        None => Err(format!("invalid tab_id: {tab_id}"))?,
-        Some(tab) => {
-            let mut tab = tab.write().unwrap();
-            let file_id: u64 = file_id.parse().map_err(|_| "invalid file_id")?;
-            Ok(tab.get_file_info(file_id).map(|f| f.to_js())?)
-        }
-    }
+fn get_file_info_impl(state: &AppState, tab_id: TabId, file_id: &str) -> anyhow::Result<FileInfo> {
+    let tab = state.get_tab(tab_id)?;
+    let mut tab = tab.write().unwrap();
+    let file_id: u64 = file_id.parse().map_err(|_| anyhow!("invalid file_id"))?;
+    Ok(tab.get_file_info(file_id).map(|f| f.to_ui())?)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -163,6 +157,13 @@ pub fn get_dir_entries(
     todo!("")
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
@@ -211,39 +212,24 @@ mod tests {
     #[test]
     fn test_get_file_info() {
         let state = AppState::new();
-        assert_eq!(
-            get_file_info_impl(&state, 0, ""),
-            Err("invalid tab_id: 0".to_string())
-        );
+        let f = |tab_id: TabId, file_id: &str| {
+            get_file_info_impl(&state, tab_id, file_id).map_err(|e| e.to_string())
+        };
+        assert_eq!(f(0, ""), Err("invalid tab_id: 0".to_string()));
         let tab_id = create_tab_imp(&state);
-        assert_eq!(
-            get_file_info_impl(&state, tab_id, "0"),
-            Err("not initialized tab: 1".to_string())
-        );
+        assert_eq!(f(tab_id, "0"), Err("not initialized tab: 1".to_string()));
 
         // ディレクトリ読み込み
         let dir_entries =
             read_dir_entries_impl(&state, tab_id, "./testdata/d3".to_string()).unwrap();
 
-        assert_eq!(
-            get_file_info_impl(&state, tab_id, ""),
-            Err("invalid file_id".to_string())
-        );
-        assert_eq!(
-            get_file_info_impl(&state, tab_id, " 1"),
-            Err("invalid file_id".to_string())
-        );
-        assert_eq!(
-            get_file_info_impl(&state, tab_id, "1 "),
-            Err("invalid file_id".to_string())
-        );
-        assert_eq!(
-            get_file_info_impl(&state, tab_id, "１"),
-            Err("invalid file_id".to_string())
-        );
+        assert_eq!(f(tab_id, ""), Err("invalid file_id".to_string()));
+        assert_eq!(f(tab_id, " 1"), Err("invalid file_id".to_string()));
+        assert_eq!(f(tab_id, "1 "), Err("invalid file_id".to_string()));
+        assert_eq!(f(tab_id, "１"), Err("invalid file_id".to_string()));
 
         assert_eq!(
-            get_file_info_impl(&state, tab_id, "99999"),
+            f(tab_id, "99999"),
             Err("invalid file_id: 99999 for tab_id[1]".to_string())
         );
 

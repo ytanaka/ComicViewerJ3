@@ -1,5 +1,6 @@
 use std::sync::{atomic::AtomicU32, Arc, OnceLock, RwLock};
 
+use anyhow::anyhow;
 use dashmap::DashMap;
 use tauri::State;
 
@@ -38,11 +39,6 @@ impl AppState {
             text_matcher: OnceLock::new(),
         }
     }
-    pub fn get_tab_ids(&self) -> Vec<TabId> {
-        let mut ret: Vec<_> = self.tabs.iter().map(|elm| *elm.key()).collect();
-        ret.sort();
-        ret
-    }
 
     pub fn init(&self, state: &AppState) {
         state
@@ -54,5 +50,22 @@ impl AppState {
         state.migemo.get_or_init(|| Arc::new(Migemo::new()));
 
         state.text_matcher.get_or_init(|| TextMatcher::new(&state));
+    }
+    pub fn isInitialized(&self) -> bool {
+        self.text_matcher.get().is_some()
+    }
+
+    pub fn get_tab(&self, tab_id: TabId) -> anyhow::Result<Arc<RwLock<TabInfo>>> {
+        let ret = self
+            .tabs
+            .get_mut(&tab_id)
+            .ok_or_else(|| anyhow!("invalid tab_id: {tab_id}"))?;
+        Ok(ret.clone())
+    }
+
+    pub fn get_tab_ids(&self) -> Vec<TabId> {
+        let mut ret: Vec<_> = self.tabs.iter().map(|elm| *elm.key()).collect();
+        ret.sort();
+        ret
     }
 }
