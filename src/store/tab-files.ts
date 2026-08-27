@@ -1,6 +1,7 @@
 
 import { DirEntry, FileInfo } from '@/lib/bindings';
 import { FileFocusHistory } from './file-focus-history';
+import { ScrollLevel, useScrollToFocusState } from './scroll-to-focus-state';
 
 // Zustand で管理している TabState の内部で使用するクラス
 //
@@ -115,6 +116,7 @@ export class TabFiles {
     this.errMsg = undefined;
     this.fileInfoList = [];
     this.fileErrorList = [];
+    useScrollToFocusState.getState().setScroll(ScrollLevel.Lazy); // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
   }
 
   pushHistory(dir: string, name: string) {

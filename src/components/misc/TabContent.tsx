@@ -5,15 +5,15 @@ import { useFocusState } from '@/store/focus-state';
 
 export function TabContent() {
   const ref = useRef<HTMLDivElement>(null);
-  const doFocus = useFocusState(state => state.doFocus);
+  const getFocus = useFocusState(state => state.getFocus);
   const doneFocus = useFocusState(state => state.doneFocus);
 
   useEffect(() => {
-    if (doFocus && ref.current) {
+    if (getFocus && ref.current) {
       ref.current.focus();
       doneFocus();
     }
-  }, [doFocus, doneFocus]);
+  }, [getFocus, doneFocus]);
 
   const tabs = useTabState(state => state.tabs);
 

@@ -10,6 +10,7 @@ import { TabFilesDirWalkerKeyHandler, TabFilesMouseHandler, TabFilesSelectionKey
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
+import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
 
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -95,11 +96,24 @@ export default function FileList() {
   });
 
   // スクロール位置調整
+  const scrollLevel = useScrollToFocusState(state => state.scrollLevel);
+  const setScroll = useScrollToFocusState(state => state.setScroll);
   useEffect(() => {
-    virtuoso.current?.scrollIntoView({
-      index: tab.files.focusIndex + 1, // ヘッダーがあるので +1
-    });
-  });
+    if (scrollLevel !== ScrollLevel.No) {
+      function scr() {
+        virtuoso.current?.scrollIntoView({
+          index: tab.files.focusIndex + 1, // ヘッダーがあるので +1
+        });
+      }
+
+      scr();
+      if (scrollLevel === ScrollLevel.Lazy) {
+        // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
+        setTimeout(() => scr(), 100);
+      }
+      setScroll(ScrollLevel.No);
+    }
+  }, [scrollLevel, setScroll, tab.files.focusIndex]);
 
   // マウスクリック
   function createMouseEventHandler(index: number) {
@@ -109,7 +123,7 @@ export default function FileList() {
   };
 
   console.debug(
-    `<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.files = ${tab.files.toDebugString()}`
+    `<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.files = ${tab.files.toDebugString()}, scroll= ${scrollLevel}`
   );
   const dirEntries = tab.files.isInitialized() ? tab.files.getDirEntries() : undefined;
 

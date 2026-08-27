@@ -1,6 +1,7 @@
 import { useTabState } from '@/store/tab-state';
 import { fileCommands } from './commands/file-commands';
 import React from 'react';
+import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
 
 export class TabFilesSelectionKeyHandler {
   pageNum: number;
@@ -47,6 +48,7 @@ export class TabFilesSelectionKeyHandler {
           tab.files.moveFocusWithSelectionArea(newIndex as number);
         }
       });
+      useScrollToFocusState.getState().setScroll(ScrollLevel.Normal);
       e.preventDefault();
       return true;
     }
@@ -79,8 +81,6 @@ export class TabFilesMouseHandler {
     const CTRL = C && !S && !A;
     const SHIFT = !C && S && !A;
     const NO_MOD = !C && !S && !A;
-
-    console.log(index, e);
 
     useTabState.getState().updateCurrentTab(tab => {
       if (NO_MOD) {

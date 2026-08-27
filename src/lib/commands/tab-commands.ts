@@ -4,6 +4,7 @@ import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 import { useTabState } from '@/store/tab-state';
 import { TabFiles } from '@/store/tab-files';
 import { commands } from '../bindings';
+import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
 
 function st() {
   return useTabState.getState();
@@ -48,6 +49,7 @@ export const tabCommands = {
 
   setCurrentTabIndex(index: number) {
     st().setCurrentTabIndex(index);
+    useScrollToFocusState.getState().setScroll(ScrollLevel.Normal);
   },
 
   setCurrentTabNextPrev(inc: number) {
