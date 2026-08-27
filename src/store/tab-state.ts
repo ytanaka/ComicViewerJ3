@@ -10,13 +10,14 @@ interface TabState {
   tabs: TabInfo[];
 
   setCurrentTabIndex: (index: number) => void;
+  setTabs: (tabs: TabInfo[]) => void;
 
   addTab: (tab: TabInfo) => void;
-  removeTab: (index: number) => number;
+  removeTab: (id: number) => void;
   moveTab: (fromIndex: number, toIndex: number) => void;
 
-  updateTab: (index: number, fn: (tab: TabInfo) => void) => void;
-  updateCurrentTab: (fn: (tab: TabInfo) => void) => void;
+  getTab: (id: number) => TabInfo | undefined;
+  updateTab: (id: number, fn: (tab: TabInfo | undefined) => void) => boolean;
 
   // ※ コンポーネントの中で使用すると currentTabIndex が変化しても再描画が発生しないので注意
   getCurrentTab: () => TabInfo;
@@ -35,6 +36,11 @@ export const useTabState = create<TabState>()(
             throw Error(`setCurrentTabIndex(): invalid tab index: ${index}`);
           return { currentTabIndex: index };
         });
+      },
+      setTabs: (tabs: TabInfo[]) => {
+        set(() => {
+          return { tabs: [...tabs] }
+        })
       },
 
       // ※ カレントタブは追加されたタブに移る
@@ -73,39 +79,36 @@ export const useTabState = create<TabState>()(
       },
 
       // ※ カレントタブが削除されたら、カレントは右のタブに移る
-      removeTab: (index: number) => {
-        const { tabs } = get();
-        if (index < 0 || tabs.length <= index)
-          throw Error(`removeTab(): invalid index: ${index} tabs.length = ${tabs.length}`);
-        const removeId = tabs[index].id;
+      removeTab: (id: number) => {
+        const tab = get().getTab(id);
+        if (!tab) throw Error(`removeTab(): no tab(id:${id})`);
 
         set(prev => {
-          const newList = [...prev.tabs];
-          newList.splice(index, 1); // 1つ削除
+          const newList = prev.tabs.filter(t => t.id !== tab.id);
 
           // 最後のタブが削除されたら、左側のタブをカレントにする
-          return { tabs: newList, currentTabIndex: Math.max(0, Math.min(prev.currentTabIndex, prev.tabs.length - 2)) };
+          return { tabs: newList, currentTabIndex: Math.max(0, Math.min(prev.currentTabIndex, newList.length - 1)) };
         });
-
-        return removeId;
       },
 
-      updateTab: (index: number, fn: (tab: TabInfo) => void) => {
+      getTab(id: number): TabInfo | undefined {
+        return get().tabs.find(t => t.id === id);
+      },
+
+      // タブ更新 (idのタブが存在しない場合は何もしない)
+      updateTab: (id: number, fn: (tab: TabInfo) => void) => {
+        const tab = get().getTab(id);
+        if (!tab) return false;
         set(prev => {
-          fn(prev.tabs[index]);
+          fn(tab);
           return { tabs: [...prev.tabs] };
         });
-      },
-      updateCurrentTab: (fn: (tab: TabInfo) => void) => {
-        set(prev => {
-          prev.updateTab(prev.currentTabIndex, fn);
-          return {};
-        });
+        return true;
       },
 
       getCurrentTab: (): TabInfo => {
         const { tabs, currentTabIndex } = get();
-        if (tabs.length === 0) throw new Error('no tabs');
+        if (!tabs[currentTabIndex]) throw new Error(`no tab`);
         return tabs[currentTabIndex];
       },
     }),

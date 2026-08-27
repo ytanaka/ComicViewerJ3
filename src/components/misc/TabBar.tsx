@@ -51,7 +51,7 @@ function NewTabButton({ noTabs }: { noTabs: boolean }) {
 }
 
 function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; isSelected: boolean }) {
-  const tabFiles = useTabFilesOp();
+  const tabFiles = useTabFilesOp(tab);
   const { ref, handleRef } = useSortable({
     id: tab.id,
     index: index,
@@ -67,7 +67,7 @@ function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; is
       </Button>
       <div className="flex justify-end">
         <div
-          onClick={() => tabCommands.removeTab(index)}
+          onClick={() => tabCommands.removeTab(tab.id)}
           className="absolute right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-gray-500 rounded-md "
         >
           <X size="15" />

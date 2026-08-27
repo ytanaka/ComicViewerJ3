@@ -19,14 +19,10 @@ export function createTabInfo(id: number, path: string): TabInfo {
   }
 }
 
-export const useTabInfoOp = () => {
-  const tab = useTabState(state => state.getCurrentTab);
+export const useTabInfoOp = (tab: TabInfo) => {
   return useMemo(() => {
-    return new TabInfoOp(tab());
+    return new TabInfoOp(tab);
   }, [tab])
-}
-export const mkTabInfoOp = () => {
-  return new TabInfoOp(useTabState.getState().getCurrentTab());
 }
 
 export class TabInfoOp {
@@ -41,11 +37,11 @@ export class TabInfoOp {
     this.d = data;
   }
 
-  mkTabFilesOp() {
+  #mkTabFilesOp() {
     return new TabFilesOp(this.d);
   }
   #updateCurrentTab(fn: () => void) {
-    useTabState.getState().updateCurrentTab(tab => {
+    useTabState.getState().updateTab(this.d.id, tab => {
       assert_same_ref(tab, this.d);
       fn();
     })
@@ -63,11 +59,11 @@ export class TabInfoOp {
 
     this.#updateCurrentTab(() => {
       if (result.status === 'ok') {
-        this.mkTabFilesOp().updateDirEntries(result.data);
+        this.#mkTabFilesOp().updateDirEntries(result.data);
       } else {
         console.info("TabInfo.readDirEntries() error: ", result.error);
         this.d.files.errMsg = result.error;
-        this.mkTabFilesOp().updateDirEntries([]);
+        this.#mkTabFilesOp().updateDirEntries([]);
       }
     })
   }
@@ -87,7 +83,7 @@ export class TabInfoOp {
 
     this.#updateCurrentTab(() => {
       if (result.status === 'ok') {
-        this.mkTabFilesOp().setFileInfo(index, result.data);
+        this.#mkTabFilesOp().setFileInfo(index, result.data);
       } else {
         console.info("TabInfo.readFileInfo() error: ", result.error);
         this.d.files.fileErrorList[index] = result.error;

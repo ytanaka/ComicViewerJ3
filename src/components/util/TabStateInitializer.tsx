@@ -11,19 +11,18 @@ export function TabStateInitializer({ children }: { children: ReactNode }) {
   const initializing = useRef(false);
   useEffect(() => {
     const init = async () => {
+      const tabs = useTabState.getState().tabs;
+
       for (const tabId of await commands.getTabIds()) {
         console.info('TabStateInitializer: remove unused old tabId: ', tabId);
         await commands.removeTab(tabId);
       }
 
       for (let i = 0; i < tabs.length; i++) {
-        if (tabs[i].id < 0) {
-          const tabId = await commands.createTab();
-          useTabState.getState().updateTab(i, t => {
-            t.id = tabId;
-          });
-        }
+        tabs[i].id = await commands.createTab();
       }
+      useTabState.getState().setTabs(tabs);
+
       initializing.current = false;
     };
 
@@ -32,6 +31,8 @@ export function TabStateInitializer({ children }: { children: ReactNode }) {
       init();
     }
   }, [tabNotInitialized, tabs]);
+
+  // console.debug(`<TabStateInitializer> tabIds=${tabs.map(t => t.id)}`);
 
   if (tabNotInitialized) {
     return <div>initializing ...</div>;

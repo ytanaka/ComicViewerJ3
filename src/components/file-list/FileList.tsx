@@ -20,12 +20,11 @@ import { mkFileFocusHistoryOp } from '@/store/file-focus-history';
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
 
-  const tabs = useTabState(state => state.tabs);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
-  const tab = tabs[currentTabIndex];
+  const tab = useTabState(state => state.getCurrentTab());
 
-  const tabInfoOp = useTabInfoOp();
-  const tabFilesOp = useTabFilesOp();
+  const tabInfoOp = useTabInfoOp(tab);
+  const tabFilesOp = useTabFilesOp(tab);
 
   console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}) = ${tabFilesOp.toDebugString()}`);
 
@@ -78,10 +77,10 @@ export default function FileList() {
 
       // console.debug('key ', e);
 
-      const keyHandler = new TabFilesSelectionKeyHandler(visibleListRange.current - 1); // ヘッダーがあるので -1
+      const keyHandler = new TabFilesSelectionKeyHandler(tab, visibleListRange.current - 1); // ヘッダーがあるので -1
       if (keyHandler.handleKey(e)) return;
 
-      const keyHandlerDir = new TabFilesDirWalkerKeyHandler();
+      const keyHandlerDir = new TabFilesDirWalkerKeyHandler(tab);
       if (keyHandlerDir.handleKey(e)) return;
     };
 
@@ -112,7 +111,7 @@ export default function FileList() {
   // マウスクリック
   function createMouseEventHandler(index: number) {
     return function (e: React.MouseEvent) {
-      new TabFilesMouseHandler().handle(index, e);
+      new TabFilesMouseHandler(tab).handle(index, e);
     };
   }
 

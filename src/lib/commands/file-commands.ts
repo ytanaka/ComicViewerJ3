@@ -1,9 +1,9 @@
-import { mkTabFilesOp } from '@/store/tab-files';
+import { mkCurrentTabFilesOp } from '@/store/tab-files';
 import { resolve as tauri_resolve, dirname as tauri_dirname } from '@tauri-apps/api/path';
 
 export const fileCommands = {
   async moveToParentDir() {
-    const tabFiles = mkTabFilesOp()
+    const tabFiles = mkCurrentTabFilesOp();
     try {
       const parent = await tauri_dirname(tabFiles.getPath());
       this.movePath(parent);
@@ -14,12 +14,13 @@ export const fileCommands = {
   },
 
   async moveToChildDirectory(name: string) {
-    const tabFiles = mkTabFilesOp()
+    const tabFiles = mkCurrentTabFilesOp();
     const dir = await tauri_resolve(tabFiles.getPath(), name);
     this.movePath(dir);
   },
 
   movePath(path: string) {
-    mkTabFilesOp().setNewPath(path);
+    const tabFiles = mkCurrentTabFilesOp();
+    tabFiles.setNewPath(path);
   },
 };

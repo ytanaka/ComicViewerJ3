@@ -5,7 +5,7 @@ import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { commands } from '../bindings';
 import { useTabState } from '@/store/tab-state';
 import { tabCommands } from './tab-commands';
-import { mkTabFilesOp } from '@/store/tab-files';
+import { mkCurrentTabFilesOp } from '@/store/tab-files';
 
 export const windowCommands = {
   async exitApp() {
@@ -19,7 +19,7 @@ export const windowCommands = {
     if (useTabState.getState().tabs.length === 0) {
       path = await tauri_homeDir();
     } else {
-      path = mkTabFilesOp().getPath();
+      path = mkCurrentTabFilesOp().getPath();
     }
 
     const dir = await tauri_open({

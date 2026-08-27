@@ -24,7 +24,7 @@ export function createFileFocusHistory(n: number = MAX_HIST): FileFocusHistory {
 }
 
 export const useFileFocusHistoryOp = () => {
-  const tab = useTabState(state => state.getCurrentTab)();
+  const tab = useTabState(state => state.getCurrentTab());
   return useMemo(() => {
     return new FileFocusHistoryOp(tab);
   }, [tab]);
@@ -44,7 +44,7 @@ export class FileFocusHistoryOp {
     this.d = data.files.focusHistory;
   }
   push(path: string, focusName: string) {
-    useTabState.getState().updateCurrentTab((tab) => {
+    useTabState.getState().updateTab(this.tab.id, (tab) => {
       assert_same_ref(tab, this.tab);
 
       this.d.hist = this.d.hist.filter(e => e.path !== path);

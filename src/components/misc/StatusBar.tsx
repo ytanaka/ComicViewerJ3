@@ -2,8 +2,8 @@ import { useTabFilesOp } from '@/store/tab-files';
 import { useTabState } from '@/store/tab-state';
 
 export function StatusBar() {
-  const tabs = useTabState(state => state.tabs);
-  if (tabs.length === 0) {
+  const tab = useTabState(state => state.getCurrentTab());
+  if (!tab) {
     return <div></div>;
   } else {
     return <NormalStatusBar />
@@ -11,8 +11,8 @@ export function StatusBar() {
 }
 
 function NormalStatusBar() {
-  const tabFilesOp = useTabFilesOp()
-
+  const tab = useTabState(state => state.getCurrentTab());
+  const tabFilesOp = useTabFilesOp(tab);
 
   let msg: string | undefined;
   if (tabFilesOp.isInitialized()) {

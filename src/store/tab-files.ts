@@ -9,17 +9,17 @@ import { assert_same_ref, ExecExclusibe } from '@/lib/utils';
 
 // Zustand で管理している TabState の内部で使用するクラス
 //
-// ※ このクラスの更新メソッドを呼ぶときは、TabState.updateTab(), updateCurrentTab() を使うこと
+// ※ このクラスの更新メソッドを呼ぶときは、TabState.updateTab() を使うこと
 //    そうしないと、zustand のデータ不整合が発生する
 //
 // コンポーネントの中では、
-//   const updateCurrentTab = useTabState(state => state.updateCurrentTab);
-//   updateCurrentTab(tab => {
+//   const updateTab = useTabState(state => state.updateTab);
+//   updateTab(tab => {
 //     tab.files.setFileInfo(index, data);
 //   });
 //
 // ロジックの中では、
-//   useTabState.getState().updateCurrentTab((tab) => {
+//   useTabState.getState().updateTab((tab) => {
 //     tab.files.clearPath();
 //   }
 export interface TabFiles {
@@ -53,16 +53,13 @@ export function caeateTabFiles(path: string): TabFiles {
   }
 }
 
-export const useTabFilesOp = () => {
-  const tab = useTabState(state => state.getCurrentTab)();
+export const useTabFilesOp = (tab: TabInfo) => {
   return useMemo(() => {
     return new TabFilesOp(tab);
   }, [tab])
 }
-
-export const mkTabFilesOp = () => {
-  const tab = useTabState.getState().getCurrentTab();
-  return new TabFilesOp(tab);
+export const mkCurrentTabFilesOp = () => {
+  return new TabFilesOp(useTabState.getState().getCurrentTab());
 }
 
 export class TabFilesOp {
@@ -104,8 +101,8 @@ export class TabFilesOp {
       throw RangeError(`index: ${index} is out of array. TabFiles.list.length=${this.d.dirEntries?.length}`);
     return ret;
   }
-  #updateCurrentTab(fn: () => void) {
-    useTabState.getState().updateCurrentTab(tab => {
+  #updateTab(fn: () => void) {
+    useTabState.getState().updateTab(this.tab.id, tab => {
       assert_same_ref(tab, this.tab);
       fn();
     })
@@ -115,7 +112,7 @@ export class TabFilesOp {
   }
 
   setNewPath(path: string) {
-    this.#updateCurrentTab(() => {
+    this.#updateTab(() => {
       this.d.path = path;
       this.init_except_path();
     })
@@ -210,7 +207,7 @@ export class TabFilesOp {
   // ↑↓で普通にフォーカス移動、マウスクリックでファイル選択
   // Focus, Anchor, Select が変わる
   moveFocusNormal(index: number) {
-    this.#updateCurrentTab(() => {
+    this.#updateTab(() => {
       this.#checkIndex(index);
       this.d.focusIndex = index;
       this.d.anchorIndex = index;
@@ -222,7 +219,7 @@ export class TabFilesOp {
   // Ctrl + ↑↓でフォーカスだけが移動する
   // Select が変化せずに Focus, Anchor が変わる
   moveFocusOnly(index: number) {
-    this.#updateCurrentTab(() => {
+    this.#updateTab(() => {
       this.#checkIndex(index);
       this.d.focusIndex = index;
       this.d.anchorIndex = index;
@@ -233,7 +230,7 @@ export class TabFilesOp {
   // Shift + ↑↓で選択エリアを変更する
   // Anchor が変化せずに Focus, Select が変わる
   moveFocusWithSelectionArea(index: number) {
-    this.#updateCurrentTab(() => {
+    this.#updateTab(() => {
       this.#checkIndex(index);
       this.d.focusIndex = index;
 
@@ -254,7 +251,7 @@ export class TabFilesOp {
 
   // Ctrl + 'Space' でフォーカス一の選択をON/OFF
   toggleSelection(index: number) {
-    this.#updateCurrentTab(() => {
+    this.#updateTab(() => {
       if (this.d.selectionIndexes.has(index)) {
         this.d.selectionIndexes.delete(index);
       } else {
@@ -265,7 +262,7 @@ export class TabFilesOp {
 
   // Ctrl+A で全選択切替
   toggleAllSelection() {
-    this.#updateCurrentTab(() => {
+    this.#updateTab(() => {
       if (!this.d.dirEntries) return;
       if (this.d.selectionIndexes.size === this.d.dirEntries.length) {
         this.d.selectionIndexes.clear();

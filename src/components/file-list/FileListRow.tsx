@@ -7,11 +7,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { DirEntry, FileInfo } from '@/lib/bindings';
 import { FileListHeaderN, useUiState } from '@/store/ui-state';
 import { unixTime2str } from '@/lib/string-util';
-import { mkTabFilesOp, useTabFilesOp } from '@/store/tab-files';
-import { mkTabInfoOp } from '@/store/tab-info';
+import { TabFilesOp, useTabFilesOp } from '@/store/tab-files';
+import { useTabState } from '@/store/tab-state';
+import { TabInfoOp } from '@/store/tab-info';
 
 function useHeaderSize(n: FileListHeaderN): number {
-  return useUiState(state => state.fileListHeaderSizes)[n];
+  const sizes = useUiState(state => state.fileListHeaderSizes);
+  return sizes[n];
 }
 
 function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined; errorMsg: string | undefined }) {
@@ -94,41 +96,18 @@ export function FileListRow({
   isFocused: boolean;
   onClick: React.MouseEventHandler;
 }) {
+  const tab = useTabState(state => state.getCurrentTab());
+
   useEffect(() => {
     const read = async () => {
-      if (mkTabFilesOp().allowFetchFileInfo(index)) {
-        mkTabInfoOp().readFileInfo(index);
+      if (new TabFilesOp(tab).allowFetchFileInfo(index)) {
+        new TabInfoOp(tab).readFileInfo(index);
       }
     }
     read();
-  }, [index])
+  }, [index, tab])
 
-  // const { data } = useQuery({
-  //   staleTime: 0,
-  //   queryKey: [tabId, dirEntry.id],
-  //   enabled: tabFilesOp.getFileInfo(index) === undefined && tabFilesOp.getFileError(index) === undefined,
-  //   queryFn: async () => {
-  //     const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
-  //     if (ret.status === 'error') {
-  //       console.warn('FileList: getFileInfo(', dirEntry.name, ') => ', ret.error);
-  //       toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
-  //       updateCurrentTab(() => {
-  //         tabFilesOp.setFileError(index, ret.error);
-  //       });
-  //       throw Error(ret.error);
-  //     }
-  //     // console.debug('FileList: getFileInfo(', dirEntry.name, ') => ', ret.data);
-  //     return ret.data;
-  //   },
-  // });
-  // useEffect(() => {
-  //   if (!data) return;
-  //   updateCurrentTab(() => {
-  //     tabFilesOp.setFileInfo(index, data);
-  //   });
-  // }, [data, index, tabFilesOp, updateCurrentTab]);
-
-  const tabFilesOp = useTabFilesOp();
+  const tabFilesOp = useTabFilesOp(tab);
   const fileInfo = tabFilesOp.getFileInfo(index);
   const bg = index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   const border = isFocused && 'border-dashed border dark:border-white border-black';

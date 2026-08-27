@@ -35,16 +35,17 @@ export const tabCommands = {
     st().addTab(createTabInfo(tabId, absPath));
   },
 
-  async removeTab(index: number) {
+  async removeTab(id: number) {
     if (st().tabs.length === 0) return;
-    console.info(`tabCommands.removeTab(${index})`);
-    const removedId = st().removeTab(index);
-    await commands.removeTab(removedId);
+    console.info(`tabCommands.removeTab(${id})`);
+    st().removeTab(id);
+    await commands.removeTab(id);
   },
 
   async removeCurrentTab() {
-    if (st().tabs.length === 0) return;
-    await this.removeTab(st().currentTabIndex);
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+    await this.removeTab(tab.id);
   },
 
   setCurrentTabIndex(index: number) {

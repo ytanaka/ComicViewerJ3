@@ -1,19 +1,22 @@
 import { fileCommands } from './commands/file-commands';
 import React from 'react';
 import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
-import { mkTabFilesOp } from '@/store/tab-files';
+import { TabInfo } from '@/store/tab-info';
+import { TabFilesOp } from '@/store/tab-files';
 
 export class TabFilesSelectionKeyHandler {
+  tab: TabInfo;
   pageNum: number;
 
-  constructor(pageNum: number) {
+  constructor(tab: TabInfo, pageNum: number) {
+    this.tab = tab;
     this.pageNum = pageNum;
   }
 
   // キーボードによるリストのフォーカス移動ハンドラー
   // フォーカスが移動したら、true
   handleKey(e: KeyboardEvent): boolean {
-    const tabFiles = mkTabFilesOp();
+    const tabFiles = new TabFilesOp(this.tab);
     const focus = tabFiles.data.focusIndex;
     let newIndex: number | null = null;
 
@@ -70,8 +73,14 @@ export class TabFilesSelectionKeyHandler {
 }
 
 export class TabFilesMouseHandler {
+  tab: TabInfo;
+
+  constructor(tab: TabInfo) {
+    this.tab = tab;
+  }
+
   handle(index: number, e: React.MouseEvent): boolean {
-    const tabFiles = mkTabFilesOp();
+    const tabFiles = new TabFilesOp(this.tab);
     const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
     const CTRL = C && !S && !A;
     const SHIFT = !C && S && !A;
@@ -92,8 +101,13 @@ export class TabFilesMouseHandler {
   }
 }
 export class TabFilesDirWalkerKeyHandler {
+  tab: TabInfo;
+
+  constructor(tab: TabInfo) {
+    this.tab = tab;
+  }
   handleKey(e: KeyboardEvent): boolean {
-    const tabFiles = mkTabFilesOp();
+    const tabFiles = new TabFilesOp(this.tab);
 
     if (e.key === 'Enter') {
       const info = tabFiles.getFileInfo(tabFiles.data.focusIndex);
