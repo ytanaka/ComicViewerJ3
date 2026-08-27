@@ -6,7 +6,6 @@ import { ReactNode, useEffect, useRef } from 'react';
 // ※ id は async 関数から取得するので、zustand の onRehydrateStorage の中では初期化できない
 export function TabStateInitializer({ children }: { children: ReactNode }) {
   const tabs = useTabState(state => state.tabs);
-  const updateTab = useTabState(state => state.updateTab);
   const tabNotInitialized = 0 <= tabs.findIndex(tab => tab.id < 0);
 
   const initializing = useRef(false);
@@ -20,7 +19,7 @@ export function TabStateInitializer({ children }: { children: ReactNode }) {
       for (let i = 0; i < tabs.length; i++) {
         if (tabs[i].id < 0) {
           const tabId = await commands.createTab();
-          updateTab(i, t => {
+          useTabState.getState().updateTab(i, t => {
             t.id = tabId;
           });
         }
@@ -32,7 +31,7 @@ export function TabStateInitializer({ children }: { children: ReactNode }) {
       initializing.current = true;
       init();
     }
-  }, [updateTab, tabNotInitialized, tabs]);
+  }, [tabNotInitialized, tabs]);
 
   if (tabNotInitialized) {
     return <div>initializing ...</div>;

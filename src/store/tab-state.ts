@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { TabFiles } from './tab-files';
+import { TabInfo } from './tab-info';
+import { TabFilesOp } from './tab-files';
+import { ExecExclusibe } from '@/lib/utils';
 
 interface TabState {
   // tabs が空の場合は0
   currentTabIndex: number;
-  localStrageTabs: LocalStrageTabInfo[]; // ローカルストレージから読み書きするときに使用するフィールド
-  tabs: TabInfo[];                       // このフィールドはローカルストレージに保存しない
+  tabs: TabInfo[];
 
   setCurrentTabIndex: (index: number) => void;
 
@@ -20,14 +21,6 @@ interface TabState {
   // ※ コンポーネントの中で使用すると currentTabIndex が変化しても再描画が発生しないので注意
   getCurrentTab: () => TabInfo;
 }
-
-export type TabInfo = {
-  id: number;
-  files: TabFiles;
-};
-type LocalStrageTabInfo = {
-  path: string;
-};
 
 export const useTabState = create<TabState>()(
   persist(
@@ -121,21 +114,27 @@ export const useTabState = create<TabState>()(
       partialize: state => {
         return {
           currentTabIndex: state.currentTabIndex,
-          localStrageTabs: state.tabs.map(t => ({
-            path: t.files.getPath(),
-          })),
-          tabs: state.tabs.map(() => ({
-            dummy: "",
-          })),
+          tabs: state.tabs.map((t) => {
+            return {
+              files: { path: t.files.path },
+              focusHistory: t.files.focusHistory,
+            }
+          }),
         };
       },
       onRehydrateStorage: () => state => {
-        console.info('TabState: onRehydrateStorage !!!', state);
         if (!state) return;
-        for (let i = 0; i < state.localStrageTabs.length; i++) {
-          state.tabs[i].id = -1;
-          state.tabs[i].files = new TabFiles(state.localStrageTabs[i].path);
+        try {
+          for (let i = 0; i < state.tabs.length; i++) {
+            // とりあえず -1 にしておいてTabStateInitializer で初期化する
+            state.tabs[i].id = -1;
+            state.tabs[i].execExclusive = new ExecExclusibe();
+            new TabFilesOp(state.tabs[i]).init_except_path();
+          }
+        } catch (e) {
+          console.error(e);
         }
+        console.info('TabState: onRehydrateStorage !!!!!', state);
       },
     }
   )

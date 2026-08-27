@@ -1,6 +1,11 @@
 import { DirEntry, FileInfo } from '@/lib/bindings';
-import { FileFocusHistory } from './file-focus-history';
+import { createFileFocusHistory, FileFocusHistory, FileFocusHistoryOp } from './file-focus-history';
 import { ScrollLevel, useScrollToFocusState } from './scroll-to-focus-state';
+import { getPathBasename } from '@/lib/string-util';
+import { useTabState } from './tab-state';
+import { useMemo } from 'react';
+import { TabInfo } from './tab-info';
+import { assert_same_ref, ExecExclusibe } from '@/lib/utils';
 
 // Zustand で管理している TabState の内部で使用するクラス
 //
@@ -17,184 +22,258 @@ import { ScrollLevel, useScrollToFocusState } from './scroll-to-focus-state';
 //   useTabState.getState().updateCurrentTab((tab) => {
 //     tab.files.clearPath();
 //   }
+export interface TabFiles {
+  path: string;
+  errMsg?: string;
 
-export class TabFiles {
-  private path: string;
-  private errMsg?: string = undefined;
+  dirEntries?: DirEntry[];
+  fileInfoList: FileInfo[]; // sparse array
+  fileErrorList: string[]; // sparse array
+  execExclusive: ExecExclusibe; // FileInfo を取得中フラグ
 
-  private dirEntries?: DirEntry[] = undefined;
-  private fileInfoList?: FileInfo[] = undefined; // sparse array
-  private fileErrorList?: string[] = undefined; // sparse array
+  focusHistory: FileFocusHistory;
 
-  private focusHistory: FileFocusHistory = new FileFocusHistory();
+  focusIndex: number; // listが空のときも0
+  anchorIndex: number;
+  selectionIndexes: Set<number>;
+}
+export function caeateTabFiles(path: string): TabFiles {
+  return {
+    path: path, // localstrage に保存される
 
-  focusIndex: number = 0; // listが空のときも0
-  private anchorIndex: number = 0;
-  selectionIndexes: Set<number> = new Set();
+    fileInfoList: [],
+    fileErrorList: [],
+    execExclusive: new ExecExclusibe(),
 
-  constructor(path: string) {
-    this.path = path;
+    focusHistory: createFileFocusHistory(), // localstrage に保存される
+
+    focusIndex: 0,
+    anchorIndex: 0,
+    selectionIndexes: new Set(),
+  }
+}
+
+export const useTabFilesOp = () => {
+  const tab = useTabState(state => state.getCurrentTab)();
+  return useMemo(() => {
+    return new TabFilesOp(tab);
+  }, [tab])
+}
+
+export const mkTabFilesOp = () => {
+  const tab = useTabState.getState().getCurrentTab();
+  return new TabFilesOp(tab);
+}
+
+export class TabFilesOp {
+  private tab: TabInfo;
+  private d: TabFiles;
+
+  constructor(tab: TabInfo) {
+    if (!tab) throw new Error('invalid data');
+    this.tab = tab;
+    this.d = tab.files;
   }
 
-  toDebugString() {
-    return `path:${this.path}, dirEntries:[${this.dirEntries?.length}], focus:${this.focusIndex}, sel:${this.selectionIndexes.size}`;
+  get data() {
+    return this.d;
+  }
+
+  // この関数は TabState の onRehydrateStorage から呼ばれる
+  init_except_path() {
+    this.d.errMsg = undefined;
+    this.d.dirEntries = undefined;
+    this.d.focusHistory = createFileFocusHistory();
+    this.d.fileInfoList = [];
+    this.d.fileErrorList = [];
+    this.d.execExclusive = new ExecExclusibe();
+    this.d.selectionIndexes = new Set();
   }
 
   isInitialized(): boolean {
-    return this.dirEntries !== undefined;
+    return this.d.dirEntries !== undefined;
   }
+
+  toDebugString() {
+    return `path:.../${getPathBasename(this.d.path)}, dirEntries:[${this.d.dirEntries?.length}], focus:${this.d.focusIndex}, sel:${this.d.selectionIndexes.size}`;
+  }
+
+  #checkIndex(index: number): DirEntry {
+    const ret = this.d.dirEntries?.[index];
+    if (ret === undefined)
+      throw RangeError(`index: ${index} is out of array. TabFiles.list.length=${this.d.dirEntries?.length}`);
+    return ret;
+  }
+  #updateCurrentTab(fn: () => void) {
+    useTabState.getState().updateCurrentTab(tab => {
+      assert_same_ref(tab, this.tab);
+      fn();
+    })
+  }
+  #focusHistoryOp(): FileFocusHistoryOp {
+    return new FileFocusHistoryOp(this.tab)
+  }
+
+  setNewPath(path: string) {
+    this.#updateCurrentTab(() => {
+      this.d.path = path;
+      this.init_except_path();
+    })
+  }
+
   getPath() {
-    return this.path;
+    if (!this.d) console.log("in getPath() ", this.d);
+    return this.d.path;
   }
+
   getDirEntries(): DirEntry[] {
-    if (this.dirEntries === undefined) throw new ReferenceError('list not initialized');
-    return this.dirEntries;
+    if (this.d.dirEntries === undefined) throw new ReferenceError('list not initialized');
+    return this.d.dirEntries;
   }
 
-  clear(path: string) {
-    this.path = path;
-    this.dirEntries = undefined;
-    this.fileInfoList = undefined;
-  }
-
-  getFocusFileInfo(): FileInfo | undefined {
-    return this.getFileInfo(this.focusIndex);
-  }
-  getFileInfo(index: number): FileInfo | undefined {
-    return this.fileInfoList?.[index];
-  }
-  setFileInfo(index: number, fileInfo: FileInfo) {
-    const ent = this.dirEntries?.[index];
-    if (!ent) return;
-    if (fileInfo.name !== ent.name) {
-      console.error(
-        `BUG: TabFiles.setFileInfo() path = ${this.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`
-      );
-    }
-    if (this.fileInfoList) this.fileInfoList[index] = fileInfo;
-  }
-  getFileError(index: number): string | undefined {
-    return this.fileErrorList?.[index];
-  }
-  setFileError(index: number, msg: string) {
-    if (this.fileErrorList) this.fileErrorList[index] = msg;
-  }
-  setErrMsg(err: string) {
-    this.errMsg = err;
-  }
-  getErrMsg() {
-    return this.errMsg;
-  }
-
-  getSelectionIndexes() {
-    return this.selectionIndexes;
-  }
-
-  updateDirEntries(path: string, list: DirEntry[]) {
-    // タブ切り替えの時に FileList.tsx から呼ばれるケースを無視する (選択状態がリセットされないように)
-    if (list === this.dirEntries) return;
+  updateDirEntries(list: DirEntry[]) {
+    // ※ このメソッドは TabInfo の updateCurrentTab() の中から呼ばれるので、updateCurrentTab は必要ない
 
     // 以前のフォーカス状態をなるべく保持する
-    this.path = path;
-    const prevName: string | undefined = this.focusHistory.find(path);
-    const newName: string | undefined = list[this.focusIndex]?.name;
+    const prevName: string | undefined = this.#focusHistoryOp().find(this.d.path);
+    const newName: string | undefined = list[this.d.focusIndex]?.name;
     if (!!prevName && prevName === newName) {
       // 新しいリストの同じ位置に同じ名前がある
-      this.selectionIndexes = new Set([this.focusIndex]);
-      this.anchorIndex = this.focusIndex;
+      this.d.selectionIndexes = new Set([this.d.focusIndex]);
+      this.d.anchorIndex = this.d.focusIndex;
     } else {
       const find = list.findIndex(f => f.name === prevName);
       if (0 <= find) {
         // フォーカスしていたファイルが別の位置に移動した
-        this.focusIndex = find;
-        this.selectionIndexes = new Set([this.focusIndex]);
-        this.anchorIndex = this.focusIndex;
+        this.d.focusIndex = find;
+        this.d.selectionIndexes = new Set([this.d.focusIndex]);
+        this.d.anchorIndex = this.d.focusIndex;
       } else {
         // フォーカスしていたファイルがなくなった
-        this.focusIndex = 0;
-        this.selectionIndexes = list.length === 0 ? new Set() : new Set([this.focusIndex]);
-        this.anchorIndex = this.focusIndex;
+        this.d.focusIndex = 0;
+        this.d.selectionIndexes = list.length === 0 ? new Set() : new Set([this.d.focusIndex]);
+        this.d.anchorIndex = this.d.focusIndex;
       }
     }
-    this.dirEntries = list;
-    this.errMsg = undefined;
-    this.fileInfoList = [];
-    this.fileErrorList = [];
+    this.d.dirEntries = list;
+    this.d.errMsg = undefined;
+    this.d.fileInfoList = [];
+    this.d.fileErrorList = [];
     useScrollToFocusState.getState().setScroll(ScrollLevel.Lazy); // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
   }
 
+  setErrMsg(err: string) {
+    this.d.errMsg = err;
+  }
+  getErrMsg() {
+    return this.d.errMsg;
+  }
+
+  allowFetchFileInfo(index: number): boolean {
+    return this.d.fileInfoList[index] === undefined && this.d.fileErrorList[index] === undefined;
+  }
+  getFileInfo(index: number): FileInfo | undefined {
+    return this.d.fileInfoList[index];
+  }
+  setFileInfo(index: number, fileInfo: FileInfo) {
+    // ※ このメソッドは TabInfo の updateCurrentTab() の中から呼ばれるので、updateCurrentTab は必要ない
+
+    const ent = this.d.dirEntries?.[index];
+    if (!ent) return;
+    if (fileInfo.name !== ent.name) {
+      console.error(
+        `BUG: TabFiles.setFileInfo() path = ${this.d.path}, dirEntry.name = ${ent.name}, getFileInfo().name = ${fileInfo.name}`
+      );
+    }
+    this.d.fileInfoList[index] = fileInfo;
+  }
+  getFileError(index: number): string | undefined {
+    return this.d.fileErrorList?.[index];
+  }
+  setFileError(index: number, msg: string) {
+    if (this.d.fileErrorList) this.d.fileErrorList[index] = msg;
+  }
+
   pushHistory(dir: string, name: string) {
-    this.focusHistory.push(dir, name);
+    this.#focusHistoryOp().push(dir, name);
   }
 
   #updateHistory() {
-    if (this.path === undefined || this.dirEntries === undefined || this.dirEntries.length === 0) return;
-    this.focusHistory.push(this.path, this.dirEntries[this.focusIndex].name);
+    if (this.d.path === undefined || this.d.dirEntries === undefined || this.d.dirEntries.length === 0) return;
+    this.#focusHistoryOp().push(this.d.path, this.d.dirEntries[this.d.focusIndex].name);
   }
-  #checkIndex(index: number): DirEntry {
-    const ret = this.dirEntries?.[index];
-    if (ret === undefined)
-      throw RangeError(`index: ${index} is out of array. TabFiles.list.length=${this.dirEntries?.length}`);
-    return ret;
+
+  getSelectionIndexes() {
+    return this.d.selectionIndexes;
   }
 
   // ↑↓で普通にフォーカス移動、マウスクリックでファイル選択
   // Focus, Anchor, Select が変わる
   moveFocusNormal(index: number) {
-    this.#checkIndex(index);
-    this.focusIndex = index;
-    this.anchorIndex = index;
-    this.selectionIndexes = new Set([index]);
-    this.#updateHistory();
+    this.#updateCurrentTab(() => {
+      this.#checkIndex(index);
+      this.d.focusIndex = index;
+      this.d.anchorIndex = index;
+      this.d.selectionIndexes = new Set([index]);
+      this.#updateHistory();
+    })
   }
 
   // Ctrl + ↑↓でフォーカスだけが移動する
   // Select が変化せずに Focus, Anchor が変わる
   moveFocusOnly(index: number) {
-    this.#checkIndex(index);
-    this.focusIndex = index;
-    this.anchorIndex = index;
-    this.#updateHistory();
+    this.#updateCurrentTab(() => {
+      this.#checkIndex(index);
+      this.d.focusIndex = index;
+      this.d.anchorIndex = index;
+      this.#updateHistory();
+    })
   }
 
   // Shift + ↑↓で選択エリアを変更する
   // Anchor が変化せずに Focus, Select が変わる
   moveFocusWithSelectionArea(index: number) {
-    this.#checkIndex(index);
-    this.focusIndex = index;
+    this.#updateCurrentTab(() => {
+      this.#checkIndex(index);
+      this.d.focusIndex = index;
 
-    // 選択状態は、anchor -> focus まで
-    this.selectionIndexes.clear();
-    let from = this.anchorIndex;
-    let to = this.focusIndex;
-    if (to < from) {
-      from = this.focusIndex;
-      to = this.anchorIndex;
-    }
-    for (let i = from; i <= to; i++) {
-      this.selectionIndexes.add(i);
-    }
-    this.#updateHistory();
+      // 選択状態は、anchor -> focus まで
+      this.d.selectionIndexes.clear();
+      let from = this.d.anchorIndex;
+      let to = this.d.focusIndex;
+      if (to < from) {
+        from = this.d.focusIndex;
+        to = this.d.anchorIndex;
+      }
+      for (let i = from; i <= to; i++) {
+        this.d.selectionIndexes.add(i);
+      }
+      this.#updateHistory();
+    })
   }
 
   // Ctrl + 'Space' でフォーカス一の選択をON/OFF
   toggleSelection(index: number) {
-    if (this.selectionIndexes.has(index)) {
-      this.selectionIndexes.delete(index);
-    } else {
-      this.selectionIndexes.add(index);
-    }
+    this.#updateCurrentTab(() => {
+      if (this.d.selectionIndexes.has(index)) {
+        this.d.selectionIndexes.delete(index);
+      } else {
+        this.d.selectionIndexes.add(index);
+      }
+    })
   }
 
   // Ctrl+A で全選択切替
   toggleAllSelection() {
-    if (!this.dirEntries) return;
-    if (this.selectionIndexes.size === this.dirEntries.length) {
-      this.selectionIndexes.clear();
-    } else {
-      for (let i = 0; i < this.dirEntries.length; i++) {
-        this.selectionIndexes.add(i);
+    this.#updateCurrentTab(() => {
+      if (!this.d.dirEntries) return;
+      if (this.d.selectionIndexes.size === this.d.dirEntries.length) {
+        this.d.selectionIndexes.clear();
+      } else {
+        for (let i = 0; i < this.d.dirEntries.length; i++) {
+          this.d.selectionIndexes.add(i);
+        }
       }
-    }
+    })
   }
 }

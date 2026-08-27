@@ -1,10 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { useQuery } from '@tanstack/react-query';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
-import { commands } from '@/lib/bindings';
 import { useTabState } from '@/store/tab-state';
 import {
   TabFilesDirWalkerKeyHandler,
@@ -15,63 +13,52 @@ import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
+import { useTabFilesOp } from '@/store/tab-files';
+import { useTabInfoOp } from '@/store/tab-info';
+import { mkFileFocusHistoryOp } from '@/store/file-focus-history';
 
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
 
-  const updateCurrentTab = useTabState(state => state.updateCurrentTab);
   const tabs = useTabState(state => state.tabs);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tab = tabs[currentTabIndex];
 
-  console.debug(`<FileList> tabs.len=${tabs.length}, currentTab=${currentTabIndex}, tab =  `, tab);
-  // console.debug(`<FileList> tab = ${tab.files.toDebugString()}`);
+  const tabInfoOp = useTabInfoOp();
+  const tabFilesOp = useTabFilesOp();
+
+  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}) = ${tabFilesOp.toDebugString()}`);
 
   // データ取得
-  const { data, isFetching } = useQuery({
-    staleTime: 0,
-    enabled: !tab.files.isInitialized(),
-    queryKey: [tab.id, tab.files.getPath()],
-    queryFn: async () => {
-      const ret = await commands.readDirEntries(tab.id, tab.files.getPath());
-      console.info(`FileList: readDirEntries(${tab.files.getPath()}) => `, ret);
-      if (ret.status === 'error') {
-        console.error(`FileList getDirEntries(${tab.id}, ${tab.files.getPath()}) error: `, ret.error);
-        updateCurrentTab(tab => {
-          tab.files.setErrMsg(ret.error);
-        });
-        return;
-      }
-      return ret.data;
-    },
-  });
   useEffect(() => {
-    if (data) {
-      updateCurrentTab(tab => {
-        tab.files.updateDirEntries(tab.files.getPath(), data);
-      });
+    const read = async () => {
+      if (!tabFilesOp.isInitialized()) {
+        tabInfoOp.readDirEntries();
+      }
     }
-  }, [updateCurrentTab, data]);
+    read();
+  }, [tabFilesOp, tabInfoOp])
 
   // 親ディレクトリに移動したときに、このディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
     const setHist = async () => {
-      const parent = await tauri_dirname(tab.files.getPath());
-      const base = await tauri_basename(tab.files.getPath());
-      updateCurrentTab(tab => {
-        tab.files.pushHistory(parent, base);
-      });
+      const hist = mkFileFocusHistoryOp();
+      const parent = await tauri_dirname(tabFilesOp.getPath());
+      if (!hist.find(parent)) {
+        const base = await tauri_basename(tabFilesOp.getPath());
+        tabFilesOp.pushHistory(parent, base);
+      }
     };
     setHist();
-  }, [tab.files, updateCurrentTab]);
+  }, [tabFilesOp]);
 
   // タイトルバー設定
   useEffect(() => {
     const setTitle = async () => {
-      await getCurrentWindow().setTitle(tab.files.getPath());
+      await getCurrentWindow().setTitle(tabFilesOp.getPath());
     };
     setTitle();
-  }, [tab.files]);
+  }, [tabFilesOp]);
 
   // スクロール位置検知
   const visibleListRange = useRef(1);
@@ -129,12 +116,12 @@ export default function FileList() {
     };
   }
 
-  const dirEntries = tab.files.isInitialized() ? tab.files.getDirEntries() : undefined;
+  const dirEntries = tabFilesOp.isInitialized() ? tabFilesOp.getDirEntries() : undefined;
 
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex-1">
-        {isFetching || dirEntries === undefined ? (
+        {dirEntries === undefined ? (
           <div>更新中</div>
         ) : (
           <Virtuoso
@@ -149,7 +136,6 @@ export default function FileList() {
                 return (
                   <FileListRow
                     index={index - 1}
-                    tabId={tab.id}
                     dirEntry={dirEntries[index - 1]}
                     isSelected={tab.files.selectionIndexes.has(index - 1)}
                     isFocused={tab.files.focusIndex === index - 1}

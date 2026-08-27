@@ -3,10 +3,12 @@ import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { RestrictToHorizontalAxis } from '@dnd-kit/abstract/modifiers';
 import { Plus, X } from 'lucide-react';
 
-import { TabInfo, useTabState } from '@/store/tab-state';
+import { useTabState } from '@/store/tab-state';
 import { Button } from '../ui/button';
 import { tabCommands } from '@/lib/commands/tab-commands';
 import { getPathBasename } from '@/lib/string-util';
+import { TabInfo } from '@/store/tab-info';
+import { useTabFilesOp } from '@/store/tab-files';
 
 export function TabBar() {
   const tabs = useTabState(state => state.tabs);
@@ -49,6 +51,7 @@ function NewTabButton({ noTabs }: { noTabs: boolean }) {
 }
 
 function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; isSelected: boolean }) {
+  const tabFiles = useTabFilesOp();
   const { ref, handleRef } = useSortable({
     id: tab.id,
     index: index,
@@ -60,7 +63,7 @@ function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; is
         variant={`${isSelected ? 'outline' : 'secondary'}`}
         className={`block truncate text-left w-full max-w-full ${isSelected ? '' : 'font-light'}`}
       >
-        {isSelected ? tab.files.getPath() : getPathBasename(tab.files.getPath())}
+        {isSelected ? tabFiles.getPath() : getPathBasename(tabFiles.getPath())}
       </Button>
       <div className="flex justify-end">
         <div

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
 import { path } from '@tauri-apps/api';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
-import { commands, DirEntry, FileInfo } from '@/lib/bindings';
-import { useTabState } from '@/store/tab-state';
+import { DirEntry, FileInfo } from '@/lib/bindings';
 import { FileListHeaderN, useUiState } from '@/store/ui-state';
 import { unixTime2str } from '@/lib/string-util';
+import { mkTabFilesOp, useTabFilesOp } from '@/store/tab-files';
+import { mkTabInfoOp } from '@/store/tab-info';
 
 function useHeaderSize(n: FileListHeaderN): number {
   return useUiState(state => state.fileListHeaderSizes)[n];
@@ -84,50 +83,53 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 
 export function FileListRow({
   index,
-  tabId,
   dirEntry,
   isSelected,
   isFocused,
   onClick,
 }: {
   index: number;
-  tabId: number;
   dirEntry: DirEntry;
   isSelected: boolean;
   isFocused: boolean;
   onClick: React.MouseEventHandler;
 }) {
-  const updateCurrentTab = useTabState(state => state.updateCurrentTab);
-  const currentTabIndex = useTabState(state => state.currentTabIndex);
-  const tabs = useTabState(state => state.tabs);
-  const tab = tabs[currentTabIndex];
-
-  const { data } = useQuery({
-    staleTime: 0,
-    queryKey: [tabId, dirEntry.id],
-    enabled: tab.files.getFileInfo(index) === undefined && tab.files.getFileError(index) === undefined,
-    queryFn: async () => {
-      const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
-      if (ret.status === 'error') {
-        console.warn('FileList: getFileInfo(', dirEntry.name, ') => ', ret.error);
-        toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
-        updateCurrentTab(tab => {
-          tab.files.setFileError(index, ret.error);
-        });
-        throw Error(ret.error);
-      }
-      // console.debug('FileList: getFileInfo(', dirEntry.name, ') => ', ret.data);
-      return ret.data;
-    },
-  });
   useEffect(() => {
-    if (!data) return;
-    updateCurrentTab(tab => {
-      tab.files.setFileInfo(index, data);
-    });
-  }, [data, index, updateCurrentTab]);
+    const read = async () => {
+      if (mkTabFilesOp().allowFetchFileInfo(index)) {
+        mkTabInfoOp().readFileInfo(index);
+      }
+    }
+    read();
+  }, [index])
 
-  const fileInfo = tab.files.getFileInfo(index);
+  // const { data } = useQuery({
+  //   staleTime: 0,
+  //   queryKey: [tabId, dirEntry.id],
+  //   enabled: tabFilesOp.getFileInfo(index) === undefined && tabFilesOp.getFileError(index) === undefined,
+  //   queryFn: async () => {
+  //     const ret = await commands.getFileInfo(tabId, dirEntry.id.toString());
+  //     if (ret.status === 'error') {
+  //       console.warn('FileList: getFileInfo(', dirEntry.name, ') => ', ret.error);
+  //       toast.error(`ファイル情報取得に失敗(${dirEntry.name})`);
+  //       updateCurrentTab(() => {
+  //         tabFilesOp.setFileError(index, ret.error);
+  //       });
+  //       throw Error(ret.error);
+  //     }
+  //     // console.debug('FileList: getFileInfo(', dirEntry.name, ') => ', ret.data);
+  //     return ret.data;
+  //   },
+  // });
+  // useEffect(() => {
+  //   if (!data) return;
+  //   updateCurrentTab(() => {
+  //     tabFilesOp.setFileInfo(index, data);
+  //   });
+  // }, [data, index, tabFilesOp, updateCurrentTab]);
+
+  const tabFilesOp = useTabFilesOp();
+  const fileInfo = tabFilesOp.getFileInfo(index);
   const bg = index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   const border = isFocused && 'border-dashed border dark:border-white border-black';
   const baseComponent = (
@@ -138,14 +140,14 @@ export function FileListRow({
       }}
       onClick={onClick}
     >
-      <Icon fileInfo={fileInfo} errorMsg={tab.files.getFileError(index)} />
+      <Icon fileInfo={fileInfo} errorMsg={tabFilesOp.getFileError(index)} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
       <Size fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </div>
   );
-  const errorMsg = tab.files.getFileError(index);
+  const errorMsg = tabFilesOp.getFileError(index);
   if (errorMsg) {
     return (
       <Tooltip>

@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { useTabState } from './tab-state';
-import { TabFiles } from '@/store/tab-files';
+import { createTabInfo } from './tab-info';
 
 function st() {
   return useTabState.getState();
 }
 
 function addTab(id: number, path: string) {
-  st().addTab({ id, path, files: new TabFiles() });
+  st().addTab(createTabInfo(id, path));
 }
 
 function add3tabs() {
