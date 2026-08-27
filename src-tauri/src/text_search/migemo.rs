@@ -9,7 +9,8 @@ pub struct Migemo {
 impl Migemo {
     pub fn new() -> Self {
         // let dict_file = &include_bytes!("../dict/migemo-compact-dict").to_vec();
-        let dict_file = &include_bytes!("../../dict/migemo-compact-dict/migemo-compact-dict").to_vec();
+        let dict_file =
+            &include_bytes!("../../dict/migemo-compact-dict/migemo-compact-dict").to_vec();
         let dict = migemo::compact_dictionary::CompactDictionary::new(dict_file);
         Migemo { dict }
     }

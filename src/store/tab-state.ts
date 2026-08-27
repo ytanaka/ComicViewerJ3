@@ -5,7 +5,8 @@ import { TabFiles } from './tab-files';
 interface TabState {
   // tabs が空の場合は0
   currentTabIndex: number;
-  tabs: TabInfo[];
+  localStrageTabs: LocalStrageTabInfo[]; // ローカルストレージから読み書きするときに使用するフィールド
+  tabs: TabInfo[];                       // このフィールドはローカルストレージに保存しない
 
   setCurrentTabIndex: (index: number) => void;
 
@@ -22,14 +23,17 @@ interface TabState {
 
 export type TabInfo = {
   id: number;
-  path: string;
   files: TabFiles;
+};
+type LocalStrageTabInfo = {
+  path: string;
 };
 
 export const useTabState = create<TabState>()(
   persist(
     (set, get) => ({
       currentTabIndex: 0,
+      localStrageTabs: [],
       tabs: [],
 
       setCurrentTabIndex: (index: number) => {
@@ -117,16 +121,20 @@ export const useTabState = create<TabState>()(
       partialize: state => {
         return {
           currentTabIndex: state.currentTabIndex,
-          tabs: state.tabs.map(t => ({
-            path: t.path,
+          localStrageTabs: state.tabs.map(t => ({
+            path: t.files.getPath(),
+          })),
+          tabs: state.tabs.map(() => ({
+            dummy: "",
           })),
         };
       },
       onRehydrateStorage: () => state => {
         console.info('TabState: onRehydrateStorage !!!', state);
         if (!state) return;
-        for (let i = 0; i < state.tabs.length; i++) {
-          state.tabs[i].files = new TabFiles();
+        for (let i = 0; i < state.localStrageTabs.length; i++) {
+          state.tabs[i].id = -1;
+          state.tabs[i].files = new TabFiles(state.localStrageTabs[i].path);
         }
       },
     }

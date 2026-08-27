@@ -24,16 +24,19 @@ export default function FileList() {
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tab = tabs[currentTabIndex];
 
+  console.debug(`<FileList> tabs.len=${tabs.length}, currentTab=${currentTabIndex}, tab =  `, tab);
+  // console.debug(`<FileList> tab = ${tab.files.toDebugString()}`);
+
   // データ取得
   const { data, isFetching } = useQuery({
     staleTime: 0,
     enabled: !tab.files.isInitialized(),
-    queryKey: [tab.id, tab.path],
+    queryKey: [tab.id, tab.files.getPath()],
     queryFn: async () => {
-      const ret = await commands.readDirEntries(tab.id, tab.path);
-      console.info(`FileList: readDirEntries(${tab.path}) => `, ret);
+      const ret = await commands.readDirEntries(tab.id, tab.files.getPath());
+      console.info(`FileList: readDirEntries(${tab.files.getPath()}) => `, ret);
       if (ret.status === 'error') {
-        console.error(`FileList getDirEntries(${tab.id}, ${tab.path}) error: `, ret.error);
+        console.error(`FileList getDirEntries(${tab.id}, ${tab.files.getPath()}) error: `, ret.error);
         updateCurrentTab(tab => {
           tab.files.setErrMsg(ret.error);
         });
@@ -45,7 +48,7 @@ export default function FileList() {
   useEffect(() => {
     if (data) {
       updateCurrentTab(tab => {
-        tab.files.updateDirEntries(tab.path, data);
+        tab.files.updateDirEntries(tab.files.getPath(), data);
       });
     }
   }, [updateCurrentTab, data]);
@@ -53,22 +56,22 @@ export default function FileList() {
   // 親ディレクトリに移動したときに、このディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
     const setHist = async () => {
-      const parent = await tauri_dirname(tab.path);
-      const base = await tauri_basename(tab.path);
+      const parent = await tauri_dirname(tab.files.getPath());
+      const base = await tauri_basename(tab.files.getPath());
       updateCurrentTab(tab => {
         tab.files.pushHistory(parent, base);
       });
     };
     setHist();
-  }, [tab.path, updateCurrentTab]);
+  }, [tab.files, updateCurrentTab]);
 
   // タイトルバー設定
   useEffect(() => {
     const setTitle = async () => {
-      await getCurrentWindow().setTitle(tab.path);
+      await getCurrentWindow().setTitle(tab.files.getPath());
     };
     setTitle();
-  }, [tab.path]);
+  }, [tab.files]);
 
   // スクロール位置検知
   const visibleListRange = useRef(1);
@@ -126,9 +129,6 @@ export default function FileList() {
     };
   }
 
-  console.debug(
-    `<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.files = ${tab.files.toDebugString()}, scroll= ${scrollLevel}`
-  );
   const dirEntries = tab.files.isInitialized() ? tab.files.getDirEntries() : undefined;
 
   return (

@@ -11,10 +11,10 @@ export const fileCommands = {
     if (!tab) return;
 
     try {
-      const parent = await tauri_dirname(tab.path);
+      const parent = await tauri_dirname(tab.files.getPath());
       this.movePath(parent);
     } catch (e) {
-      console.warn(`fileCommands.moveParentDir(): current = ${tab.path}, error = ${e}`);
+      console.warn(`fileCommands.moveParentDir(): current = ${tab.files.getPath()}, error = ${e}`);
       return;
     }
   },
@@ -23,14 +23,13 @@ export const fileCommands = {
     const tab = st().getCurrentTab();
     if (!tab) return;
 
-    const dir = await tauri_resolve(tab.path, name);
+    const dir = await tauri_resolve(tab.files.getPath(), name);
     this.movePath(dir);
   },
 
   movePath(path: string) {
     useTabState.getState().updateCurrentTab(tab => {
-      tab.files.clearPath();
-      tab.path = path;
+      tab.files.clear(path);
     });
   },
 };

@@ -4,7 +4,8 @@ use encoding_rs::EUC_JP;
 use wana_kana::utils::hiragana_to_katakana;
 
 use crate::{
-    UT_LOG, text_search::util::{is_ascii, is_katakana},
+    text_search::util::{is_ascii, is_katakana},
+    UT_LOG,
 };
 
 // migemo辞書は 読み => 漢字 になっているが、逆転させて 漢字 => 読み の辞書を作る

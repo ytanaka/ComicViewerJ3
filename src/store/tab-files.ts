@@ -19,7 +19,7 @@ import { ScrollLevel, useScrollToFocusState } from './scroll-to-focus-state';
 //   }
 
 export class TabFiles {
-  private path?: string = undefined;
+  private path: string;
   private errMsg?: string = undefined;
 
   private dirEntries?: DirEntry[] = undefined;
@@ -29,10 +29,12 @@ export class TabFiles {
   private focusHistory: FileFocusHistory = new FileFocusHistory();
 
   focusIndex: number = 0; // listが空のときも0
-  anchorIndex: number = 0;
+  private anchorIndex: number = 0;
   selectionIndexes: Set<number> = new Set();
 
-  constructor() {}
+  constructor(path: string) {
+    this.path = path;
+  }
 
   toDebugString() {
     return `path:${this.path}, dirEntries:[${this.dirEntries?.length}], focus:${this.focusIndex}, sel:${this.selectionIndexes.size}`;
@@ -41,13 +43,16 @@ export class TabFiles {
   isInitialized(): boolean {
     return this.dirEntries !== undefined;
   }
+  getPath() {
+    return this.path;
+  }
   getDirEntries(): DirEntry[] {
     if (this.dirEntries === undefined) throw new ReferenceError('list not initialized');
     return this.dirEntries;
   }
 
-  clearPath() {
-    this.path = undefined;
+  clear(path: string) {
+    this.path = path;
     this.dirEntries = undefined;
     this.fileInfoList = undefined;
   }

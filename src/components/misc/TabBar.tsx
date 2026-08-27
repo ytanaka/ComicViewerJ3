@@ -60,7 +60,7 @@ function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; is
         variant={`${isSelected ? 'outline' : 'secondary'}`}
         className={`block truncate text-left w-full max-w-full ${isSelected ? '' : 'font-light'}`}
       >
-        {isSelected ? tab.path : getPathBasename(tab.path)}
+        {isSelected ? tab.files.getPath() : getPathBasename(tab.files.getPath())}
       </Button>
       <div className="flex justify-end">
         <div

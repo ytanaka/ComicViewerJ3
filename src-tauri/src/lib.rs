@@ -4,8 +4,8 @@ use crate::state::app_state::AppState;
 
 mod bindings;
 mod commands;
-mod text_search;
 mod state;
+mod text_search;
 mod types;
 mod util;
 

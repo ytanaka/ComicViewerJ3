@@ -19,7 +19,7 @@ export const windowCommands = {
       path = await tauri_homeDir();
     } else {
       const tab = useTabState.getState().getCurrentTab();
-      path = tab.path;
+      path = tab.files.getPath();
     }
 
     const dir = await tauri_open({

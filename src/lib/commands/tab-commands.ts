@@ -26,13 +26,13 @@ export const tabCommands = {
     if (typeof index_or_path === 'string') {
       path = index_or_path;
     } else if (typeof index_or_path === 'number') {
-      path = st().tabs[index_or_path].path;
+      path = st().tabs[index_or_path].files.getPath();
     } else {
       path = await tauri_homeDir();
     }
     const absPath = await tauri_path_resolve(path);
     const tabId = await commands.createTab();
-    st().addTab({ id: tabId, path: absPath, files: new TabFiles() });
+    st().addTab({ id: tabId, files: new TabFiles(absPath) });
   },
 
   async removeTab(index: number) {

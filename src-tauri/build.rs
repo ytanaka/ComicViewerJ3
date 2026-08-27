@@ -99,5 +99,5 @@ fn exists_target_file(path: impl AsRef<Path>) -> bool {
         println!("Using cached {:?}", path.as_ref());
         return true;
     }
-    return false;
+    false
 }
