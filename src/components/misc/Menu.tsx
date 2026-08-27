@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/menubar';
 
 import { AppHotkey, AppMenuItem, menuItems } from '@/lib/menu-items';
-
+import { useFocusState } from '@/store/focus-state';
 
 function MyHotkey({ k }: { k: AppHotkey }) {
   return (
@@ -51,10 +51,12 @@ function MyMenuItem({ m }: { m: AppMenuItem }) {
 }
 
 export function Menu() {
+  const setFocus = useFocusState(state => state.setFocus);
+
   return (
     <Menubar>
-      <MenubarMenu>
-        <MenubarTrigger>File</MenubarTrigger>
+      <MenubarMenu onOpenChange={(open) => { if (!open) setFocus() }} >
+        <MenubarTrigger >File</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
           <MenubarGroup>
             <MyMenuItem m={menuItems.openDir} />

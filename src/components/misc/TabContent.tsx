@@ -1,38 +1,21 @@
 import { useTabState } from '@/store/tab-state';
 import FileList from '../file-list/FileList';
 import { useEffect, useRef } from 'react';
+import { useFocusState } from '@/store/focus-state';
 
 export function TabContent() {
   const ref = useRef<HTMLDivElement>(null);
-  const tabs = useTabState(state => state.tabs);
+  const doFocus = useFocusState(state => state.doFocus);
+  const doneFocus = useFocusState(state => state.doneFocus);
 
   useEffect(() => {
-    const handleFocus = (e: FocusEvent) => {
-      const target = e.target as HTMLElement;
+    if (doFocus && ref.current) {
+      ref.current.focus();
+      doneFocus();
+    }
+  }, [doFocus, doneFocus]);
 
-      // メインコンポーネント以外にフォーカスが移ったら戻す
-      if (ref.current && !ref.current.contains(target)) {
-        ref.current.focus();
-      }
-    };
-
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-
-      // メイン以外をクリックしたらフォーカスを戻す
-      if (ref.current && !ref.current.contains(target)) {
-        ref.current.focus();
-      }
-    };
-
-    document.addEventListener('focusin', handleFocus);
-    document.addEventListener('click', handleClick);
-
-    return () => {
-      document.removeEventListener('focusin', handleFocus);
-      document.removeEventListener('click', handleClick);
-    };
-  }, []);
+  const tabs = useTabState(state => state.tabs);
 
   return (
     <div ref={ref} tabIndex={0} style={{ outline: 'none' }} className="flex flex-1">
