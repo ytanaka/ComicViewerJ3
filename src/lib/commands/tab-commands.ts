@@ -26,7 +26,7 @@ export const tabCommands = {
     if (typeof index_or_path === 'string') {
       path = index_or_path;
     } else if (typeof index_or_path === 'number') {
-      path = st().tabs[index_or_path].path
+      path = st().tabs[index_or_path].path;
     } else {
       path = await tauri_homeDir();
     }

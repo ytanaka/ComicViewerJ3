@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export enum ScrollLevel {
   No = 0,
@@ -15,10 +15,8 @@ export interface ScrollToFocusState {
   setScroll: (level: ScrollLevel) => void;
 }
 
-export const useScrollToFocusState = create<ScrollToFocusState>()(
-  (set) => ({
-    scrollLevel: 0,
+export const useScrollToFocusState = create<ScrollToFocusState>()(set => ({
+  scrollLevel: 0,
 
-    setScroll: (level: ScrollLevel) => set({ scrollLevel: level }),
-  }),
-);
+  setScroll: (level: ScrollLevel) => set({ scrollLevel: level }),
+}));

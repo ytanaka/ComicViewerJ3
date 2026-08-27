@@ -19,7 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { windowCommands } from '@/lib/commands/window-commands';
 
-function B({ icon, onClick, toolTip }: { icon: ReactNode, onClick?: () => void, toolTip?: string }) {
+function B({ icon, onClick, toolTip }: { icon: ReactNode; onClick?: () => void; toolTip?: string }) {
   const baseComponent = (
     <Button variant="outline" size="sm" onClick={onClick}>
       {icon}
@@ -30,7 +30,7 @@ function B({ icon, onClick, toolTip }: { icon: ReactNode, onClick?: () => void, 
     return (
       <Tooltip>
         <TooltipTrigger render={baseComponent} />
-        <TooltipContent side='top'>
+        <TooltipContent side="top">
           <p>{toolTip}</p>
         </TooltipContent>
       </Tooltip>
@@ -43,8 +43,8 @@ function B({ icon, onClick, toolTip }: { icon: ReactNode, onClick?: () => void, 
 export function Toolbar() {
   return (
     <div className="flex items-center gap-0.5 border rounded-md p-0.5">
-      <B icon={<FolderOpen />} toolTip='ディレクトリを開く' onClick={windowCommands.openDirectory} />
-      <B icon={<LogOut />} toolTip='アプリ終了' onClick={windowCommands.exitApp} />
+      <B icon={<FolderOpen />} toolTip="ディレクトリを開く" onClick={windowCommands.openDirectory} />
+      <B icon={<LogOut />} toolTip="アプリ終了" onClick={windowCommands.exitApp} />
       <Separator orientation="vertical" className="m-1" />
 
       <B icon={<Scissors />} />
@@ -60,7 +60,14 @@ export function Toolbar() {
       <B icon={<Grid2x2 />} />
       <Separator orientation="vertical" className="m-1" />
 
-      <B icon={<><Sun /><Moon /></>} />
+      <B
+        icon={
+          <>
+            <Sun />
+            <Moon />
+          </>
+        }
+      />
       <B icon={<Fullscreen />} />
     </div>
   );

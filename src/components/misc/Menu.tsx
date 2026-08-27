@@ -53,10 +53,14 @@ function MyMenuItem({ m }: { m: AppMenuItem }) {
 export function Menu() {
   const setFocus = useFocusState(state => state.setFocus);
 
+  function handleOpenChange(open: boolean) {
+    if (!open) setFocus();
+  }
+
   return (
     <Menubar>
-      <MenubarMenu onOpenChange={(open) => { if (!open) setFocus() }} >
-        <MenubarTrigger >File</MenubarTrigger>
+      <MenubarMenu onOpenChange={handleOpenChange}>
+        <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
           <MenubarGroup>
             <MyMenuItem m={menuItems.openDir} />
@@ -70,7 +74,7 @@ export function Menu() {
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
-      <MenubarMenu>
+      <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>Edit</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
           <MenubarGroup>
@@ -85,7 +89,7 @@ export function Menu() {
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
-      <MenubarMenu>
+      <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>Tab</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
           <MenubarGroup>

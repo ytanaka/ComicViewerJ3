@@ -16,7 +16,7 @@ export const windowCommands = {
   async openDirectory() {
     let path: string;
     if (useTabState.getState().tabs.length === 0) {
-      path = await tauri_homeDir()
+      path = await tauri_homeDir();
     } else {
       const tab = useTabState.getState().getCurrentTab();
       path = tab.path;
@@ -27,7 +27,7 @@ export const windowCommands = {
       multiple: false,
       defaultPath: path,
     });
-    if (typeof dir !== "string") return;
+    if (typeof dir !== 'string') return;
 
     tabCommands.cloneTab(dir);
   },

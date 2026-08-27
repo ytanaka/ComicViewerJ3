@@ -57,7 +57,7 @@ export class TabFilesSelectionKeyHandler {
     if (CTRL && e.key === ' ') {
       useTabState.getState().updateCurrentTab(tab => {
         tab.files.toggleSelection(focus);
-      })
+      });
       e.preventDefault();
       return true;
     }
@@ -66,7 +66,7 @@ export class TabFilesSelectionKeyHandler {
     if (CTRL && e.key === 'a') {
       useTabState.getState().updateCurrentTab(tab => {
         tab.files.toggleAllSelection();
-      })
+      });
       e.preventDefault();
       return true;
     }

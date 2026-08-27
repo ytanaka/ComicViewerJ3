@@ -1,4 +1,3 @@
-
 import { DirEntry, FileInfo } from '@/lib/bindings';
 import { FileFocusHistory } from './file-focus-history';
 import { ScrollLevel, useScrollToFocusState } from './scroll-to-focus-state';
@@ -33,7 +32,7 @@ export class TabFiles {
   anchorIndex: number = 0;
   selectionIndexes: Set<number> = new Set();
 
-  constructor() { }
+  constructor() {}
 
   toDebugString() {
     return `path:${this.path}, dirEntries:[${this.dirEntries?.length}], focus:${this.focusIndex}, sel:${this.selectionIndexes.size}`;
@@ -186,7 +185,7 @@ export class TabFiles {
   toggleAllSelection() {
     if (!this.dirEntries) return;
     if (this.selectionIndexes.size === this.dirEntries.length) {
-      this.selectionIndexes.clear()
+      this.selectionIndexes.clear();
     } else {
       for (let i = 0; i < this.dirEntries.length; i++) {
         this.selectionIndexes.add(i);

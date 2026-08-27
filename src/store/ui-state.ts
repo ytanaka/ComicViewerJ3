@@ -27,8 +27,8 @@ export const useUiState = create<UiState>()(
 
       setAppInitialized: () => {
         set(() => {
-          return { appInitialized: true }
-        })
+          return { appInitialized: true };
+        });
       },
 
       getFileListHeaderSizes: () => {

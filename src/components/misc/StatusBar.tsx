@@ -1,10 +1,10 @@
-import { useTabState } from "@/store/tab-state"
+import { useTabState } from '@/store/tab-state';
 
 export function StatusBar() {
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tabs = useTabState(state => state.tabs);
   if (tabs.length === 0) {
-    return (<div></div>);
+    return <div></div>;
   }
 
   const tab = tabs[currentTabIndex];
@@ -21,5 +21,5 @@ export function StatusBar() {
       <div>{err}</div>
       <div>{msg}</div>
     </div>
-  )
+  );
 }

@@ -6,7 +6,11 @@ import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { commands } from '@/lib/bindings';
 import { useTabState } from '@/store/tab-state';
-import { TabFilesDirWalkerKeyHandler, TabFilesMouseHandler, TabFilesSelectionKeyHandler } from '@/lib/tab-files-key-handler';
+import {
+  TabFilesDirWalkerKeyHandler,
+  TabFilesMouseHandler,
+  TabFilesSelectionKeyHandler,
+} from '@/lib/tab-files-key-handler';
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
@@ -32,7 +36,7 @@ export default function FileList() {
         console.error(`FileList getDirEntries(${tab.id}, ${tab.path}) error: `, ret.error);
         updateCurrentTab(tab => {
           tab.files.setErrMsg(ret.error);
-        })
+        });
         return;
       }
       return ret.data;
@@ -78,7 +82,7 @@ export default function FileList() {
       // 遅延が発生していたらイベントを無視
       const delay = performance.now() - e.timeStamp;
       if (100 < delay) {
-        console.info("ignore keyboard event");
+        console.info('ignore keyboard event');
         return;
       }
 
@@ -119,8 +123,8 @@ export default function FileList() {
   function createMouseEventHandler(index: number) {
     return function (e: React.MouseEvent) {
       new TabFilesMouseHandler().handle(index, e);
-    }
-  };
+    };
+  }
 
   console.debug(
     `<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.files = ${tab.files.toDebugString()}, scroll= ${scrollLevel}`

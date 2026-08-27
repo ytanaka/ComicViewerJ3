@@ -1,6 +1,6 @@
-import { commands } from "@/lib/bindings";
-import { useUiState } from "@/store/ui-state";
-import { ReactNode, useEffect } from "react";
+import { commands } from '@/lib/bindings';
+import { useUiState } from '@/store/ui-state';
+import { ReactNode, useEffect } from 'react';
 
 export function RustLibInitializer({ children }: { children: ReactNode }) {
   const appInitialized = useUiState(state => state.appInitialized);
@@ -8,7 +8,7 @@ export function RustLibInitializer({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const init = async () => {
-      await commands.init()
+      await commands.init();
       setAppInitialized();
     };
     if (!appInitialized) init();

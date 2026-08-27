@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { useTabState } from './tab-state';
-import { TabFiles } from '@/lib/tab-files';
+import { TabFiles } from '@/store/tab-files';
 
 function st() {
   return useTabState.getState();

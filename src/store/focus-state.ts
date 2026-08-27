@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 // ファイルリストへフォーカス移動させるためのフラグ
 // ※ メニューが開いたとき、メニューにフォーカスが移ってファイルリストがキーボードで操作できなくなることの対策
@@ -9,11 +9,9 @@ export interface FocusState {
   doneFocus: () => void;
 }
 
-export const useFocusState = create<FocusState>()(
-  (set) => ({
-    getFocus: false,
+export const useFocusState = create<FocusState>()(set => ({
+  getFocus: false,
 
-    setFocus: () => set({ getFocus: true }),
-    doneFocus: () => set({ getFocus: false }),
-  }),
-);
+  setFocus: () => set({ getFocus: true }),
+  doneFocus: () => set({ getFocus: false }),
+}));

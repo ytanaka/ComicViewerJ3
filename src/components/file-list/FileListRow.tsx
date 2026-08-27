@@ -129,7 +129,7 @@ export function FileListRow({
 
   const fileInfo = tab.files.getFileInfo(index);
   const bg = index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
-  const border = isFocused && 'border-dashed border dark:border-white border-black'
+  const border = isFocused && 'border-dashed border dark:border-white border-black';
   const baseComponent = (
     <div
       className={`${bg} ${border} flex w-full pl-1.5 pr-1.5 h-6`}
