@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { path } from '@tauri-apps/api';
 import { useQuery } from '@tanstack/react-query';
@@ -88,12 +88,14 @@ export function FileListRow({
   dirEntry,
   isSelected,
   isFocused,
+  onClick,
 }: {
   index: number;
   tabId: number;
   dirEntry: DirEntry;
   isSelected: boolean;
   isFocused: boolean;
+  onClick: React.MouseEventHandler;
 }) {
   const updateCurrentTab = useTabState(state => state.updateCurrentTab);
   const currentTabIndex = useTabState(state => state.currentTabIndex);
@@ -134,6 +136,7 @@ export function FileListRow({
       style={{
         background: isSelected ? '#0078d4' : '',
       }}
+      onClick={onClick}
     >
       <Icon fileInfo={fileInfo} errorMsg={tab.files.getFileError(index)} />
       <Name dirEntry={dirEntry} />

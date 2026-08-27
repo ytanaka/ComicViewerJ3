@@ -1,5 +1,6 @@
 import { useTabState } from '@/store/tab-state';
 import { fileCommands } from './commands/file-commands';
+import React from 'react';
 
 export class TabFilesSelectionKeyHandler {
   pageNum: number;
@@ -72,6 +73,30 @@ export class TabFilesSelectionKeyHandler {
   }
 }
 
+export class TabFilesMouseHandler {
+  handle(index: number, e: React.MouseEvent): boolean {
+    const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
+    const CTRL = C && !S && !A;
+    const SHIFT = !C && S && !A;
+    const NO_MOD = !C && !S && !A;
+
+    console.log(index, e);
+
+    useTabState.getState().updateCurrentTab(tab => {
+      if (NO_MOD) {
+        tab.files.moveFocusNormal(index);
+      } else if (CTRL) {
+        tab.files.moveFocusOnly(index);
+      } else if (SHIFT) {
+        tab.files.moveFocusWithSelectionArea(index);
+      }
+      e.preventDefault();
+      return true;
+    });
+
+    return false;
+  }
+}
 export class TabFilesDirWalkerKeyHandler {
   handleKey(e: KeyboardEvent): boolean {
     const tab = useTabState.getState().getCurrentTab();

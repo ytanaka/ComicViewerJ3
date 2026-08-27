@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useQuery } from '@tanstack/react-query';
@@ -6,7 +6,7 @@ import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { commands } from '@/lib/bindings';
 import { useTabState } from '@/store/tab-state';
-import { TabFilesDirWalkerKeyHandler, TabFilesSelectionKeyHandler } from '@/lib/tab-files-key-handler';
+import { TabFilesDirWalkerKeyHandler, TabFilesMouseHandler, TabFilesSelectionKeyHandler } from '@/lib/tab-files-key-handler';
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
@@ -101,6 +101,13 @@ export default function FileList() {
     });
   });
 
+  // マウスクリック
+  function createMouseEventHandler(index: number) {
+    return function (e: React.MouseEvent) {
+      new TabFilesMouseHandler().handle(index, e);
+    }
+  };
+
   console.debug(
     `<FileList> tab.path = ${tab.path}, useQuery.data = [${data?.length}], tab.files = ${tab.files.toDebugString()}`
   );
@@ -128,6 +135,7 @@ export default function FileList() {
                     dirEntry={dirEntries[index - 1]}
                     isSelected={tab.files.selectionIndexes.has(index - 1)}
                     isFocused={tab.files.focusIndex === index - 1}
+                    onClick={createMouseEventHandler(index - 1)}
                   />
                 );
               }
