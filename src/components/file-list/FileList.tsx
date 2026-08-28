@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
-import { useTabState } from '@/store/tab-state';
 import {
   TabFilesDirWalkerKeyHandler,
   TabFilesMouseHandler,
@@ -13,9 +12,6 @@ import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
-import { useTabFilesOp } from '@/store/tab-files';
-import { TabInfoOp } from '@/store/tab-info';
-import { mkFileFocusHistoryOp } from '@/store/file-focus-history';
 
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);

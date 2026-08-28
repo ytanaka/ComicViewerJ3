@@ -3,12 +3,9 @@ import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { RestrictToHorizontalAxis } from '@dnd-kit/abstract/modifiers';
 import { Plus, X } from 'lucide-react';
 
-import { useTabState } from '@/store/tab-state';
 import { Button } from '../ui/button';
 import { tabCommands } from '@/lib/commands/tab-commands';
 import { getPathBasename } from '@/lib/string-util';
-import { TabInfo } from '@/store/tab-info';
-import { useTabFilesOp } from '@/store/tab-files';
 
 export function TabBar() {
   const tabs = useTabState(state => state.tabs);

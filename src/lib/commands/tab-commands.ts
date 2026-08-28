@@ -1,14 +1,11 @@
 import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
-import { useTabState } from '@/store/tab-state';
 import { commands } from '../bindings';
 import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
-import { createTabInfo } from '@/store/tab-info';
+import { useTabStore } from '@/store/tab/store';
 
-function st() {
-  return useTabState.getState();
-}
+function st() { return useTabStore.getState(); }
 
 export const tabCommands = {
   async addTab() {
@@ -26,13 +23,13 @@ export const tabCommands = {
     if (typeof index_or_path === 'string') {
       path = index_or_path;
     } else if (typeof index_or_path === 'number') {
-      path = st().tabs[index_or_path].files.path;
+      path = st().tabs[index_or_path].path;
     } else {
       path = await tauri_homeDir();
     }
     const absPath = await tauri_path_resolve(path);
     const tabId = await commands.createTab();
-    st().addTab(createTabInfo(tabId, absPath));
+    st().addTab({ id: tabId, path: absPath });
   },
 
   async removeTab(id: number) {

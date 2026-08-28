@@ -3,9 +3,9 @@ import { open as tauri_open } from '@tauri-apps/plugin-dialog';
 import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 
 import { commands } from '../bindings';
-import { useTabState } from '@/store/tab-state';
 import { tabCommands } from './tab-commands';
-import { mkCurrentTabFilesOp } from '@/store/tab-files';
+import { useTabStore } from '@/store/tab/store';
+
 
 export const windowCommands = {
   async exitApp() {
@@ -16,10 +16,10 @@ export const windowCommands = {
 
   async openDirectory() {
     let path: string;
-    if (useTabState.getState().tabs.length === 0) {
+    if (useTabStore.getState().tabs.length === 0) {
       path = await tauri_homeDir();
     } else {
-      path = mkCurrentTabFilesOp().getPath();
+      path = useTabStore.getState().getCurrentTab().path;
     }
 
     const dir = await tauri_open({

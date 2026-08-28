@@ -1,5 +1,3 @@
-import { useTabFilesOp } from '@/store/tab-files';
-import { useTabState } from '@/store/tab-state';
 
 export function StatusBar() {
   const tabs = useTabState(state => state.tabs);

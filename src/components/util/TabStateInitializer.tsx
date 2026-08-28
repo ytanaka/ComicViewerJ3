@@ -1,5 +1,5 @@
 import { commands } from '@/lib/bindings';
-import { useTabState } from '@/store/tab-state';
+import { useTabState } from '@/store/tab/tab-state';
 import { ReactNode, useEffect, useRef } from 'react';
 
 // TabState は localStrage から読み込んだ直後に tabs[].id === -1 になっているので、ここで初期化する

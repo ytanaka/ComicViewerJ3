@@ -1,4 +1,3 @@
-import { useTabState } from '@/store/tab-state';
 import FileList from '../file-list/FileList';
 import { useEffect, useRef } from 'react';
 import { useFocusState } from '@/store/focus-state';

@@ -7,9 +7,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { DirEntry, FileInfo } from '@/lib/bindings';
 import { FileListHeaderN, useUiState } from '@/store/ui-state';
 import { unixTime2str } from '@/lib/string-util';
-import { TabFilesOp, useTabFilesOp } from '@/store/tab-files';
-import { useTabState } from '@/store/tab-state';
-import { TabInfoOp } from '@/store/tab-info';
 
 function useHeaderSize(n: FileListHeaderN): number {
   const sizes = useUiState(state => state.fileListHeaderSizes);
