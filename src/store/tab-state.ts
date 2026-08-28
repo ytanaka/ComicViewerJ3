@@ -101,7 +101,11 @@ export const useTabState = create<TabState>()(
         if (!tab) return false;
         set(prev => {
           fn(tab);
-          return { tabs: [...prev.tabs] };
+          const newTabs = prev.tabs.map(t => {
+            if (t.id !== tab.id) return t;
+            return { ...t };
+          })
+          return { tabs: newTabs };
         });
         return true;
       },
@@ -119,8 +123,11 @@ export const useTabState = create<TabState>()(
           currentTabIndex: state.currentTabIndex,
           tabs: state.tabs.map((t) => {
             return {
-              files: { path: t.files.path },
-              focusHistory: t.files.focusHistory,
+              files: {
+                path: t.files.path,
+                focusIndex: t.files.focusIndex,
+                focusHistory: t.files.focusHistory,
+              },
             }
           }),
         };

@@ -5,7 +5,7 @@ import { getPathBasename } from '@/lib/string-util';
 import { useTabState } from './tab-state';
 import { useMemo } from 'react';
 import { TabInfo } from './tab-info';
-import { assert_same_ref, ExecExclusibe } from '@/lib/utils';
+import { assert_eq, ExecExclusibe } from '@/lib/utils';
 
 // Zustand で管理している TabState の内部で使用するクラス
 //
@@ -80,22 +80,21 @@ export class TabFilesOp {
   init_except_path() {
     this.d.errMsg = undefined;
     this.d.dirEntries = undefined;
-    this.d.focusHistory = createFileFocusHistory();
     this.d.fileInfoList = [];
     this.d.fileErrorList = [];
     this.d.execExclusive = new ExecExclusibe();
     this.d.selectionIndexes = new Set();
   }
 
-  isInitialized(): boolean {
-    return this.d.dirEntries !== undefined;
+  allowReadDirEntries(): boolean {
+    return this.d.dirEntries === undefined && this.d.errMsg === undefined;
   }
 
   toDebugString() {
-    return `path:.../${getPathBasename(this.d.path)}, dirEntries:[${this.d.dirEntries?.length}], focus:${this.d.focusIndex}, sel:${this.d.selectionIndexes.size}`;
+    return `path:.../${getPathBasename(this.d.path)}, dirEntries:[${this.d.dirEntries?.length}], err:${this.d.errMsg}, focus:${this.d.focusIndex}, sel:${this.d.selectionIndexes.size}`;
   }
 
-  #checkIndex(index: number): DirEntry {
+  #checkFileIndex(index: number): DirEntry {
     const ret = this.d.dirEntries?.[index];
     if (ret === undefined)
       throw RangeError(`index: ${index} is out of array. TabFiles.list.length=${this.d.dirEntries?.length}`);
@@ -103,7 +102,7 @@ export class TabFilesOp {
   }
   #updateTab(fn: () => void) {
     useTabState.getState().updateTab(this.tab.id, tab => {
-      assert_same_ref(tab, this.tab);
+      assert_eq(tab?.id, this.tab.id);
       fn();
     })
   }
@@ -119,12 +118,10 @@ export class TabFilesOp {
   }
 
   getPath() {
-    if (!this.d) console.log("in getPath() ", this.d);
     return this.d.path;
   }
 
-  getDirEntries(): DirEntry[] {
-    if (this.d.dirEntries === undefined) throw new ReferenceError('list not initialized');
+  getDirEntries(): DirEntry[] | undefined {
     return this.d.dirEntries;
   }
 
@@ -208,7 +205,7 @@ export class TabFilesOp {
   // Focus, Anchor, Select が変わる
   moveFocusNormal(index: number) {
     this.#updateTab(() => {
-      this.#checkIndex(index);
+      this.#checkFileIndex(index);
       this.d.focusIndex = index;
       this.d.anchorIndex = index;
       this.d.selectionIndexes = new Set([index]);
@@ -220,7 +217,7 @@ export class TabFilesOp {
   // Select が変化せずに Focus, Anchor が変わる
   moveFocusOnly(index: number) {
     this.#updateTab(() => {
-      this.#checkIndex(index);
+      this.#checkFileIndex(index);
       this.d.focusIndex = index;
       this.d.anchorIndex = index;
       this.#updateHistory();
@@ -231,7 +228,7 @@ export class TabFilesOp {
   // Anchor が変化せずに Focus, Select が変わる
   moveFocusWithSelectionArea(index: number) {
     this.#updateTab(() => {
-      this.#checkIndex(index);
+      this.#checkFileIndex(index);
       this.d.focusIndex = index;
 
       // 選択状態は、anchor -> focus まで

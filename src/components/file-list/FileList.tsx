@@ -14,7 +14,7 @@ import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
 import { useTabFilesOp } from '@/store/tab-files';
-import { useTabInfoOp } from '@/store/tab-info';
+import { TabInfoOp } from '@/store/tab-info';
 import { mkFileFocusHistoryOp } from '@/store/file-focus-history';
 
 export default function FileList() {
@@ -23,7 +23,6 @@ export default function FileList() {
   const currentTabIndex = useTabState(state => state.currentTabIndex);
   const tab = useTabState(state => state.getCurrentTab());
 
-  const tabInfoOp = useTabInfoOp(tab);
   const tabFilesOp = useTabFilesOp(tab);
 
   console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}) = ${tabFilesOp.toDebugString()}`);
@@ -31,12 +30,12 @@ export default function FileList() {
   // データ取得
   useEffect(() => {
     const read = async () => {
-      if (!tabFilesOp.isInitialized()) {
-        tabInfoOp.readDirEntries();
+      if (tabFilesOp.allowReadDirEntries()) {
+        new TabInfoOp(tab).readDirEntries();
       }
     }
     read();
-  }, [tabFilesOp, tabInfoOp])
+  }, [tab, tabFilesOp])
 
   // 親ディレクトリに移動したときに、このディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
@@ -115,7 +114,8 @@ export default function FileList() {
     };
   }
 
-  const dirEntries = tabFilesOp.isInitialized() ? tabFilesOp.getDirEntries() : undefined;
+  const dirEntries = tabFilesOp.getDirEntries();
+  // console.debug(`<FileList> dirEntries: [${dirEntries?.length}]`)
 
   return (
     <div className="flex flex-1 flex-col">
@@ -125,20 +125,23 @@ export default function FileList() {
         ) : (
           <Virtuoso
             ref={virtuoso}
+            key={`${tab.id}`} // タブ変更時に内部状態をリセットしないと、古い情報で子コンポーネントが描画されてしまう https://github.com/petyosi/react-virtuoso/issues/1396
+            data={[null, ...dirEntries]}
             totalCount={dirEntries.length + 1}
             topItemCount={1}
             rangeChanged={handleRangeChanged}
-            itemContent={index => {
-              if (index === 0) {
+            itemContent={(index, data) => {
+              if (data === null) {
                 return <FileListHeader />;
               } else {
+                const fileIndex = index - 1;
                 return (
                   <FileListRow
-                    index={index - 1}
-                    dirEntry={dirEntries[index - 1]}
-                    isSelected={tab.files.selectionIndexes.has(index - 1)}
-                    isFocused={tab.files.focusIndex === index - 1}
-                    onClick={createMouseEventHandler(index - 1)}
+                    fileIndex={fileIndex}
+                    dirEntry={data}
+                    isSelected={tab.files.selectionIndexes.has(fileIndex)}
+                    isFocused={tab.files.focusIndex === fileIndex}
+                    onClick={createMouseEventHandler(fileIndex)}
                   />
                 );
               }

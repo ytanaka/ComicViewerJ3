@@ -2,8 +2,8 @@ import { useTabFilesOp } from '@/store/tab-files';
 import { useTabState } from '@/store/tab-state';
 
 export function StatusBar() {
-  const tab = useTabState(state => state.getCurrentTab());
-  if (!tab) {
+  const tabs = useTabState(state => state.tabs);
+  if (tabs.length === 0) {
     return <div></div>;
   } else {
     return <NormalStatusBar />
@@ -13,10 +13,11 @@ export function StatusBar() {
 function NormalStatusBar() {
   const tab = useTabState(state => state.getCurrentTab());
   const tabFilesOp = useTabFilesOp(tab);
+  const dirEntries = tabFilesOp.getDirEntries();
 
   let msg: string | undefined;
-  if (tabFilesOp.isInitialized()) {
-    const n = tabFilesOp.getDirEntries().length;
+  if (dirEntries !== undefined) {
+    const n = dirEntries.length;
     const sel = tabFilesOp.getSelectionIndexes().size;
     msg = `選択 ${sel} / 全 ${n}`;
   }

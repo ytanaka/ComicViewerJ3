@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function assert_same_ref<T>(a: T, b: T) {
+export function assert_eq<T>(a: T, b: T) {
   if (a !== b) throw Error(`assertion error: ${a} !== ${b}`);
 }
 

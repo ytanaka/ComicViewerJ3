@@ -84,19 +84,21 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 }
 
 export function FileListRow({
-  index,
+  fileIndex: index,
   dirEntry,
   isSelected,
   isFocused,
   onClick,
 }: {
-  index: number;
+  fileIndex: number;
   dirEntry: DirEntry;
   isSelected: boolean;
   isFocused: boolean;
   onClick: React.MouseEventHandler;
 }) {
   const tab = useTabState(state => state.getCurrentTab());
+
+  // if (index === 0) console.debug(`<FileListRow> tabId:${tab.id} file:${dirEntry.name}`);
 
   useEffect(() => {
     const read = async () => {

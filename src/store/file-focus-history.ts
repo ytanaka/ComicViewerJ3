@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTabState } from "./tab-state";
 import { TabInfo } from "./tab-info";
-import { assert_same_ref } from "@/lib/utils";
+import { assert_eq } from "@/lib/utils";
 
 const MAX_HIST = 10;
 
@@ -45,7 +45,7 @@ export class FileFocusHistoryOp {
   }
   push(path: string, focusName: string) {
     useTabState.getState().updateTab(this.tab.id, (tab) => {
-      assert_same_ref(tab, this.tab);
+      assert_eq(tab?.id, this.tab.id);
 
       this.d.hist = this.d.hist.filter(e => e.path !== path);
       this.d.hist.push({ path, focusName });

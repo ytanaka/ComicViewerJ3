@@ -2,7 +2,7 @@ import { commands } from "@/lib/bindings";
 import { caeateTabFiles, TabFiles, TabFilesOp } from "./tab-files";
 import { useTabState } from "./tab-state";
 import { useMemo } from "react";
-import { assert_same_ref, ExecExclusibe } from "@/lib/utils";
+import { assert_eq, ExecExclusibe } from "@/lib/utils";
 
 export interface TabInfo {
   id: number;
@@ -42,16 +42,17 @@ export class TabInfoOp {
   }
   #updateCurrentTab(fn: () => void) {
     useTabState.getState().updateTab(this.d.id, tab => {
-      assert_same_ref(tab, this.d);
+      assert_eq(tab?.id, this.d.id);
       fn();
     })
   }
 
   async readDirEntries() {
     // 同時呼び出しを防ぐ
-    if (this.d.execExclusive.try_start(0)) return;
+    if (!this.d.execExclusive.try_start(0)) return;
     let result;
     try {
+      console.debug(`TabInfo.readDirEntries(): id:${this.d.id}, path:${this.d.files.path}`);
       result = await commands.readDirEntries(this.d.id, this.d.files.path);
     } finally {
       this.d.execExclusive.end(0);
@@ -76,7 +77,9 @@ export class TabInfoOp {
     if (!this.d.files.execExclusive.try_start(index)) return;
     let result;
     try {
+      console.debug("READ", index);
       result = await commands.getFileInfo(this.d.id, this.d.files.dirEntries[index].id.toString());
+      console.debug("READ END", index);
     } finally {
       this.d.files.execExclusive.end(index);
     }

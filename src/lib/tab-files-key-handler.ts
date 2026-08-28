@@ -18,6 +18,9 @@ export class TabFilesSelectionKeyHandler {
   handleKey(e: KeyboardEvent): boolean {
     const tabFiles = new TabFilesOp(this.tab);
     const focus = tabFiles.data.focusIndex;
+    const dirEntries = tabFiles.getDirEntries();
+    if (dirEntries === undefined) return false;
+
     let newIndex: number | null = null;
 
     const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
@@ -37,10 +40,10 @@ export class TabFilesSelectionKeyHandler {
     } else if (e.key === 'Home') {
       newIndex = 0;
     } else if (e.key === 'End') {
-      newIndex = tabFiles.getDirEntries().length - 1;
+      newIndex = dirEntries.length - 1;
     }
     if (newIndex !== null) {
-      newIndex = Math.min(newIndex, tabFiles.getDirEntries().length - 1);
+      newIndex = Math.min(newIndex, dirEntries.length - 1);
       newIndex = Math.max(newIndex, 0);
       if (NO_MOD) {
         tabFiles.moveFocusNormal(newIndex as number);
