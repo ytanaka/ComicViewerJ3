@@ -6,7 +6,7 @@ export interface AllTabsActions {
 
   getTab: (tabId: TabId) => TabInfo;
   getCurrentTab: () => TabInfo;
-  setTabs: (tabs: TabInfo[]) => void;
+  initTabs: (tabs: TabInfo[], focusHistories: Record<number, FileFocusHistory>) => void;
 
   addTab: (tab: TabInfo) => void;
   moveTab: (fromIndex: number, toIndex: number) => void;
@@ -38,7 +38,7 @@ export const createAllTabsActions = (
   },
 
   // TabStateInitializer から使う
-  setTabs: (tabs: TabInfo[]) => {
+  initTabs: (tabs: TabInfo[], focusHistories: Record<number, FileFocusHistory>) => {
     set(() => {
       const fileInfos: Record<TabId, Record<FileId, FileInfoWrapper>> = {};
       tabs.forEach(t => { fileInfos[t.id] = {} });
@@ -46,14 +46,11 @@ export const createAllTabsActions = (
       const selections: Record<TabId, FileSelection> = {}
       tabs.forEach(t => { selections[t.id] = mkFileSelection() });
 
-      const focusHistories: Record<TabId, FileFocusHistory> = {};
-      tabs.forEach(t => { focusHistories[t.id] = { hist: [] } });
-
       return {
         tabs: [...tabs],
         fileInfos,
         selections,
-        focusHistories,
+        focusHistories: { ...focusHistories },
       }
     })
   },
@@ -102,11 +99,20 @@ export const createAllTabsActions = (
   // ※ カレントタブが削除されたら、カレントは右のタブに移る
   removeTab: (tabId: TabId) => {
     const tab = get().getTab(tabId);
-    set(prev => {
-      const newList = prev.tabs.filter(t => t.id !== tab.id);
+    set(state => {
+      const newList = state.tabs.filter(t => t.id !== tab.id);
+      delete state.fileInfos[tabId];
+      delete state.selections[tabId];
+      delete state.focusHistories[tabId];
 
       // 最後のタブが削除されたら、左側のタブをカレントにする
-      return { tabs: newList, currentTabIndex: Math.max(0, Math.min(prev.currentTabIndex, newList.length - 1)) };
+      return {
+        currentTabIndex: Math.max(0, Math.min(state.currentTabIndex, newList.length - 1)),
+        tabs: newList,
+        fileInfo: state.fileInfos,
+        selections: state.selections,
+        focusHistories: state.focusHistories,
+      };
     });
   },
 });

@@ -49,16 +49,21 @@ export const useTabStore = create<TabStore>()(persist((set, get) => ({
   onRehydrateStorage: () => state => {
     if (!state) return;
     try {
+      // 保存しておいたタブIDは使えなくなっているので、タブIDを負数にしておいてTabStateInitializer で初期化する
       for (let i = 0; i < state.tabs.length; i++) {
-        // とりあえず -1 にしておいてTabStateInitializer で初期化する
-        state.tabs[i].id = -1;
+        state.tabs[i].id = state.tabs[i].id * -1;
         state.tabs[i].execExclusive = new ExecExclusibe();
       }
       state.fileInfos = {};
       state.selections = {};
+      state.focusHistories = Object.fromEntries(
+        Object.entries(state.focusHistories).map(([k, v]) => {
+          return [Number(k) * -1, v];
+        })
+      );
     } catch (e) {
       console.error(e);
     }
-    console.info('TabState: onRehydrateStorage !!!!!', state);
+    console.info('TabState: onRehydrateStorage !!!!!', JSON.stringify(state));
   },
 }));

@@ -65,10 +65,10 @@ export const createTabInfoActions = (
   },
 
   updateTab: (tabId: TabId, fn: (tab: TabInfo) => void) => {
-    set(prev => {
-      const tab = prev.getTab(tabId);
+    set(state => {
+      const tab = state.getTab(tabId);
       fn(tab);
-      const newTabs = prev.tabs.map(t => (t.id !== tab.id ? t : { ...tab }));
+      const newTabs = state.tabs.map(t => (t.id !== tab.id ? t : { ...tab }));
       return { tabs: newTabs };
     });
     return true;
