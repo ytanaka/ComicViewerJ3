@@ -101,10 +101,7 @@ export const useTabState = create<TabState>()(
         if (!tab) return false;
         set(prev => {
           fn(tab);
-          const newTabs = prev.tabs.map(t => {
-            if (t.id !== tab.id) return t;
-            return { ...t };
-          })
+          const newTabs = prev.tabs.map(t => (t.id !== tab.id ? t : { ...tab }))
           return { tabs: newTabs };
         });
         return true;
