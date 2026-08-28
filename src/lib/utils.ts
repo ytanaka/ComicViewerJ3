@@ -28,7 +28,8 @@ export class ExecExclusibe {
   }
 }
 
-export class ObjectId {
+
+class ObjectId {
   private readonly map = new WeakMap<object, number>();
   private nextId = 1;
 
@@ -48,6 +49,7 @@ export class ObjectId {
   }
 }
 const objectId = new ObjectId();
+// オブジェクト参照の変化を観察するために、オブジェクトをID文字列に変換する
 export function getObjId(t: object | undefined) {
   if (!t) return "undef";
   return '0x' + objectId.get(t).toString(16).toUpperCase().padStart(4, '0');

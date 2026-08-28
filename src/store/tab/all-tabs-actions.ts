@@ -1,5 +1,5 @@
 import { TabStore } from "./store";
-import { TabId, TabInfo } from "./types";
+import { FileFocusHistory, FileId, FileInfoWrapper, FileSelection, mkFileSelection, TabId, TabInfo } from "./types";
 
 export interface AllTabsActions {
   setCurrentTabIndex: (index: number) => void;
@@ -37,9 +37,24 @@ export const createAllTabsActions = (
     return tabs[currentTabIndex];
   },
 
+  // TabStateInitializer から使う
   setTabs: (tabs: TabInfo[]) => {
     set(() => {
-      return { tabs: [...tabs] }
+      const fileInfos: Record<TabId, Record<FileId, FileInfoWrapper>> = {};
+      tabs.forEach(t => { fileInfos[t.id] = {} });
+
+      const selections: Record<TabId, FileSelection> = {}
+      tabs.forEach(t => { selections[t.id] = mkFileSelection() });
+
+      const focusHistories: Record<TabId, FileFocusHistory> = {};
+      tabs.forEach(t => { focusHistories[t.id] = { hist: [] } });
+
+      return {
+        tabs: [...tabs],
+        fileInfos,
+        selections,
+        focusHistories,
+      }
     })
   },
 
@@ -47,7 +62,13 @@ export const createAllTabsActions = (
   addTab: tab => {
     set(state => {
       if (0 <= state.tabs.findIndex(t => t.id === tab.id)) throw Error(`addTab(): dup tab.id: ${tab.id}`);
-      return { tabs: [...state.tabs, tab], currentTabIndex: state.tabs.length };
+      return {
+        tabs: [...state.tabs, tab],
+        currentTabIndex: state.tabs.length,
+        fileInfos: { ...state.fileInfos, [tab.id]: {} },
+        selections: { ...state.selections, [tab.id]: mkFileSelection() },
+        focusHistories: { ...state.focusHistories, [tab.id]: { hist: [] } },
+      };
     });
   },
 

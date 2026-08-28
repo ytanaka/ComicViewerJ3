@@ -1,4 +1,5 @@
 import { DirEntry, FileInfo } from "@/lib/bindings";
+import { ExecExclusibe } from "@/lib/utils";
 
 export type TabId = number;
 export type FileId = number;
@@ -14,10 +15,11 @@ export interface AllTabs {
   focusHistories: Record<TabId, FileFocusHistory>
 }
 export interface TabInfo {
-  id: number;
+  id: TabId;
   path: string;
   dirEntries?: DirEntry[];
   errorMsg?: string;
+  execExclusive: ExecExclusibe;
 }
 export interface FileInfoWrapper {
   fileInfo?: FileInfo;
@@ -35,4 +37,18 @@ export interface FileFocusHistory {
 export interface HistElm {
   path: string;
   filename: string;
+}
+
+// =====================================================================================================================
+
+export function mkTabInfo(id: TabId, path: string) {
+  return { id, path, execExclusive: new ExecExclusibe() };
+}
+
+export function mkFileSelection() {
+  return {
+    focusIndex: 0,
+    anchorIndex: 0,
+    selectionIndexes: new Set<number>(),
+  };
 }

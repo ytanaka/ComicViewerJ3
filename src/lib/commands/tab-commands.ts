@@ -4,6 +4,7 @@ import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 import { commands } from '../bindings';
 import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
 import { useTabStore } from '@/store/tab/store';
+import { mkTabInfo, TabId } from '@/store/tab/types';
 
 function st() { return useTabStore.getState(); }
 
@@ -29,10 +30,10 @@ export const tabCommands = {
     }
     const absPath = await tauri_path_resolve(path);
     const tabId = await commands.createTab();
-    st().addTab({ id: tabId, path: absPath });
+    st().addTab(mkTabInfo(tabId, absPath));
   },
 
-  async removeTab(id: number) {
+  async removeTab(id: TabId) {
     if (st().tabs.length === 0) return;
     console.info(`tabCommands.removeTab(${id})`);
     st().removeTab(id);

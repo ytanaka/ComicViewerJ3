@@ -1,17 +1,17 @@
 import { commands } from '@/lib/bindings';
-import { useTabState } from '@/store/tab/tab-state';
+import { useTabStore } from '@/store/tab/store';
 import { ReactNode, useEffect, useRef } from 'react';
 
 // TabState は localStrage から読み込んだ直後に tabs[].id === -1 になっているので、ここで初期化する
 // ※ id は async 関数から取得するので、zustand の onRehydrateStorage の中では初期化できない
 export function TabStateInitializer({ children }: { children: ReactNode }) {
-  const tabs = useTabState(state => state.tabs);
+  const tabs = useTabStore(state => state.tabs);
   const tabNotInitialized = 0 <= tabs.findIndex(tab => tab.id < 0);
 
   const initializing = useRef(false);
   useEffect(() => {
     const init = async () => {
-      const tabs = useTabState.getState().tabs;
+      const tabs = useTabStore.getState().tabs;
 
       for (const tabId of await commands.getTabIds()) {
         console.info('TabStateInitializer: remove unused old tabId: ', tabId);
@@ -21,7 +21,7 @@ export function TabStateInitializer({ children }: { children: ReactNode }) {
       for (let i = 0; i < tabs.length; i++) {
         tabs[i].id = await commands.createTab();
       }
-      useTabState.getState().setTabs(tabs);
+      useTabStore.getState().setTabs(tabs);
 
       initializing.current = false;
     };

@@ -22,6 +22,6 @@ export const fileCommands = {
   },
 
   movePath(path: string) {
-    st().setPath(st().currentTabIndex, path);
+    st().setPath(st().getCurrentTab().id, path);
   },
 };

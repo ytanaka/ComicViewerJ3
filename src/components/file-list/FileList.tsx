@@ -1,58 +1,59 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import {
   TabFilesDirWalkerKeyHandler,
-  TabFilesMouseHandler,
   TabFilesSelectionKeyHandler,
 } from '@/lib/tab-files-key-handler';
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
+import { useTabStore } from '@/store/tab/store';
+import { logic } from '@/lib/bindings-helper';
+
+function st() { return useTabStore.getState(); }
 
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const currentTabIndex = useTabStore(state => state.currentTabIndex);
+  const tab = useTabStore(state => state.getCurrentTab());
 
-  const currentTabIndex = useTabState(state => state.currentTabIndex);
-  const tab = useTabState(state => state.getCurrentTab());
-
-  const tabFilesOp = useTabFilesOp(tab);
-
-  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}) = ${tabFilesOp.toDebugString()}`);
+  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id})`);
 
   // データ取得
   useEffect(() => {
     const read = async () => {
-      if (tabFilesOp.allowReadDirEntries()) {
-        new TabInfoOp(tab).readDirEntries();
+      const tab = st().getCurrentTab();
+      if (tab.dirEntries == undefined && tab.errorMsg == undefined) {
+        await logic.readDirEntries(tab.id);
       }
     }
     read();
-  }, [tab, tabFilesOp])
+  }, []) // 初回だけ実行する
 
-  // 親ディレクトリに移動したときに、このディレクトリが選択されてほしいので、履歴に追加しておく
+  // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
     const setHist = async () => {
-      const hist = mkFileFocusHistoryOp();
-      const parent = await tauri_dirname(tabFilesOp.getPath());
-      if (!hist.find(parent)) {
-        const base = await tauri_basename(tabFilesOp.getPath());
-        tabFilesOp.pushHistory(parent, base);
+      const tab = st().getCurrentTab();
+      const parent = await tauri_dirname(tab.path);
+      if (!st().findHistory(tab.id, parent)) {
+        const base = await tauri_basename(tab.path);
+        st().pushHistory(tab.id, parent, base);
       }
     };
     setHist();
-  }, [tabFilesOp]);
+  }, []); // 初回だけ実行する
 
   // タイトルバー設定
   useEffect(() => {
     const setTitle = async () => {
-      await getCurrentWindow().setTitle(tabFilesOp.getPath());
+      await getCurrentWindow().setTitle(st().getCurrentTab().path);
     };
     setTitle();
-  }, [tabFilesOp]);
+  }, []); // 初回だけ実行する
 
   // スクロール位置検知
   const visibleListRange = useRef(1);
@@ -81,7 +82,7 @@ export default function FileList() {
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  });
+  }); // 初回だけ実行する
 
   // スクロール位置調整
   const scrollLevel = useScrollToFocusState(state => state.scrollLevel);
@@ -89,8 +90,9 @@ export default function FileList() {
   useEffect(() => {
     if (scrollLevel !== ScrollLevel.No) {
       function scr() {
+        const tab = st().getCurrentTab();
         virtuoso.current?.scrollIntoView({
-          index: tab.files.focusIndex + 1, // ヘッダーがあるので +1
+          index: st().getSelection(tab.id).focusIndex + 1, // ヘッダーがあるので +1
         });
       }
 
@@ -101,16 +103,9 @@ export default function FileList() {
       }
       setScroll(ScrollLevel.No);
     }
-  }, [scrollLevel, setScroll, tab.files.focusIndex]);
+  }, [scrollLevel, setScroll]); // スクロールが指示されたら実行する
 
-  // マウスクリック
-  function createMouseEventHandler(index: number) {
-    return function (e: React.MouseEvent) {
-      new TabFilesMouseHandler(tab).handle(index, e);
-    };
-  }
-
-  const dirEntries = tabFilesOp.getDirEntries();
+  const dirEntries = tab.dirEntries;
   // console.debug(`<FileList> dirEntries: [${dirEntries?.length}]`)
 
   return (
@@ -133,11 +128,9 @@ export default function FileList() {
                 const fileIndex = index - 1;
                 return (
                   <FileListRow
+                    tab={tab}
                     fileIndex={fileIndex}
                     dirEntry={data}
-                    isSelected={tab.files.selectionIndexes.has(fileIndex)}
-                    isFocused={tab.files.focusIndex === fileIndex}
-                    onClick={createMouseEventHandler(fileIndex)}
                   />
                 );
               }

@@ -1,6 +1,7 @@
 import FileList from '../file-list/FileList';
 import { useEffect, useRef } from 'react';
 import { useFocusState } from '@/store/focus-state';
+import { useTabStore } from '@/store/tab/store';
 
 export function TabContent() {
   const ref = useRef<HTMLDivElement>(null);
@@ -14,7 +15,7 @@ export function TabContent() {
     }
   }, [getFocus, doneFocus]);
 
-  const tabs = useTabState(state => state.tabs);
+  const tabs = useTabStore(state => state.tabs);
 
   return (
     <div ref={ref} tabIndex={0} style={{ outline: 'none' }} className="flex flex-1">

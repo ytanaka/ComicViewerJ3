@@ -6,24 +6,26 @@ import { Plus, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { tabCommands } from '@/lib/commands/tab-commands';
 import { getPathBasename } from '@/lib/string-util';
+import { useTabStore } from '@/store/tab/store';
+import { TabInfo } from '@/store/tab/types';
 
 export function TabBar() {
-  const tabs = useTabState(state => state.tabs);
-  const currentTabIndex = useTabState(state => state.currentTabIndex);
+  const tabs = useTabStore(state => state.tabs);
+  const currentTabIndex = useTabStore(state => state.currentTabIndex);
 
   return (
     <div className="flex border">
       <DragDropProvider
         onDragStart={e => {
           if (!isSortable(e.operation.source)) return;
-          useTabState.getState().setCurrentTabIndex(e.operation.source.index);
+          useTabStore.getState().setCurrentTabIndex(e.operation.source.index);
         }}
         onDragEnd={e => {
           if (e.canceled) return;
           // initialIndex, index を読むため
           if (!isSortable(e.operation.source)) return;
           const { initialIndex, index } = e.operation.source;
-          useTabState.getState().moveTab(initialIndex, index);
+          useTabStore.getState().moveTab(initialIndex, index);
         }}
         modifiers={defaults => [...defaults, RestrictToHorizontalAxis]}
       >
@@ -48,7 +50,6 @@ function NewTabButton({ noTabs }: { noTabs: boolean }) {
 }
 
 function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; isSelected: boolean }) {
-  const tabFiles = useTabFilesOp(tab);
   const { ref, handleRef } = useSortable({
     id: tab.id,
     index: index,
@@ -60,7 +61,7 @@ function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; is
         variant={`${isSelected ? 'outline' : 'secondary'}`}
         className={`block truncate text-left w-full max-w-full ${isSelected ? '' : 'font-light'}`}
       >
-        {isSelected ? tabFiles.getPath() : getPathBasename(tabFiles.getPath())}
+        {isSelected ? tab.path : getPathBasename(tab.path)}
       </Button>
       <div className="flex justify-end">
         <div

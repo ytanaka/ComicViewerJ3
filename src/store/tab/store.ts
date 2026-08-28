@@ -7,6 +7,7 @@ import { AllTabsActions, createAllTabsActions } from "./all-tabs-actions";
 import { createFileInfoWrapperActions, FileInfoWrapperActions } from "./file-info-wrapper-actions";
 import { createFileSelectionActions, FileSelectionActions } from "./file-selection-actions";
 import { createFileFocusHistoryActions, FileFocusHistoryActions } from "./file-focus-history-actions";
+import { ExecExclusibe } from "@/lib/utils";
 
 export type TabActions =
   & AllTabsActions
@@ -41,7 +42,7 @@ export const useTabStore = create<TabStore>()(persist((set, get) => ({
   partialize: state => {
     return {
       currentTabIndex: state.currentTabIndex,
-      tabs: state.tabs.map((t) => ({ files: { path: t.path, }, })),
+      tabs: state.tabs.map((t) => ({ id: t.id, path: t.path })),
       focusHistories: state.focusHistories,
     };
   },
@@ -51,6 +52,7 @@ export const useTabStore = create<TabStore>()(persist((set, get) => ({
       for (let i = 0; i < state.tabs.length; i++) {
         // とりあえず -1 にしておいてTabStateInitializer で初期化する
         state.tabs[i].id = -1;
+        state.tabs[i].execExclusive = new ExecExclusibe();
       }
       state.fileInfos = {};
       state.selections = {};
@@ -59,5 +61,4 @@ export const useTabStore = create<TabStore>()(persist((set, get) => ({
     }
     console.info('TabState: onRehydrateStorage !!!!!', state);
   },
-
 }));

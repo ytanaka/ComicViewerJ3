@@ -23,9 +23,19 @@ export const createFileInfoWrapperActions = (
   },
 
   getFileInfoWrapper: (tabId: TabId, index: number) => {
-    const list = get().fileInfos[tabId];
-    if (!list) return {}
-    return list[index] ?? {}
+    const infoList = get().fileInfos[tabId];
+    if (infoList) {
+      let ret = infoList[index];
+      if (ret) return ret;
+
+      ret = {};
+      get().setFileInfoWrapper(tabId, index, ret);
+      return ret;
+    }
+
+    const ret = {};
+    get().setFileInfoWrapper(tabId, index, ret);
+    return ret;
   },
   setFileInfoWrapper: (tabId: TabId, index: number, wrapper: FileInfoWrapper) => {
     set(state => ({

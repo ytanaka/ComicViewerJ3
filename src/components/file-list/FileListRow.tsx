@@ -7,6 +7,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { DirEntry, FileInfo } from '@/lib/bindings';
 import { FileListHeaderN, useUiState } from '@/store/ui-state';
 import { unixTime2str } from '@/lib/string-util';
+import { useTabStore } from '@/store/tab/store';
+import { TabInfo } from '@/store/tab/types';
+import { logic } from '@/lib/bindings-helper';
+import { TabFilesMouseHandler } from '@/lib/tab-files-key-handler';
+import { getObjId } from '@/lib/utils';
 
 function useHeaderSize(n: FileListHeaderN): number {
   const sizes = useUiState(state => state.fileListHeaderSizes);
@@ -81,57 +86,58 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 }
 
 export function FileListRow({
-  fileIndex: index,
+  tab,
+  fileIndex,
   dirEntry,
-  isSelected,
-  isFocused,
-  onClick,
 }: {
+  tab: TabInfo;
   fileIndex: number;
   dirEntry: DirEntry;
-  isSelected: boolean;
-  isFocused: boolean;
-  onClick: React.MouseEventHandler;
 }) {
-  const tab = useTabState(state => state.getCurrentTab());
-
-  // if (index === 0) console.debug(`<FileListRow> tabId:${tab.id} file:${dirEntry.name}`);
+  const wrapper = useTabStore(state => state.getFileInfoWrapper(tab.id, fileIndex));
+  const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
 
   useEffect(() => {
     const read = async () => {
-      if (new TabFilesOp(tab).allowFetchFileInfo(index)) {
-        new TabInfoOp(tab).readFileInfo(index);
+      if (!wrapper.errorMsg && !wrapper.fileInfo) {
+        await logic.readFileInfo(tab.id, fileIndex);
       }
     }
     read();
-  }, [index, tab])
+  }, [fileIndex, tab.id, wrapper.errorMsg, wrapper.fileInfo])
 
-  const tabFilesOp = useTabFilesOp(tab);
-  const fileInfo = tabFilesOp.getFileInfo(index);
-  const bg = index % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
-  const border = isFocused && 'border-dashed border dark:border-white border-black';
+  // マウスクリック
+  function handleClick(e: React.MouseEvent) {
+    new TabFilesMouseHandler(tab).handle(fileIndex, e);
+  };
+
+  if (fileIndex === 0) console.debug(`<FileListRow> tabId:${tab.id} file:${dirEntry.name} wrap:${getObjId(wrapper)}`);
+
+  const fileInfo = wrapper.fileInfo;
+  const bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
+  const border = isSelected && 'border-dashed border dark:border-white border-black';
   const baseComponent = (
     <div
       className={`${bg} ${border} flex w-full pl-1.5 pr-1.5 h-6`}
       style={{
         background: isSelected ? '#0078d4' : '',
       }}
-      onClick={onClick}
+      onClick={handleClick}
     >
-      <Icon fileInfo={fileInfo} errorMsg={tabFilesOp.getFileError(index)} />
+      <Icon fileInfo={fileInfo} errorMsg={wrapper.errorMsg} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
       <Size fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </div>
   );
-  const errorMsg = tabFilesOp.getFileError(index);
-  if (errorMsg) {
+
+  if (wrapper.errorMsg) {
     return (
       <Tooltip>
         <TooltipTrigger render={baseComponent} />
         <TooltipContent>
-          <p>{errorMsg}</p>
+          <p>{wrapper.errorMsg}</p>
         </TooltipContent>
       </Tooltip>
     );

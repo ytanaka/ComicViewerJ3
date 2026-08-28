@@ -1,8 +1,10 @@
 import { fileCommands } from './commands/file-commands';
 import React from 'react';
 import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
-import { TabInfo } from '@/store/tab-info';
-import { TabFilesOp } from '@/store/tab-files';
+import { TabInfo } from '@/store/tab/types';
+import { useTabStore } from '@/store/tab/store';
+
+function st() { return useTabStore.getState(); }
 
 export class TabFilesSelectionKeyHandler {
   tab: TabInfo;
@@ -16,9 +18,9 @@ export class TabFilesSelectionKeyHandler {
   // キーボードによるリストのフォーカス移動ハンドラー
   // フォーカスが移動したら、true
   handleKey(e: KeyboardEvent): boolean {
-    const tabFiles = new TabFilesOp(this.tab);
-    const focus = tabFiles.data.focusIndex;
-    const dirEntries = tabFiles.getDirEntries();
+    const sel = st().getSelection(this.tab.id);
+    const focus = sel.focusIndex;
+    const dirEntries = this.tab.dirEntries;
     if (dirEntries === undefined) return false;
 
     let newIndex: number | null = null;
@@ -46,11 +48,11 @@ export class TabFilesSelectionKeyHandler {
       newIndex = Math.min(newIndex, dirEntries.length - 1);
       newIndex = Math.max(newIndex, 0);
       if (NO_MOD) {
-        tabFiles.moveFocusNormal(newIndex as number);
+        st().moveFocusNormal(this.tab.id, newIndex as number);
       } else if (CTRL) {
-        tabFiles.moveFocusOnly(newIndex as number);
+        st().moveFocusOnly(this.tab.id, newIndex as number);
       } else if (SHIFT) {
-        tabFiles.moveFocusWithSelectionArea(newIndex as number);
+        st().moveFocusWithSelectionArea(this.tab.id, newIndex as number);
       }
       useScrollToFocusState.getState().setScroll(ScrollLevel.Normal);
       e.preventDefault();
@@ -59,14 +61,14 @@ export class TabFilesSelectionKeyHandler {
 
     // 選択ON/OFF
     if (CTRL && e.key === ' ') {
-      tabFiles.toggleSelection(focus);
+      st().toggleSelection(this.tab.id, focus);
       e.preventDefault();
       return true;
     }
 
     // 全選択切替
     if (CTRL && e.key === 'a') {
-      tabFiles.toggleAllSelection();
+      st().toggleAllSelection(this.tab.id);
       e.preventDefault();
       return true;
     }
@@ -82,19 +84,18 @@ export class TabFilesMouseHandler {
     this.tab = tab;
   }
 
-  handle(index: number, e: React.MouseEvent): boolean {
-    const tabFiles = new TabFilesOp(this.tab);
+  handle(fileIndex: number, e: React.MouseEvent): boolean {
     const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
     const CTRL = C && !S && !A;
     const SHIFT = !C && S && !A;
     const NO_MOD = !C && !S && !A;
 
     if (NO_MOD) {
-      tabFiles.moveFocusNormal(index);
+      st().moveFocusNormal(this.tab.id, fileIndex);
     } else if (CTRL) {
-      tabFiles.moveFocusOnly(index);
+      st().moveFocusOnly(this.tab.id, fileIndex);
     } else if (SHIFT) {
-      tabFiles.moveFocusWithSelectionArea(index);
+      st().moveFocusWithSelectionArea(this.tab.id, fileIndex);
     } else {
       return false;
     }
@@ -103,6 +104,7 @@ export class TabFilesMouseHandler {
     return true;
   }
 }
+
 export class TabFilesDirWalkerKeyHandler {
   tab: TabInfo;
 
@@ -110,10 +112,9 @@ export class TabFilesDirWalkerKeyHandler {
     this.tab = tab;
   }
   handleKey(e: KeyboardEvent): boolean {
-    const tabFiles = new TabFilesOp(this.tab);
-
     if (e.key === 'Enter') {
-      const info = tabFiles.getFileInfo(tabFiles.data.focusIndex);
+      const sel = st().getSelection(this.tab.id);
+      const info = st().getFileInfo(this.tab.id, sel.focusIndex);
       if (!info || !info.metadata?.is_dir) return false;
 
       fileCommands.moveToChildDirectory(info.name);

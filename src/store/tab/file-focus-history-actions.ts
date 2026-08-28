@@ -16,7 +16,12 @@ export const createFileFocusHistoryActions = (
   get: () => TabStore,
 ): FileFocusHistoryActions => ({
   getHistory: (tabId: TabId) => {
-    return get().focusHistories[tabId] ?? { hist: [] }
+    let ret = get().focusHistories[tabId];
+    if (ret) return ret;
+
+    ret = { hist: [] };
+    get().setHistory(tabId, ret);
+    return ret;
   },
   setHistory: (tabId: TabId, hist: FileFocusHistory) => {
     set(state => ({

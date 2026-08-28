@@ -1,6 +1,8 @@
+import { useTabStore } from "@/store/tab/store";
 
 export function StatusBar() {
-  const tabs = useTabState(state => state.tabs);
+  const tabs = useTabStore(state => state.tabs);
+
   if (tabs.length === 0) {
     return <div></div>;
   } else {
@@ -9,22 +11,21 @@ export function StatusBar() {
 }
 
 function NormalStatusBar() {
-  const tab = useTabState(state => state.getCurrentTab());
-  const tabFilesOp = useTabFilesOp(tab);
-  const dirEntries = tabFilesOp.getDirEntries();
+  const tab = useTabStore(state => state.getCurrentTab());
+  const selection = useTabStore(state => state.getSelection(tab.id));
+  const dirEntries = tab.dirEntries;
 
   let msg: string | undefined;
   if (dirEntries !== undefined) {
     const n = dirEntries.length;
-    const sel = tabFilesOp.getSelectionIndexes().size;
+    const sel = selection.selectionIndexes.size;
     msg = `選択 ${sel} / 全 ${n}`;
   }
 
   return (
     <div className="border">
-      <div>{tabFilesOp.getErrMsg()}</div>
+      <div>{tab.errorMsg}</div>
       <div>{msg}</div>
     </div>
   );
-
 }
