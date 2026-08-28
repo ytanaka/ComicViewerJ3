@@ -26,18 +26,16 @@ export default function FileList() {
   // データ取得
   useEffect(() => {
     const read = async () => {
-      const tab = st().getCurrentTab();
       if (tab.dirEntries == undefined && tab.errorMsg == undefined) {
         await logic.readDirEntries(tab.id);
       }
     }
     read();
-  }, []) // 初回だけ実行する
+  }, [tab.dirEntries, tab.errorMsg, tab.id])
 
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
     const setHist = async () => {
-      const tab = st().getCurrentTab();
       const parent = await tauri_dirname(tab.path);
       if (!st().findHistory(tab.id, parent)) {
         const base = await tauri_basename(tab.path);
@@ -45,15 +43,15 @@ export default function FileList() {
       }
     };
     setHist();
-  }, []); // 初回だけ実行する
+  }, [tab.id, tab.path]); // 初回だけ実行する
 
   // タイトルバー設定
   useEffect(() => {
     const setTitle = async () => {
-      await getCurrentWindow().setTitle(st().getCurrentTab().path);
+      await getCurrentWindow().setTitle(tab.path);
     };
     setTitle();
-  }, []); // 初回だけ実行する
+  }, [tab.path]);
 
   // スクロール位置検知
   const visibleListRange = useRef(1);

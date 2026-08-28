@@ -19,6 +19,8 @@ export const createTabInfoActions = (
   setPath: (tabId: TabId, path: string) => {
     get().updateTab(tabId, (tab) => {
       tab.path = path;
+      tab.dirEntries = undefined;
+      tab.errorMsg = undefined;
     });
   },
 
