@@ -23,7 +23,7 @@ export const useUiState = create<UiState>()(
   persist(
     (set, get) => ({
       appInitialized: false,
-      fileListHeaderSizes: [40, 600, 80, 80, 160],
+      fileListHeaderSizes: [35, 500, 100, 120, 180],
 
       setAppInitialized: () => {
         set(() => {

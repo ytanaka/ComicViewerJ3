@@ -77,9 +77,7 @@ export class TabInfoOp {
     if (!this.d.files.execExclusive.try_start(index)) return;
     let result;
     try {
-      console.debug("READ", index);
       result = await commands.getFileInfo(this.d.id, this.d.files.dirEntries[index].id.toString());
-      console.debug("READ END", index);
     } finally {
       this.d.files.execExclusive.end(index);
     }

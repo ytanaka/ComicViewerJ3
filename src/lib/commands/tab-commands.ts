@@ -50,7 +50,7 @@ export const tabCommands = {
 
   setCurrentTabIndex(index: number) {
     st().setCurrentTabIndex(index);
-    useScrollToFocusState.getState().setScroll(ScrollLevel.Normal);
+    useScrollToFocusState.getState().setScroll(ScrollLevel.Lazy);
   },
 
   setCurrentTabNextPrev(inc: number) {
