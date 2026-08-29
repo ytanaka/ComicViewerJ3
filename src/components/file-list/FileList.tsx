@@ -3,18 +3,17 @@ import { useEffect, useRef } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
-import {
-  TabFilesDirWalkerKeyHandler,
-  TabFilesSelectionKeyHandler,
-} from '@/lib/tab-files-key-handler';
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
-import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
+import { useScrollToFocusState } from '@/store/scroll-to-focus-state';
 import { useTabStore } from '@/store/tab/store';
 import { logic } from '@/lib/bindings-helper';
+import { tabFiles_handleKey } from '@/lib/tab-files-key-handler';
 
-function st() { return useTabStore.getState(); }
+function st() {
+  return useTabStore.getState();
+}
 
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -29,9 +28,9 @@ export default function FileList() {
       if (tab.dirEntries == undefined && tab.errorMsg == undefined) {
         await logic.readDirEntries(tab.id);
       }
-    }
+    };
     read();
-  }, [tab.dirEntries, tab.errorMsg, tab.id])
+  }, [tab.dirEntries, tab.errorMsg, tab.id]);
 
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
@@ -45,7 +44,7 @@ export default function FileList() {
     setHist();
   }, [tab.id, tab.path]); // 初回だけ実行する
 
-  // タイトルバー設定
+  // タイトルバー更新
   useEffect(() => {
     const setTitle = async () => {
       await getCurrentWindow().setTitle(tab.path);
@@ -69,13 +68,15 @@ export default function FileList() {
         return;
       }
 
-      // console.debug('key ', e);
-
-      const keyHandler = new TabFilesSelectionKeyHandler(tab, visibleListRange.current - 1); // ヘッダーがあるので -1
-      if (keyHandler.handleKey(e)) return;
-
-      const keyHandlerDir = new TabFilesDirWalkerKeyHandler(tab);
-      if (keyHandlerDir.handleKey(e)) return;
+      if (
+        tabFiles_handleKey(
+          e,
+          tab,
+          visibleListRange.current - 1, // ヘッダーがあるので -1
+          virtuoso.current
+        )
+      )
+        return;
     };
 
     window.addEventListener('keydown', handler);
@@ -83,25 +84,21 @@ export default function FileList() {
   }); // 初回だけ実行する
 
   // スクロール位置調整
-  const scrollLevel = useScrollToFocusState(state => state.scrollLevel);
+  const doScroll = useScrollToFocusState(state => state.doScroll);
   const setScroll = useScrollToFocusState(state => state.setScroll);
   useEffect(() => {
-    if (scrollLevel !== ScrollLevel.No) {
-      function scr() {
-        const tab = st().getCurrentTab();
-        virtuoso.current?.scrollIntoView({
-          index: st().getSelection(tab.id).focusIndex + 1, // ヘッダーがあるので +1
-        });
-      }
-
-      scr();
-      if (scrollLevel === ScrollLevel.Lazy) {
-        // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
-        setTimeout(() => scr(), 100);
-      }
-      setScroll(ScrollLevel.No);
+    if (!doScroll) return;
+    function scr() {
+      const tab = st().getCurrentTab();
+      virtuoso.current?.scrollIntoView({
+        index: st().getSelection(tab.id).focusIndex + 1, // ヘッダーがあるので +1
+      });
     }
-  }, [scrollLevel, setScroll]); // スクロールが指示されたら実行する
+
+    // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
+    setTimeout(() => scr(), 100);
+    setScroll(false);
+  }, [doScroll, setScroll]); // スクロールが指示されたら実行する
 
   const dirEntries = tab.dirEntries;
   // console.debug(`<FileList> dirEntries: [${dirEntries?.length}]`)
@@ -118,18 +115,12 @@ export default function FileList() {
             totalCount={dirEntries.length + 1}
             topItemCount={1}
             rangeChanged={handleRangeChanged}
-            itemContent={(index) => {
+            itemContent={index => {
               if (index === 0) {
                 return <FileListHeader />;
               } else {
                 const fileIndex = index - 1;
-                return (
-                  <FileListRow
-                    tab={tab}
-                    fileIndex={fileIndex}
-                    dirEntry={dirEntries[fileIndex]}
-                  />
-                );
+                return <FileListRow tab={tab} fileIndex={fileIndex} dirEntry={dirEntries[fileIndex]} />;
               }
             }}
           />

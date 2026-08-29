@@ -1,4 +1,4 @@
-import { useTabStore } from "@/store/tab/store";
+import { useTabStore } from '@/store/tab/store';
 
 export function StatusBar() {
   const tabs = useTabStore(state => state.tabs);
@@ -6,7 +6,7 @@ export function StatusBar() {
   if (tabs.length === 0) {
     return <div></div>;
   } else {
-    return <NormalStatusBar />
+    return <NormalStatusBar />;
   }
 }
 

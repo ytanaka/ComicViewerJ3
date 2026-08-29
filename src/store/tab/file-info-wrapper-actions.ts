@@ -1,6 +1,6 @@
-import { FileInfo } from "@/lib/bindings";
-import { FileInfoWrapper, TabId } from "./types";
-import { TabStore } from "./store";
+import { FileInfo } from '@/lib/bindings';
+import { FileInfoWrapper, TabId } from './types';
+import { TabStore } from './store';
 
 export interface FileInfoWrapperActions {
   clearFileInfos: (tabId: TabId) => void;
@@ -16,7 +16,7 @@ export interface FileInfoWrapperActions {
 
 export const createFileInfoWrapperActions = (
   set: (fn: (state: TabStore) => Partial<TabStore>) => void,
-  get: () => TabStore,
+  get: () => TabStore
 ): FileInfoWrapperActions => ({
   clearFileInfos: (tabId: TabId) => {
     delete get().fileInfos[tabId];
@@ -43,10 +43,10 @@ export const createFileInfoWrapperActions = (
         ...state.fileInfos,
         [tabId]: {
           ...state.fileInfos[tabId],
-          [index]: wrapper
-        }
-      }
-    }))
+          [index]: wrapper,
+        },
+      },
+    }));
   },
 
   getFileInfo: (tabId: TabId, index: number) => {
@@ -57,9 +57,9 @@ export const createFileInfoWrapperActions = (
   },
 
   setFileInfo: (tabId: TabId, index: number, fileInfo: FileInfo) => {
-    get().setFileInfoWrapper(tabId, index, { fileInfo })
+    get().setFileInfoWrapper(tabId, index, { fileInfo });
   },
   setFileInfoErrorMsg: (tabId: TabId, index: number, errorMsg: string) => {
-    get().setFileInfoWrapper(tabId, index, { errorMsg })
+    get().setFileInfoWrapper(tabId, index, { errorMsg });
   },
 });

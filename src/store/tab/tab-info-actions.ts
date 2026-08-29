@@ -1,7 +1,7 @@
-import { DirEntry } from "@/lib/bindings";
-import { TabId, TabInfo } from "./types";
-import { TabStore } from "./store";
-import { ScrollLevel, useScrollToFocusState } from "../scroll-to-focus-state";
+import { DirEntry } from '@/lib/bindings';
+import { TabId, TabInfo } from './types';
+import { TabStore } from './store';
+import { useScrollToFocusState } from '../scroll-to-focus-state';
 
 export interface TabInfoActions {
   setPath: (tabId: TabId, path: string) => void;
@@ -14,10 +14,10 @@ export interface TabInfoActions {
 
 export const createTabInfoActions = (
   set: (fn: (state: TabStore) => Partial<TabStore>) => void,
-  get: () => TabStore,
+  get: () => TabStore
 ): TabInfoActions => ({
   setPath: (tabId: TabId, path: string) => {
-    get().updateTab(tabId, (tab) => {
+    get().updateTab(tabId, tab => {
       tab.path = path;
       tab.dirEntries = undefined;
       tab.errorMsg = undefined;
@@ -48,17 +48,17 @@ export const createTabInfoActions = (
       }
     }
 
-    get().updateTab(tabId, (tab) => {
+    get().updateTab(tabId, tab => {
       tab.dirEntries = list;
       tab.errorMsg = undefined;
     });
     get().clearFileInfos(tabId);
     get().setSelection(tabId, sel);
-    useScrollToFocusState.getState().setScroll(ScrollLevel.Lazy); // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
+    useScrollToFocusState.getState().setScroll(true); // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
   },
 
   setErrorMsg: (tabId: TabId, msg: string) => {
-    get().updateTab(tabId, (tab) => {
+    get().updateTab(tabId, tab => {
       tab.errorMsg = msg;
       tab.dirEntries = [];
     });

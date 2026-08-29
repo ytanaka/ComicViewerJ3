@@ -1,5 +1,5 @@
-import { TabStore } from "./store";
-import { FileFocusHistory, FileId, FileInfoWrapper, FileSelection, mkFileSelection, TabId, TabInfo } from "./types";
+import { TabStore } from './store';
+import { FileFocusHistory, FileId, FileInfoWrapper, FileSelection, mkFileSelection, TabId, TabInfo } from './types';
 
 export interface AllTabsActions {
   setCurrentTabIndex: (index: number) => void;
@@ -15,14 +15,14 @@ export interface AllTabsActions {
 
 export const createAllTabsActions = (
   set: (fn: (state: TabStore) => Partial<TabStore>) => void,
-  get: () => TabStore,
+  get: () => TabStore
 ): AllTabsActions => ({
   setCurrentTabIndex: (index: number) => {
-    set((state) => {
+    set(state => {
       if (index < 0 || (index !== 0 && state.tabs.length <= index))
         throw Error(`setCurrentTabIndex(): invalid tab index: ${index}`);
       return { currentTabIndex: index };
-    })
+    });
   },
 
   getTab: (tabId: TabId) => {
@@ -41,18 +41,22 @@ export const createAllTabsActions = (
   initTabs: (tabs: TabInfo[], focusHistories: Record<number, FileFocusHistory>) => {
     set(() => {
       const fileInfos: Record<TabId, Record<FileId, FileInfoWrapper>> = {};
-      tabs.forEach(t => { fileInfos[t.id] = {} });
+      tabs.forEach(t => {
+        fileInfos[t.id] = {};
+      });
 
-      const selections: Record<TabId, FileSelection> = {}
-      tabs.forEach(t => { selections[t.id] = mkFileSelection() });
+      const selections: Record<TabId, FileSelection> = {};
+      tabs.forEach(t => {
+        selections[t.id] = mkFileSelection();
+      });
 
       return {
         tabs: [...tabs],
         fileInfos,
         selections,
         focusHistories: { ...focusHistories },
-      }
-    })
+      };
+    });
   },
 
   // ※ カレントタブは追加されたタブに移る

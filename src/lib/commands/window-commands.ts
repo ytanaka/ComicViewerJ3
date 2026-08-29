@@ -6,7 +6,6 @@ import { commands } from '../bindings';
 import { tabCommands } from './tab-commands';
 import { useTabStore } from '@/store/tab/store';
 
-
 export const windowCommands = {
   async exitApp() {
     const window = getCurrentWindow();

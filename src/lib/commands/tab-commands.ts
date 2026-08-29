@@ -2,11 +2,13 @@ import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { commands } from '../bindings';
-import { ScrollLevel, useScrollToFocusState } from '@/store/scroll-to-focus-state';
+import { useScrollToFocusState } from '@/store/scroll-to-focus-state';
 import { useTabStore } from '@/store/tab/store';
 import { mkTabInfo, TabId } from '@/store/tab/types';
 
-function st() { return useTabStore.getState(); }
+function st() {
+  return useTabStore.getState();
+}
 
 export const tabCommands = {
   async addTab() {
@@ -48,7 +50,7 @@ export const tabCommands = {
 
   setCurrentTabIndex(index: number) {
     st().setCurrentTabIndex(index);
-    useScrollToFocusState.getState().setScroll(ScrollLevel.Lazy);
+    useScrollToFocusState.getState().setScroll(true);
   },
 
   setCurrentTabNextPrev(inc: number) {

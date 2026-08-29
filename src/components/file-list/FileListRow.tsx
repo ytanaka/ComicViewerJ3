@@ -10,8 +10,8 @@ import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { TabInfo } from '@/store/tab/types';
 import { logic } from '@/lib/bindings-helper';
-import { TabFilesMouseHandler } from '@/lib/tab-files-key-handler';
 import { getObjId } from '@/lib/utils';
+import { tabFiles_handleMouse } from '@/lib/tab-files-key-handler';
 
 function useHeaderSize(n: FileListHeaderN): number {
   const sizes = useUiState(state => state.fileListHeaderSizes);
@@ -85,15 +85,7 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   );
 }
 
-export function FileListRow({
-  tab,
-  fileIndex,
-  dirEntry,
-}: {
-  tab: TabInfo;
-  fileIndex: number;
-  dirEntry: DirEntry;
-}) {
+export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
   const wrapper = useTabStore(state => state.getFileInfoWrapper(tab.id, fileIndex));
   const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
 
@@ -102,16 +94,19 @@ export function FileListRow({
       if (!wrapper.errorMsg && !wrapper.fileInfo) {
         await logic.readFileInfo(tab.id, fileIndex);
       }
-    }
+    };
     read();
-  }, [fileIndex, tab.id, wrapper.errorMsg, wrapper.fileInfo])
+  }, [fileIndex, tab.id, wrapper.errorMsg, wrapper.fileInfo]);
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
-    new TabFilesMouseHandler(tab).handle(fileIndex, e);
-  };
+    tabFiles_handleMouse(e, tab, fileIndex);
+  }
 
-  if (fileIndex === 0) console.debug(`<FileListRow> tabId:${tab.id} file:${dirEntry.name} wrap:${getObjId(wrapper)}`);
+  if (fileIndex === 0)
+    console.debug(
+      `<FileListRow> tabId:${tab.id} file:${dirEntry.name} ent:${getObjId(dirEntry)} wrap:${getObjId(wrapper)}`
+    );
 
   const fileInfo = wrapper.fileInfo;
   const bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';

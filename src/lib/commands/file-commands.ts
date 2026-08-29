@@ -1,7 +1,9 @@
 import { useTabStore } from '@/store/tab/store';
 import { resolve as tauri_resolve, dirname as tauri_dirname } from '@tauri-apps/api/path';
 
-function st() { return useTabStore.getState(); }
+function st() {
+  return useTabStore.getState();
+}
 
 export const fileCommands = {
   async moveToParentDir() {

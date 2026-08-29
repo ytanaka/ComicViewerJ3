@@ -52,6 +52,7 @@ fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
 #[specta::specta]
 /// タブ一覧
 pub fn get_tab_ids(state: State<'_, AppState>) -> Vec<TabId> {
+    log::trace!("get_tab_ids()");
     get_tab_ids_impl(&state)
 }
 fn get_tab_ids_impl(state: &AppState) -> Vec<TabId> {

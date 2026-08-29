@@ -1,5 +1,5 @@
-import { TabStore } from "./store";
-import { FileSelection, mkFileSelection, TabId } from "./types";
+import { TabStore } from './store';
+import { FileSelection, mkFileSelection, TabId } from './types';
 
 export interface FileSelectionActions {
   getSelection: (tabId: TabId) => FileSelection;
@@ -16,7 +16,7 @@ export interface FileSelectionActions {
 
 export const createFileSelectionActions = (
   set: (fn: (state: TabStore) => Partial<TabStore>) => void,
-  get: () => TabStore,
+  get: () => TabStore
 ): FileSelectionActions => ({
   getSelection: (tabId: TabId) => {
     let ret = get().selections[tabId];
@@ -31,9 +31,9 @@ export const createFileSelectionActions = (
     set(state => ({
       selections: {
         ...state.selections,
-        [tabId]: sel
-      }
-    }))
+        [tabId]: sel,
+      },
+    }));
   },
 
   // ↑↓で普通にフォーカス移動、マウスクリックでファイル選択
