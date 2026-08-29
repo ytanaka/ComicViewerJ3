@@ -7,6 +7,7 @@ export interface TabStoreActions {
   getTab: (tabId: TabId) => TabInfo;
   getCurrentTab: () => TabInfo;
   initTabs: (tabs: TabInfo[], focusHistories: Record<number, FileFocusHistory>) => void;
+  existsTabId: (tabId: TabId) => boolean;
 
   addTab: (tab: TabInfo) => void;
   moveTab: (fromIndex: number, toIndex: number) => void;
@@ -57,6 +58,10 @@ export const createAllTabsActions = (
         focusHistories: { ...focusHistories },
       };
     });
+  },
+
+  existsTabId: (tabId: TabId) => {
+    return 0 <= get().tabs.findIndex(t => t.id === tabId);
   },
 
   // ※ カレントタブは追加されたタブに移る

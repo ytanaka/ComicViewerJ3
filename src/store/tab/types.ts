@@ -21,6 +21,7 @@ export interface TabInfo {
   dirEntries?: DirEntry[];
   errorMsg?: string;
   execExclusive: ExecExclusibe;
+  refreshCount: number;
 }
 export interface FileInfoWrapper {
   fileInfo?: FileInfo;
@@ -42,11 +43,16 @@ export interface HistElm {
 
 // =====================================================================================================================
 
-export function mkTabInfo(id: TabId, path: string) {
-  return { id, path, execExclusive: new ExecExclusibe() };
+export function mkTabInfo(id: TabId, path: string): TabInfo {
+  return {
+    id,
+    path,
+    execExclusive: new ExecExclusibe(),
+    refreshCount: 0,
+  };
 }
 
-export function mkFileSelection() {
+export function mkFileSelection(): FileSelection {
   return {
     focusIndex: 0,
     anchorIndex: 0,

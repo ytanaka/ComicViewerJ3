@@ -45,7 +45,10 @@ export const useTabStore = create<TabStore>()(
       partialize: state => {
         return {
           currentTabIndex: state.currentTabIndex,
-          tabs: state.tabs.map(t => ({ id: t.id, path: t.path })),
+          tabs: state.tabs.map(t => ({
+            id: t.id,
+            path: t.path
+          })),
           focusHistories: state.focusHistories,
         };
       },
@@ -56,6 +59,7 @@ export const useTabStore = create<TabStore>()(
           for (let i = 0; i < state.tabs.length; i++) {
             state.tabs[i].id = state.tabs[i].id * -1;
             state.tabs[i].execExclusive = new ExecExclusibe();
+            state.tabs[i].refreshCount = 0;
           }
           state.fileInfos = {};
           state.selections = {};

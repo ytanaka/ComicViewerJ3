@@ -24,11 +24,14 @@ export function tabFiles_handleKey(
   let newIndex: number | null = null;
 
   const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
-  const CTRL = C && !S && !A;
-  const SHIFT = !C && S && !A;
+  const CTRL_ONLY = C && !S && !A;
+  const SHIFT_ONLY = !C && S && !A;
   const NO_MOD = !C && !S && !A;
+  const keyLow = e.key.toLowerCase();
 
+  // -------------------------------------------------------------------------------------------------------------------
   // フォーカス移動
+  // -------------------------------------------------------------------------------------------------------------------
   if (e.key === 'ArrowDown') {
     newIndex = focus + 1;
   } else if (e.key === 'ArrowUp') {
@@ -48,9 +51,9 @@ export function tabFiles_handleKey(
     index = Math.max(index, 0);
     if (NO_MOD) {
       st().moveFocusNormal(tab.id, index as number);
-    } else if (CTRL) {
+    } else if (CTRL_ONLY) {
       st().moveFocusOnly(tab.id, index as number);
-    } else if (SHIFT) {
+    } else if (SHIFT_ONLY) {
       st().moveFocusWithSelectionArea(tab.id, index as number);
     }
     e.preventDefault();
@@ -61,21 +64,27 @@ export function tabFiles_handleKey(
     return true;
   }
 
-  // 選択ON/OFF
-  if (CTRL && e.key === ' ') {
+  // -------------------------------------------------------------------------------------------------------------------
+  // 1ファイルの選択ON/OFF
+  // -------------------------------------------------------------------------------------------------------------------
+  if (CTRL_ONLY && e.key === ' ') {
     st().toggleSelection(tab.id, focus);
     e.preventDefault();
     return true;
   }
 
+  // -------------------------------------------------------------------------------------------------------------------
   // 全選択切替
-  if (CTRL && e.key === 'a') {
+  // -------------------------------------------------------------------------------------------------------------------
+  if (CTRL_ONLY && keyLow === 'a') {
     st().toggleAllSelection(tab.id);
     e.preventDefault();
     return true;
   }
 
+  // -------------------------------------------------------------------------------------------------------------------
   // ディレクトリ移動
+  // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && e.key === 'Enter') {
     const sel = st().getSelection(tab.id);
     const info = st().getFileInfo(tab.id, sel.focusIndex);
@@ -90,6 +99,15 @@ export function tabFiles_handleKey(
     e.preventDefault();
     return true;
   }
+
+  // -------------------------------------------------------------------------------------------------------------------
+  // ファイル検索
+  // -------------------------------------------------------------------------------------------------------------------
+  // if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
+  //   const romaji = useSearchTextStore.getState().text;
+  //   if (romaji.length !== 0)
+  //   await commands.searchNextFilename(tab.id, focus, romaji)
+  // }
 
   return false;
 }

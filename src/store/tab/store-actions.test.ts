@@ -7,7 +7,12 @@ function st() {
 }
 
 function addTab(id: number, path: string) {
-  st().addTab({ id, path, execExclusive: new ExecExclusibe() });
+  st().addTab({
+    id,
+    path,
+    execExclusive: new ExecExclusibe(),
+    refreshCount: 0,
+  });
 }
 
 function add3tabs() {
@@ -51,11 +56,11 @@ describe('addTab', () => {
   });
 
   test('カレントタブは最後に追加されたタブになる', () => {
-    st().addTab({ id: 1, path: "a", execExclusive: new ExecExclusibe() });
+    addTab(1, "a");
     expect(st().currentTabIndex).toBe(0);
-    st().addTab({ id: 2, path: "b", execExclusive: new ExecExclusibe() });
+    addTab(2, "b");
     expect(st().currentTabIndex).toBe(1);
-    st().addTab({ id: 3, path: "c", execExclusive: new ExecExclusibe() });
+    addTab(3, "c");
     expect(st().currentTabIndex).toBe(2);
   })
 });

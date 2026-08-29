@@ -6,6 +6,14 @@ function st() {
   return useTabStore.getState();
 }
 
+export function checkCommandResult<T, E>(comment: string, result: { status: "ok"; data: T } | { status: "error"; error: E }): T | null {
+  if (result.status === 'error') {
+    console.error(`command[${comment}] error: ${result.error}`)
+    return null;
+  }
+  return result.data;
+}
+
 export const logic = {
   // ローカルストレージから復元した TabStore データを修正する
   async fixTabStore_from_FromLocalStrage() {

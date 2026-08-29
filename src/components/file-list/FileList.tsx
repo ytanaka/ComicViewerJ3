@@ -75,7 +75,7 @@ export default function FileList() {
       }
 
       // ファイル検索テキスト入力
-      if (fileSearchInput_handleKey(e)) {
+      if (fileSearchInput_handleKey(e, virtuoso.current)) {
         return;
       }
 

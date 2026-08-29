@@ -51,6 +51,7 @@ export const createTabInfoActions = (
     get().updateTab(tabId, tab => {
       tab.dirEntries = list;
       tab.errorMsg = undefined;
+      tab.refreshCount = tab.refreshCount + 1;
     });
     get().clearFileInfoWrapper(tabId);
     get().setSelection(tabId, sel);
