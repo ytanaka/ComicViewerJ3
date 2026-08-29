@@ -53,10 +53,10 @@ export function tabFiles_handleKey(
     } else if (SHIFT) {
       st().moveFocusWithSelectionArea(tab.id, index as number);
     }
-    // useScrollToFocusState.getState().setScroll(ScrollLevel.Normal);
     e.preventDefault();
     if (virtuoso) {
-      virtuoso.scrollIntoView({ index: index + 1 });
+      // ヘッダーがあるので +1 する (※ 先頭行にうまくスクロールできないので、強制的に 0 にする)
+      virtuoso.scrollIntoView({ index: index === 0 ? 0 : index + 1 });
     }
     return true;
   }
