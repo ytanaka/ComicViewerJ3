@@ -48,6 +48,10 @@ impl TextMatcher {
         self.tx.send(list).unwrap();
     }
 
+    fn has_cache(&self, s: &str) -> bool {
+        self.yomi_cache.get(s).is_some()
+    }
+
     fn get_cache(&self, s: &str) -> Arc<SplStr> {
         let ret = self.put_cache(s);
         ret.1
@@ -84,7 +88,7 @@ impl TextMatcher {
         }
 
         // 正規化した文字列に対して単純検索 (アルファベットや数字に一致するかも)
-        if let Some(n) = vstr.get_normalized_str().find(input_normalized) {
+        if let Some(_) = vstr.get_normalized_str().find(input_normalized) {
             return Some((0, vstr.get_org_str().len()));
         }
 

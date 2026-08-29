@@ -51,7 +51,7 @@ impl AppState {
 
         state.text_matcher.get_or_init(|| TextMatcher::new(&state));
     }
-    pub fn isInitialized(&self) -> bool {
+    pub fn is_initialized(&self) -> bool {
         self.text_matcher.get().is_some()
     }
 

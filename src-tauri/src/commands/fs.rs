@@ -95,7 +95,7 @@ fn read_dir_entries_impl(
 
     // 形態素解析する
     let names: Vec<_> = ret.iter().map(|f| f.name.to_string()).collect();
-    if state.isInitialized() {
+    if state.is_initialized() {
         state.text_matcher.get().unwrap().send_to_worker(names);
     }
 
