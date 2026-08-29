@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../ui/resizable';
 
-import { useUiState } from '@/store/ui-state';
+import { useUiStore } from '@/store/ui-store';
 
 export function FileListHeader() {
-  const sizes = useUiState(state => state.fileListHeaderSizes);
-  const setFileListHeaderSize = useUiState(state => state.setFileListHeaderSizes);
+  const sizes = useUiStore(state => state.fileListHeaderSizes);
+  const setFileListHeaderSize = useUiStore(state => state.setFileListHeaderSizes);
 
   const refList = useRef<(HTMLDivElement | null)[]>([]);
   const titles = ['', '名前', '拡張子', 'サイズ', '更新日時'];

@@ -5,7 +5,7 @@ import { path } from '@tauri-apps/api';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 import { DirEntry, FileInfo } from '@/lib/bindings';
-import { FileListHeaderN, useUiState } from '@/store/ui-state';
+import { FileListHeaderN, useUiStore } from '@/store/ui-store';
 import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { TabInfo } from '@/store/tab/types';
@@ -14,7 +14,7 @@ import { getObjId } from '@/lib/utils';
 import { tabFiles_handleMouse } from '@/lib/tab-files-key-handler';
 
 function useHeaderSize(n: FileListHeaderN): number {
-  const sizes = useUiState(state => state.fileListHeaderSizes);
+  const sizes = useUiStore(state => state.fileListHeaderSizes);
   return sizes[n];
 }
 

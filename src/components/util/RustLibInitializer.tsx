@@ -1,10 +1,10 @@
 import { commands } from '@/lib/bindings';
-import { useUiState } from '@/store/ui-state';
+import { useUiStore } from '@/store/ui-store';
 import { ReactNode, useEffect } from 'react';
 
 export function RustLibInitializer({ children }: { children: ReactNode }) {
-  const appInitialized = useUiState(state => state.appInitialized);
-  const setAppInitialized = useUiState(state => state.setAppInitialized);
+  const appInitialized = useUiStore(state => state.appInitialized);
+  const setAppInitialized = useUiStore(state => state.setAppInitialized);
 
   useEffect(() => {
     const init = async () => {

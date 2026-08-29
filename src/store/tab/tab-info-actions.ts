@@ -1,7 +1,7 @@
 import { DirEntry } from '@/lib/bindings';
 import { TabId, TabInfo } from './types';
 import { TabStore } from './store';
-import { useScrollToFocusState } from '../scroll-to-focus-state';
+import { useScrollToFocusStore } from '../scroll-to-focus-store';
 
 export interface TabInfoActions {
   setPath: (tabId: TabId, path: string) => void;
@@ -54,7 +54,7 @@ export const createTabInfoActions = (
     });
     get().clearFileInfoWrapper(tabId);
     get().setSelection(tabId, sel);
-    useScrollToFocusState.getState().setScroll(true); // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
+    useScrollToFocusStore.getState().setScroll(true); // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
   },
 
   setErrorMsg: (tabId: TabId, msg: string) => {

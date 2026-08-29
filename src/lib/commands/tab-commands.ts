@@ -2,7 +2,7 @@ import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { commands } from '../bindings';
-import { useScrollToFocusState } from '@/store/scroll-to-focus-state';
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { mkTabInfo, TabId } from '@/store/tab/types';
 
@@ -40,7 +40,7 @@ export const tabCommands = {
     console.info(`tabCommands.removeTab(${id})`);
     st().removeTab(id);
     await commands.removeTab(id);
-    useScrollToFocusState.getState().setScroll(true);
+    useScrollToFocusStore.getState().setScroll(true);
   },
 
   async removeCurrentTab() {
@@ -51,7 +51,7 @@ export const tabCommands = {
 
   setCurrentTabIndex(index: number) {
     st().setCurrentTabIndex(index);
-    useScrollToFocusState.getState().setScroll(true);
+    useScrollToFocusStore.getState().setScroll(true);
   },
 
   setCurrentTabNextPrev(inc: number) {

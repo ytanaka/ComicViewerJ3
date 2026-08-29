@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/menubar';
 
 import { AppHotkey, AppMenuItem, menuItems } from '@/lib/menu-items';
-import { useFocusState } from '@/store/focus-state';
+import { useFocusStore } from '@/store/focus-store';
 
 function MyHotkey({ k }: { k: AppHotkey }) {
   return (
@@ -51,7 +51,7 @@ function MyMenuItem({ m }: { m: AppMenuItem }) {
 }
 
 export function Menu() {
-  const setFocus = useFocusState(state => state.setFocus);
+  const setFocus = useFocusStore(state => state.setFocus);
 
   function handleOpenChange(open: boolean) {
     if (!open) setFocus();

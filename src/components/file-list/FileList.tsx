@@ -6,7 +6,7 @@ import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
-import { useScrollToFocusState } from '@/store/scroll-to-focus-state';
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { logic } from '@/lib/bindings-helper';
 import { tabFiles_handleKey } from '@/lib/tab-files-key-handler';
@@ -84,8 +84,8 @@ export default function FileList() {
   }); // 初回だけ実行する
 
   // スクロール位置調整
-  const doScroll = useScrollToFocusState(state => state.doScroll);
-  const setScroll = useScrollToFocusState(state => state.setScroll);
+  const doScroll = useScrollToFocusStore(state => state.doScroll);
+  const setScroll = useScrollToFocusStore(state => state.setScroll);
   useEffect(() => {
     if (!doScroll) return;
     function scr() {
