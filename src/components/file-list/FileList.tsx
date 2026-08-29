@@ -10,6 +10,7 @@ import { useScrollToFocusState } from '@/store/scroll-to-focus-state';
 import { useTabStore } from '@/store/tab/store';
 import { logic } from '@/lib/bindings-helper';
 import { tabFiles_handleKey } from '@/lib/tab-files-key-handler';
+import { errToStr } from '@/lib/string-util';
 
 function st() {
   return useTabStore.getState();
@@ -35,10 +36,14 @@ export default function FileList() {
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
     const setHist = async () => {
-      const parent = await tauri_dirname(tab.path);
-      if (!st().findHistory(tab.id, parent)) {
-        const base = await tauri_basename(tab.path);
-        st().pushHistory(tab.id, parent, base);
+      try {
+        const parent = await tauri_dirname(tab.path);
+        if (!st().findHistory(tab.id, parent)) {
+          const base = await tauri_basename(tab.path);
+          st().pushHistory(tab.id, parent, base);
+        }
+      } catch (e) {
+        console.debug(`<FileList> setHist() error path=${tab.path}`, errToStr(e));
       }
     };
     setHist();

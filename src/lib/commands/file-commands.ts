@@ -1,5 +1,6 @@
 import { useTabStore } from '@/store/tab/store';
 import { resolve as tauri_resolve, dirname as tauri_dirname } from '@tauri-apps/api/path';
+import { errToStr } from '../string-util';
 
 function st() {
   return useTabStore.getState();
@@ -12,7 +13,7 @@ export const fileCommands = {
       const parent = await tauri_dirname(path);
       this.movePath(parent);
     } catch (e) {
-      console.warn(`fileCommands.moveParentDir(): current = ${path}, error = ${e}`);
+      console.debug(`fileCommands.moveParentDir(): current = ${path}, error = ${errToStr(e)}`);
       return;
     }
   },

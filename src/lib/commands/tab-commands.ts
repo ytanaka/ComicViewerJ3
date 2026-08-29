@@ -40,6 +40,7 @@ export const tabCommands = {
     console.info(`tabCommands.removeTab(${id})`);
     st().removeTab(id);
     await commands.removeTab(id);
+    useScrollToFocusState.getState().setScroll(true);
   },
 
   async removeCurrentTab() {
