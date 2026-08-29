@@ -16,15 +16,19 @@ export interface UiStore {
   // FileListのヘッダーサイズ
   fileListHeaderSizes: number[];
 
-  setAppInitialized: () => void;
+  // ファイル検索テキスト入力のタイムアウト
+  fileSearchInputTimeoutMs: number;
 
+  setAppInitialized: () => void;
   setFileListHeaderSizes: (sizes: number[]) => void;
+  setFileSearchInputTimeoutMs: (ms: number) => void;
 }
 
 export const useUiStore = create<UiStore>()(persist((set) => (
   {
     appInitialized: false,
     fileListHeaderSizes: [35, 500, 100, 120, 180],
+    fileSearchInputTimeoutMs: 1000,
 
     setAppInitialized: () => {
       set(() => {
@@ -37,12 +41,17 @@ export const useUiStore = create<UiStore>()(persist((set) => (
         return { fileListHeaderSizes: sizes };
       });
     },
+
+    setFileSearchInputTimeoutMs: (ms: number) => {
+      set(() => ({ fileSearchInputTimeoutMs: ms }))
+    },
   }),
   {
     name: 'ui-state',
     partialize: state => {
       return {
         fileListHeaderSizes: state.fileListHeaderSizes,
+        fileSearchInputTimeoutMs: state.fileSearchInputTimeoutMs,
       };
     },
   })

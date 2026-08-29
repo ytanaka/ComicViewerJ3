@@ -1,16 +1,17 @@
 import { useEffect, useRef } from 'react';
-
-import { getCurrentWindow } from '@tauri-apps/api/window';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+
+import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
-import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { logic } from '@/lib/bindings-helper';
 import { tabFiles_handleKey } from '@/lib/tab-files-key-handler';
 import { errToStr } from '@/lib/string-util';
+import { fileSearchInput_handleKey } from '@/lib/file-search-input-key-handler';
 
 function st() {
   return useTabStore.getState();
@@ -70,6 +71,11 @@ export default function FileList() {
       const delay = performance.now() - e.timeStamp;
       if (100 < delay) {
         console.info('ignore keyboard event');
+        return;
+      }
+
+      // ファイル検索テキスト入力
+      if (fileSearchInput_handleKey(e)) {
         return;
       }
 

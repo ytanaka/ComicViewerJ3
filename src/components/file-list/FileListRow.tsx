@@ -10,7 +10,6 @@ import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { TabInfo } from '@/store/tab/types';
 import { logic } from '@/lib/bindings-helper';
-import { getObjId } from '@/lib/utils';
 import { tabFiles_handleMouse } from '@/lib/tab-files-key-handler';
 
 function useHeaderSize(n: FileListHeaderN): number {
@@ -104,10 +103,7 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
     tabFiles_handleMouse(e, tab, fileIndex);
   }
 
-  if (fileIndex === 0)
-    console.debug(
-      `<FileListRow> tabId:${tab.id} file:${dirEntry.name} ent:${getObjId(dirEntry)} wrap:${getObjId(wrapper)}`
-    );
+  if (fileIndex === 0) console.debug(`<FileListRow> tabId:${tab.id} file:${dirEntry.name}`);
 
   const fileInfo = wrapper.fileInfo;
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
