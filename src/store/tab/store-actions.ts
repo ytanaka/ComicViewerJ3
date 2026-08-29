@@ -1,7 +1,7 @@
 import { TabStore } from './store';
 import { FileFocusHistory, FileId, FileInfoWrapper, FileSelection, mkFileSelection, TabId, TabInfo } from './types';
 
-export interface AllTabsActions {
+export interface TabStoreActions {
   setCurrentTabIndex: (index: number) => void;
 
   getTab: (tabId: TabId) => TabInfo;
@@ -16,7 +16,7 @@ export interface AllTabsActions {
 export const createAllTabsActions = (
   set: (fn: (state: TabStore) => Partial<TabStore>) => void,
   get: () => TabStore
-): AllTabsActions => ({
+): TabStoreActions => ({
   setCurrentTabIndex: (index: number) => {
     set(state => {
       if (index < 0 || (index !== 0 && state.tabs.length <= index))

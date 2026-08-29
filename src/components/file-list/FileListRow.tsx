@@ -88,6 +88,7 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
   const wrapper = useTabStore(state => state.getFileInfoWrapper(tab.id, fileIndex));
   const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
+  const isFocused = useTabStore(state => state.getSelection(tab.id).focusIndex === fileIndex);
 
   useEffect(() => {
     const read = async () => {
@@ -109,8 +110,9 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
     );
 
   const fileInfo = wrapper.fileInfo;
-  const bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
-  const border = isSelected && 'border-dashed border dark:border-white border-black';
+  let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
+  if (isSelected) bg = 'bg-blue-500';
+  const border = isFocused && 'border-dashed border dark:border-white border-black';
   const baseComponent = (
     <div
       className={`${bg} ${border} flex w-full pl-1.5 pr-1.5 h-6`}

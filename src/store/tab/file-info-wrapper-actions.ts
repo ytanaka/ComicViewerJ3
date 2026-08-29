@@ -3,7 +3,7 @@ import { FileInfoWrapper, TabId } from './types';
 import { TabStore } from './store';
 
 export interface FileInfoWrapperActions {
-  clearFileInfos: (tabId: TabId) => void;
+  clearFileInfoWrapper: (tabId: TabId) => void;
 
   getFileInfoWrapper: (tabId: TabId, index: number) => FileInfoWrapper;
   setFileInfoWrapper: (tabId: TabId, index: number, wrapper: FileInfoWrapper) => void;
@@ -18,7 +18,7 @@ export const createFileInfoWrapperActions = (
   set: (fn: (state: TabStore) => Partial<TabStore>) => void,
   get: () => TabStore
 ): FileInfoWrapperActions => ({
-  clearFileInfos: (tabId: TabId) => {
+  clearFileInfoWrapper: (tabId: TabId) => {
     delete get().fileInfos[tabId];
   },
 

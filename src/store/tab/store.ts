@@ -3,13 +3,13 @@ import { persist } from 'zustand/middleware';
 
 import { AllTabs } from './types';
 import { createTabInfoActions, TabInfoActions } from './tab-info-actions';
-import { AllTabsActions, createAllTabsActions } from './all-tabs-actions';
+import { TabStoreActions, createAllTabsActions } from './store-actions';
 import { createFileInfoWrapperActions, FileInfoWrapperActions } from './file-info-wrapper-actions';
 import { createFileSelectionActions, FileSelectionActions } from './file-selection-actions';
 import { createFileFocusHistoryActions, FileFocusHistoryActions } from './file-focus-history-actions';
 import { ExecExclusibe } from '@/lib/utils';
 
-export type TabActions = AllTabsActions &
+export type TabActions = TabStoreActions &
   TabInfoActions &
   FileInfoWrapperActions &
   FileSelectionActions &

@@ -52,7 +52,7 @@ export const createTabInfoActions = (
       tab.dirEntries = list;
       tab.errorMsg = undefined;
     });
-    get().clearFileInfos(tabId);
+    get().clearFileInfoWrapper(tabId);
     get().setSelection(tabId, sel);
     useScrollToFocusState.getState().setScroll(true); // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
   },

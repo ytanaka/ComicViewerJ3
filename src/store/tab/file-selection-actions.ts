@@ -31,7 +31,7 @@ export const createFileSelectionActions = (
     set(state => ({
       selections: {
         ...state.selections,
-        [tabId]: sel,
+        [tabId]: { ...sel },
       },
     }));
   },
