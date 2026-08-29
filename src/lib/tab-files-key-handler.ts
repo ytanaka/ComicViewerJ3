@@ -3,6 +3,8 @@ import React from 'react';
 import { TabInfo } from '@/store/tab/types';
 import { useTabStore } from '@/store/tab/store';
 import { VirtuosoHandle } from 'react-virtuoso';
+import { useSearchTextStore } from '@/store/file-search-text-store';
+import { searchCommands } from './commands/search-commands';
 
 function st() {
   return useTabStore.getState();
@@ -12,12 +14,12 @@ export function tabFiles_handleKey(
   e: KeyboardEvent,
   tab: TabInfo,
   pageNum: number,
-  virtuoso: VirtuosoHandle | null
+  virtuoso: VirtuosoHandle
 ): boolean {
   // キーボードによるリストのフォーカス移動ハンドラー
   // フォーカスが移動したら、true
   const sel = st().getSelection(tab.id);
-  const focus = sel.focusIndex;
+  const focusIndex = sel.focusIndex;
   const dirEntries = tab.dirEntries;
   if (dirEntries === undefined) return false;
 
@@ -33,13 +35,13 @@ export function tabFiles_handleKey(
   // フォーカス移動
   // -------------------------------------------------------------------------------------------------------------------
   if (e.key === 'ArrowDown') {
-    newIndex = focus + 1;
+    newIndex = focusIndex + 1;
   } else if (e.key === 'ArrowUp') {
-    newIndex = focus - 1;
+    newIndex = focusIndex - 1;
   } else if (e.key === 'PageDown') {
-    newIndex = focus + pageNum;
+    newIndex = focusIndex + pageNum;
   } else if (e.key === 'PageUp') {
-    newIndex = focus - pageNum;
+    newIndex = focusIndex - pageNum;
   } else if (e.key === 'Home') {
     newIndex = 0;
   } else if (e.key === 'End') {
@@ -57,10 +59,9 @@ export function tabFiles_handleKey(
       st().moveFocusWithSelectionArea(tab.id, index as number);
     }
     e.preventDefault();
-    if (virtuoso) {
-      // ヘッダーがあるので +1 する (※ 先頭行にうまくスクロールできないので、強制的に 0 にする)
-      virtuoso.scrollIntoView({ index: index === 0 ? 0 : index + 1 });
-    }
+    // ヘッダーがあるので +1 する (※ 先頭行にうまくスクロールできないので、強制的に 0 にする)
+    virtuoso.scrollIntoView({ index: index === 0 ? 0 : index + 1 });
+
     return true;
   }
 
@@ -68,7 +69,7 @@ export function tabFiles_handleKey(
   // 1ファイルの選択ON/OFF
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && e.key === ' ') {
-    st().toggleSelection(tab.id, focus);
+    st().toggleSelection(tab.id, focusIndex);
     e.preventDefault();
     return true;
   }
@@ -103,11 +104,15 @@ export function tabFiles_handleKey(
   // -------------------------------------------------------------------------------------------------------------------
   // ファイル検索
   // -------------------------------------------------------------------------------------------------------------------
-  // if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
-  //   const romaji = useSearchTextStore.getState().text;
-  //   if (romaji.length !== 0)
-  //   await commands.searchNextFilename(tab.id, focus, romaji)
-  // }
+  if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
+    const romaji = useSearchTextStore.getState().text;
+    if (romaji.length === 0) return false;
+    let startIndex = focusIndex + 1;
+    if (dirEntries.length <= startIndex) { startIndex = 0; }
+    searchCommands.searchNextFilename(tab, startIndex, romaji, virtuoso)
+    e.preventDefault();
+    return true;
+  }
 
   return false;
 }

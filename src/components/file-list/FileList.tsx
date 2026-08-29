@@ -67,6 +67,7 @@ export default function FileList() {
   // キー操作
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (virtuoso.current === null) return;
       // 遅延が発生していたらイベントを無視
       const delay = performance.now() - e.timeStamp;
       if (100 < delay) {

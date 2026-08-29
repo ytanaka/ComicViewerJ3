@@ -21,7 +21,7 @@ export const searchCommands = {
 
     debounceTimer = window.setTimeout(() => {
       trySearch(romaji, startIndex);
-    }, 300);
+    }, 100);
   },
 };
 
@@ -63,8 +63,20 @@ async function search(text: string, startIndex: number): Promise<number | null> 
   const newTab = useTabStore.getState().getTab(searchTab.id);
   if (newTab.refreshCount != searchTab.refreshCount) return null;
 
+  // 形態素解析途中
+  if (ret.type === 'FailNoCache') {
+    console.debug(`FailNoCache`);
+    return null;
+  }
+
+  // 一致しない
+  if (ret.type === 'FailNoMatch') {
+    console.debug(`FailNoMatch`);
+    return null;
+  }
+
   // 検索成功
-  console.debug(`search success: `, ret);
+  console.debug(`search success: ${text} =>`, ret);
   useTabStore.getState().moveFocusNormal(searchTab.id, ret.index);
   searchVirtuoso.scrollIntoView({ index: ret.index + 1 });
   return ret.index;

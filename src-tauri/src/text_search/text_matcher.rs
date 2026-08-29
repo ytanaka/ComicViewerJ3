@@ -48,7 +48,7 @@ impl TextMatcher {
         self.tx.send(list).unwrap();
     }
 
-    fn has_cache(&self, s: &str) -> bool {
+    pub fn has_cache(&self, s: &str) -> bool {
         self.yomi_cache.get(s).is_some()
     }
 

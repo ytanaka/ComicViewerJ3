@@ -27,11 +27,7 @@ export const commands = {
 	/**  ファイル一覧をソートする */
 	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
 	/**  ローマ字入力からファイル名をあいまい検索 */
-	searchNextFilename: (tabId: number, startIndex: number, romaji: string) => typedError<{
-	index: number,
-	name: string,
-	match_str: string,
-} | null, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji })),
+	searchNextFilename: (tabId: number, startIndex: number, romaji: string) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji })),
 };
 
 /* Types */
@@ -57,11 +53,13 @@ export type FileMetadata = {
 };
 
 /**  ファイル検索結果 */
-export type FileSearchResult = {
-	index: number,
-	name: string,
-	match_str: string,
-};
+export type FileSearchResult = 
+/**  見つかった */
+{ type: "Success"; index: number; name: string; match_str: string } | 
+/**  形態素解析が終わっていない */
+{ type: "FailNoMatch" } | 
+/**  見つからなかった */
+{ type: "FailNoCache" };
 
 /**  ファイルのソート条件 */
 export type SortType = 

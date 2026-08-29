@@ -16,7 +16,7 @@ pub fn search_next_filename(
     tab_id: TabId,
     start_index: u32,
     romaji: String,
-) -> Result<Option<FileSearchResult>, String> {
+) -> Result<FileSearchResult, String> {
     LOG_RESULT!(
         format!(
             "search_next_filename({}, {}, {})",
@@ -34,7 +34,7 @@ fn search_next_filename_impl(
     tab_id: TabId,
     start_index: u32,
     romaji: String,
-) -> anyhow::Result<Option<FileSearchResult>> {
+) -> anyhow::Result<FileSearchResult> {
     let katakana = state.romaji_cnv.cnv(&romaji);
     let migemo_re = state.migemo.get().unwrap().get_query_regex(&romaji);
     let normalized_romaji = normalize_str(&romaji);
@@ -53,10 +53,13 @@ fn search_next_filename_impl(
     {
         let matcher = state.text_matcher.get().unwrap();
         let name = file.name.to_string_lossy();
+        if !matcher.has_cache(&name) {
+            return Ok(FileSearchResult::FailNoCache);
+        }
         if let Some(find) = matcher.find(&katakana, &migemo_re, &normalized_romaji, &name) {
-            return Ok(Some(FileSearchResult::new(index, &name, find.0, find.1)));
+            return Ok(FileSearchResult::new_success(index, &name, find.0, find.1));
         }
     }
 
-    Ok(None)
+    Ok(FileSearchResult::FailNoMatch)
 }

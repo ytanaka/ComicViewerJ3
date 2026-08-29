@@ -64,14 +64,22 @@ impl FileInfoOs {
 
 /// ファイル検索結果
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-pub struct FileSearchResult {
-    pub index: i32,        // ファイルのインデックス
-    pub name: String,      // ファイル名
-    pub match_str: String, // ファイル名の中のマッチした部分
+#[serde(tag = "type")]
+pub enum FileSearchResult {
+    /// 見つかった
+    Success {
+        index: i32,        // ファイルのインデックス
+        name: String,      // ファイル名
+        match_str: String, // ファイル名の中のマッチした部分
+    },
+    /// 形態素解析が終わっていない
+    FailNoMatch,
+    /// 見つからなかった
+    FailNoCache,
 }
 impl FileSearchResult {
-    pub fn new(index: usize, name: &str, start: usize, end: usize) -> Self {
-        FileSearchResult {
+    pub fn new_success(index: usize, name: &str, start: usize, end: usize) -> Self {
+        FileSearchResult::Success {
             index: index as i32,
             name: name.to_string(),
             match_str: name.get(start..end).unwrap_or("").to_string(),

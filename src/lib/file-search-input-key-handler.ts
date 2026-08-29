@@ -9,9 +9,7 @@ function st() {
 }
 
 // ファイル検索のための、ローマ字入力検知
-export function fileSearchInput_handleKey(e: KeyboardEvent, virtuoso: VirtuosoHandle | null): boolean {
-  if (virtuoso === null) return false;
-
+export function fileSearchInput_handleKey(e: KeyboardEvent, virtuoso: VirtuosoHandle): boolean {
   // console.debug(`ev: [${e.key}]`);
 
   if (fileSearchInput_handleKey_impl(e, virtuoso)) {
