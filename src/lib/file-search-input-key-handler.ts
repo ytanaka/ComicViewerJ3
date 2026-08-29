@@ -1,18 +1,15 @@
-import { useSearchTextStore } from "@/store/file-search-text-store";
-import { useTabStore } from "@/store/tab/store";
-import { useUiStore } from "@/store/ui-store";
-import { VirtuosoHandle } from "react-virtuoso";
-import { searchCommands } from "./commands/search-commands";
+import { useSearchTextStore } from '@/store/file-search-text-store';
+import { useTabStore } from '@/store/tab/store';
+import { useUiStore } from '@/store/ui-store';
+import { VirtuosoHandle } from 'react-virtuoso';
+import { searchCommands } from './commands/search-commands';
 
 function st() {
   return useTabStore.getState();
 }
 
 // ファイル検索のための、ローマ字入力検知
-export function fileSearchInput_handleKey(
-  e: KeyboardEvent,
-  virtuoso: VirtuosoHandle | null
-): boolean {
+export function fileSearchInput_handleKey(e: KeyboardEvent, virtuoso: VirtuosoHandle | null): boolean {
   if (virtuoso === null) return false;
 
   // console.debug(`ev: [${e.key}]`);
@@ -26,10 +23,7 @@ export function fileSearchInput_handleKey(
   return false;
 }
 
-function fileSearchInput_handleKey_impl(
-  e: KeyboardEvent,
-  virtuoso: VirtuosoHandle
-): boolean {
+function fileSearchInput_handleKey_impl(e: KeyboardEvent, virtuoso: VirtuosoHandle): boolean {
   // Shift以外のキーは無効
   if (e.ctrlKey || e.altKey) return false;
   // Shift押しただけは入力がないけどOK

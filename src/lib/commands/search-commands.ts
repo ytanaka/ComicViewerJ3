@@ -1,8 +1,8 @@
-import { TabInfo } from "@/store/tab/types"
-import { commands } from "../bindings"
-import { VirtuosoHandle } from "react-virtuoso"
-import { checkCommandResult } from "../bindings-helper"
-import { useTabStore } from "@/store/tab/store";
+import { TabInfo } from '@/store/tab/types';
+import { commands } from '../bindings';
+import { VirtuosoHandle } from 'react-virtuoso';
+import { checkCommandResult } from '../bindings-helper';
+import { useTabStore } from '@/store/tab/store';
 
 let debounceTimer: number | undefined;
 let isSearching = false; // 検索実行中フラグ
@@ -13,7 +13,6 @@ let searchVirtuoso: VirtuosoHandle | null;
 
 export const searchCommands = {
   async searchNextFilename(tab: TabInfo, startIndex: number, romaji: string, virtuoso: VirtuosoHandle) {
-
     searchTab = tab;
     searchVirtuoso = virtuoso;
 
@@ -23,8 +22,8 @@ export const searchCommands = {
     debounceTimer = window.setTimeout(() => {
       trySearch(romaji, startIndex);
     }, 300);
-  }
-}
+  },
+};
 
 async function trySearch(text: string, startIndex: number) {
   // 検索中ならキューに入れて終了
@@ -36,7 +35,7 @@ async function trySearch(text: string, startIndex: number) {
   isSearching = true;
   let resultIndex: number | null;
   try {
-    resultIndex = await search(text, startIndex)
+    resultIndex = await search(text, startIndex);
   } finally {
     isSearching = false;
   }
@@ -55,7 +54,7 @@ async function search(text: string, startIndex: number): Promise<number | null> 
   if (!searchVirtuoso) return null;
 
   const result = await commands.searchNextFilename(searchTab.id, startIndex, text);
-  const ret = checkCommandResult("searchNextFilename", result);
+  const ret = checkCommandResult('searchNextFilename', result);
   if (!ret) return null;
 
   // 検索中にタブの状況が変わっていたら結果を破棄する

@@ -56,13 +56,13 @@ describe('addTab', () => {
   });
 
   test('カレントタブは最後に追加されたタブになる', () => {
-    addTab(1, "a");
+    addTab(1, 'a');
     expect(st().currentTabIndex).toBe(0);
-    addTab(2, "b");
+    addTab(2, 'b');
     expect(st().currentTabIndex).toBe(1);
-    addTab(3, "c");
+    addTab(3, 'c');
     expect(st().currentTabIndex).toBe(2);
-  })
+  });
 });
 
 describe('moveTab', () => {
@@ -104,7 +104,7 @@ describe('moveTab', () => {
 
     st().moveTab(2, 0);
     expect(st().currentTabIndex).toBe(0);
-  })
+  });
 });
 
 describe('removeTab', () => {

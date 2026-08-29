@@ -58,6 +58,6 @@ export const createFileFocusHistoryActions = (
   },
 
   setFocusHistoryMax: (n: number) => {
-    set(() => ({ focusHistoryMax: n }))
+    set(() => ({ focusHistoryMax: n }));
   },
 });

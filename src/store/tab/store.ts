@@ -47,7 +47,7 @@ export const useTabStore = create<TabStore>()(
           currentTabIndex: state.currentTabIndex,
           tabs: state.tabs.map(t => ({
             id: t.id,
-            path: t.path
+            path: t.path,
           })),
           focusHistories: state.focusHistories,
         };

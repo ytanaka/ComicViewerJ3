@@ -24,35 +24,37 @@ export interface UiStore {
   setFileSearchInputTimeoutMs: (ms: number) => void;
 }
 
-export const useUiStore = create<UiStore>()(persist((set) => (
-  {
-    appInitialized: false,
-    fileListHeaderSizes: [35, 500, 100, 120, 180],
-    fileSearchInputTimeoutMs: 1000,
+export const useUiStore = create<UiStore>()(
+  persist(
+    set => ({
+      appInitialized: false,
+      fileListHeaderSizes: [35, 500, 100, 120, 180],
+      fileSearchInputTimeoutMs: 1000,
 
-    setAppInitialized: () => {
-      set(() => {
-        return { appInitialized: true };
-      });
-    },
+      setAppInitialized: () => {
+        set(() => {
+          return { appInitialized: true };
+        });
+      },
 
-    setFileListHeaderSizes: (sizes: number[]) => {
-      set(() => {
-        return { fileListHeaderSizes: sizes };
-      });
-    },
+      setFileListHeaderSizes: (sizes: number[]) => {
+        set(() => {
+          return { fileListHeaderSizes: sizes };
+        });
+      },
 
-    setFileSearchInputTimeoutMs: (ms: number) => {
-      set(() => ({ fileSearchInputTimeoutMs: ms }))
-    },
-  }),
-  {
-    name: 'ui-state',
-    partialize: state => {
-      return {
-        fileListHeaderSizes: state.fileListHeaderSizes,
-        fileSearchInputTimeoutMs: state.fileSearchInputTimeoutMs,
-      };
-    },
-  })
+      setFileSearchInputTimeoutMs: (ms: number) => {
+        set(() => ({ fileSearchInputTimeoutMs: ms }));
+      },
+    }),
+    {
+      name: 'ui-state',
+      partialize: state => {
+        return {
+          fileListHeaderSizes: state.fileListHeaderSizes,
+          fileSearchInputTimeoutMs: state.fileSearchInputTimeoutMs,
+        };
+      },
+    }
+  )
 );

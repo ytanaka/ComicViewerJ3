@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export interface FileSearchTextStore {
   text: string;
@@ -9,14 +9,14 @@ export interface FileSearchTextStore {
 }
 
 export const useSearchTextStore = create<FileSearchTextStore>()(set => ({
-  text: "",
+  text: '',
   prevTypeTime: 0,
 
   addText: (c: string) => {
-    set(state => ({ text: state.text + c, prevTypeTime: performance.now() }))
+    set(state => ({ text: state.text + c, prevTypeTime: performance.now() }));
   },
 
   clear: () => {
-    set(() => ({ text: "", prevTypeTime: 0 }))
+    set(() => ({ text: '', prevTypeTime: 0 }));
   },
 }));
