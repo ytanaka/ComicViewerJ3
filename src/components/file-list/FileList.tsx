@@ -73,15 +73,10 @@ export default function FileList() {
         return;
       }
 
-      if (
-        tabFiles_handleKey(
-          e,
-          tab,
-          visibleListRange.current - 1, // ヘッダーがあるので -1
-          virtuoso.current
-        )
-      )
+      // ヘッダーがあるので -1
+      if (tabFiles_handleKey(e, tab, visibleListRange.current - 1, virtuoso.current)) {
         return;
+      }
     };
 
     window.addEventListener('keydown', handler);
