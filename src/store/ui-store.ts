@@ -19,9 +19,13 @@ export interface UiStore {
   // ファイル検索テキスト入力のタイムアウト
   fileSearchInputTimeoutMs: number;
 
+  // ファイル検索結果を表示するタイムアウト
+  fileSearchResultDisplayTimeoutMs: number;
+
   setAppInitialized: () => void;
   setFileListHeaderSizes: (sizes: number[]) => void;
   setFileSearchInputTimeoutMs: (ms: number) => void;
+  setFileSearchResultDisplayTimeoutMs: (ms: number) => void;
 }
 
 export const useUiStore = create<UiStore>()(
@@ -30,6 +34,7 @@ export const useUiStore = create<UiStore>()(
       appInitialized: false,
       fileListHeaderSizes: [35, 500, 100, 120, 180],
       fileSearchInputTimeoutMs: 1000,
+      fileSearchResultDisplayTimeoutMs: 2000,
 
       setAppInitialized: () => {
         set(() => {
@@ -46,6 +51,10 @@ export const useUiStore = create<UiStore>()(
       setFileSearchInputTimeoutMs: (ms: number) => {
         set(() => ({ fileSearchInputTimeoutMs: ms }));
       },
+
+      setFileSearchResultDisplayTimeoutMs: (ms: number) => {
+        set(() => ({ fileSearchResultDisplayTimeoutMs: ms }));
+      }
     }),
     {
       name: 'ui-state',

@@ -6,7 +6,7 @@ function st() {
   return useTabStore.getState();
 }
 
-export function checkCommandResult<T, E>(
+export function checkCommandReturn<T, E>(
   comment: string,
   result: { status: 'ok'; data: T } | { status: 'error'; error: E }
 ): T | null {

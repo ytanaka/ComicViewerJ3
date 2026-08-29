@@ -1,8 +1,9 @@
 import { TabInfo } from '@/store/tab/types';
 import { commands } from '../bindings';
 import { VirtuosoHandle } from 'react-virtuoso';
-import { checkCommandResult } from '../bindings-helper';
+import { checkCommandReturn } from '../bindings-helper';
 import { useTabStore } from '@/store/tab/store';
+import { useSearchResultStore } from '@/store/file-search-result-store';
 
 let debounceTimer: number | undefined;
 let isSearching = false; // 検索実行中フラグ
@@ -53,9 +54,9 @@ async function search(text: string, startIndex: number): Promise<number | null> 
   if (searchTab === null) return null;
   if (!searchVirtuoso) return null;
 
-  const result = await commands.searchNextFilename(searchTab.id, startIndex, text);
-  const ret = checkCommandResult('searchNextFilename', result);
-  if (!ret) return null;
+  const ret = await commands.searchNextFilename(searchTab.id, startIndex, text);
+  const result = checkCommandReturn('searchNextFilename', ret);
+  if (!result) return null;
 
   // 検索中にタブの状況が変わっていたら結果を破棄する
   if (!useTabStore.getState().existsTabId(searchTab.id)) return null;
@@ -63,21 +64,15 @@ async function search(text: string, startIndex: number): Promise<number | null> 
   const newTab = useTabStore.getState().getTab(searchTab.id);
   if (newTab.refreshCount != searchTab.refreshCount) return null;
 
-  // 形態素解析途中
-  if (ret.type === 'FailNoCache') {
-    console.debug(`FailNoCache`);
-    return null;
-  }
+  // 結果格納
+  useSearchResultStore.getState().setResult(searchTab.id, result);
 
-  // 一致しない
-  if (ret.type === 'FailNoMatch') {
-    console.debug(`FailNoMatch`);
-    return null;
-  }
+  // 検索できなかった
+  if (result.type !== 'Success') return null;
 
   // 検索成功
-  console.debug(`search success: ${text} =>`, ret);
-  useTabStore.getState().moveFocusNormal(searchTab.id, ret.index);
-  searchVirtuoso.scrollIntoView({ index: ret.index + 1 });
-  return ret.index;
+  console.debug(`search success: ${text} =>`, result);
+  useTabStore.getState().moveFocusNormal(searchTab.id, result.index);
+  searchVirtuoso.scrollIntoView({ index: result.index + 1 });
+  return result.index;
 }

@@ -11,6 +11,7 @@ import { useTabStore } from '@/store/tab/store';
 import { TabInfo } from '@/store/tab/types';
 import { logic } from '@/lib/bindings-helper';
 import { tabFiles_handleMouse } from '@/lib/tab-files-key-handler';
+import { SearchResult } from './SearchResult';
 
 function useHeaderSize(n: FileListHeaderN): number {
   const sizes = useUiStore(state => state.fileListHeaderSizes);
@@ -117,6 +118,7 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
       }}
       onClick={handleClick}
     >
+      {isFocused && <SearchResult tab={tab} />}
       <Icon fileInfo={fileInfo} errorMsg={wrapper.errorMsg} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
