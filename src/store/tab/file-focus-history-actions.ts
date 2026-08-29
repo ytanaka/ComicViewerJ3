@@ -1,5 +1,5 @@
 import { TabStore } from './store';
-import { FileFocusHistory, MAX_HIST, TabId } from './types';
+import { FileFocusHistory, TabId } from './types';
 
 export interface FileFocusHistoryActions {
   getHistory: (tabId: TabId) => FileFocusHistory;
@@ -9,6 +9,7 @@ export interface FileFocusHistoryActions {
   findHistory: (tabId: TabId, path: string) => string | undefined;
 
   pushHistoryCurrentFile: (tabId: TabId) => void;
+  setFocusHistoryMax: (n: number) => void;
 }
 
 export const createFileFocusHistoryActions = (
@@ -36,8 +37,9 @@ export const createFileFocusHistoryActions = (
     let hist = get().getHistory(tabId).hist;
     hist = hist.filter(e => e.path !== path);
     hist.push({ path, filename });
-    if (MAX_HIST < hist.length) {
-      hist.splice(0, hist.length - MAX_HIST);
+    const max = get().focusHistoryMax;
+    if (max < hist.length) {
+      hist.splice(0, hist.length - max);
     }
     get().setHistory(tabId, { hist });
   },
@@ -53,5 +55,9 @@ export const createFileFocusHistoryActions = (
     const name = tab.dirEntries?.[get().getSelection(tabId).focusIndex]?.name;
     if (!name) return;
     get().pushHistory(tabId, tab.path, name);
+  },
+
+  setFocusHistoryMax: (n: number) => {
+    set(() => ({ focusHistoryMax: n }))
   },
 });

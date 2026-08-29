@@ -13,6 +13,7 @@ export interface AllTabs {
   fileInfos: Record<TabId, Record<FileId, FileInfoWrapper>>;
   selections: Record<TabId, FileSelection>;
   focusHistories: Record<TabId, FileFocusHistory>;
+  focusHistoryMax: number;
 }
 export interface TabInfo {
   id: TabId;

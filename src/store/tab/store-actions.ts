@@ -75,6 +75,7 @@ export const createAllTabsActions = (
 
   moveTab: (fromIndex: number, toIndex: number) => {
     set(state => {
+      // チェック
       if (state.tabs.length === 0) throw Error(`moveTab(): empty tabs`);
       if (fromIndex < 0 || state.tabs.length <= fromIndex || toIndex < 0 || state.tabs.length <= toIndex)
         throw Error(`moveTab(): invalid index: ${fromIndex},${toIndex} tabs.length = ${state.tabs.length}`);
@@ -101,15 +102,15 @@ export const createAllTabsActions = (
   },
 
   // ※ カレントタブが削除されたら、カレントは右のタブに移る
+  // ※ 最後のタブが削除されたら、左側のタブをカレントにする
   removeTab: (tabId: TabId) => {
     const tab = get().getTab(tabId);
     set(state => {
-      const newList = state.tabs.filter(t => t.id !== tab.id);
       delete state.fileInfos[tabId];
       delete state.selections[tabId];
       delete state.focusHistories[tabId];
 
-      // 最後のタブが削除されたら、左側のタブをカレントにする
+      const newList = state.tabs.filter(t => t.id !== tab.id);
       return {
         currentTabIndex: Math.max(0, Math.min(state.currentTabIndex, newList.length - 1)),
         tabs: newList,

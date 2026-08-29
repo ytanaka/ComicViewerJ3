@@ -1,7 +1,7 @@
 import { create, StoreApi } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { AllTabs } from './types';
+import { AllTabs, MAX_HIST } from './types';
 import { createTabInfoActions, TabInfoActions } from './tab-info-actions';
 import { TabStoreActions, createAllTabsActions } from './store-actions';
 import { createFileInfoWrapperActions, FileInfoWrapperActions } from './file-info-wrapper-actions';
@@ -36,6 +36,7 @@ export const useTabStore = create<TabStore>()(
       fileInfos: {},
       selections: {},
       focusHistories: {},
+      focusHistoryMax: MAX_HIST,
 
       ...createTabActions(set, get),
     }),
