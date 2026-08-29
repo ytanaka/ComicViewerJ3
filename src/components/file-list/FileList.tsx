@@ -115,12 +115,11 @@ export default function FileList() {
           <Virtuoso
             ref={virtuoso}
             key={`${tab.id}`} // タブ変更時に内部状態をリセットしないと、古い情報で子コンポーネントが描画されてしまう https://github.com/petyosi/react-virtuoso/issues/1396
-            data={[null, ...dirEntries]}
             totalCount={dirEntries.length + 1}
             topItemCount={1}
             rangeChanged={handleRangeChanged}
-            itemContent={(index, data) => {
-              if (data === null) {
+            itemContent={(index) => {
+              if (index === 0) {
                 return <FileListHeader />;
               } else {
                 const fileIndex = index - 1;
@@ -128,7 +127,7 @@ export default function FileList() {
                   <FileListRow
                     tab={tab}
                     fileIndex={fileIndex}
-                    dirEntry={data}
+                    dirEntry={dirEntries[fileIndex]}
                   />
                 );
               }
