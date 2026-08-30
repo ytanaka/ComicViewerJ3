@@ -29,7 +29,27 @@ export function tabFiles_handleKeyDown(
   const CTRL_ONLY = C && !S && !A;
   const SHIFT_ONLY = !C && S && !A;
   const NO_MOD = !C && !S && !A;
+  const MOD_ONLY = e.key === "Control" || e.key === "Shift" || e.key === "Alt";
   const keyLow = e.key.toLowerCase();
+
+  // -------------------------------------------------------------------------------------------------------------------
+  // ファイル検索
+  // -------------------------------------------------------------------------------------------------------------------
+  if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
+    const romaji = useSearchTextStore.getState().text;
+    if (romaji.length === 0) return false;
+    let startIndex = focusIndex + 1;
+    if (dirEntries.length <= startIndex) { startIndex = 0; }
+    searchCommands.searchNextFilename(tab, startIndex, romaji, virtuoso)
+    e.preventDefault();
+    return true;
+  }
+  // ファイル検索する以外のキーが押されたら、検索キャンセル
+  if (!MOD_ONLY) {
+    searchCommands.cancel();
+  }
+
+  // console.debug(e);
 
   // -------------------------------------------------------------------------------------------------------------------
   // フォーカス移動
@@ -100,22 +120,6 @@ export function tabFiles_handleKeyDown(
     e.preventDefault();
     return true;
   }
-
-  // -------------------------------------------------------------------------------------------------------------------
-  // ファイル検索
-  // -------------------------------------------------------------------------------------------------------------------
-  if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
-    const romaji = useSearchTextStore.getState().text;
-    if (romaji.length === 0) return false;
-    let startIndex = focusIndex + 1;
-    if (dirEntries.length <= startIndex) { startIndex = 0; }
-    searchCommands.searchNextFilename(tab, startIndex, romaji, virtuoso)
-    e.preventDefault();
-    return true;
-  }
-
-  // ファイル検索する以外のキーが押されたら、検索キャンセル
-  searchCommands.cancel();
 
   return false;
 }

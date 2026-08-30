@@ -1,3 +1,4 @@
+import { searchCommands } from '@/lib/commands/search-commands';
 import { getAllMenuItems } from '@/lib/menu-items';
 import { useEffect } from 'react';
 
@@ -16,6 +17,7 @@ export function HotKeys() {
         e.preventDefault();
         e.stopImmediatePropagation();
         m.exec();
+        searchCommands.cancel();
         return;
       }
     };

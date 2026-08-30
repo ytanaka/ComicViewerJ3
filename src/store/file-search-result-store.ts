@@ -54,6 +54,11 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
   getResult: (tab: TabInfo) => {
     const ret = get();
     if (!checkSameTab(tab, ret)) return null;
+
+    const timeout = useUiStore.getState().fileSearchResultDisplayTimeoutMs;
+    const delay = Date.now() - ret.updateTime;
+    if (timeout < delay) return null;
+
     return ret.result;
   },
 
@@ -67,11 +72,6 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
 function checkSameTab(currentTab: TabInfo, ret: FileSearchResultStore): boolean {
   if (currentTab.id !== ret.tab?.id) return false;
   if (currentTab.refreshCount !== ret.tab?.refreshCount) return false;
-
-  const timeout = useUiStore.getState().fileSearchResultDisplayTimeoutMs;
-  const delay = Date.now() - ret.updateTime;
-  if (timeout < delay) return false;
-
   return true;
 }
 

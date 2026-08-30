@@ -33,6 +33,9 @@ export const searchCommands = {
   },
 
   cancel() {
+    if (searchTab !== emptyTab) {
+      console.debug(`searchCommands.searchNextFilename() canceled`);
+    }
     queuedInput = null;
     searchTab = emptyTab;
     searchVirtuoso = null;
@@ -54,6 +57,7 @@ async function trySearch(text: string, startIndex: number) {
   let result: FileSearchResult | null;
   isSearching = true;
   try {
+    console.debug(`searchCommands trySearch(${text}, ${startIndex}) start`);
     result = await search(text, startIndex);
   } finally {
     isSearching = false;
@@ -62,6 +66,7 @@ async function trySearch(text: string, startIndex: number) {
     searchCommands.cancel();
     return;
   }
+  console.debug(`searchCommands trySearch(${text}, ${startIndex}) => `, result);
 
   // 結果格納
   useSearchResultStore.getState().setResult(searchTab, result);
