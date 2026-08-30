@@ -20,7 +20,7 @@ export function SearchResult({ tab }: { tab: TabInfo }) {
 
   return (
     <Popover open={true}>
-      <PopoverTrigger render={<div></div>} />
+      <PopoverTrigger nativeButton={false} render={<div />} />
       <PopoverContent className="w-fit border-2">
         {msg}
       </PopoverContent>
