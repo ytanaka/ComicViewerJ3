@@ -1,5 +1,6 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use tauri::State;
 
 use crate::{
@@ -41,25 +42,40 @@ fn search_next_filename_impl(
     let migemo_re = state.migemo.get().unwrap().get_query_regex(&romaji);
     let normalized_romaji = normalize_str(&romaji);
 
-    let tab = state.get_tab(tab_id)?;
-    let mut tab = tab.write().unwrap();
+    // [start_index -> 最後] + [0 -> start_index] で、FileIdのリストを作る (tab のロックを最小限にする)
+    let list: Vec<_> = {
+        let tab = state.get_tab(tab_id)?;
+        let mut tab = tab.write().unwrap();
+        let sorted_list = tab.get_sorted_list();
+        let list1 = sorted_list.iter().enumerate().skip(start_index as usize);
+        let list2 = sorted_list.iter().enumerate().take(start_index as usize);
+        let list = list1.chain(list2);
+        list.flat_map(|(index, file_id)| {
+            tab.get_file(*file_id)
+                .map(|f| (index, f.name.to_string_lossy().to_string()))
+        })
+        .collect()
+    };
 
-    // [start_index -> 最後] + [0 -> start_index] で、FileIdのリストを作る
-    let sorted_list = tab.get_sorted_list();
-    let list1 = sorted_list.iter().enumerate().skip(start_index as usize);
-    let list2 = sorted_list.iter().enumerate().take(start_index as usize);
-    let list = list1.chain(list2);
+    // チャンクに分割して並列検索する
+    for list2 in list.chunks(100) {
+        // NoMach は無視して、最初に NoCache | Success になるファイル名を探す
+        let chunk_result = list2
+            .par_iter()
+            .flat_map(|(index, name)| {
+                let matcher = state.text_matcher.get().unwrap();
+                if !matcher.has_cache(&name) {
+                    return Some(FileSearchResult::FailNoCache);
+                }
+                if let Some(find) = matcher.find(&katakana, &migemo_re, &normalized_romaji, &name) {
+                    return Some(FileSearchResult::new_success(*index, &name, find.0, find.1));
+                }
+                None
+            })
+            .find_first(|_| true);
 
-    for (index, file) in
-        list.flat_map(|(index, file_id)| tab.get_file(*file_id).map(|f| (index, f)))
-    {
-        let matcher = state.text_matcher.get().unwrap();
-        let name = file.name.to_string_lossy();
-        if !matcher.has_cache(&name) {
-            return Ok(FileSearchResult::FailNoCache);
-        }
-        if let Some(find) = matcher.find(&katakana, &migemo_re, &normalized_romaji, &name) {
-            return Ok(FileSearchResult::new_success(index, &name, find.0, find.1));
+        if let Some(r) = chunk_result {
+            return Ok(r);
         }
     }
 
