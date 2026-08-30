@@ -86,11 +86,13 @@ fn search_next_filename_impl(
 
 fn mk_search_list(list: Vec<u64>, s_idx: u32, reverse: bool) -> Vec<(usize, u64)> {
     let ret: Vec<_> = if reverse {
-        let list2 = list.iter().enumerate().take((s_idx + 1) as usize).rev();
-        let list1 = list.iter().enumerate().skip((s_idx + 1) as usize).rev();
+        // [ <=== start | end <=== ]
+        let list1 = list.iter().enumerate().take((s_idx + 1) as usize).rev();
+        let list2 = list.iter().enumerate().skip((s_idx + 1) as usize).rev();
         let list = list1.chain(list2);
         list.collect()
     } else {
+        // [ ===> end | start ===> ]
         let list1 = list.iter().enumerate().skip(s_idx as usize);
         let list2 = list.iter().enumerate().take(s_idx as usize);
         let list = list1.chain(list2);
@@ -130,5 +132,8 @@ mod tests {
         assert_eq!(mk_result(4, false), vec![4, 0, 1, 2, 3]);
 
         assert_eq!(mk_result(0, true), vec![0, 4, 3, 2, 1]);
+        assert_eq!(mk_result(1, true), vec![1, 0, 4, 3, 2]);
+        assert_eq!(mk_result(3, true), vec![3, 2, 1, 0, 4]);
+        assert_eq!(mk_result(4, true), vec![4, 3, 2, 1, 0]);
     }
 }
