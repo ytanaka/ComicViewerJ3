@@ -11,15 +11,21 @@ function st() {
 }
 
 export const tabCommands = {
-  async addTab() {
-    await this.cloneTab();
+  async addTab_homeDir() {
+    await this.cloneTab(await tauri_homeDir());
   },
 
   async cloneCurrentTab() {
-    await this.cloneTab(st().currentTabIndex);
+    if (st().tabs.length === 0) {
+      await this.addTab_homeDir();
+    } else {
+      await this.cloneTab(st().currentTabIndex);
+    }
   },
 
-  async cloneTab(index_or_path?: number | string) {
+  // index を渡すと、インデックスにあるタブをコピーする
+  // path を渡すと、そのパスでタブを開く
+  async cloneTab(index_or_path: number | string) {
     if (20 <= st().tabs.length) return;
 
     let path: string;

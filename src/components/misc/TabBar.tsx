@@ -42,7 +42,7 @@ export function TabBar() {
 
 function NewTabButton({ noTabs }: { noTabs: boolean }) {
   return (
-    <Button variant={noTabs ? 'default' : 'outline'} onClick={() => tabCommands.addTab()}>
+    <Button variant={noTabs ? 'default' : 'outline'} onClick={() => tabCommands.addTab_homeDir()}>
       <Plus />
       {noTabs ? 'Add Tab' : ''}
     </Button>
