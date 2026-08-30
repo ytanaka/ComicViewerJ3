@@ -25,6 +25,12 @@ pub fn is_kanji_char(c: char) -> bool {
     )
 }
 
+// 文字列の正規化
+//   英数記号 -> 半角
+//   半角カタカナ -> 全角
+//   アルファベット -> 小文字
+//   ひらがな -> カタカナ
+//   等
 pub fn normalize_str(s: &str) -> String {
     let s = s.nfkc().collect::<String>();
     let s = UCSStr::from_str(&s)
@@ -97,7 +103,6 @@ fn normalize_double_quote(c: char) -> char {
 fn normalize_misc(c: char) -> char {
     match c {
         '×' => 'x',
-
         _ => c,
     }
 }

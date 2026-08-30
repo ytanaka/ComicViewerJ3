@@ -43,9 +43,9 @@ fn search_next_filename_impl(
 ) -> anyhow::Result<FileSearchResult> {
     let katakana = state.romaji_cnv.cnv(&romaji);
     let migemo_re = state.migemo.get().unwrap().get_query_regex(&romaji);
-    let normalized_romaji = normalize_str(&romaji);
+    let romaji = normalize_str(&romaji); // ローマ字以外が送られてくるかもしれないので、正規化しておく
 
-    // [start_index -> 最後] + [0 -> start_index] で、FileIdのリストを作る (tab のロックを最小限にする)
+    // start_index から開始して、一周するFileIdのリストを作る (検索中はtabのロックを解放する。ロックはリスト作成中のみ)
     let list: Vec<_> = {
         let tab = state.get_tab(tab_id)?;
         let mut tab = tab.write().unwrap();
@@ -69,7 +69,7 @@ fn search_next_filename_impl(
                 if !matcher.has_cache(&name) {
                     return Some(FileSearchResult::FailNoCache);
                 }
-                if let Some(find) = matcher.find(&katakana, &migemo_re, &normalized_romaji, &name) {
+                if let Some(find) = matcher.find(&katakana, &migemo_re, &romaji, &name) {
                     return Some(FileSearchResult::new_success(*index, &name, find.0, find.1));
                 }
                 None

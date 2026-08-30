@@ -193,7 +193,7 @@ impl SplStr {
     }
 }
 
-// starts_with と同じだが、target よりも str が長くても一致する
+// [char].starts_with と同じだが、target よりも str が長くても一致する
 // 一致した文字数を返す
 fn starts_with(target: &[char], str: &[char]) -> Option<usize> {
     let min = target.len().min(str.len());

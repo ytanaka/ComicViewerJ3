@@ -107,7 +107,8 @@ impl TextMatcher {
         let ret = self.put_cache(s);
         ret.1
     }
-    // まだキャッシュに存在しなかったら true
+    // キャッシュから解析結果を取得する (まだ解析していないなら解析する)
+    // まだキャッシュに存在しなかったら true を返す
     fn put_cache(&self, s: &str) -> (bool, Arc<SplStr>) {
         match self.yomi_cache.get(s) {
             Some(kv) => (false, kv.value().clone()),

@@ -30,6 +30,12 @@ impl Vibrato {
     }
 
     pub fn tokenize(&self, s: &str, reverse_migemo: Arc<ReverseMigemo>) -> SplStr {
+        // 正規化してASCIIだけなら形態素解析しない
+        let norm_s = normalize_str(s);
+        if is_ascii(&norm_s) {
+            return SplStr::new(&norm_s, Vec::new(), reverse_migemo);
+        }
+
         let mut worker = self.tokenizer.new_worker();
         worker.reset_sentence(&s);
         worker.tokenize();
@@ -61,6 +67,6 @@ impl Vibrato {
             }
         }
 
-        SplStr::new(&normalize_str(s), ret, reverse_migemo)
+        SplStr::new(&norm_s, ret, reverse_migemo)
     }
 }
