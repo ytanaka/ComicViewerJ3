@@ -140,6 +140,7 @@ export function tabFiles_handleMouseClick(e: React.MouseEvent, tab: TabInfo, fil
     st().moveFocusNormal(tab.id, fileIndex);
   } else if (CTRL) {
     st().moveFocusOnly(tab.id, fileIndex);
+    st().toggleSelection(tab.id, fileIndex);
   } else if (SHIFT) {
     st().moveFocusWithSelectionArea(tab.id, fileIndex);
   } else {
