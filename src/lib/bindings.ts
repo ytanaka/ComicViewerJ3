@@ -27,7 +27,7 @@ export const commands = {
 	/**  ファイル一覧をソートする */
 	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
 	/**  ローマ字入力からファイル名をあいまい検索 */
-	searchNextFilename: (tabId: number, startIndex: number, romaji: string) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji })),
+	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 };
 
 /* Types */

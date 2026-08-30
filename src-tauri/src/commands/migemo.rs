@@ -18,6 +18,7 @@ pub async fn search_next_filename(
     tab_id: TabId,
     start_index: u32,
     romaji: String,
+    reverse: bool,
 ) -> Result<FileSearchResult, String> {
     let comment = format!(
         "search_next_filename({}, {}, {})",
@@ -25,7 +26,8 @@ pub async fn search_next_filename(
     );
     let state2 = state.inner().clone();
     let result = tauri::async_runtime::spawn_blocking(move || {
-        search_next_filename_impl(&state2, tab_id, start_index, romaji).map_err(|e| e.to_string())
+        search_next_filename_impl(&state2, tab_id, start_index, romaji, reverse)
+            .map_err(|e| e.to_string())
     });
     let result = result.await.unwrap();
     log::trace!("{}: {:?}", comment, result);
@@ -37,6 +39,7 @@ fn search_next_filename_impl(
     tab_id: TabId,
     start_index: u32,
     romaji: String,
+    reverse: bool,
 ) -> anyhow::Result<FileSearchResult> {
     let katakana = state.romaji_cnv.cnv(&romaji);
     let migemo_re = state.migemo.get().unwrap().get_query_regex(&romaji);
@@ -47,14 +50,13 @@ fn search_next_filename_impl(
         let tab = state.get_tab(tab_id)?;
         let mut tab = tab.write().unwrap();
         let sorted_list = tab.get_sorted_list();
-        let list1 = sorted_list.iter().enumerate().skip(start_index as usize);
-        let list2 = sorted_list.iter().enumerate().take(start_index as usize);
-        let list = list1.chain(list2);
-        list.flat_map(|(index, file_id)| {
-            tab.get_file(*file_id)
-                .map(|f| (index, f.name.to_string_lossy().to_string()))
-        })
-        .collect()
+        let list = mk_search_list(sorted_list, start_index, reverse);
+        list.iter()
+            .flat_map(|(index, file_id)| {
+                tab.get_file(*file_id)
+                    .map(|f| (*index, f.name.to_string_lossy().to_string()))
+            })
+            .collect()
     };
 
     // チャンクに分割して並列検索する
@@ -80,4 +82,53 @@ fn search_next_filename_impl(
     }
 
     Ok(FileSearchResult::FailNoMatch)
+}
+
+fn mk_search_list(list: Vec<u64>, s_idx: u32, reverse: bool) -> Vec<(usize, u64)> {
+    let ret: Vec<_> = if reverse {
+        let list2 = list.iter().enumerate().take((s_idx + 1) as usize).rev();
+        let list1 = list.iter().enumerate().skip((s_idx + 1) as usize).rev();
+        let list = list1.chain(list2);
+        list.collect()
+    } else {
+        let list1 = list.iter().enumerate().skip(s_idx as usize);
+        let list2 = list.iter().enumerate().take(s_idx as usize);
+        let list = list1.chain(list2);
+        list.collect()
+    };
+    ret.iter().map(|kv| (kv.0, *kv.1)).collect()
+}
+
+// =================================================================================================
+// =================================================================================================
+// =================================================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn mk_list() -> Vec<u64> {
+        vec![0, 1, 2, 3, 4]
+    }
+    fn get_tuple_0(list: Vec<(usize, u64)>) -> Vec<usize> {
+        list.iter()
+            .map(|kv| {
+                assert_eq!(kv.0, kv.1 as usize);
+                kv.0
+            })
+            .collect()
+    }
+    fn mk_result(s_idx: u32, reverse: bool) -> Vec<usize> {
+        get_tuple_0(mk_search_list(mk_list(), s_idx, reverse))
+    }
+
+    #[test]
+    fn test_mk_search_list() {
+        assert_eq!(mk_result(0, false), vec![0, 1, 2, 3, 4]);
+        assert_eq!(mk_result(1, false), vec![1, 2, 3, 4, 0]);
+        assert_eq!(mk_result(3, false), vec![3, 4, 0, 1, 2]);
+        assert_eq!(mk_result(4, false), vec![4, 0, 1, 2, 3]);
+
+        assert_eq!(mk_result(0, true), vec![0, 4, 3, 2, 1]);
+    }
 }

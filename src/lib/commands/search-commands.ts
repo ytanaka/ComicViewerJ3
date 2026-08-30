@@ -8,6 +8,7 @@ import { ExecExclusibe } from '../utils';
 
 let debounceTimer: number | undefined;
 let queuedInput: string | null = null; // 検索実行に入力された内容
+let queuedRevese: boolean = false;
 
 const emptyTab: Readonly<TabInfo> = {
   id: -1,
@@ -20,7 +21,7 @@ let searchTab: TabInfo = emptyTab;
 let searchVirtuoso: VirtuosoHandle | null;
 
 export const searchCommands = {
-  async searchNextFilename(tab: TabInfo, startIndex: number, romaji: string, virtuoso: VirtuosoHandle) {
+  async searchNextFilename(tab: TabInfo, startIndex: number, romaji: string, reverse: boolean, virtuoso: VirtuosoHandle) {
     searchTab = tab;
     searchVirtuoso = virtuoso;
 
@@ -28,7 +29,7 @@ export const searchCommands = {
     if (debounceTimer) clearTimeout(debounceTimer);
 
     debounceTimer = window.setTimeout(() => {
-      trySearch(romaji, startIndex);
+      trySearch(romaji, startIndex, reverse);
     }, 100);
   },
 
@@ -45,10 +46,11 @@ export const searchCommands = {
 
 let isSearching = false; // Rust検索実行中フラグ
 
-async function trySearch(text: string, startIndex: number) {
+async function trySearch(text: string, startIndex: number, reverse: boolean) {
   // 検索中ならキューに入れて終了
   if (isSearching) {
     queuedInput = text;
+    queuedRevese = reverse;
     return;
   }
 
@@ -57,8 +59,8 @@ async function trySearch(text: string, startIndex: number) {
   let result: FileSearchResult | null;
   isSearching = true;
   try {
-    console.debug(`searchCommands trySearch(${text}, ${startIndex}) start`);
-    result = await search(text, startIndex);
+    console.debug(`searchCommands trySearch(${text}, ${startIndex}, ${reverse}) start`);
+    result = await search(text, startIndex, reverse);
   } finally {
     isSearching = false;
   }
@@ -83,15 +85,15 @@ async function trySearch(text: string, startIndex: number) {
   if (queuedInput !== null && queuedInput !== text) {
     const next = queuedInput;
     queuedInput = null; // キューをクリア
-    trySearch(next, result.index); // 再検索
+    trySearch(next, result.index, queuedRevese); // 再検索
   }
 }
 
 // Rustで検索実行
 // ※ Rustでエラーが起きたら null
 // ※ 検索中に状況が変わっていたら null
-async function search(text: string, startIndex: number): Promise<FileSearchResult | null> {
-  const ret = await commands.searchNextFilename(searchTab.id, startIndex, text);
+async function search(text: string, startIndex: number, reverse: boolean): Promise<FileSearchResult | null> {
+  const ret = await commands.searchNextFilename(searchTab.id, startIndex, text, reverse);
   const result = checkCommandReturn('searchNextFilename', ret);
   if (!result) return null;
 

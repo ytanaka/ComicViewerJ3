@@ -38,9 +38,12 @@ export function tabFiles_handleKeyDown(
   if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
     const romaji = useSearchTextStore.getState().text;
     if (romaji.length === 0) return false;
-    let startIndex = focusIndex + 1;
-    if (dirEntries.length <= startIndex) { startIndex = 0; }
-    searchCommands.searchNextFilename(tab, startIndex, romaji, virtuoso)
+
+    const reverse = keyLow === 'p';
+    let startIndex = reverse ? focusIndex - 1 : focusIndex + 1;
+    if (dirEntries.length <= startIndex) startIndex = 0;
+    if (startIndex < 0) startIndex = dirEntries.length - 1;
+    searchCommands.searchNextFilename(tab, startIndex, romaji, reverse, virtuoso)
     e.preventDefault();
     return true;
   }
