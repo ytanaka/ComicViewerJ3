@@ -40,16 +40,15 @@ impl AppState {
         }
     }
 
-    pub fn init(&self, state: &AppState) {
-        state
-            .reverse_migemo
+    pub fn init(&self) {
+        self.reverse_migemo
             .get_or_init(|| Arc::new(ReverseMigemo::new()));
 
-        state.vibrato.get_or_init(|| Arc::new(Vibrato::new()));
+        self.vibrato.get_or_init(|| Arc::new(Vibrato::new()));
 
-        state.migemo.get_or_init(|| Arc::new(Migemo::new()));
+        self.migemo.get_or_init(|| Arc::new(Migemo::new()));
 
-        state.text_matcher.get_or_init(|| TextMatcher::new(&state));
+        self.text_matcher.get_or_init(|| TextMatcher::new(&self));
     }
     pub fn is_initialized(&self) -> bool {
         self.text_matcher.get().is_some()

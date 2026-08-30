@@ -11,7 +11,7 @@ export const commands = {
 	/**  アプリ終了 */
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
 	/**  Rust側の初期化 (ほかのコマンドを使用する前に呼ぶ) */
-	init: () => __TAURI_INVOKE<void>("init"),
+	init: () => typedError<null, string>(__TAURI_INVOKE("init")),
 	/**  新規タブ作成 */
 	createTab: () => __TAURI_INVOKE<number>("create_tab"),
 	/**  タブ削除 */

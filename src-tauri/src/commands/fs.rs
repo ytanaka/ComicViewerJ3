@@ -19,7 +19,7 @@ use crate::{
 #[tauri::command]
 #[specta::specta]
 /// 新規タブ作成
-pub fn create_tab(state: State<'_, AppState>) -> TabId {
+pub fn create_tab(state: State<'_, Arc<AppState>>) -> TabId {
     create_tab_imp(&state)
 }
 fn create_tab_imp(state: &AppState) -> TabId {
@@ -35,7 +35,7 @@ fn create_tab_imp(state: &AppState) -> TabId {
 #[tauri::command]
 #[specta::specta]
 /// タブ削除
-pub fn remove_tab(state: State<'_, AppState>, tab_id: TabId) -> Result<(), String> {
+pub fn remove_tab(state: State<'_, Arc<AppState>>, tab_id: TabId) -> Result<(), String> {
     LOG_RESULT!(format!("remove_tab({tab_id})"), {
         remove_tab_impl(&state, tab_id)
     })
@@ -51,7 +51,7 @@ fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
 #[tauri::command]
 #[specta::specta]
 /// タブ一覧
-pub fn get_tab_ids(state: State<'_, AppState>) -> Vec<TabId> {
+pub fn get_tab_ids(state: State<'_, Arc<AppState>>) -> Vec<TabId> {
     log::trace!("get_tab_ids()");
     get_tab_ids_impl(&state)
 }
@@ -64,7 +64,7 @@ fn get_tab_ids_impl(state: &AppState) -> Vec<TabId> {
 #[specta::specta]
 /// ディレクトリ中のファイル一覧を読み込む
 pub fn read_dir_entries(
-    state: State<'_, AppState>,
+    state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     path: String,
 ) -> Result<Vec<DirEntry>, String> {
@@ -124,7 +124,7 @@ fn read_dir_entries_impl2(
 #[tauri::command]
 #[specta::specta]
 pub fn get_file_info(
-    state: State<'_, AppState>,
+    state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_id: &str,
 ) -> Result<FileInfo, String> {
@@ -143,7 +143,7 @@ fn get_file_info_impl(state: &AppState, tab_id: TabId, file_id: &str) -> anyhow:
 #[tauri::command]
 #[specta::specta]
 /// ファイル一覧をソートする
-pub fn sort_files(_state: State<'_, AppState>, _tab_id: TabId, _sort_type: SortType) -> bool {
+pub fn sort_files(_state: State<'_, Arc<AppState>>, _tab_id: TabId, _sort_type: SortType) -> bool {
     todo!("")
 }
 
@@ -152,7 +152,7 @@ pub fn sort_files(_state: State<'_, AppState>, _tab_id: TabId, _sort_type: SortT
 #[specta::specta]
 /// ファイル一覧取得 (ソート後やファイル状態が更新された後で呼ぶ)
 pub fn get_dir_entries(
-    _state: State<'_, AppState>,
+    _state: State<'_, Arc<AppState>>,
     _tab_id: TabId,
 ) -> Result<Vec<DirEntry>, String> {
     todo!("")

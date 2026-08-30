@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use tauri::State;
 
 use crate::{
@@ -12,7 +14,7 @@ use crate::{
 #[specta::specta]
 /// ローマ字入力からファイル名をあいまい検索
 pub fn search_next_filename(
-    state: State<'_, AppState>,
+    state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     start_index: u32,
     romaji: String,

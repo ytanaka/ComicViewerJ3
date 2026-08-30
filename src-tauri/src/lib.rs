@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use tauri::{Manager, WindowEvent};
 
 use crate::state::app_state::AppState;
@@ -77,7 +79,7 @@ pub fn run() {
                 log::info!("app closing");
             }
         })
-        .manage(AppState::new())
+        .manage(Arc::new(AppState::new()))
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(builder.invoke_handler())
         .run(tauri::generate_context!())
