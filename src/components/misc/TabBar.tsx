@@ -60,6 +60,7 @@ function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; is
         ref={handleRef}
         variant={`${isSelected ? 'outline' : 'secondary'}`}
         className={`block truncate text-left w-full max-w-full ${isSelected ? '' : 'font-light'}`}
+        style={isSelected ? { direction: 'rtl' } : {}} // カレントタブの場合だけ先頭を ・・・ で省略する
       >
         {isSelected ? tab.path : getPathBasename(tab.path)}
       </Button>
