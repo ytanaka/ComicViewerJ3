@@ -1,4 +1,8 @@
-use std::{collections::HashMap, ffi::OsString, path::PathBuf};
+use std::{
+    collections::HashMap,
+    ffi::OsString,
+    path::{Path, PathBuf},
+};
 
 use anyhow::anyhow;
 
@@ -41,6 +45,9 @@ impl TabInfo {
             _pending_metadata: 0,
             _tab_generation: 1,
         }
+    }
+    pub fn get_current_dir(&self) -> Option<&Path> {
+        self.current_dir.as_deref()
     }
     pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOs>) {
         self.current_dir = Some(current_dir);

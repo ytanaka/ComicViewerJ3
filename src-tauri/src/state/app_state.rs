@@ -2,7 +2,6 @@ use std::sync::{atomic::AtomicU32, Arc, OnceLock, RwLock};
 
 use anyhow::anyhow;
 use dashmap::DashMap;
-use tauri::State;
 
 use crate::{
     state::tab_info::TabInfo,
@@ -40,15 +39,18 @@ impl AppState {
         }
     }
 
-    pub fn init(&self) {
-        self.reverse_migemo
+    pub fn init(&self, state: Arc<AppState>) {
+        state
+            .reverse_migemo
             .get_or_init(|| Arc::new(ReverseMigemo::new()));
 
-        self.vibrato.get_or_init(|| Arc::new(Vibrato::new()));
+        state.vibrato.get_or_init(|| Arc::new(Vibrato::new()));
 
-        self.migemo.get_or_init(|| Arc::new(Migemo::new()));
+        state.migemo.get_or_init(|| Arc::new(Migemo::new()));
 
-        self.text_matcher.get_or_init(|| TextMatcher::new(&self));
+        state
+            .text_matcher
+            .get_or_init(|| TextMatcher::new(state.clone()));
     }
     pub fn is_initialized(&self) -> bool {
         self.text_matcher.get().is_some()

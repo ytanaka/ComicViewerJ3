@@ -6,29 +6,29 @@ use crate::{
     state::app_state::AppState,
     text_search::util::normalize_str,
     types::{FileSearchResult, TabId},
-    LOG_RESULT,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
 /// ローマ字入力からファイル名をあいまい検索
-pub fn search_next_filename(
+pub async fn search_next_filename(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     start_index: u32,
     romaji: String,
 ) -> Result<FileSearchResult, String> {
-    LOG_RESULT!(
-        format!(
-            "search_next_filename({}, {}, {})",
-            tab_id, start_index, romaji
-        ),
-        {
-            search_next_filename_impl(&state, tab_id, start_index, romaji)
-                .map_err(|e| e.to_string())
-        }
-    )
+    let comment = format!(
+        "search_next_filename({}, {}, {})",
+        tab_id, start_index, romaji
+    );
+    let state2 = state.inner().clone();
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        search_next_filename_impl(&state2, tab_id, start_index, romaji).map_err(|e| e.to_string())
+    });
+    let result = result.await.unwrap();
+    log::trace!("{}: {:?}", comment, result);
+    result
 }
 
 fn search_next_filename_impl(

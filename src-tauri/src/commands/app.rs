@@ -8,11 +8,10 @@ use crate::state::app_state::AppState;
 #[specta::specta]
 /// Rust側の初期化 (ほかのコマンドを使用する前に呼ぶ)
 pub async fn init(state: State<'_, Arc<AppState>>) -> Result<(), String> {
-    // let state2 = Arc::clone(&state);
     let state2 = state.inner().clone();
     let result = tauri::async_runtime::spawn_blocking(move || {
         log::info!("command::init() start");
-        state2.init();
+        state2.init(state2.clone());
         log::info!("command::init() end");
     });
     Ok(result.await.unwrap())
