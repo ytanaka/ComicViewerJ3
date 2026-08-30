@@ -10,7 +10,7 @@ import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { TabInfo } from '@/store/tab/types';
 import { logic } from '@/lib/bindings-helper';
-import { tabFiles_handleMouse } from '@/lib/tab-files-key-handler';
+import { tabFiles_handleMouseClick } from '@/lib/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 
 function useHeaderSize(n: FileListHeaderN): number {
@@ -101,7 +101,7 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
-    tabFiles_handleMouse(e, tab, fileIndex);
+    tabFiles_handleMouseClick(e, tab, fileIndex);
   }
 
   if (fileIndex === 0) console.debug(`<FileListRow> tabId:${tab.id} file:${dirEntry.name}`);

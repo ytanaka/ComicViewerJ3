@@ -10,7 +10,7 @@ function st() {
   return useTabStore.getState();
 }
 
-export function tabFiles_handleKey(
+export function tabFiles_handleKeyDown(
   e: KeyboardEvent,
   tab: TabInfo,
   pageNum: number,
@@ -114,14 +114,20 @@ export function tabFiles_handleKey(
     return true;
   }
 
+  // ファイル検索する以外のキーが押されたら、検索キャンセル
+  searchCommands.cancel();
+
   return false;
 }
 
-export function tabFiles_handleMouse(e: React.MouseEvent, tab: TabInfo, fileIndex: number): boolean {
+export function tabFiles_handleMouseClick(e: React.MouseEvent, tab: TabInfo, fileIndex: number): boolean {
   const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
   const CTRL = C && !S && !A;
   const SHIFT = !C && S && !A;
   const NO_MOD = !C && !S && !A;
+
+  // ファイル検索検索キャンセル
+  searchCommands.cancel();
 
   if (NO_MOD) {
     st().moveFocusNormal(tab.id, fileIndex);

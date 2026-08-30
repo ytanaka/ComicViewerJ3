@@ -4,7 +4,7 @@ import { useSearchTextStore } from "@/store/file-search-text-store";
 import { TabInfo } from "@/store/tab/types";
 
 export function SearchResult({ tab }: { tab: TabInfo }) {
-  const result = useSearchResultStore(state => state.getResult(tab.id));
+  const result = useSearchResultStore(state => state.getResult(tab));
   const romaji = useSearchTextStore(state => state.text);
 
   let msg;

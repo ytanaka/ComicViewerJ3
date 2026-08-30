@@ -9,10 +9,10 @@ function st() {
 }
 
 // ファイル検索のための、ローマ字入力検知
-export function fileSearchInput_handleKey(e: KeyboardEvent, virtuoso: VirtuosoHandle): boolean {
+export function fileSearchInput_handleKeyDown(e: KeyboardEvent, virtuoso: VirtuosoHandle): boolean {
   // console.debug(`ev: [${e.key}]`);
 
-  if (fileSearchInput_handleKey_impl(e, virtuoso)) {
+  if (fileSearchInput_handleKeyDown_impl(e, virtuoso)) {
     return true;
   }
 
@@ -21,7 +21,7 @@ export function fileSearchInput_handleKey(e: KeyboardEvent, virtuoso: VirtuosoHa
   return false;
 }
 
-function fileSearchInput_handleKey_impl(e: KeyboardEvent, virtuoso: VirtuosoHandle): boolean {
+function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent, virtuoso: VirtuosoHandle): boolean {
   // Shift以外のキーは無効
   if (e.ctrlKey || e.altKey) return false;
   // Shift押しただけは入力がないけどOK

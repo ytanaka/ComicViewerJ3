@@ -1,15 +1,22 @@
 import { TabInfo } from '@/store/tab/types';
-import { commands } from '../bindings';
+import { commands, FileSearchResult } from '../bindings';
 import { VirtuosoHandle } from 'react-virtuoso';
 import { checkCommandReturn } from '../bindings-helper';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';
+import { ExecExclusibe } from '../utils';
 
 let debounceTimer: number | undefined;
-let isSearching = false; // 検索実行中フラグ
 let queuedInput: string | null = null; // 検索実行に入力された内容
 
-let searchTab: TabInfo | null;
+const emptyTab: Readonly<TabInfo> = {
+  id: -1,
+  path: '',
+  execExclusive: new ExecExclusibe(),
+  refreshCount: -1
+} as const;
+
+let searchTab: TabInfo = emptyTab;
 let searchVirtuoso: VirtuosoHandle | null;
 
 export const searchCommands = {
@@ -24,7 +31,16 @@ export const searchCommands = {
       trySearch(romaji, startIndex);
     }, 100);
   },
+
+  cancel() {
+    queuedInput = null;
+    searchTab = emptyTab;
+    searchVirtuoso = null;
+    useSearchResultStore.getState().clear();
+  }
 };
+
+let isSearching = false; // Rust検索実行中フラグ
 
 async function trySearch(text: string, startIndex: number) {
   // 検索中ならキューに入れて終了
@@ -33,46 +49,57 @@ async function trySearch(text: string, startIndex: number) {
     return;
   }
 
+  // 検索開始
+  useSearchResultStore.getState().setProgress(searchTab, true);
+  let result: FileSearchResult | null;
   isSearching = true;
-  let resultIndex: number | null;
   try {
-    resultIndex = await search(text, startIndex);
+    result = await search(text, startIndex);
   } finally {
     isSearching = false;
   }
-  if (resultIndex === null) return;
+  if (result === null) {
+    searchCommands.cancel();
+    return;
+  }
+
+  // 結果格納
+  useSearchResultStore.getState().setResult(searchTab, result);
+
+  // 検索で見つからなかった
+  if (result.type !== 'Success') return;
+
+  // 検索で見つかった
+  console.debug(`search success: ${text} =>`, result);
+  useTabStore.getState().moveFocusNormal(searchTab.id, result.index);
+  virtuoso_scrollIntoView(result.index);
 
   // 検索完了後に新しい入力があれば再検索
   if (queuedInput !== null && queuedInput !== text) {
     const next = queuedInput;
     queuedInput = null; // キューをクリア
-    trySearch(next, resultIndex); // 再検索
+    trySearch(next, result.index); // 再検索
   }
 }
 
-async function search(text: string, startIndex: number): Promise<number | null> {
-  if (searchTab === null) return null;
-  if (!searchVirtuoso) return null;
-
+// Rustで検索実行
+// ※ Rustでエラーが起きたら null
+// ※ 検索中に状況が変わっていたら null
+async function search(text: string, startIndex: number): Promise<FileSearchResult | null> {
   const ret = await commands.searchNextFilename(searchTab.id, startIndex, text);
   const result = checkCommandReturn('searchNextFilename', ret);
   if (!result) return null;
 
-  // 検索中にタブの状況が変わっていたら結果を破棄する
-  if (!useTabStore.getState().existsTabId(searchTab.id)) return null;
-  if (useTabStore.getState().getCurrentTab().id !== searchTab.id) return null;
-  const newTab = useTabStore.getState().getTab(searchTab.id);
+  // 検索中にタブの状況が変わっていたら結果を無視する
+  const newTab = useTabStore.getState().findTab(searchTab.id);
+  if (!newTab) return null;
   if (newTab.refreshCount != searchTab.refreshCount) return null;
+  if (useTabStore.getState().getCurrentTab().id !== searchTab.id) return null;
 
-  // 結果格納
-  useSearchResultStore.getState().setResult(searchTab.id, result);
+  return result;
+}
 
-  // 検索できなかった
-  if (result.type !== 'Success') return null;
-
-  // 検索成功
-  console.debug(`search success: ${text} =>`, result);
-  useTabStore.getState().moveFocusNormal(searchTab.id, result.index);
-  searchVirtuoso.scrollIntoView({ index: result.index + 1 });
-  return result.index;
+function virtuoso_scrollIntoView(fileIndex: number) {
+  if (searchVirtuoso === null) return;
+  searchVirtuoso.scrollIntoView({ index: fileIndex + 1 });
 }

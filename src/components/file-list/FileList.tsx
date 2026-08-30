@@ -9,9 +9,9 @@ import { FileListRow } from './FileListRow';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { logic } from '@/lib/bindings-helper';
-import { tabFiles_handleKey } from '@/lib/tab-files-key-handler';
+import { tabFiles_handleKeyDown } from '@/lib/tab-files-key-handler';
 import { errToStr } from '@/lib/string-util';
-import { fileSearchInput_handleKey } from '@/lib/file-search-input-key-handler';
+import { fileSearchInput_handleKeyDown } from '@/lib/file-search-input-key-handler';
 
 function st() {
   return useTabStore.getState();
@@ -76,12 +76,12 @@ export default function FileList() {
       }
 
       // ファイル検索テキスト入力
-      if (fileSearchInput_handleKey(e, virtuoso.current)) {
+      if (fileSearchInput_handleKeyDown(e, virtuoso.current)) {
         return;
       }
 
       // ヘッダーがあるので -1
-      if (tabFiles_handleKey(e, tab, visibleListRange.current - 1, virtuoso.current)) {
+      if (tabFiles_handleKeyDown(e, tab, visibleListRange.current - 1, virtuoso.current)) {
         return;
       }
     };

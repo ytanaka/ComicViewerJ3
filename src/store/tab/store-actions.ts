@@ -5,9 +5,9 @@ export interface TabStoreActions {
   setCurrentTabIndex: (index: number) => void;
 
   getTab: (tabId: TabId) => TabInfo;
+  findTab: (tabId: TabId) => TabInfo | undefined;
   getCurrentTab: () => TabInfo;
   initTabs: (tabs: TabInfo[], focusHistories: Record<number, FileFocusHistory>) => void;
-  existsTabId: (tabId: TabId) => boolean;
 
   addTab: (tab: TabInfo) => void;
   moveTab: (fromIndex: number, toIndex: number) => void;
@@ -27,9 +27,13 @@ export const createAllTabsActions = (
   },
 
   getTab: (tabId: TabId) => {
-    const ret = get().tabs.find(t => t.id === tabId);
+    const ret = get().findTab(tabId);
     if (!ret) throw new Error(`no tab(${tabId})`);
     return ret;
+  },
+
+  findTab: (tabId: TabId) => {
+    return get().tabs.find(t => t.id === tabId);
   },
 
   getCurrentTab: (): TabInfo => {
@@ -58,10 +62,6 @@ export const createAllTabsActions = (
         focusHistories: { ...focusHistories },
       };
     });
-  },
-
-  existsTabId: (tabId: TabId) => {
-    return 0 <= get().tabs.findIndex(t => t.id === tabId);
   },
 
   // ※ カレントタブは追加されたタブに移る
