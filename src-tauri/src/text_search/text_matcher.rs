@@ -120,27 +120,30 @@ impl TextMatcher {
         }
     }
 
+    // ファイル名が入力に一致するかどうか判定する
+    // ファイル名の一致個所を返す (String中の 開始インデックス, 終了インデックス)
     pub fn find(
         &self,
-        input_katakana: &str,
-        input_migemo_re: &Regex,
-        input_normalized: &str,
-        target: &str,
+        input_katakana: &str,    // 入力されたローマ字 -> カタカナ
+        input_migemo_re: &Regex, // 入力されたローマ字のMigemo正規表現
+        input_normalized: &str, // 入力されたローマ字や漢字など -> 正規化 (正規化したファイル名と単純一致させる)
+        filename: &str,         // 比較するファイル名
     ) -> Option<(usize, usize)> {
         // Migemo で検索
-        if let Some(m) = input_migemo_re.captures_iter(target).next() {
+        if let Some(m) = input_migemo_re.captures_iter(filename).next() {
             let m = m.get_match();
             return Some((m.start(), m.end()));
         }
 
         // Vibrato で検索
-        let vstr = self.get_cache(target);
+        let vstr = self.get_cache(filename);
         if let Some(m) = vstr.find(input_katakana) {
             return Some(vstr.elmidx_to_stridx(m));
         }
 
         // 正規化した文字列に対して単純検索 (アルファベットや数字に一致するかも)
         if let Some(_) = vstr.get_normalized_str().find(input_normalized) {
+            // 正規化する前後で文字列長が変わることがあるので、元の文字列のどこに一致したかはわからなくなる
             return Some((0, vstr.get_org_str().len()));
         }
 

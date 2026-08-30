@@ -3,6 +3,7 @@ use regex::Regex;
 use rustmigemo::migemo::query::query;
 use rustmigemo::migemo::{self, compact_dictionary::CompactDictionary};
 
+// https://github.com/oguna/rustmigemo
 pub struct Migemo {
     dict: CompactDictionary,
 }

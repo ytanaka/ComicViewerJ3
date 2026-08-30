@@ -4,12 +4,15 @@ use zip::ZipArchive;
 
 // build.rs
 fn main() {
+    // Tauriのビルドに必要
     tauri_build::build();
+
     download_rustmigemo_dict();
     download_vibrato_dict();
     download_migemo();
 }
 
+// src-tauri/src/text-search/Migemo で使用する辞書
 fn download_rustmigemo_dict() {
     if exists_target_file("dict/migemo-compact-dict/migemo-compact-dict") {
         return;
@@ -41,6 +44,7 @@ fn download_rustmigemo_dict() {
     }
 }
 
+// src-tauri/src/text-search/Vibrato で使用する辞書
 fn download_vibrato_dict() {
     if exists_target_file("dict/unidic-cwj-3_1_1+compact/system.dic.zst") {
         return;
@@ -61,6 +65,7 @@ fn download_vibrato_dict() {
     archive.unpack(out_dir).unwrap();
 }
 
+// src-tauri/src/text-search/ReverseMigemo で使用するオリジナル migemo 辞書
 fn download_migemo() {
     if exists_target_file("dict/migemo-0.40/migemo-dict") {
         return;

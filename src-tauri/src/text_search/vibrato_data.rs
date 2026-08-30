@@ -3,11 +3,13 @@ use std::{collections::HashSet, sync::Arc};
 use crate::{text_search::reverse_migemo::ReverseMigemo, UT_LOG};
 
 /// 形態素解析した結果の単語で区切られた文字列を格納する
+/// vec['タンゴ', 'ノ', 'クギリ', 'デス']
 pub struct SplStr {
     // 単語区切りされた文字列リスト
     list: Vec<SplStrElm>,
 
-    // ひらがな -> カタカナ、英数 -> 半角 などした文字列
+    // 正規化した文字列 (ひらがな -> カタカナ、英数 -> 半角 など)
+    // ※ 形態素解析以外の普通の文字列検索で使用する
     normalized: String,
 
     // ただの参照

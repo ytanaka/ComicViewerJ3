@@ -11,6 +11,9 @@ use crate::text_search::{
 
 const UNIDIC_YOMI_COLUMN: usize = 20;
 
+// 形態素解析ライブラリ
+// https://crates.io/crates/vibrato
+// 辞書: https://github.com/daac-tools/vibrato/releases/tag/v0.5.0
 pub struct Vibrato {
     tokenizer: Tokenizer,
 }
