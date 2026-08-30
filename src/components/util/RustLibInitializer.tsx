@@ -15,7 +15,7 @@ export function RustLibInitializer({ children }: { children: ReactNode }) {
   }, [appInitialized, setAppInitialized]);
 
   if (!appInitialized) {
-    return <div>initializing ...</div>;
+    return <div className='h-screen w-screen flex justify-center items-center dark:text-white dark:bg-gray-800 text-black bg-gray-400'>initializing ...</div>;
   } else {
     return children;
   }
