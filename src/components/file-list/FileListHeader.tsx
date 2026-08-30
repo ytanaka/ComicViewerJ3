@@ -20,7 +20,7 @@ export function FileListHeader() {
   }
 
   return (
-    <div className="w-full bg-gray-200 dark:bg-gray-900">
+    <div className="w-full border-b bg-gray-200 dark:bg-gray-900">
       <ResizablePanelGroup orientation="horizontal" className="flex w-full" onLayoutChanged={handleLayoutChanged}>
         {titles.map((s, i) => {
           return (
