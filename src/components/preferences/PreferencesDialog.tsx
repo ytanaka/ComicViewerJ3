@@ -1,14 +1,13 @@
 import { Settings, Zap } from "lucide-react";
 
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 import { useUiStore } from "@/store/ui-store";
-import { GeneralPane } from "./GeneralPane";
-import { AdvancedPane } from "./AdvancedPane";
+import { GeneralPane } from "./panels/GeneralPane";
+import { DebugPane } from "./panels/DebugPanel";
 
-
-const paneList = [
+const panelList = [
   {
     id: 'general' as const,
     label: '基本',
@@ -16,10 +15,10 @@ const paneList = [
     node: GeneralPane
   },
   {
-    id: 'advanced' as const,
-    label: '高度な設定',
+    id: 'debug' as const,
+    label: 'デバッグ用設定',
     icon: Zap,
-    node: AdvancedPane
+    node: DebugPane
   },
 ] as const;
 
@@ -29,11 +28,15 @@ export function PreferencesDialog() {
 
   return (
     <Dialog open={showPreferencesDialog} onOpenChange={setShowPreferencesDialog}>
-      <DialogContent className="max-w-[90%] max-h-[90%]">
-        <div className="flex">
-          <Tabs orientation='vertical'>
+      {/* <DialogContent className="w-[90vw] h-[90vh] max-w-none max-h-none sm:max-w-none"> */}
+      <DialogContent className="w-[90vw] h-[90vh] max-w-none max-h-none sm:max-w-none">
+        <div>
+          <DialogHeader>
+            <DialogTitle>設定</DialogTitle>
+          </DialogHeader>
+          <Tabs className='pt-2' orientation='vertical'>
             <TabsList>
-              {paneList.map(item => (
+              {panelList.map(item => (
                 <TabsTrigger key={item.id} value={item.id}
                 >
                   <item.icon />
@@ -41,8 +44,8 @@ export function PreferencesDialog() {
                 </TabsTrigger>
               ))}
             </TabsList>
-            {paneList.map(item => (
-              <TabsContent key={item.id} value={item.id}>
+            {panelList.map(item => (
+              <TabsContent key={item.id} value={item.id} className='flex-1'>
                 <item.node />
               </TabsContent>
             ))}
