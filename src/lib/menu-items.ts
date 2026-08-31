@@ -1,3 +1,4 @@
+import { useUiStore } from '@/store/ui-store';
 import { tabCommands } from './commands/tab-commands';
 import { windowCommands } from './commands/window-commands';
 
@@ -46,19 +47,25 @@ export class AppHotkey {
 }
 
 export const menuItems = {
-  exitApp: M('終了', () => windowCommands.exitApp(), 'Ctrl+Q'),
-
+  // -------------------- File --------------------
   openDir: M('ディレクトリを開く', () => windowCommands.openDirectory(), 'Ctrl+O'),
   createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl+F'),
   createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl+K'),
   openFileProperty: M('プロパティ', () => console.log('CREATE DIR!!!'), 'Alt+Enter'),
 
+  exitApp: M('終了', () => windowCommands.exitApp(), 'Ctrl+Q'),
+
+  // -------------------- Edit --------------------
   copyFile: M('コピー', () => console.log('COPY!!!'), 'Ctrl+C'),
   cutFile: M('切り取り', () => console.log('CUT!!!'), 'Ctrl+X'),
   pasteFile: M('貼り付け', () => console.log('PASTE!!!'), 'Ctrl+V'),
+
   deleteFile: M('削除', () => console.log('DEL!!!'), 'Delete'),
   renameFile: M('名前変更', () => console.log('RENAME!!!'), 'F2'),
 
+  preference: M('設定', () => useUiStore.getState().setShowPreferencesDialog(true), 'Ctrl+,'),
+
+  // -------------------- Tab --------------------
   cloneTab: M('タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl+T'),
   closeCurrentTab: M('タブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl+W'),
   nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl+PageDown'),

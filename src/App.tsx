@@ -8,6 +8,7 @@ import { TabContent } from './components/misc/TabContent';
 import { HotKeys } from './components/util/HotKeys';
 import { TabBar } from './components/misc/TabBar';
 import { StatusBar } from './components/misc/StatusBar';
+import { PreferencesDialog } from './components/preferences/PreferencesDialog';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -22,6 +23,7 @@ function App() {
       <TabBar />
       <TabContent />
       <StatusBar />
+      <PreferencesDialog />
       <Toaster
         position="bottom-right"
         expand={false}

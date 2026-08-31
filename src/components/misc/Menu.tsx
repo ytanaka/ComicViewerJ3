@@ -87,6 +87,10 @@ export function Menu() {
             <MyMenuItem m={menuItems.deleteFile} />
             <MyMenuItem m={menuItems.renameFile} />
           </MenubarGroup>
+          <MenubarSeparator />
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.preference} />
+          </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu onOpenChange={handleOpenChange}>
