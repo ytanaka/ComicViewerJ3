@@ -52,7 +52,7 @@ impl TabInfo {
     pub fn get_current_dir(&self) -> Option<&Path> {
         self.current_dir.as_deref()
     }
-    pub fn get_tab_generation(&self) -> u64 {
+    pub fn _get_tab_generation(&self) -> u64 {
         self.tab_generation
     }
     pub fn get_sort_generation(&self) -> u64 {
@@ -100,7 +100,7 @@ impl TabInfo {
             if let Some(info) = self.files.get(&i) {
                 ret.push(DirEntry {
                     id: i,
-                    name: info.name.to_string_lossy().to_string(),
+                    name: Arc::from(info.name.to_string_lossy()),
                 });
             }
         }
@@ -191,9 +191,9 @@ mod tests {
 
         let dir_entries = tab.create_dir_entries();
         assert_eq!(dir_entries.len(), 3);
-        assert_eq!(dir_entries[0].name, "f1.txt");
-        assert_eq!(dir_entries[1].name, "f2.txt");
-        assert_eq!(dir_entries[2].name, "f3.txt");
+        assert_eq!(dir_entries[0].name, Arc::from("f1.txt"));
+        assert_eq!(dir_entries[1].name, Arc::from("f2.txt"));
+        assert_eq!(dir_entries[2].name, Arc::from("f3.txt"));
 
         // 空のデータをセットする
         tab.set_files(current_dir.clone(), HashMap::new());

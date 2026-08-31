@@ -94,7 +94,7 @@ fn read_dir_entries_impl(
     let ret = tab.create_dir_entries();
 
     // 形態素解析する
-    let names: Vec<_> = ret.iter().map(|f| f.name.to_string()).collect();
+    let names: Vec<_> = ret.iter().map(|f| f.name.clone()).collect();
     if state.is_initialized() {
         state
             .text_matcher
@@ -203,15 +203,15 @@ mod tests {
         let ret = read_dir_entries_impl(&state, tab_id, "./testdata".to_string()).unwrap();
 
         assert_eq!(ret.len(), 4);
-        assert_eq!(ret[0].name, "d1");
-        assert_eq!(ret[1].name, "d2");
-        assert_eq!(ret[2].name, "d3");
-        assert_eq!(ret[3].name, "fff.txt");
+        assert_eq!(ret[0].name, Arc::from("d1"));
+        assert_eq!(ret[1].name, Arc::from("d2"));
+        assert_eq!(ret[2].name, Arc::from("d3"));
+        assert_eq!(ret[3].name, Arc::from("fff.txt"));
 
         let ret = read_dir_entries_impl(&state, tab_id, "./testdata/d2".to_string()).unwrap();
         assert_eq!(ret.len(), 2);
-        assert_eq!(ret[0].name, "f2-1.txt");
-        assert_eq!(ret[1].name, "f2-2.txt");
+        assert_eq!(ret[0].name, Arc::from("f2-1.txt"));
+        assert_eq!(ret[1].name, Arc::from("f2-2.txt"));
     }
 
     #[test]
@@ -240,17 +240,17 @@ mod tests {
 
         // f3-1.txt
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].id)).unwrap();
-        assert_eq!(finfo.name, String::from("f3-1.txt"));
+        assert_eq!(finfo.name, Arc::from("f3-1.txt"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, false);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(1));
         // f3-3.txt
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id)).unwrap();
-        assert_eq!(finfo.name, String::from("f3-3.txt"));
+        assert_eq!(finfo.name, Arc::from("f3-3.txt"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, false);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id)).unwrap();
-        assert_eq!(finfo.name, String::from("xxx"));
+        assert_eq!(finfo.name, Arc::from("xxx"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, true);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(0));
     }

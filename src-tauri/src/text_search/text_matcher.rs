@@ -21,14 +21,14 @@ use crate::{
 struct WorkerPacket {
     tab_id: TabId,
     path: PathBuf,
-    list: Vec<String>,
+    list: Vec<Arc<str>>,
 
     progress: usize,
     total: usize,
 }
 impl WorkerPacket {
-    fn create(tab_id: TabId, path: impl AsRef<Path>, list: Vec<String>) -> Vec<Self> {
-        let list2: Vec<Vec<String>> = list.chunks(1000).map(|c| c.to_vec()).collect();
+    fn create(tab_id: TabId, path: impl AsRef<Path>, list: Vec<Arc<str>>) -> Vec<Self> {
+        let list2: Vec<Vec<Arc<str>>> = list.chunks(1000).map(|c| c.to_vec()).collect();
         let mut progress = 0;
         list2
             .iter()
@@ -105,7 +105,7 @@ impl TextMatcher {
         ret2
     }
 
-    pub fn send_to_worker(&self, tab_id: TabId, path: impl AsRef<Path>, list: Vec<String>) {
+    pub fn send_to_worker(&self, tab_id: TabId, path: impl AsRef<Path>, list: Vec<Arc<str>>) {
         for list in WorkerPacket::create(tab_id, path, list) {
             self.tx.send(list).unwrap();
         }

@@ -16,7 +16,7 @@ pub struct DirEntry {
     #[specta(type = specta_typescript::Number)]
     pub id: FileId,
 
-    pub name: String,
+    pub name: Arc<str>,
 }
 
 /// ファイルのソート条件
@@ -41,7 +41,7 @@ impl SortType {
 /// UIに返す詳細ファイル情報
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileInfo {
-    pub name: String, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
+    pub name: Arc<str>, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
     pub metadata: Option<FileMetadata>,
 }
 
@@ -56,7 +56,7 @@ pub struct FileInfoOs {
 impl FileInfoOs {
     pub fn to_ui(&self) -> FileInfo {
         FileInfo {
-            name: self.name.to_string_lossy().to_string(),
+            name: Arc::from(self.name.to_string_lossy()),
             metadata: self.metadata.clone(),
         }
     }
