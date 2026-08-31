@@ -127,16 +127,21 @@ fn read_dir_entries_impl2(
 // ※ id は u64 にしたかったが、tauri_specta でエラーになるので文字列にする
 #[tauri::command]
 #[specta::specta]
-pub fn get_file_info(
+pub async fn get_file_info(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_id: &str,
 ) -> Result<FileInfo, String> {
-    LOG_RESULT!(format!("get_file_info({tab_id}, {file_id})"), {
-        get_file_info_impl(&state, tab_id, file_id).map_err(|e| e.to_string())
-    })
+    let ret = get_file_info_impl(&state, tab_id, file_id)
+        .await
+        .map_err(|e| e.to_string());
+    LOG_RESULT!(format!("get_file_info({tab_id}, {file_id})"), { ret })
 }
-fn get_file_info_impl(state: &AppState, tab_id: TabId, file_id: &str) -> anyhow::Result<FileInfo> {
+async fn get_file_info_impl(
+    state: &AppState,
+    tab_id: TabId,
+    file_id: &str,
+) -> anyhow::Result<FileInfo> {
     let tab = state.get_tab(tab_id)?;
     let mut tab = tab.write().unwrap();
     let file_id: u64 = file_id.parse().map_err(|_| anyhow!("invalid file_id"))?;
@@ -214,42 +219,42 @@ mod tests {
         assert_eq!(ret[1].name, Arc::from("f2-2.txt"));
     }
 
-    #[test]
-    fn test_get_file_info() {
+    #[tokio::test]
+    async fn test_get_file_info() {
         let state = AppState::new();
-        let f = |tab_id: TabId, file_id: &str| {
-            get_file_info_impl(&state, tab_id, file_id).map_err(|e| e.to_string())
+        let f = async |tab_id: TabId, file_id: &str| {
+            get_file_info_impl(&state, tab_id, file_id).await.map_err(|e| e.to_string())
         };
-        assert_eq!(f(0, ""), Err("invalid tab_id: 0".to_string()));
+        assert_eq!(f(0, "").await, Err("invalid tab_id: 0".to_string()));
         let tab_id = create_tab_imp(&state);
-        assert_eq!(f(tab_id, "0"), Err("not initialized tab: 1".to_string()));
+        assert_eq!(f(tab_id, "0").await, Err("not initialized tab: 1".to_string()));
 
         // ディレクトリ読み込み
         let dir_entries =
             read_dir_entries_impl(&state, tab_id, "./testdata/d3".to_string()).unwrap();
 
-        assert_eq!(f(tab_id, ""), Err("invalid file_id".to_string()));
-        assert_eq!(f(tab_id, " 1"), Err("invalid file_id".to_string()));
-        assert_eq!(f(tab_id, "1 "), Err("invalid file_id".to_string()));
-        assert_eq!(f(tab_id, "１"), Err("invalid file_id".to_string()));
+        assert_eq!(f(tab_id, "").await, Err("invalid file_id".to_string()));
+        assert_eq!(f(tab_id, " 1").await, Err("invalid file_id".to_string()));
+        assert_eq!(f(tab_id, "1 ").await, Err("invalid file_id".to_string()));
+        assert_eq!(f(tab_id, "１").await, Err("invalid file_id".to_string()));
 
         assert_eq!(
-            f(tab_id, "99999"),
+            f(tab_id, "99999").await,
             Err("invalid file_id: 99999 for tab_id[1]".to_string())
         );
 
         // f3-1.txt
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].id)).unwrap();
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].id)).await.unwrap();
         assert_eq!(finfo.name, Arc::from("f3-1.txt"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, false);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(1));
         // f3-3.txt
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id)).unwrap();
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id)).await.unwrap();
         assert_eq!(finfo.name, Arc::from("f3-3.txt"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, false);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id)).unwrap();
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id)).await.unwrap();
         assert_eq!(finfo.name, Arc::from("xxx"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, true);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(0));

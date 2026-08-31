@@ -28,6 +28,7 @@ specta = { version = "=2.0.0-rc.25", features = ["derive", "serde_json"] }
 tauri-specta = { version = "=2.0.0-rc.25", features = ["typescript"] }
 specta-typescript = "=0.0.12"
 
+tokio = { version = "1.53.1", features = ["full"] }
 rayon = "1.12.0"
 anyhow = "1.0.104"
 log = "0.4.33"
