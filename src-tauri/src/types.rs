@@ -3,6 +3,10 @@ use std::{ffi::OsStr, sync::Arc};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+// =====================================================================================================================
+// fs.rs
+// =====================================================================================================================
+
 pub type TabId = u32;
 pub type FileId = u64;
 
@@ -80,6 +84,10 @@ pub struct FileMetadata {
     pub created: Option<u64>,
 }
 
+// =====================================================================================================================
+// migemo.rs
+// =====================================================================================================================
+
 /// ファイル検索結果
 #[derive(Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
@@ -117,6 +125,24 @@ impl std::fmt::Debug for FileSearchResult {
             FileSearchResult::FailNoCache => write!(f, "FailNoCache"),
             FileSearchResult::FailNoMatch => write!(f, "FailNoMatch"),
             FileSearchResult::Canceled => write!(f, "Canceled"),
+        }
+    }
+}
+
+// =====================================================================================================================
+// preferences.rs
+// =====================================================================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub struct AppPreferences {
+    // ファイル名検索するとき
+    pub debug_filename_search_sleep_ms: i32,
+}
+
+impl Default for AppPreferences {
+    fn default() -> Self {
+        Self {
+            debug_filename_search_sleep_ms: 0,
         }
     }
 }

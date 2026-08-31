@@ -9,7 +9,7 @@ use crate::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
         text_matcher::TextMatcher, vibrato::Vibrato,
     },
-    types::TabId,
+    types::{AppPreferences, TabId},
 };
 
 pub struct AppState {
@@ -23,6 +23,9 @@ pub struct AppState {
     pub migemo: OnceLock<Arc<Migemo>>,
     pub romaji_cnv: Arc<RomajiCnv>,
     pub text_matcher: OnceLock<Arc<TextMatcher>>,
+
+    // 設定
+    pub preferences: OnceLock<Arc<RwLock<AppPreferences>>>,
 }
 impl AppState {
     pub fn new() -> Self {
@@ -34,8 +37,9 @@ impl AppState {
             vibrato: OnceLock::new(),
             migemo: OnceLock::new(),
             romaji_cnv: Arc::new(RomajiCnv::new()),
-
             text_matcher: OnceLock::new(),
+
+            preferences: OnceLock::new(),
         }
     }
 
@@ -51,6 +55,10 @@ impl AppState {
         state
             .text_matcher
             .get_or_init(|| TextMatcher::new(state.clone()));
+
+        state
+            .preferences
+            .get_or_init(|| Arc::new(RwLock::new(AppPreferences::default())));
     }
     pub fn is_initialized(&self) -> bool {
         self.text_matcher.get().is_some()

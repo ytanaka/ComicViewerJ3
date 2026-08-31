@@ -4,6 +4,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::app;
     use crate::commands::fs;
     use crate::commands::migemo;
+    use crate::commands::preferences;
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         app::exit_app,
@@ -16,6 +17,8 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::get_file_info,
         fs::sort_files,
         migemo::search_next_filename,
+        preferences::load_preferences,
+        preferences::save_preferences,
     ])
 }
 

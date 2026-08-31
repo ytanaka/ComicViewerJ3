@@ -28,9 +28,15 @@ export const commands = {
 	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
+	loadPreferences: () => typedError<AppPreferences, string>(__TAURI_INVOKE("load_preferences")),
+	savePreferences: (preferences: AppPreferences) => typedError<null, string>(__TAURI_INVOKE("save_preferences", { preferences })),
 };
 
 /* Types */
+export type AppPreferences = {
+	debug_filename_search_sleep_ms: number,
+};
+
 /**  UIへ返すファイル一覧の要素 */
 export type DirEntry = {
 	id: number,
