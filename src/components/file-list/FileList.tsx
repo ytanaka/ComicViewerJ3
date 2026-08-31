@@ -9,9 +9,9 @@ import { FileListRow } from './FileListRow';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { logic } from '@/lib/bindings-helper';
-import { tabFiles_handleKeyDown } from '@/lib/tab-files-key-handler';
 import { errToStr } from '@/lib/string-util';
-import { fileSearchInput_handleKeyDown } from '@/lib/file-search-input-key-handler';
+import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
+import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 
 function st() {
   return useTabStore.getState();

@@ -1,6 +1,6 @@
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { usePreferences, useSavePreferences } from "@/lib/commands/preferences-commands";
+import { usePreferences, useSavePreferences } from "@/hooks/preferences";
 import { ChangeEvent } from "react";
 
 export function DebugPane() {

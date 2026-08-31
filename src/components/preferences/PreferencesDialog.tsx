@@ -1,4 +1,4 @@
-import { Settings, Zap } from "lucide-react";
+import { Info, Settings, Settings2, Zap } from "lucide-react";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -10,11 +10,20 @@ import { AboutPane } from "./panels/AboutPanel";
 import { useUiVolatileStore } from "@/store/ui-volatile-store";
 import { AdvancedPane } from "./panels/AdvancedPanel";
 
-const allPanelList = [
+export type PreferenceDialogTabId = 'general' | 'advanced' | 'debug' | 'about';
+
+export interface PanelProp {
+  id: PreferenceDialogTabId,
+  label: string,
+  icon: typeof Settings,
+  node: typeof GeneralPane,
+};
+
+const allPanelList: PanelProp[] = [
   {
     id: 'general',
     label: '基本',
-    icon: Settings,
+    icon: Settings2,
     node: GeneralPane
   },
   {
@@ -32,7 +41,7 @@ const allPanelList = [
   {
     id: 'about',
     label: 'アプリについて',
-    icon: Zap,
+    icon: Info,
     node: AboutPane
   },
 ];
@@ -41,10 +50,12 @@ export function PreferencesDialog() {
   const showPreferencesDialog = useUiVolatileStore(state => state.showPreferencesDialog);
   const setShowPreferencesDialog = useUiVolatileStore(state => state.setShowPreferencesDialog);
 
+  const preferenceDialogTabId = useUiVolatileStore(state => state.preferenceDialogTabId);
+  const setPreferenceDialogTabId = useUiVolatileStore(state => state.setPreferenceDialogTabId);
+
   const debugPreferenceOn = useUiStore(state => state.debugPreferenceOn);
 
   const panelList = allPanelList.filter((p) => p.id !== 'debug' || debugPreferenceOn);
-
 
   return (
     <Dialog open={showPreferencesDialog} onOpenChange={setShowPreferencesDialog}>
@@ -54,7 +65,7 @@ export function PreferencesDialog() {
           <DialogHeader>
             <DialogTitle>設定</DialogTitle>
           </DialogHeader>
-          <Tabs className='pt-2' orientation='vertical'>
+          <Tabs defaultValue={preferenceDialogTabId} onValueChange={setPreferenceDialogTabId} className='pt-2' orientation='vertical'>
             <TabsList>
               {panelList.map(item => (
                 <TabsTrigger key={item.id} value={item.id}

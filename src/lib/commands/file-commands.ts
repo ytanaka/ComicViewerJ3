@@ -7,6 +7,7 @@ function st() {
 }
 
 export const fileCommands = {
+  // 親ディレクトリへ移動
   async moveToParentDir() {
     const path = st().getCurrentTab().path;
     try {
@@ -18,6 +19,7 @@ export const fileCommands = {
     }
   },
 
+  // 子ディレクトリに移動
   async moveToChildDirectory(name: string) {
     const path = st().getCurrentTab().path;
     const dir = await tauri_resolve(path, name);

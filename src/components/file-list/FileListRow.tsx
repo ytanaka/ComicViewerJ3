@@ -10,7 +10,7 @@ import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { TabInfo } from '@/store/tab/types';
 import { logic } from '@/lib/bindings-helper';
-import { tabFiles_handleMouseClick } from '@/lib/tab-files-key-handler';
+import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 
 function useHeaderSize(n: FileListHeaderN): number {

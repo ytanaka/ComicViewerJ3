@@ -11,10 +11,12 @@ function st() {
 }
 
 export const tabCommands = {
+  // タブを開く (ホームディレクトリ)
   async addTab_homeDir() {
     await this.cloneTab(await tauri_homeDir());
   },
 
+  // タブを開く (現在のタブと同じディレクトリ)
   async cloneCurrentTab() {
     if (st().tabs.length === 0) {
       await this.addTab_homeDir();
@@ -23,6 +25,7 @@ export const tabCommands = {
     }
   },
 
+  // タブをコピーする
   // index を渡すと、インデックスにあるタブをコピーする
   // path を渡すと、そのパスでタブを開く
   async cloneTab(index_or_path: number | string) {
@@ -41,6 +44,7 @@ export const tabCommands = {
     st().addTab(mkTabInfo(tabId, absPath));
   },
 
+  // タブ削除
   async removeTab(id: TabId) {
     if (st().tabs.length === 0) return;
     console.info(`tabCommands.removeTab(${id})`);
@@ -49,17 +53,20 @@ export const tabCommands = {
     useScrollToFocusStore.getState().setScroll(true);
   },
 
+  // タブ削除 (カレント)
   async removeCurrentTab() {
     const tab = st().getCurrentTab();
     if (!tab) return;
     await this.removeTab(tab.id);
   },
 
+  // フォーカスするタブの指定
   setCurrentTabIndex(index: number) {
     st().setCurrentTabIndex(index);
     useScrollToFocusStore.getState().setScroll(true);
   },
 
+  // フォーカスするタブを移動
   setCurrentTabNextPrev(inc: number) {
     let index = st().currentTabIndex + inc;
     if (index < 0) index = st().tabs.length - 1;

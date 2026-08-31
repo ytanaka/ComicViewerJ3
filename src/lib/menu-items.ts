@@ -1,6 +1,6 @@
+import { dialogCommands } from './commands/dialog-commands';
 import { tabCommands } from './commands/tab-commands';
 import { windowCommands } from './commands/window-commands';
-import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
 type MenuExec = () => Promise<void> | void;
 
@@ -63,7 +63,7 @@ export const menuItems = {
   deleteFile: M('削除', () => console.log('DEL!!!'), 'Delete'),
   renameFile: M('名前変更', () => console.log('RENAME!!!'), 'F2'),
 
-  preference: M('設定', () => useUiVolatileStore.getState().setShowPreferencesDialog(true), 'Ctrl+,'),
+  preference: M('設定', () => dialogCommands.openPreference(), 'Ctrl+,'),
 
   // -------------------- Tab --------------------
   cloneTab: M('タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl+T'),

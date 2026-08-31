@@ -1,10 +1,13 @@
-import { fileCommands } from './commands/file-commands';
 import React from 'react';
+import { VirtuosoHandle } from 'react-virtuoso';
+
 import { TabInfo } from '@/store/tab/types';
 import { useTabStore } from '@/store/tab/store';
-import { VirtuosoHandle } from 'react-virtuoso';
 import { useSearchTextStore } from '@/store/file-search-text-store';
-import { searchCommands } from './commands/search-commands';
+import { searchCommands } from '../commands/search-commands';
+import { fileCommands } from '../commands/file-commands';
+import { dialogCommands } from '../commands/dialog-commands';
+
 
 function st() {
   return useTabStore.getState();
@@ -16,6 +19,8 @@ export function tabFiles_handleKeyDown(
   pageNum: number,
   virtuoso: VirtuosoHandle
 ): boolean {
+  if (dialogCommands.isOpenAnyDialog()) return false;
+
   // キーボードによるリストのフォーカス移動ハンドラー
   // フォーカスが移動したら、true
   const sel = st().getSelection(tab.id);

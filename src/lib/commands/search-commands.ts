@@ -21,6 +21,7 @@ let searchTab: TabInfo = emptyTab;
 let searchVirtuoso: VirtuosoHandle | null;
 
 export const searchCommands = {
+  // ファイル検索
   async searchNextFilename(tab: TabInfo, startIndex: number, romaji: string, reverse: boolean, virtuoso: VirtuosoHandle) {
     searchTab = tab;
     searchVirtuoso = virtuoso;

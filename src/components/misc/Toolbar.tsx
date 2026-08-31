@@ -12,12 +12,14 @@ import {
   TextCursorInput,
   Grid2x2,
   Rows3,
+  Settings,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { windowCommands } from '@/lib/commands/window-commands';
+import { dialogCommands } from '@/lib/commands/dialog-commands';
 
 function B({ icon, onClick, toolTip }: { icon: ReactNode; onClick?: () => void; toolTip?: string }) {
   const baseComponent = (
@@ -44,6 +46,7 @@ export function Toolbar() {
   return (
     <div className="flex items-center gap-0.5 border rounded-md p-0.5">
       <B icon={<FolderOpen />} toolTip="ディレクトリを開く" onClick={windowCommands.openDirectory} />
+      <B icon={<Settings />} toolTip="設定" onClick={dialogCommands.openPreference} />
       <B icon={<LogOut />} toolTip="アプリ終了" onClick={windowCommands.exitApp} />
       <Separator orientation="vertical" className="m-1" />
 

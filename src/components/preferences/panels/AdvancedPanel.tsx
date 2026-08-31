@@ -29,7 +29,7 @@ export function AdvancedPane() {
           <FieldDescription>この時間キーボード入力が途絶えると、次の入力は別の単語として認識されます</FieldDescription>
         </Field>
         <Field>
-          <FieldLabel>ファイル検索結果をツールチップで表示するタイムアウト</FieldLabel>
+          <FieldLabel>ファイル検索結果のツールチップを消す時間</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
               type="number"

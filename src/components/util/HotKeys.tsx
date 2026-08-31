@@ -1,3 +1,4 @@
+import { dialogCommands } from '@/lib/commands/dialog-commands';
 import { searchCommands } from '@/lib/commands/search-commands';
 import { getAllMenuItems } from '@/lib/menu-items';
 import { useEffect } from 'react';
@@ -5,6 +6,8 @@ import { useEffect } from 'react';
 export function HotKeys() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (dialogCommands.isOpenAnyDialog()) return;
+
       const menus = getAllMenuItems();
 
       for (let i = 0; i < menus.length; i++) {

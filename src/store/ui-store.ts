@@ -24,7 +24,6 @@ export interface UiStore {
   fileSearchResultDisplayTimeoutMs: number;
 
   setDebugPreferenceOn: (b: boolean) => void;
-
   setFileListHeaderSizes: (sizes: number[]) => void;
   setFileSearchInputTimeoutMs: (ms: number) => void;
   setFileSearchResultDisplayTimeoutMs: (ms: number) => void;
