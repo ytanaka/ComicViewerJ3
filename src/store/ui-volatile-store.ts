@@ -15,20 +15,24 @@ export interface UiVolatileStore {
   setPreferenceDialogTabId: (id: PreferenceDialogTabId) => void;
 }
 
-export const useUiVolatileStore = create<UiVolatileStore>()(
-  set => ({
-    appInitialized: false,
-    showPreferencesDialog: false,
-    preferenceDialogTabId: 'general',
+export const useUiVolatileStore = create<UiVolatileStore>()(set => ({
+  appInitialized: false,
+  showPreferencesDialog: false,
+  preferenceDialogTabId: 'general',
 
-    setAppInitialized: () => {
-      set(() => { return { appInitialized: true }; });
-    },
-    setShowPreferencesDialog: (b: boolean) => {
-      set(() => { return { showPreferencesDialog: b }; });
-    },
-    setPreferenceDialogTabId: (id: PreferenceDialogTabId) => {
-      set(() => { return { preferenceDialogTabId: id }; });
-    },
-  })
-);
+  setAppInitialized: () => {
+    set(() => {
+      return { appInitialized: true };
+    });
+  },
+  setShowPreferencesDialog: (b: boolean) => {
+    set(() => {
+      return { showPreferencesDialog: b };
+    });
+  },
+  setPreferenceDialogTabId: (id: PreferenceDialogTabId) => {
+    set(() => {
+      return { preferenceDialogTabId: id };
+    });
+  },
+}));

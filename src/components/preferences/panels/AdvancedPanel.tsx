@@ -1,6 +1,6 @@
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { useUiStore } from "@/store/ui-store";
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { useUiStore } from '@/store/ui-store';
 
 export function AdvancedPane() {
   const fileSearchInputTimeoutMs = useUiStore(state => state.fileSearchInputTimeoutMs);
@@ -21,10 +21,10 @@ export function AdvancedPane() {
               min={1000}
               max={10000}
               step={250}
-              onChange={(e) => setFileSearchInputTimeoutMs(Number(e.target.value))}
+              onChange={e => setFileSearchInputTimeoutMs(Number(e.target.value))}
               value={fileSearchInputTimeoutMs}
             />
-            <InputGroupAddon align='inline-end'>(ms)</InputGroupAddon>
+            <InputGroupAddon align="inline-end">(ms)</InputGroupAddon>
           </InputGroup>
           <FieldDescription>この時間キーボード入力が途絶えると、次の入力は別の単語として認識されます</FieldDescription>
         </Field>
@@ -36,13 +36,13 @@ export function AdvancedPane() {
               min={1000}
               max={10000}
               step={250}
-              onChange={(e) => setFileSearchResultDisplayTimeoutMs(Number(e.target.value))}
+              onChange={e => setFileSearchResultDisplayTimeoutMs(Number(e.target.value))}
               value={fileSearchResultDisplayTimeoutMs}
             />
-            <InputGroupAddon align='inline-end'>(ms)</InputGroupAddon>
+            <InputGroupAddon align="inline-end">(ms)</InputGroupAddon>
           </InputGroup>
         </Field>
       </FieldGroup>
     </FieldSet>
-  )
+  );
 }

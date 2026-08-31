@@ -14,7 +14,7 @@ const emptyTab: Readonly<TabInfo> = {
   id: -1,
   path: '',
   execExclusive: new ExecExclusibe(),
-  refreshCount: -1
+  refreshCount: -1,
 } as const;
 
 let searchTab: TabInfo = emptyTab;
@@ -22,7 +22,13 @@ let searchVirtuoso: VirtuosoHandle | null;
 
 export const searchCommands = {
   // ファイル検索
-  async searchNextFilename(tab: TabInfo, startIndex: number, romaji: string, reverse: boolean, virtuoso: VirtuosoHandle) {
+  async searchNextFilename(
+    tab: TabInfo,
+    startIndex: number,
+    romaji: string,
+    reverse: boolean,
+    virtuoso: VirtuosoHandle
+  ) {
     searchTab = tab;
     searchVirtuoso = virtuoso;
 
@@ -44,7 +50,7 @@ export const searchCommands = {
     searchTab = emptyTab;
     searchVirtuoso = null;
     useSearchResultStore.getState().clear();
-  }
+  },
 };
 
 let isSearching = false; // Rust検索実行中フラグ

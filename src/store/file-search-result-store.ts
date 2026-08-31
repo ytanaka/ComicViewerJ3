@@ -31,7 +31,7 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
       progress: false,
       result,
       updateTime: Date.now(),
-    }))
+    }));
   },
 
   setProgress: (tab: TabInfo, progress: boolean) => {
@@ -40,7 +40,7 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
       progress,
       result: null,
       updateTime: Date.now(),
-    }))
+    }));
   },
 
   clear: () => {
@@ -49,7 +49,7 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
       progress: false,
       result: null,
       updateTime: 0,
-    }))
+    }));
   },
   getResult: (tab: TabInfo) => {
     const ret = get();
@@ -74,4 +74,3 @@ function checkSameTab(currentTab: TabInfo, ret: FileSearchResultStore): boolean 
   if (currentTab.refreshCount !== ret.tab?.refreshCount) return false;
   return true;
 }
-

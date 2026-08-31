@@ -1,5 +1,3 @@
 export function GeneralPane() {
-  return (
-    <div>general</div>
-  )
+  return <div>general</div>;
 }

@@ -8,7 +8,6 @@ import { searchCommands } from '../commands/search-commands';
 import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
 
-
 function st() {
   return useTabStore.getState();
 }
@@ -34,7 +33,7 @@ export function tabFiles_handleKeyDown(
   const CTRL_ONLY = C && !S && !A;
   const SHIFT_ONLY = !C && S && !A;
   const NO_MOD = !C && !S && !A;
-  const MOD_ONLY = e.key === "Control" || e.key === "Shift" || e.key === "Alt";
+  const MOD_ONLY = e.key === 'Control' || e.key === 'Shift' || e.key === 'Alt';
   const keyLow = e.key.toLowerCase();
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -48,7 +47,7 @@ export function tabFiles_handleKeyDown(
     let startIndex = reverse ? focusIndex - 1 : focusIndex + 1;
     if (dirEntries.length <= startIndex) startIndex = 0;
     if (startIndex < 0) startIndex = dirEntries.length - 1;
-    searchCommands.searchNextFilename(tab, startIndex, romaji, reverse, virtuoso)
+    searchCommands.searchNextFilename(tab, startIndex, romaji, reverse, virtuoso);
     e.preventDefault();
     return true;
   }

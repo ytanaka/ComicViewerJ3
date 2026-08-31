@@ -11,7 +11,7 @@ export enum FileListHeaderN {
 
 // localStrage に保存するUIの設定
 export interface UiStore {
-  // 設定画面でデバッグ項目を編集可能にする  
+  // 設定画面でデバッグ項目を編集可能にする
   debugPreferenceOn: boolean;
 
   // FileListのヘッダーサイズ
@@ -38,11 +38,15 @@ export const useUiStore = create<UiStore>()(
       fileSearchResultDisplayTimeoutMs: 2000,
 
       setDebugPreferenceOn: (b: boolean) => {
-        set(() => { return { debugPreferenceOn: b }; });
+        set(() => {
+          return { debugPreferenceOn: b };
+        });
       },
 
       setFileListHeaderSizes: (sizes: number[]) => {
-        set(() => { return { fileListHeaderSizes: sizes }; });
+        set(() => {
+          return { fileListHeaderSizes: sizes };
+        });
       },
 
       setFileSearchInputTimeoutMs: (ms: number) => {
@@ -51,7 +55,7 @@ export const useUiStore = create<UiStore>()(
 
       setFileSearchResultDisplayTimeoutMs: (ms: number) => {
         set(() => ({ fileSearchResultDisplayTimeoutMs: ms }));
-      }
+      },
     }),
     {
       name: 'ui-state',
