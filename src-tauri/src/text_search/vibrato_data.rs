@@ -23,7 +23,7 @@ pub struct SplStrElm {
 
     // カタカナ読み
     // 検索の都合上、char で保管する
-    yomi: Vec<char>,
+    yomi: Arc<[char]>,
 }
 impl SplStrElm {
     pub fn new(org_str: &str, yomi: &str) -> Self {
@@ -60,13 +60,19 @@ impl SplStr {
     }
 
     // 読み候補を全て取得する (Migemo辞書も使用する)
-    fn get_yomi(&self, i: usize) -> HashSet<&Vec<char>> {
+    fn get_yomi(&self, i: usize) -> HashSet<Arc<[char]>> {
         let mut ret = HashSet::new();
 
         // 形態素解析の読み
-        ret.insert(&self.list[i].yomi);
+        ret.insert(self.list[i].yomi.clone());
+
         // オリジナル文字列の読みをMigemo辞書から取得する
-        ret.extend(self.reverse_migemo.get_yomi(&self.list[i].org_str));
+        ret.extend(
+            self.reverse_migemo
+                .get_yomi(&self.list[i].org_str)
+                .iter()
+                .cloned(),
+        );
 
         ret
     }

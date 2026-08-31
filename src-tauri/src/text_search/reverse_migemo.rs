@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use encoding_rs::EUC_JP;
 use wana_kana::utils::hiragana_to_katakana;
@@ -9,12 +12,20 @@ use crate::{
 };
 
 // migemo辞書は 読み => 漢字 になっているが、逆転させて 漢字 => 読み の辞書を作る
+/*
+migemo-dict の例
+
+test \t テスト
+きき \t 機器 \t 危機 \t 器機 \t 嬉々
+...
+ */
+
 pub struct ReverseMigemo {
     // 英単語 -> カタカナ読み
     // 漢字 -> カタカナ読み
-    map: HashMap<String, HashSet<Vec<char>>>,
+    map: HashMap<String, HashSet<Arc<[char]>>>,
 
-    empty: HashSet<Vec<char>>,
+    empty: HashSet<Arc<[char]>>,
 }
 
 impl ReverseMigemo {
@@ -23,7 +34,7 @@ impl ReverseMigemo {
         Self::with_dict(&cow)
     }
     pub fn with_dict(dict: &str) -> Self {
-        let mut map = HashMap::<String, HashSet<Vec<char>>>::new();
+        let mut map = HashMap::<String, HashSet<Arc<[char]>>>::new();
         let mut map_insert = |k: &str, v: &str| {
             if k.is_empty() || v.is_empty() {
                 return;
@@ -65,7 +76,7 @@ impl ReverseMigemo {
         }
     }
 
-    pub fn get_yomi(&self, k: &str) -> &HashSet<Vec<char>> {
+    pub fn get_yomi(&self, k: &str) -> &HashSet<Arc<[char]>> {
         self.map.get(k).unwrap_or(&self.empty)
     }
 }
