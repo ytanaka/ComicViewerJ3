@@ -63,7 +63,7 @@ impl FileInfoOs {
 }
 
 /// ファイル検索結果
-#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
 pub enum FileSearchResult {
     /// 見つかった
@@ -86,7 +86,19 @@ impl FileSearchResult {
         }
     }
 }
-
+impl std::fmt::Debug for FileSearchResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FileSearchResult::Success {
+                index,
+                name: _name,
+                match_str,
+            } => write!(f, "Success {{[{}] {}}}", index, match_str),
+            FileSearchResult::FailNoCache => write!(f, "FailNoCache"),
+            FileSearchResult::FailNoMatch => write!(f, "FailNoMatch"),
+        }
+    }
+}
 /// 詳細ファイル情報のメタデータ
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileMetadata {

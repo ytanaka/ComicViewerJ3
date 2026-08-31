@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{ffi::OsStr, sync::Arc, time::Instant};
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use tauri::State;
@@ -6,7 +6,7 @@ use tauri::State;
 use crate::{
     state::app_state::AppState,
     text_search::util::normalize_str,
-    types::{FileSearchResult, TabId},
+    types::{FileId, FileSearchResult, TabId},
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -20,6 +20,7 @@ pub async fn search_next_filename(
     romaji: String,
     reverse: bool,
 ) -> Result<FileSearchResult, String> {
+    let t0 = Instant::now();
     let comment = format!(
         "search_next_filename({}, {}, {})",
         tab_id, start_index, romaji
@@ -30,7 +31,7 @@ pub async fn search_next_filename(
             .map_err(|e| e.to_string())
     });
     let result = result.await.unwrap();
-    log::trace!("{}: {:?}", comment, result);
+    log::trace!("{}: {:?}, {}ms", comment, result, t0.elapsed().as_millis());
     result
 }
 
@@ -45,26 +46,22 @@ fn search_next_filename_impl(
     let migemo_re = state.migemo.get().unwrap().get_query_regex(&romaji);
     let romaji = normalize_str(&romaji); // ローマ字以外が送られてくるかもしれないので、正規化しておく
 
-    // start_index から開始して、一周するFileIdのリストを作る (検索中はtabのロックを解放する。ロックはリスト作成中のみ)
-    let list: Vec<_> = {
+    // start_index から開始して一周するFileIdのリストを作る
+    let file_ids: Vec<_> = {
         let tab = state.get_tab(tab_id)?;
         let mut tab = tab.write().unwrap();
         let sorted_list = tab.get_sorted_list();
-        let list = mk_search_list(sorted_list, start_index, reverse);
-        list.iter()
-            .flat_map(|(index, file_id)| {
-                tab.get_file(*file_id)
-                    .map(|f| (*index, f.name.to_string_lossy().to_string()))
-            })
-            .collect()
+        mk_search_list(sorted_list, start_index, reverse)
     };
 
     // チャンクに分割して並列検索する
-    for list2 in list.chunks(100) {
+    for file_ids_2 in file_ids.chunks(100) {
+        let filenames = cnv_file_id_to_filename(state, tab_id, &file_ids_2)?;
         // NoMach は無視して、最初に NoCache | Success になるファイル名を探す
-        let chunk_result = list2
+        let chunk_result = filenames
             .par_iter()
             .flat_map(|(index, name)| {
+                let name = name.to_string_lossy();
                 let matcher = state.text_matcher.get().unwrap();
                 if !matcher.has_cache(&name) {
                     return Some(FileSearchResult::FailNoCache);
@@ -84,7 +81,25 @@ fn search_next_filename_impl(
     Ok(FileSearchResult::FailNoMatch)
 }
 
-fn mk_search_list(list: Vec<u64>, s_idx: u32, reverse: bool) -> Vec<(usize, u64)> {
+fn cnv_file_id_to_filename(
+    state: &AppState,
+    tab_id: TabId,
+    list: &[(usize, FileId)],
+) -> anyhow::Result<Vec<(usize, Arc<OsStr>)>> {
+    let tab = state.get_tab(tab_id)?;
+    let tab = tab.write().unwrap();
+    let ret = list
+        .par_iter()
+        .flat_map(|(index, file_id)| tab.get_file(*file_id).map(|n| (*index, n.name)))
+        .collect();
+    Ok(ret)
+}
+
+// ファイル検索をする順序を取得する
+// list: UIに表示されているファイルリスト
+// s_idx: 検索開始位置
+// return: Vec[list内の元インデックス, list要素のFileId] に変換する
+fn mk_search_list(list: Vec<FileId>, s_idx: u32, reverse: bool) -> Vec<(usize, FileId)> {
     let ret: Vec<_> = if reverse {
         // [ <=== start | end <=== ]
         let list1 = list.iter().enumerate().take((s_idx + 1) as usize).rev();

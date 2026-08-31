@@ -31,13 +31,13 @@ export const commands = {
 };
 
 /* Types */
-/**  UIからのファイル一覧取得で返す要素 */
+/**  UIへ返すファイル一覧の要素 */
 export type DirEntry = {
 	id: number,
 	name: string,
 };
 
-/**  詳細ファイル情報 */
+/**  UIに返す詳細ファイル情報 */
 export type FileInfo = {
 	name: string,
 	metadata: FileMetadata | null,
