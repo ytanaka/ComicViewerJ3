@@ -1,4 +1,7 @@
-use std::{sync::Arc, time::Instant};
+use std::{
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use tauri::State;
@@ -92,6 +95,13 @@ fn search_next_filename_impl(
 
         if let Some(r) = chunk_result {
             return Ok(r);
+        }
+
+        // デバッグ用動作
+        let pref = state.preferences.get().unwrap().read().unwrap();
+        let sleep = pref.debug_filename_search_sleep_ms;
+        if 0 < sleep {
+            std::thread::sleep(Duration::from_millis(sleep as u64));
         }
     }
 

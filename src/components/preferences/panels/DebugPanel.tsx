@@ -20,13 +20,13 @@ export function DebugPane() {
       <FieldDescription>※ 触らないこと</FieldDescription>
       <FieldGroup>
         <Field>
-          <FieldLabel>ファイルサーチ時に1ファイル確認ごとにスリープを入れる</FieldLabel>
+          <FieldLabel>ファイルサーチ時に100ファイル確認ごとにスリープを入れる</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
               type="number"
               min={0}
-              max={10}
-              step={1}
+              max={100}
+              step={10}
               onChange={handleChange_debug_filename_search_sleep_ms}
               value={pref?.debug_filename_search_sleep_ms ?? 0}
             />

@@ -6,25 +6,45 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { useUiStore } from "@/store/ui-store";
 import { GeneralPane } from "./panels/GeneralPane";
 import { DebugPane } from "./panels/DebugPanel";
+import { AboutPane } from "./panels/AboutPanel";
+import { useUiVolatileStore } from "@/store/ui-volatile-store";
+import { AdvancedPane } from "./panels/AdvancedPanel";
 
-const panelList = [
+const allPanelList = [
   {
-    id: 'general' as const,
+    id: 'general',
     label: '基本',
     icon: Settings,
     node: GeneralPane
   },
   {
-    id: 'debug' as const,
+    id: 'advanced',
+    label: '高度な設定',
+    icon: Settings,
+    node: AdvancedPane
+  },
+  {
+    id: 'debug',
     label: 'デバッグ用設定',
     icon: Zap,
     node: DebugPane
   },
-] as const;
+  {
+    id: 'about',
+    label: 'アプリについて',
+    icon: Zap,
+    node: AboutPane
+  },
+];
 
 export function PreferencesDialog() {
-  const showPreferencesDialog = useUiStore(state => state.showPreferencesDialog);
-  const setShowPreferencesDialog = useUiStore(state => state.setShowPreferencesDialog);
+  const showPreferencesDialog = useUiVolatileStore(state => state.showPreferencesDialog);
+  const setShowPreferencesDialog = useUiVolatileStore(state => state.setShowPreferencesDialog);
+
+  const debugPreferenceOn = useUiStore(state => state.debugPreferenceOn);
+
+  const panelList = allPanelList.filter((p) => p.id !== 'debug' || debugPreferenceOn);
+
 
   return (
     <Dialog open={showPreferencesDialog} onOpenChange={setShowPreferencesDialog}>

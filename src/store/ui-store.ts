@@ -9,11 +9,10 @@ export enum FileListHeaderN {
   Date,
 }
 
+// localStrage に保存するUIの設定
 export interface UiStore {
-  // アプリケーションが初期化済みフラグ
-  appInitialized: boolean;
-
-  showPreferencesDialog: boolean;
+  // 設定画面でデバッグ項目を編集可能にする  
+  debugPreferenceOn: boolean;
 
   // FileListのヘッダーサイズ
   fileListHeaderSizes: number[];
@@ -24,8 +23,7 @@ export interface UiStore {
   // ファイル検索結果を表示するタイムアウト
   fileSearchResultDisplayTimeoutMs: number;
 
-  setAppInitialized: () => void;
-  setShowPreferencesDialog: (b: boolean) => void;
+  setDebugPreferenceOn: (b: boolean) => void;
 
   setFileListHeaderSizes: (sizes: number[]) => void;
   setFileSearchInputTimeoutMs: (ms: number) => void;
@@ -35,18 +33,13 @@ export interface UiStore {
 export const useUiStore = create<UiStore>()(
   persist(
     set => ({
-      appInitialized: false,
-      showPreferencesDialog: false,
+      debugPreferenceOn: false,
       fileListHeaderSizes: [35, 500, 100, 120, 180],
-      fileSearchInputTimeoutMs: 1000,
+      fileSearchInputTimeoutMs: 2000,
       fileSearchResultDisplayTimeoutMs: 2000,
 
-      setAppInitialized: () => {
-        set(() => { return { appInitialized: true }; });
-      },
-
-      setShowPreferencesDialog: (b: boolean) => {
-        set(() => { return { showPreferencesDialog: b }; });
+      setDebugPreferenceOn: (b: boolean) => {
+        set(() => { return { debugPreferenceOn: b }; });
       },
 
       setFileListHeaderSizes: (sizes: number[]) => {
@@ -63,12 +56,6 @@ export const useUiStore = create<UiStore>()(
     }),
     {
       name: 'ui-state',
-      partialize: state => {
-        return {
-          fileListHeaderSizes: state.fileListHeaderSizes,
-          fileSearchInputTimeoutMs: state.fileSearchInputTimeoutMs,
-        };
-      },
     }
   )
 );
