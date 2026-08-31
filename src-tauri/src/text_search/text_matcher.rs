@@ -1,3 +1,7 @@
+//! ユーザーが入力したローマ字がファイル名に一致するかどうか判定するためのクラス
+//!
+//! 起動時にワーカースレッドを起動する (ディレクトリ内のファイル名一覧を形態素解析してキャッシュしておく)
+
 use dashmap::DashMap;
 use rayon::prelude::*;
 use regex::Regex;
@@ -13,6 +17,7 @@ use crate::{
     types::TabId,
 };
 
+/// ワーカースレッドに投げるタスク
 struct WorkerPacket {
     tab_id: TabId,
     path: PathBuf,
@@ -40,8 +45,9 @@ impl WorkerPacket {
             .collect()
     }
 
+    /// タブが存在して、ディレクトリが変わっていないことを確認
+    /// 変わっていたら、タスクをキャンセルする
     fn check_tab(&self, state: &AppState) -> bool {
-        // タブが存在して、ディレクトリが変わっていないことを確認
         match state.get_tab(self.tab_id) {
             Err(_) => false,
             Ok(tab) => tab.read().unwrap().get_current_dir() == Some(&self.path),
@@ -70,11 +76,12 @@ impl TextMatcher {
         });
         let ret2 = ret.clone();
 
+        // ワーカースレッド起動
         thread::spawn(move || loop {
             let packet = rx.recv().unwrap();
             let comment = format!("TextMatcher worker(tab_id:{}): ", packet.tab_id);
             if !packet.check_tab(&state) {
-                log::debug!("{comment}: cancel , path:{}", packet.path.display(),);
+                log::debug!("{comment}cancel");
             } else {
                 let done = packet
                     .list
@@ -82,12 +89,17 @@ impl TextMatcher {
                     .map(|s| ret.put_cache(s).0)
                     .filter(|x| *x)
                     .count();
-                log::debug!(
-                    "{comment}: tokenized({}) {}/{}",
-                    done,
-                    packet.progress,
-                    packet.total,
-                );
+                if done != 0 {
+                    log::debug!(
+                        "{comment}tokenized({}) {}/{}",
+                        done,
+                        packet.progress,
+                        packet.total
+                    );
+                }
+                if packet.progress == packet.total {
+                    log::debug!("{comment}tokenized total={} finish", packet.total);
+                }
             }
         });
         ret2
