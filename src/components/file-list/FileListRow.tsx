@@ -108,13 +108,13 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
 
   const fileInfo = wrapper.fileInfo;
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
-  if (isSelected) bg = 'bg-blue-500';
+  if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'border-dashed border dark:border-white border-black';
   const baseComponent = (
     <div
       className={`${bg} ${border} flex w-full pl-1.5 pr-1.5 h-6`}
       style={{
-        background: isSelected ? '#0078d4' : '',
+        // background: isSelected ? '#0078d4' : '',
       }}
       onClick={handleClick}
     >

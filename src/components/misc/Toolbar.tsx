@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import {
-  LogOut,
   Fullscreen,
   Moon,
   Sun,
@@ -47,7 +46,6 @@ export function Toolbar() {
     <div className="flex items-center gap-0.5 border rounded-md p-0.5">
       <B icon={<FolderOpen />} toolTip="ディレクトリを開く" onClick={windowCommands.openDirectory} />
       <B icon={<Settings />} toolTip="設定" onClick={dialogCommands.openPreference} />
-      <B icon={<LogOut />} toolTip="アプリ終了" onClick={windowCommands.exitApp} />
       <Separator orientation="vertical" className="m-1" />
 
       <B icon={<Scissors />} />
