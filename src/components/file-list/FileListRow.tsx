@@ -112,10 +112,7 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
   const border = isFocused && 'border-dashed border dark:border-white border-black';
   const baseComponent = (
     <div
-      className={`${bg} ${border} flex w-full pl-1.5 pr-1.5 h-6`}
-      style={{
-        // background: isSelected ? '#0078d4' : '',
-      }}
+      className={`${bg} ${border} flex select-none w-full pl-1.5 pr-1.5 h-6`}
       onClick={handleClick}
     >
       {isFocused && <SearchResult tab={tab} />}

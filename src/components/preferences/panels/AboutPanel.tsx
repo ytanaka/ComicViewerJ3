@@ -18,7 +18,7 @@ export function AboutPane() {
   }
 
   return (
-    <div>
+    <div className='select-none'>
       <h3 onClick={handleTitleClick}>ComicViewerJ3</h3>
       <div className="m-2">
         {debugPreferenceOn && <span className="m-3">現在のデバッグ設定: ON</span>}

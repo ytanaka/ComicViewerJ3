@@ -23,7 +23,7 @@ function NormalStatusBar() {
   }
 
   return (
-    <div className="border">
+    <div className="border select-none">
       <div>{tab.errorMsg}</div>
       <div>{msg}</div>
     </div>
