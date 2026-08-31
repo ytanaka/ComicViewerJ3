@@ -62,6 +62,24 @@ impl FileInfoOs {
     }
 }
 
+/// 詳細ファイル情報のメタデータ
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub struct FileMetadata {
+    pub is_dir: bool,
+
+    #[specta(type = Option<specta_typescript::Number>)]
+    pub size: Option<u64>,
+
+    #[specta(type = Option<specta_typescript::Number>)]
+    pub modified: Option<u64>,
+
+    #[specta(type = Option<specta_typescript::Number>)]
+    pub accessed: Option<u64>,
+
+    #[specta(type = Option<specta_typescript::Number>)]
+    pub created: Option<u64>,
+}
+
 /// ファイル検索結果
 #[derive(Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
@@ -101,21 +119,4 @@ impl std::fmt::Debug for FileSearchResult {
             FileSearchResult::Canceled => write!(f, "Canceled"),
         }
     }
-}
-/// 詳細ファイル情報のメタデータ
-#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-pub struct FileMetadata {
-    pub is_dir: bool,
-
-    #[specta(type = Option<specta_typescript::Number>)]
-    pub size: Option<u64>,
-
-    #[specta(type = Option<specta_typescript::Number>)]
-    pub modified: Option<u64>,
-
-    #[specta(type = Option<specta_typescript::Number>)]
-    pub accessed: Option<u64>,
-
-    #[specta(type = Option<specta_typescript::Number>)]
-    pub created: Option<u64>,
 }

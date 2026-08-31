@@ -28,7 +28,7 @@ struct WorkerPacket {
 }
 impl WorkerPacket {
     fn create(tab_id: TabId, path: impl AsRef<Path>, list: Vec<Arc<str>>) -> Vec<Self> {
-        let list2: Vec<Vec<Arc<str>>> = list.chunks(1000).map(|c| c.to_vec()).collect();
+        let list2: Vec<_> = list.chunks(1000).map(|c| c.to_vec()).collect();
         let mut progress = 0;
         list2
             .iter()
