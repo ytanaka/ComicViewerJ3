@@ -113,7 +113,7 @@ fn read_dir_entries_impl2(
     for entry in fs::read_dir(path)? {
         let entry = entry?;
         let info = FileInfoOs {
-            name: entry.file_name(),
+            name: Arc::from(entry.file_name()),
             metadata: None,
             metadata_error: None,
         };

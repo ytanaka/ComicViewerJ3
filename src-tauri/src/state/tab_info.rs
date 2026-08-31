@@ -1,7 +1,8 @@
 use std::{
     collections::HashMap,
-    ffi::OsString,
+    ffi::OsStr,
     path::{Path, PathBuf},
+    sync::Arc,
 };
 
 use anyhow::anyhow;
@@ -19,7 +20,7 @@ pub struct TabInfo {
     current_dir: Option<PathBuf>, // タブ作成直後はNone
 
     files: HashMap<FileId, FileInfoOs>,
-    file_names: HashMap<OsString, FileId>,
+    file_names: HashMap<Arc<OsStr>, FileId>,
 
     sort_type: SortType,
     sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
@@ -113,7 +114,7 @@ impl TabInfo {
         if file_info.metadata.is_some() || file_info.metadata_error.is_some() {
             return Ok(file_info.clone());
         }
-        match current_dir.join(&file_info.name).metadata() {
+        match current_dir.join(&*file_info.name).metadata() {
             Err(err) => {
                 file_info.metadata_error = Some(err.to_string());
             }
@@ -146,7 +147,7 @@ mod tests {
             ret.insert(
                 tab.inc_file_id(),
                 FileInfoOs {
-                    name: OsString::from(fname),
+                    name: Arc::from(OsStr::new(fname)),
                     metadata: None,
                     metadata_error: None,
                 },
@@ -173,7 +174,7 @@ mod tests {
         assert_eq!(tab.files, files);
         assert_eq!(
             tab.file_names,
-            hashmap! { OsString::from("f1.txt") => 1, OsString::from("f2.txt") => 2, OsString::from("f3.txt") => 3 }
+            hashmap! { Arc::from(OsStr::new("f1.txt")) => 1, Arc::from(OsStr::new("f2.txt")) => 2, Arc::from(OsStr::new("f3.txt")) => 3 }
         );
         assert_eq!(tab.sort_type, SortType::default()); // 初期状態に戻っている
 

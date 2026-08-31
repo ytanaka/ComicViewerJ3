@@ -1,4 +1,4 @@
-use std::ffi::OsString;
+use std::{ffi::OsStr, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -10,7 +10,7 @@ pub type FileId = u64;
 // ファイルid、ファイルサイズ、更新日時は 53bit 以内になるはず
 // Rust の u64 を JS の number にするために、specta_typescript::Number を指定する (tauri_specta でエラーになる)
 
-/// UIからのファイル一覧取得で返す要素
+/// UIへ返すファイル一覧の要素
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct DirEntry {
     #[specta(type = specta_typescript::Number)]
@@ -38,7 +38,7 @@ impl SortType {
     }
 }
 
-/// 詳細ファイル情報
+/// UIに返す詳細ファイル情報
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileInfo {
     pub name: String, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
@@ -48,7 +48,7 @@ pub struct FileInfo {
 /// Rust内部で使用するファイル情報
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FileInfoOs {
-    pub name: OsString,
+    pub name: Arc<OsStr>,
 
     pub metadata: Option<FileMetadata>,
     pub metadata_error: Option<String>,
