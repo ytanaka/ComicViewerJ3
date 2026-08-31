@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, sync::Arc, time::Instant};
+use std::{sync::Arc, time::Instant};
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use tauri::State;
@@ -47,16 +47,33 @@ fn search_next_filename_impl(
     let romaji = normalize_str(&romaji); // ローマ字以外が送られてくるかもしれないので、正規化しておく
 
     // start_index から開始して一周するFileIdのリストを作る
-    let file_ids: Vec<_> = {
+    let (sort_generation, file_ids): (_, Vec<_>) = {
         let tab = state.get_tab(tab_id)?;
         let mut tab = tab.write().unwrap();
         let sorted_list = tab.get_sorted_list();
-        mk_search_list(sorted_list, start_index, reverse)
+        (
+            tab.get_sort_generation(),
+            mk_search_list(sorted_list, start_index, reverse),
+        )
     };
 
     // チャンクに分割して並列検索する
     for file_ids_2 in file_ids.chunks(100) {
-        let filenames = cnv_file_id_to_filename(state, tab_id, &file_ids_2)?;
+        // ファイルIDをファイル名に変換する
+        let filenames = {
+            let tab = state.get_tab(tab_id)?;
+            let tab = tab.write().unwrap();
+            if tab.get_sort_generation() != sort_generation {
+                // ソート状態が変わったら検索する意味がないので、キャンセル
+                return Ok(FileSearchResult::Canceled);
+            }
+            let ret: Vec<_> = file_ids_2
+                .par_iter()
+                .flat_map(|(index, file_id)| tab.get_file(*file_id).map(|n| (*index, n.name)))
+                .collect();
+            ret
+        };
+
         // NoMach は無視して、最初に NoCache | Success になるファイル名を探す
         let chunk_result = filenames
             .par_iter()
@@ -79,20 +96,6 @@ fn search_next_filename_impl(
     }
 
     Ok(FileSearchResult::FailNoMatch)
-}
-
-fn cnv_file_id_to_filename(
-    state: &AppState,
-    tab_id: TabId,
-    list: &[(usize, FileId)],
-) -> anyhow::Result<Vec<(usize, Arc<OsStr>)>> {
-    let tab = state.get_tab(tab_id)?;
-    let tab = tab.write().unwrap();
-    let ret = list
-        .par_iter()
-        .flat_map(|(index, file_id)| tab.get_file(*file_id).map(|n| (*index, n.name)))
-        .collect();
-    Ok(ret)
 }
 
 // ファイル検索をする順序を取得する

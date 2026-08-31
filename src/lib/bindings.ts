@@ -59,7 +59,9 @@ export type FileSearchResult =
 /**  形態素解析が終わっていない */
 { type: "FailNoMatch" } | 
 /**  見つからなかった */
-{ type: "FailNoCache" };
+{ type: "FailNoCache" } | 
+/**  状態が変わったのでキャンセル */
+{ type: "Canceled" };
 
 /**  ファイルのソート条件 */
 export type SortType = 

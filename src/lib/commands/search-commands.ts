@@ -29,7 +29,9 @@ export const searchCommands = {
     if (debounceTimer) clearTimeout(debounceTimer);
 
     debounceTimer = window.setTimeout(() => {
-      trySearch(romaji, startIndex, reverse);
+      if (searchTab !== emptyTab) {
+        trySearch(romaji, startIndex, reverse);
+      }
     }, 100);
   },
 
@@ -59,7 +61,6 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
   let result: FileSearchResult | null;
   isSearching = true;
   try {
-    console.debug(`searchCommands trySearch(${text}, ${startIndex}, ${reverse}) start`);
     result = await search(text, startIndex, reverse);
   } finally {
     isSearching = false;
@@ -68,7 +69,6 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
     searchCommands.cancel();
     return;
   }
-  console.debug(`searchCommands trySearch(${text}, ${startIndex}) => `, result);
 
   // 結果格納
   useSearchResultStore.getState().setResult(searchTab, result);
@@ -93,8 +93,10 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
 // ※ Rustでエラーが起きたら null
 // ※ 検索中に状況が変わっていたら null
 async function search(text: string, startIndex: number, reverse: boolean): Promise<FileSearchResult | null> {
+  console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) start`);
   const ret = await commands.searchNextFilename(searchTab.id, startIndex, text, reverse);
   const result = checkCommandReturn('searchNextFilename', ret);
+  console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) => `, result);
   if (!result) return null;
 
   // 検索中にタブの状況が変わっていたら結果を無視する

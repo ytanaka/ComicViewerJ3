@@ -26,7 +26,8 @@ pub struct TabInfo {
     sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
     _pending_metadata: usize, // filesのmetada未取得の項目数。「ファイル名」以外でソートするときは取得済みである必要がある
-    _tab_generation: u64, // current_dir が更新された回数。メタデータ取得タスクで比較して処理が必要かどうかを判定する
+    tab_generation: u64, // current_dir が更新された回数。メタデータ取得タスクで比較して中止する
+    sort_generation: u64, // sorted_list が更新された回数。ファイル名検索で比較して中断する
 }
 impl TabInfo {
     pub fn inc_file_id(&mut self) -> FileId {
@@ -44,11 +45,18 @@ impl TabInfo {
             sort_type: SortType::default(),
             sorted_list: None,
             _pending_metadata: 0,
-            _tab_generation: 1,
+            tab_generation: 0,
+            sort_generation: 0,
         }
     }
     pub fn get_current_dir(&self) -> Option<&Path> {
         self.current_dir.as_deref()
+    }
+    pub fn get_tab_generation(&self) -> u64 {
+        self.tab_generation
+    }
+    pub fn get_sort_generation(&self) -> u64 {
+        self.sort_generation
     }
     pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOs>) {
         self.current_dir = Some(current_dir);
@@ -56,6 +64,8 @@ impl TabInfo {
         self.file_names.clear();
         self.sort_type = SortType::default();
         self.sorted_list = None;
+        self.tab_generation += 1;
+        self.sort_generation += 1;
 
         for (i, f) in files {
             self.file_names.insert(f.name.clone(), i);
@@ -71,6 +81,7 @@ impl TabInfo {
             a.name.cmp(&b.name)
         });
         self.sorted_list = Some(list);
+        self.sort_generation += 1;
     }
 
     // ソート済みのファイルIDリストを取得 (未ソートの場合はソートする)

@@ -76,6 +76,8 @@ pub enum FileSearchResult {
     FailNoMatch,
     /// 見つからなかった
     FailNoCache,
+    /// 状態が変わったのでキャンセル
+    Canceled,
 }
 impl FileSearchResult {
     pub fn new_success(index: usize, name: &str, start: usize, end: usize) -> Self {
@@ -96,6 +98,7 @@ impl std::fmt::Debug for FileSearchResult {
             } => write!(f, "Success {{[{}] {}}}", index, match_str),
             FileSearchResult::FailNoCache => write!(f, "FailNoCache"),
             FileSearchResult::FailNoMatch => write!(f, "FailNoMatch"),
+            FileSearchResult::Canceled => write!(f, "Canceled"),
         }
     }
 }

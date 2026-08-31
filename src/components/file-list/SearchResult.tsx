@@ -40,7 +40,7 @@ export function SearchResult({ tab }: { tab: TabInfo }) {
         <span className="pl-2">{romaji}</span>
       </div>
     </div>);
-  } else if (!result) {
+  } else if (!result || result.type === 'Canceled') {
     // ------------------- 非表示 -------------------
     return (<></>);
   } else {
