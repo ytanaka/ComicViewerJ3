@@ -30,10 +30,10 @@ export function AboutPane() {
     <div className='select-none'>
       <h3 onClick={handleTitleClick}>ComicViewerJ3</h3>
       <div className='flex flex-col items-start pt-4 pl-4'>
-        <LinkButton onClick={openExplorer(appConfigDir)} label='アプリの設定ファイル ディレクトリ' />
-        <LinkButton onClick={openExplorer(appDataDir)} label='アプリのデータ ディレクトリ' />
-        <LinkButton onClick={openExplorer(appCacheDir)} label='アプリのキャッシュ ディレクトリ' />
-        <LinkButton onClick={openExplorer(appLogDir)} label='アプリのログ ディレクトリ' />
+        <LinkButton onClick={openExplorer(appConfigDir)} label='設定ファイル ディレクトリ' />
+        <LinkButton onClick={openExplorer(appDataDir)} label='データ ディレクトリ' />
+        <LinkButton onClick={openExplorer(appCacheDir)} label='キャッシュ ディレクトリ' />
+        <LinkButton onClick={openExplorer(appLogDir)} label='ログ ディレクトリ' />
       </div>
       <div className="m-2">
         {debugPreferenceOn && <span className="m-3">現在のデバッグ設定: ON</span>}
