@@ -67,7 +67,7 @@ export function PreferencesDialog() {
           <Tabs
             defaultValue={preferenceDialogTabId}
             onValueChange={setPreferenceDialogTabId}
-            className="pt-2"
+            className="pt-3"
             orientation="vertical"
           >
             <TabsList>
@@ -79,7 +79,7 @@ export function PreferencesDialog() {
               ))}
             </TabsList>
             {panelList.map(item => (
-              <TabsContent key={item.id} value={item.id} className="flex-1">
+              <TabsContent key={item.id} value={item.id} className="flex-1 pl-2">
                 <item.node />
               </TabsContent>
             ))}
