@@ -16,10 +16,11 @@ export class ExecExclusibe {
     this.ids = new Set();
   }
 
-  async try_start<T>(id: number, fn: () => Promise<T>): Promise<T | undefined> {
-    if (!this.start(id)) return undefined;
+  async try_start(id: number, fn: () => Promise<void>): Promise<boolean> {
+    if (!this.start(id)) return false;
     try {
-      return await fn();
+      await fn();
+      return true;
     } finally {
       this.end(id);
     }
@@ -45,15 +46,16 @@ export class AsyncLimiter {
     this.limit = limit;
   }
 
-  async run<T>(fn: () => Promise<T>): Promise<T | undefined> {
+  async run<T>(fn: () => Promise<T>): Promise<boolean> {
     if (this.running >= this.limit) {
-      return undefined;
+      return false;
     }
 
     this.running++;
 
     try {
-      return await fn();
+      await fn();
+      return true;
     } finally {
       this.running--;
     }

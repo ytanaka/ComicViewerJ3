@@ -1,7 +1,6 @@
 import { useTabStore } from '@/store/tab/store';
 import { TabId } from '@/store/tab/types';
 import { commands } from './bindings';
-import { AsyncLimiter } from './utils';
 
 function st() {
   return useTabStore.getState();
@@ -17,8 +16,6 @@ export function checkCommandReturn<T, E>(
   }
   return result.data;
 }
-
-const readFileInfo_limitter = new AsyncLimiter(10);
 
 export const logic = {
   async readDirEntries(tabId: TabId) {
@@ -42,7 +39,7 @@ export const logic = {
   async readFileInfo(tabId: TabId, index: number) {
     const tab = st().getTab(tabId);
 
-    // 同時呼び出しを防ぐ
+    // 同一IDの同時呼び出しを防ぐ
     tab.execExclusive.try_start(index, async () => {
       const tab = st().getTab(tabId);
       if (!tab.dirEntries) throw Error('no dirEntries');
