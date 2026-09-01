@@ -45,8 +45,8 @@ fn search_next_filename_impl(
     romaji: String,
     reverse: bool,
 ) -> anyhow::Result<FileSearchResult> {
-    let katakana = state.get_romaji_cnv().cnv(&romaji);
-    let migemo_re = state.get_migemo().get_query_regex(&romaji);
+    let katakana = state.romaji_cnv.cnv(&romaji);
+    let migemo_re = state.migemo.get_query_regex(&romaji);
     let romaji = normalize_str(&romaji); // ローマ字以外が送られてくるかもしれないので、正規化しておく
 
     // start_index から開始して一周するFileIdのリストを作る
@@ -82,7 +82,7 @@ fn search_next_filename_impl(
             .par_iter()
             .flat_map(|(index, name)| {
                 let name = name.to_string_lossy();
-                let matcher = state.get_text_matcher();
+                let matcher = state.text_matcher.clone();
                 if !matcher.has_cache(&name) {
                     return Some(FileSearchResult::FailNoCache);
                 }
@@ -98,7 +98,7 @@ fn search_next_filename_impl(
         }
 
         // デバッグ用動作
-        let pref = state.get_preferences_read();
+        let pref = state.preferences.read().unwrap();
         let sleep = pref.debug_filename_search_sleep_ms;
         if 0 < sleep {
             std::thread::sleep(Duration::from_millis(sleep as u64));

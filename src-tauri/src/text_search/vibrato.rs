@@ -19,7 +19,7 @@ pub struct Vibrato {
 }
 
 impl Vibrato {
-    pub fn new() -> Self {
+    pub fn new() -> Arc<Self> {
         // 辞書を読み込み
         let dict_data =
             include_bytes!("../../dict/unidic-cwj-3_1_1+compact/system.dic.zst").to_vec();
@@ -29,7 +29,7 @@ impl Vibrato {
         // トークナイザー生成
         let tokenizer = Tokenizer::new(dict);
 
-        Vibrato { tokenizer }
+        Arc::new(Vibrato { tokenizer })
     }
 
     pub fn tokenize(&self, s: &str, reverse_migemo: Arc<ReverseMigemo>) -> SplStr {

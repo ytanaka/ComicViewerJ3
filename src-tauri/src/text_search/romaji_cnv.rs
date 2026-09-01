@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::UT_LOG;
 
@@ -76,7 +76,7 @@ pub struct RomajiCnv {
 }
 
 impl RomajiCnv {
-    pub fn new() -> Self {
+    pub fn new() -> Arc<Self> {
         let mut tbl = HashMap::new();
         let mut add = |k: &str, v: &str| {
             let k: Vec<char> = k.trim().chars().collect();
@@ -107,7 +107,7 @@ impl RomajiCnv {
         add("nn", "ン");
         add("n'", "ン"); // 修正ヘボン式 "n'a" -> "ナ"
 
-        RomajiCnv { tbl }
+        Arc::new(RomajiCnv { tbl })
     }
 
     pub fn cnv(&self, romaji: &str) -> String {
@@ -194,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_starts_with() {
-        let romaji: RomajiCnv = RomajiCnv::new();
+        let romaji = RomajiCnv::new();
         let r = |s: &str| romaji.cnv(s);
 
         assert_eq!(r("aiueo"), "アイウエオ");

@@ -29,9 +29,9 @@ pub struct ReverseMigemo {
 }
 
 impl ReverseMigemo {
-    pub fn new() -> Self {
+    pub fn new() -> Arc<Self> {
         let (cow, _, _) = EUC_JP.decode(include_bytes!("../../dict/migemo-0.40/migemo-dict"));
-        Self::with_dict(&cow)
+        Arc::new(Self::with_dict(&cow))
     }
     pub fn with_dict(dict: &str) -> Self {
         let mut map = HashMap::<String, HashSet<Arc<[char]>>>::new();

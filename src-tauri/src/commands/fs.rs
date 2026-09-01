@@ -96,7 +96,7 @@ fn read_dir_entries_impl(
     // 形態素解析する
     let names: Vec<_> = ret.iter().map(|f| f.name.clone()).collect();
     if state.is_initialized() {
-        state.get_text_matcher().send_to_worker(tab_id, path, names);
+        state.text_matcher.send_to_worker(tab_id, path, names);
     }
 
     Ok(ret)

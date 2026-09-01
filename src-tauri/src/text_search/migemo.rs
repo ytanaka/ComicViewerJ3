@@ -1,3 +1,6 @@
+
+use std::sync::Arc;
+
 use regex::Regex;
 
 use rustmigemo::migemo::query::query;
@@ -8,12 +11,12 @@ pub struct Migemo {
     dict: CompactDictionary,
 }
 impl Migemo {
-    pub fn new() -> Self {
+    pub fn new() -> Arc<Self> {
         // let dict_file = &include_bytes!("../dict/migemo-compact-dict").to_vec();
         let dict_file =
             &include_bytes!("../../dict/migemo-compact-dict/migemo-compact-dict").to_vec();
         let dict = migemo::compact_dictionary::CompactDictionary::new(dict_file);
-        Migemo { dict }
+        Arc::new(Migemo { dict })
     }
 
     pub fn get_query_regex(&self, str: &str) -> Regex {
