@@ -2,10 +2,6 @@ use kanaria::{string::UCSStr, utils::ConvertTarget};
 use unicode_normalization::UnicodeNormalization;
 use wana_kana::utils::is_char_katakana;
 
-pub fn is_ascii(s: &str) -> bool {
-    s.chars().all(|c| c.is_ascii())
-}
-
 pub fn is_katakana(s: &str) -> bool {
     s.chars().find(|c| !is_char_katakana(*c)).is_none()
 }

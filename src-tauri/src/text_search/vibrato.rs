@@ -5,7 +5,7 @@ use zstd::Decoder;
 
 use crate::text_search::{
     reverse_migemo::ReverseMigemo,
-    util::{is_ascii, is_kanji_char, normalize_str},
+    util::{is_kanji_char, normalize_str},
     vibrato_data::{SplStr, SplStrElm},
 };
 
@@ -35,7 +35,7 @@ impl Vibrato {
     pub fn tokenize(&self, s: &str, reverse_migemo: Arc<ReverseMigemo>) -> SplStr {
         // 正規化してASCIIだけなら形態素解析しない
         let norm_s = normalize_str(s);
-        if is_ascii(&norm_s) {
+        if norm_s.is_ascii() {
             return SplStr::new(&norm_s, Vec::new(), reverse_migemo);
         }
 
@@ -55,7 +55,7 @@ impl Vibrato {
 
             let yomi = line
                 .get(UNIDIC_YOMI_COLUMN)
-                .filter(|_| !is_ascii(t.surface())) // 元の文字列がASCIIのみの場合は読みを無視する
+                .filter(|_| !t.surface().is_ascii()) // 元の文字列がASCIIのみの場合は読みを無視する
                 .filter(|s| *s != "*") // 読みがない場合は "*" になっている
                 .unwrap_or_else(|| t.surface()); // 読みがない場合は元の文字列を採用 (英単語とか)
 

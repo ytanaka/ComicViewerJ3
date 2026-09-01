@@ -112,7 +112,7 @@ impl TabInfo {
     }
 
     pub fn get_file(&self, file_id: FileId) -> Option<FileInfoOs> {
-        self.files.get(&file_id).map(|f| f.clone())
+        self.files.get(&file_id).cloned()
     }
 
     // ファイル情報取得 (メタデータが未取得の場合は取得する)

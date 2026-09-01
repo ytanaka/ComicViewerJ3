@@ -24,7 +24,6 @@ impl Migemo {
             &self.dict,
             &migemo::regex_generator::RegexOperator::Default,
         );
-        let re = Regex::new(&q).unwrap();
-        re
+        Regex::new(&q).unwrap()
     }
 }

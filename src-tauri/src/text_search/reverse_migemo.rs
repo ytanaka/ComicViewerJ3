@@ -6,10 +6,7 @@ use std::{
 use encoding_rs::EUC_JP;
 use wana_kana::utils::hiragana_to_katakana;
 
-use crate::{
-    text_search::util::{is_ascii, is_katakana},
-    UT_LOG,
-};
+use crate::{text_search::util::is_katakana, UT_LOG};
 
 // migemo辞書は 読み => 漢字 になっているが、逆転させて 漢字 => 読み の辞書を作る
 /*
@@ -49,12 +46,12 @@ impl ReverseMigemo {
             .map(|s| s.trim())
             .filter(|s| !s.starts_with(";;"))
         {
-            let mut ite = line.split("\t").into_iter();
+            let mut ite = line.split("\t");
             if let Some(head) = ite.next() {
                 UT_LOG!("head: {}", head);
-                if is_ascii(head) {
+                if head.is_ascii() {
                     // 先頭が英単語の場合、(英単語 \t カタカナ読み) => map(英単語, カタカナ読み)
-                    for i in ite.map(|s| hiragana_to_katakana(s)) {
+                    for i in ite.map(hiragana_to_katakana) {
                         if is_katakana(&i) {
                             UT_LOG!("  英:{}->{}", head, i);
                             map_insert(head, &i);

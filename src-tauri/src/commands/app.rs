@@ -14,7 +14,8 @@ pub async fn init(state: State<'_, Arc<AppState>>) -> Result<(), String> {
         state2.init(state2.clone());
         log::info!("command::init() end");
     });
-    Ok(result.await.unwrap())
+    let _ = result.await.unwrap();
+    Ok(())
 }
 
 #[tauri::command]

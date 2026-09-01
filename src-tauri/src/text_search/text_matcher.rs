@@ -125,7 +125,7 @@ impl TextMatcher {
         match self.yomi_cache.get(s) {
             Some(kv) => (false, kv.value().clone()),
             None => {
-                let tok = Arc::new(self.vibrato.tokenize(&s, self.reverse_migemo.clone()));
+                let tok = Arc::new(self.vibrato.tokenize(s, self.reverse_migemo.clone()));
                 self.yomi_cache.insert(s.to_string(), tok.clone());
                 (true, tok)
             }
@@ -154,7 +154,7 @@ impl TextMatcher {
         }
 
         // 正規化した文字列に対して単純検索 (アルファベットや数字に一致するかも)
-        if let Some(_) = vstr.get_normalized_str().find(input_normalized) {
+        if vstr.get_normalized_str().find(input_normalized).is_some() {
             // 正規化する前後で文字列長が変わることがあるので、元の文字列のどこに一致したかはわからなくなる
             return Some((0, vstr.get_org_str().len()));
         }

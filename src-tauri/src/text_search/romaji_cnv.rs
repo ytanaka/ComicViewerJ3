@@ -97,7 +97,7 @@ impl RomajiCnv {
         };
         fn spl5(s: &str) -> Vec<String> {
             let list: Vec<char> = s.chars().collect();
-            assert!(list.len() % 5 == 0);
+            assert!(list.len().is_multiple_of(5));
             let list: Vec<&[char]> = list.chunks(list.len() / 5).collect();
             list.iter().map(|s| s.iter().collect()).collect()
         }
@@ -173,7 +173,7 @@ impl RomajiCnv {
 
         // 末尾の未変換アルファベットを削除する
         // "aax" =(変換)=> "アアx" =(削除)=> "アア"
-        while ret.len() > 0 {
+        while !ret.is_empty() {
             if !ret[ret.len() - 1].is_ascii_alphabetic() {
                 break;
             }
