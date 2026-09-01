@@ -116,7 +116,7 @@ export function tabFiles_handleKeyDown(
   if (NO_MOD && e.key === 'Enter') {
     const sel = st().getSelection(tab.id);
     const info = st().getFileInfo(tab.id, sel.focusIndex);
-    if (!info || !info.metadata?.is_dir) return false;
+    if (!info || !info.is_dir) return false;
 
     fileCommands.moveToChildDirectory(info.name);
     e.preventDefault();

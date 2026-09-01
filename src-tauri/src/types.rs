@@ -46,6 +46,7 @@ impl SortType {
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileInfo {
     pub name: Arc<str>, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
+    pub is_dir: bool,
     pub metadata: Option<FileMetadata>,
 }
 
@@ -53,6 +54,7 @@ pub struct FileInfo {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FileInfoOs {
     pub name: Arc<OsStr>,
+    pub is_dir: bool,
 
     pub metadata: Option<FileMetadata>,
     pub metadata_error: Option<String>,
@@ -61,6 +63,7 @@ impl FileInfoOs {
     pub fn to_ui(&self) -> FileInfo {
         FileInfo {
             name: Arc::from(self.name.to_string_lossy()),
+            is_dir: self.is_dir,
             metadata: self.metadata.clone(),
         }
     }
@@ -69,8 +72,6 @@ impl FileInfoOs {
 /// 詳細ファイル情報のメタデータ
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileMetadata {
-    pub is_dir: bool,
-
     #[specta(type = Option<specta_typescript::Number>)]
     pub size: Option<u64>,
 

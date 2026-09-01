@@ -135,7 +135,6 @@ impl TabInfo {
             }
             Ok(metadata) => {
                 file_info.metadata = Some(FileMetadata {
-                    is_dir: metadata.is_dir(),
                     size: Some(metadata.len()),
                     created: to_unix_time(metadata.created()),
                     modified: to_unix_time(metadata.modified()),
@@ -167,6 +166,7 @@ mod tests {
                     .fetch_add(1, std::sync::atomic::Ordering::SeqCst),
                 FileInfoOs {
                     name: Arc::from(OsStr::new(fname)),
+                    is_dir: false,
                     metadata: None,
                     metadata_error: None,
                 },

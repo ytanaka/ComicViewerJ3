@@ -15,7 +15,7 @@ export const createFileFocusHistoryActions = (
 ): FileFocusHistoryActions => {
   function getHistory(tabId: TabId): FileFocusHistory {
     return get().focusHistories[tabId];
-  };
+  }
   function setHistory(tabId: TabId, hist: FileFocusHistory) {
     set(state => ({
       focusHistories: {
@@ -23,7 +23,7 @@ export const createFileFocusHistoryActions = (
         [tabId]: hist,
       },
     }));
-  };
+  }
 
   return {
     pushHistory: (tabId: TabId, path: string, filename: string) => {
@@ -38,8 +38,7 @@ export const createFileFocusHistoryActions = (
     },
 
     findHistory: (tabId: TabId, path: string) => {
-      return getHistory(tabId)
-        .hist.find(h => h.path === path)?.filename;
+      return getHistory(tabId).hist.find(h => h.path === path)?.filename;
     },
 
     pushHistoryCurrentFile: (tabId: TabId) => {
@@ -52,5 +51,5 @@ export const createFileFocusHistoryActions = (
     setFocusHistoryMax: (n: number) => {
       set(() => ({ focusHistoryMax: n }));
     },
-  }
+  };
 };

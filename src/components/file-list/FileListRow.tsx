@@ -25,7 +25,7 @@ function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined; errorMsg
     icon = '❌';
   } else if (fileInfo === undefined || fileInfo.metadata === null) {
     icon = ' ';
-  } else if (fileInfo?.metadata.is_dir) {
+  } else if (fileInfo?.is_dir) {
     icon = '📁';
   } else {
     icon = '📄';
@@ -47,7 +47,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
     async function getExt() {
       setExt('');
       if (!fileInfo || !fileInfo.metadata) return;
-      const isDir = fileInfo.metadata.is_dir;
+      const isDir = fileInfo.is_dir;
       if (!isDir) {
         const ext = await path.extname(dirEntry.name).catch(() => {
           return '';
@@ -67,7 +67,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
 function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   const width = useHeaderSize(FileListHeaderN.Size);
   let size = undefined;
-  if (!fileInfo?.metadata?.is_dir) {
+  if (!fileInfo?.is_dir) {
     size = fileInfo?.metadata?.size;
   }
   return (
@@ -111,10 +111,7 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'border-dashed border dark:border-white border-black';
   const baseComponent = (
-    <div
-      className={`${bg} ${border} flex select-none w-full pl-1.5 pr-1.5 h-6`}
-      onClick={handleClick}
-    >
+    <div className={`${bg} ${border} flex select-none w-full pl-1.5 pr-1.5 h-6`} onClick={handleClick}>
       {isFocused && <SearchResult tab={tab} />}
       <Icon fileInfo={fileInfo} errorMsg={errorMsg} />
       <Name dirEntry={dirEntry} />

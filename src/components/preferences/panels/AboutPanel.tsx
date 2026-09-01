@@ -23,17 +23,17 @@ export function AboutPane() {
     return async () => {
       const dir = await fn();
       revealItemInDir(dir);
-    }
+    };
   }
 
   return (
-    <div className='select-none'>
+    <div className="select-none">
       <h3 onClick={handleTitleClick}>ComicViewerJ3</h3>
-      <div className='flex flex-col items-start pt-4 pl-4'>
-        <LinkButton onClick={openExplorer(appConfigDir)} label='設定ファイル ディレクトリ' />
-        <LinkButton onClick={openExplorer(appDataDir)} label='データ ディレクトリ' />
-        <LinkButton onClick={openExplorer(appCacheDir)} label='キャッシュ ディレクトリ' />
-        <LinkButton onClick={openExplorer(appLogDir)} label='ログ ディレクトリ' />
+      <div className="flex flex-col items-start pt-4 pl-4">
+        <LinkButton onClick={openExplorer(appConfigDir)} label="設定ファイル ディレクトリ" />
+        <LinkButton onClick={openExplorer(appDataDir)} label="データ ディレクトリ" />
+        <LinkButton onClick={openExplorer(appCacheDir)} label="キャッシュ ディレクトリ" />
+        <LinkButton onClick={openExplorer(appLogDir)} label="ログ ディレクトリ" />
       </div>
       <div className="m-2">
         {debugPreferenceOn && <span className="m-3">現在のデバッグ設定: ON</span>}
@@ -43,6 +43,10 @@ export function AboutPane() {
   );
 }
 
-function LinkButton({ label, onClick }: { label: string, onClick: () => Promise<void> }) {
-  return <Button size='sm' className='font-light' variant="link" onClick={onClick}>{label}</Button>
+function LinkButton({ label, onClick }: { label: string; onClick: () => Promise<void> }) {
+  return (
+    <Button size="sm" className="font-light" variant="link" onClick={onClick}>
+      {label}
+    </Button>
+  );
 }

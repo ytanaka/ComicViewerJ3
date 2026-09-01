@@ -46,12 +46,12 @@ export type DirEntry = {
 /**  UIに返す詳細ファイル情報 */
 export type FileInfo = {
 	name: string,
+	is_dir: boolean,
 	metadata: FileMetadata | null,
 };
 
 /**  詳細ファイル情報のメタデータ */
 export type FileMetadata = {
-	is_dir: boolean,
 	size: number | null,
 	modified: number | null,
 	accessed: number | null,

@@ -28,7 +28,7 @@ export const createFileInfoWrapperActions = (
         },
       },
     }));
-  };
+  }
 
   return {
     clearFileInfoWrapper: (tabId: TabId) => {
@@ -53,5 +53,5 @@ export const createFileInfoWrapperActions = (
     setFileInfoErrorMsg: (tabId: TabId, index: number, errorMsg: string) => {
       setWrapper(tabId, index, { errorMsg });
     },
-  }
+  };
 };
