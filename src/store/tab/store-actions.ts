@@ -45,9 +45,9 @@ export const createAllTabsActions = (
   // TabStateInitializer から使う
   initTabs: (tabs: TabInfo[], focusHistories: Record<number, FileFocusHistory>) => {
     set(() => {
-      const fileInfos: Record<TabId, Record<FileId, FileInfoWrapper>> = {};
+      const fileInfoListList: Record<TabId, Record<FileId, FileInfoWrapper>> = {};
       tabs.forEach(t => {
-        fileInfos[t.id] = {};
+        fileInfoListList[t.id] = {};
       });
 
       const selections: Record<TabId, FileSelection> = {};
@@ -57,7 +57,7 @@ export const createAllTabsActions = (
 
       return {
         tabs: [...tabs],
-        fileInfos,
+        fileInfoListList,
         selections,
         focusHistories: { ...focusHistories },
       };
@@ -71,7 +71,7 @@ export const createAllTabsActions = (
       return {
         tabs: [...state.tabs, tab],
         currentTabIndex: state.tabs.length,
-        fileInfos: { ...state.fileInfos, [tab.id]: {} },
+        fileInfoListList: { ...state.fileInfoListList, [tab.id]: {} },
         selections: { ...state.selections, [tab.id]: mkFileSelection() },
         focusHistories: { ...state.focusHistories, [tab.id]: { hist: [] } },
       };
@@ -111,7 +111,8 @@ export const createAllTabsActions = (
   removeTab: (tabId: TabId) => {
     const tab = get().getTab(tabId);
     set(state => {
-      delete state.fileInfos[tabId];
+      // AllTabs の中の Record は tabs[] とは独立しているので、個別に削除する必要がある
+      delete state.fileInfoListList[tabId];
       delete state.selections[tabId];
       delete state.focusHistories[tabId];
 
@@ -119,7 +120,7 @@ export const createAllTabsActions = (
       return {
         currentTabIndex: Math.max(0, Math.min(state.currentTabIndex, newList.length - 1)),
         tabs: newList,
-        fileInfo: state.fileInfos,
+        fileInfoListList: state.fileInfoListList,
         selections: state.selections,
         focusHistories: state.focusHistories,
       };

@@ -1,5 +1,5 @@
 import { TabStore } from './store';
-import { FileSelection, mkFileSelection, TabId } from './types';
+import { FileSelection, TabId } from './types';
 
 export interface FileSelectionActions {
   getSelection: (tabId: TabId) => FileSelection;
@@ -19,13 +19,7 @@ export const createFileSelectionActions = (
   get: () => TabStore
 ): FileSelectionActions => ({
   getSelection: (tabId: TabId) => {
-    let ret = get().selections[tabId];
-    if (ret) return ret;
-
-    ret = mkFileSelection();
-    get().setSelection(tabId, ret);
-
-    return ret;
+    return get().selections[tabId];
   },
   setSelection: (tabId: TabId, sel: FileSelection) => {
     set(state => ({

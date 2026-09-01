@@ -10,7 +10,7 @@ export interface AllTabs {
   currentTabIndex: number;
   tabs: TabInfo[];
 
-  fileInfos: Record<TabId, Record<FileId, FileInfoWrapper>>;
+  fileInfoListList: Record<TabId, Record<FileId, FileInfoWrapper>>;
   selections: Record<TabId, FileSelection>;
   focusHistories: Record<TabId, FileFocusHistory>;
   focusHistoryMax: number;

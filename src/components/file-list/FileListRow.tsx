@@ -86,18 +86,19 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 }
 
 export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
-  const wrapper = useTabStore(state => state.getFileInfoWrapper(tab.id, fileIndex));
+  const fileInfo = useTabStore(state => state.getFileInfo(tab.id, fileIndex));
+  const errorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, fileIndex));
   const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
   const isFocused = useTabStore(state => state.getSelection(tab.id).focusIndex === fileIndex);
 
   useEffect(() => {
     const read = async () => {
-      if (!wrapper.errorMsg && !wrapper.fileInfo) {
+      if (!errorMsg && !fileInfo) {
         await logic.readFileInfo(tab.id, fileIndex);
       }
     };
     read();
-  }, [fileIndex, tab.id, wrapper.errorMsg, wrapper.fileInfo]);
+  }, [fileIndex, tab.id, errorMsg, fileInfo]);
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
@@ -106,7 +107,6 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
 
   if (fileIndex === 0) console.debug(`<FileListRow> tabId:${tab.id} file:${dirEntry.name}`);
 
-  const fileInfo = wrapper.fileInfo;
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'border-dashed border dark:border-white border-black';
@@ -116,7 +116,7 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
       onClick={handleClick}
     >
       {isFocused && <SearchResult tab={tab} />}
-      <Icon fileInfo={fileInfo} errorMsg={wrapper.errorMsg} />
+      <Icon fileInfo={fileInfo} errorMsg={errorMsg} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
       <Size fileInfo={fileInfo} />
@@ -124,12 +124,12 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
     </div>
   );
 
-  if (wrapper.errorMsg) {
+  if (errorMsg) {
     return (
       <Tooltip>
         <TooltipTrigger render={baseComponent} />
         <TooltipContent>
-          <p>{wrapper.errorMsg}</p>
+          <p>{errorMsg}</p>
         </TooltipContent>
       </Tooltip>
     );
