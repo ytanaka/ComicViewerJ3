@@ -16,18 +16,49 @@ export class ExecExclusibe {
     this.ids = new Set();
   }
 
-  try_start(id: number): boolean {
+  async try_start<T>(id: number, fn: () => Promise<T>): Promise<T | undefined> {
+    if (!this.start(id)) return undefined;
+    try {
+      return await fn();
+    } finally {
+      this.end(id);
+    }
+  }
+
+  private start(id: number): boolean {
     if (this.ids.has(id)) return false;
     this.ids.add(id);
     return true;
   }
 
-  end(id: number) {
+  private end(id: number) {
     if (!this.ids.has(id)) throw new Error(`no id: ${id}`);
     this.ids.delete(id);
   }
 }
 
+export class AsyncLimiter {
+  private running = 0;
+  private readonly limit: number;
+
+  constructor(limit: number) {
+    this.limit = limit;
+  }
+
+  async run<T>(fn: () => Promise<T>): Promise<T | undefined> {
+    if (this.running >= this.limit) {
+      return undefined;
+    }
+
+    this.running++;
+
+    try {
+      return await fn();
+    } finally {
+      this.running--;
+    }
+  }
+}
 class ObjectId {
   private readonly map = new WeakMap<object, number>();
   private nextId = 1;
