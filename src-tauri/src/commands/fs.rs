@@ -89,7 +89,7 @@ fn read_dir_entries_impl(
     // タブにファイル一覧を読み込む
     let tab = state.get_tab(tab_id)?;
     let mut tab = tab.write().unwrap();
-    let list = read_dir_entries_impl2(&mut tab, path)?;
+    let list = read_dir_entries_impl2(state, path)?;
     tab.set_files(path.to_path_buf(), list);
     let ret = tab.create_dir_entries();
 
@@ -102,7 +102,7 @@ fn read_dir_entries_impl(
     Ok(ret)
 }
 fn read_dir_entries_impl2(
-    tab: &mut TabInfo,
+    state: &AppState,
     path: &Path,
 ) -> anyhow::Result<HashMap<FileId, FileInfoOs>> {
     let mut ret = HashMap::<FileId, FileInfoOs>::new();
@@ -113,7 +113,7 @@ fn read_dir_entries_impl2(
             metadata: None,
             metadata_error: None,
         };
-        ret.insert(tab.inc_file_id(), info);
+        ret.insert(state.next_file_id.fetch_add(1, SeqCst), info);
     }
     Ok(ret)
 }

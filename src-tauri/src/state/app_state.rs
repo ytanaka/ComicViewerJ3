@@ -1,6 +1,9 @@
 use std::{
     ops::Deref,
-    sync::{atomic::AtomicU32, Arc, OnceLock, RwLock},
+    sync::{
+        atomic::{AtomicU32, AtomicU64},
+        Arc, OnceLock, RwLock,
+    },
 };
 
 use anyhow::anyhow;
@@ -12,7 +15,7 @@ use crate::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
         text_matcher::TextMatcher, vibrato::Vibrato,
     },
-    types::{AppPreferences, TabId},
+    types::{AppPreferences, FileId, TabId},
 };
 
 // AppState のフィールドの多くが OnceLock<Arc<XXX>> だったので、
@@ -39,9 +42,14 @@ impl<T> Deref for AppStateField<T> {
     }
 }
 
+pub const START_TAB_ID: TabId = 1;
+pub const START_FILE_ID: FileId = 100001;
+
 pub struct AppState {
-    // UIのタブ情報
     pub next_tab_id: AtomicU32,
+    pub next_file_id: AtomicU64,
+
+    // UIのタブ情報
     pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,
 
     // 形態素解析
@@ -57,7 +65,9 @@ pub struct AppState {
 impl AppState {
     pub fn new() -> Self {
         AppState {
-            next_tab_id: AtomicU32::new(1),
+            next_tab_id: AtomicU32::new(START_TAB_ID),
+            next_file_id: AtomicU64::new(START_FILE_ID),
+
             tabs: DashMap::new(),
 
             reverse_migemo: AppStateField::new(),

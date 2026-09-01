@@ -15,7 +15,6 @@ use crate::{
 #[derive(Debug, Clone)]
 pub struct TabInfo {
     tab_id: TabId,
-    next_file_id: FileId,
 
     current_dir: Option<PathBuf>, // タブ作成直後はNone
 
@@ -30,15 +29,9 @@ pub struct TabInfo {
     sort_generation: u64, // sorted_list が更新された回数。ファイル名検索で比較して中断する
 }
 impl TabInfo {
-    pub fn inc_file_id(&mut self) -> FileId {
-        let ret = self.next_file_id;
-        self.next_file_id += 1;
-        ret
-    }
     pub fn new(tab_id: TabId) -> Self {
         TabInfo {
             tab_id,
-            next_file_id: 1,
             current_dir: None,
             files: HashMap::new(),
             file_names: HashMap::new(),
@@ -150,13 +143,17 @@ impl TabInfo {
 mod tests {
     use maplit::hashmap;
 
+    use crate::state::app_state::{AppState, START_FILE_ID};
+
     use super::*;
 
-    fn mk_dummy_files(tab: &mut TabInfo, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOs> {
+    fn mk_dummy_files(state: &AppState, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOs> {
         let mut ret = HashMap::new();
         for fname in file_names {
             ret.insert(
-                tab.inc_file_id(),
+                state
+                    .next_file_id
+                    .fetch_add(1, std::sync::atomic::Ordering::SeqCst),
                 FileInfoOs {
                     name: Arc::from(OsStr::new(fname)),
                     metadata: None,
@@ -170,13 +167,14 @@ mod tests {
     #[test]
     fn test_tab_info() {
         let mut tab = TabInfo::new(123);
+        let state = AppState::new();
 
         // 初期状態を確認
         assert_eq!(tab.current_dir, None);
 
         // データの準備
         let current_dir = PathBuf::from("/a/b/c");
-        let files = mk_dummy_files(&mut tab, vec!["f1.txt", "f2.txt", "f3.txt"]);
+        let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
         tab.sort_type = SortType::Size { asc: false };
         tab.set_files(current_dir.clone(), files.clone());
 
@@ -185,7 +183,11 @@ mod tests {
         assert_eq!(tab.files, files);
         assert_eq!(
             tab.file_names,
-            hashmap! { Arc::from(OsStr::new("f1.txt")) => 1, Arc::from(OsStr::new("f2.txt")) => 2, Arc::from(OsStr::new("f3.txt")) => 3 }
+            hashmap! {
+                Arc::from(OsStr::new("f1.txt")) => START_FILE_ID + 0,
+                Arc::from(OsStr::new("f2.txt")) => START_FILE_ID + 1,
+                Arc::from(OsStr::new("f3.txt")) => START_FILE_ID + 2
+            }
         );
         assert_eq!(tab.sort_type, SortType::default()); // 初期状態に戻っている
 
