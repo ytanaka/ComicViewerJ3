@@ -18,7 +18,7 @@ fn get_preferences_path(app: &AppHandle) -> Result<PathBuf> {
 #[specta::specta]
 pub async fn load_preferences(state: State<'_, Arc<AppState>>) -> Result<AppPreferences, String> {
     log::trace!("load_preferences()");
-    let pref = state.preferences.get().unwrap().read().unwrap();
+    let pref = state.get_preferences_read();
     Ok(pref.clone())
 }
 
@@ -54,7 +54,7 @@ pub fn save_preferences_impl(
     }
 
     // メモリ中の設定を更新
-    let mut pref = state.preferences.get().unwrap().write().unwrap();
+    let mut pref = state.get_preferences_write();
     *pref = preferences;
 
     Ok(())

@@ -71,8 +71,8 @@ impl TextMatcher {
         let ret = Arc::new(TextMatcher {
             tx,
             yomi_cache: Arc::new(DashMap::new()),
-            reverse_migemo: state.reverse_migemo.get().unwrap().clone(),
-            vibrato: state.vibrato.get().unwrap().clone(),
+            reverse_migemo: state.get_reverse_migemo(),
+            vibrato: state.get_vibrato(),
         });
         let ret2 = ret.clone();
 

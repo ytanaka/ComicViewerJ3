@@ -18,14 +18,37 @@ pub struct AppState {
     pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,
 
     // 形態素解析
-    pub reverse_migemo: OnceLock<Arc<ReverseMigemo>>,
-    pub vibrato: OnceLock<Arc<Vibrato>>,
-    pub migemo: OnceLock<Arc<Migemo>>,
-    pub romaji_cnv: Arc<RomajiCnv>,
-    pub text_matcher: OnceLock<Arc<TextMatcher>>,
+    reverse_migemo: OnceLock<Arc<ReverseMigemo>>,
+    vibrato: OnceLock<Arc<Vibrato>>,
+    migemo: OnceLock<Arc<Migemo>>,
+    romaji_cnv: OnceLock<Arc<RomajiCnv>>,
+    text_matcher: OnceLock<Arc<TextMatcher>>,
 
     // 設定
-    pub preferences: OnceLock<Arc<RwLock<AppPreferences>>>,
+    preferences: OnceLock<Arc<RwLock<AppPreferences>>>,
+}
+impl AppState {
+    pub fn get_reverse_migemo(&self) -> Arc<ReverseMigemo> {
+        self.reverse_migemo.get().unwrap().clone()
+    }
+    pub fn get_vibrato(&self) -> Arc<Vibrato> {
+        self.vibrato.get().unwrap().clone()
+    }
+    pub fn get_migemo(&self) -> Arc<Migemo> {
+        self.migemo.get().unwrap().clone()
+    }
+    pub fn get_romaji_cnv(&self) -> Arc<RomajiCnv> {
+        self.romaji_cnv.get().unwrap().clone()
+    }
+    pub fn get_text_matcher(&self) -> Arc<TextMatcher> {
+        self.text_matcher.get().unwrap().clone()
+    }
+    pub fn get_preferences_read(&self) -> std::sync::RwLockReadGuard<'_, AppPreferences> {
+        self.preferences.get().unwrap().read().unwrap()
+    }
+    pub fn get_preferences_write(&self) -> std::sync::RwLockWriteGuard<'_, AppPreferences> {
+        self.preferences.get().unwrap().write().unwrap()
+    }
 }
 impl AppState {
     pub fn new() -> Self {
@@ -36,7 +59,7 @@ impl AppState {
             reverse_migemo: OnceLock::new(),
             vibrato: OnceLock::new(),
             migemo: OnceLock::new(),
-            romaji_cnv: Arc::new(RomajiCnv::new()),
+            romaji_cnv: OnceLock::new(),
             text_matcher: OnceLock::new(),
 
             preferences: OnceLock::new(),
@@ -51,6 +74,8 @@ impl AppState {
         state.vibrato.get_or_init(|| Arc::new(Vibrato::new()));
 
         state.migemo.get_or_init(|| Arc::new(Migemo::new()));
+
+        state.romaji_cnv.get_or_init(|| Arc::new(RomajiCnv::new()));
 
         state
             .text_matcher

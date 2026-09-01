@@ -96,11 +96,7 @@ fn read_dir_entries_impl(
     // 形態素解析する
     let names: Vec<_> = ret.iter().map(|f| f.name.clone()).collect();
     if state.is_initialized() {
-        state
-            .text_matcher
-            .get()
-            .unwrap()
-            .send_to_worker(tab_id, path, names);
+        state.get_text_matcher().send_to_worker(tab_id, path, names);
     }
 
     Ok(ret)
@@ -223,11 +219,16 @@ mod tests {
     async fn test_get_file_info() {
         let state = AppState::new();
         let f = async |tab_id: TabId, file_id: &str| {
-            get_file_info_impl(&state, tab_id, file_id).await.map_err(|e| e.to_string())
+            get_file_info_impl(&state, tab_id, file_id)
+                .await
+                .map_err(|e| e.to_string())
         };
         assert_eq!(f(0, "").await, Err("invalid tab_id: 0".to_string()));
         let tab_id = create_tab_imp(&state);
-        assert_eq!(f(tab_id, "0").await, Err("not initialized tab: 1".to_string()));
+        assert_eq!(
+            f(tab_id, "0").await,
+            Err("not initialized tab: 1".to_string())
+        );
 
         // ディレクトリ読み込み
         let dir_entries =
@@ -244,17 +245,23 @@ mod tests {
         );
 
         // f3-1.txt
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].id)).await.unwrap();
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].id))
+            .await
+            .unwrap();
         assert_eq!(finfo.name, Arc::from("f3-1.txt"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, false);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(1));
         // f3-3.txt
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id)).await.unwrap();
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id))
+            .await
+            .unwrap();
         assert_eq!(finfo.name, Arc::from("f3-3.txt"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, false);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id)).await.unwrap();
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id))
+            .await
+            .unwrap();
         assert_eq!(finfo.name, Arc::from("xxx"));
         assert_eq!(finfo.metadata.as_ref().unwrap().is_dir, true);
         assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(0));
