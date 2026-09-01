@@ -142,7 +142,7 @@ async fn get_file_info_impl(
     let tab = state.get_tab(tab_id)?;
     let mut tab = tab.write().unwrap();
     let file_id: u64 = file_id.parse().map_err(|_| anyhow!("invalid file_id"))?;
-    Ok(tab.get_file_info(file_id).map(|f| f.to_ui())?)
+    tab.get_file_info(file_id).map(|f| f.to_ui())
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

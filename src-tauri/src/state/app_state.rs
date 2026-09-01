@@ -81,9 +81,9 @@ impl AppState {
     }
 
     pub fn init(&self, state: Arc<AppState>) {
-        state.reverse_migemo.get_or_init( ReverseMigemo::new);
-        state.vibrato.get_or_init( Vibrato::new);
-        state.migemo.get_or_init( Migemo::new);
+        state.reverse_migemo.get_or_init(ReverseMigemo::new);
+        state.vibrato.get_or_init(Vibrato::new);
+        state.migemo.get_or_init(Migemo::new);
         state.romaji_cnv.get_or_init(RomajiCnv::new);
         state
             .text_matcher

@@ -161,7 +161,7 @@ impl SplStr {
     ) -> Option<usize> {
         UT_LOG!("    find list:{} {:?}", start_idx, katakana);
         match starts_with(yomi, katakana) {
-            None => return None,
+            None => None,
             Some(n) => {
                 let katakana2 = &katakana[n..];
                 if katakana2.is_empty() {
@@ -173,7 +173,7 @@ impl SplStr {
                     return None;
                 }
                 // 一致の残りがあったら、次の要素を検索する
-                return self.find_from_list_idx(start_idx + 1, katakana2);
+                self.find_from_list_idx(start_idx + 1, katakana2)
             }
         }
     }
@@ -214,10 +214,10 @@ fn starts_with(target: &[char], str: &[char]) -> Option<usize> {
     }
     if str.len() <= target.len() {
         // 完全に含まれていた
-        return Some(str.len());
+        Some(str.len())
     } else {
         // 検索文字列の先頭部分が一致 （全部一致しなくてもいい）
-        return Some(target.len());
+        Some(target.len())
     }
 }
 

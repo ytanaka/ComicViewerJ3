@@ -36,11 +36,11 @@ pub fn normalize_str(s: &str) -> String {
         .katakana()
         .to_string();
     s.chars()
-        .map(|c| normalize_dash(c))
-        .map(|c| normalize_quote(c))
-        .map(|c| normalize_back_quote(c))
-        .map(|c| normalize_double_quote(c))
-        .map(|c| normalize_misc(c))
+        .map(normalize_dash)
+        .map(normalize_quote)
+        .map(normalize_back_quote)
+        .map(normalize_double_quote)
+        .map(normalize_misc)
         .collect()
 }
 fn normalize_dash(c: char) -> char {

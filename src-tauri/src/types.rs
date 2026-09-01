@@ -134,16 +134,8 @@ impl std::fmt::Debug for FileSearchResult {
 // preferences.rs
 // =====================================================================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 pub struct AppPreferences {
     // ファイル名検索するとき
     pub debug_filename_search_sleep_ms: i32,
-}
-
-impl Default for AppPreferences {
-    fn default() -> Self {
-        Self {
-            debug_filename_search_sleep_ms: 0,
-        }
-    }
 }
