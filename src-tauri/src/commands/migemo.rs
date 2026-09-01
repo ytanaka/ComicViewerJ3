@@ -50,12 +50,12 @@ fn search_next_filename_impl(
     let romaji = normalize_str(&romaji); // ローマ字以外が送られてくるかもしれないので、正規化しておく
 
     // start_index から開始して一周するFileIdのリストを作る
-    let (sort_generation, file_ids): (_, Vec<_>) = {
+    let (generation, file_ids): (_, Vec<_>) = {
         let tab = state.get_tab(tab_id)?;
         let mut tab = tab.write().unwrap();
         let sorted_list = tab.get_sorted_list();
         (
-            tab.get_sort_generation(),
+            tab.get_generation(),
             mk_search_list(sorted_list, start_index, reverse),
         )
     };
@@ -66,8 +66,8 @@ fn search_next_filename_impl(
         let filenames = {
             let tab = state.get_tab(tab_id)?;
             let tab = tab.write().unwrap();
-            if tab.get_sort_generation() != sort_generation {
-                // ソート状態が変わったら検索する意味がないので、キャンセル
+            if !tab.check(&generation) {
+                // タブ状態が変わったら検索する意味がないので、キャンセル
                 return Ok(FileSearchResult::Canceled);
             }
             let ret: Vec<_> = file_ids_2

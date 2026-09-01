@@ -1,3 +1,5 @@
+//! UIのタブ1つに相当するRust側データ
+
 use std::{
     collections::HashMap,
     ffi::OsStr,
@@ -25,8 +27,13 @@ pub struct TabInfo {
     sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
     _pending_metadata: usize, // filesのmetada未取得の項目数。「ファイル名」以外でソートするときは取得済みである必要がある
-    tab_generation: u64, // current_dir が更新された回数。メタデータ取得タスクで比較して中止する
-    sort_generation: u64, // sorted_list が更新された回数。ファイル名検索で比較して中断する
+    path_generation: u32, // current_dir が更新された回数。メタデータ取得タスクで比較して中止する
+    sort_generation: u32, // sorted_list が更新された回数。ファイル名検索で比較して中断する
+}
+/// タブ状態が変化したかどうかを判定するためのヘルパークラス
+pub struct TabGeneration {
+    path: u32,
+    sort: u32,
 }
 impl TabInfo {
     pub fn new(tab_id: TabId) -> Self {
@@ -38,26 +45,30 @@ impl TabInfo {
             sort_type: SortType::default(),
             sorted_list: None,
             _pending_metadata: 0,
-            tab_generation: 0,
+            path_generation: 0,
             sort_generation: 0,
         }
     }
     pub fn get_current_dir(&self) -> Option<&Path> {
         self.current_dir.as_deref()
     }
-    pub fn _get_tab_generation(&self) -> u64 {
-        self.tab_generation
+    pub fn get_generation(&self) -> TabGeneration {
+        TabGeneration {
+            path: self.path_generation,
+            sort: self.sort_generation,
+        }
     }
-    pub fn get_sort_generation(&self) -> u64 {
-        self.sort_generation
+    pub fn check(&self, gen: &TabGeneration) -> bool {
+        self.path_generation == gen.path && self.sort_generation == gen.sort
     }
+
     pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOs>) {
         self.current_dir = Some(current_dir);
         self.files.clear();
         self.file_names.clear();
         self.sort_type = SortType::default();
         self.sorted_list = None;
-        self.tab_generation += 1;
+        self.path_generation += 1;
         self.sort_generation += 1;
 
         for (i, f) in files {
