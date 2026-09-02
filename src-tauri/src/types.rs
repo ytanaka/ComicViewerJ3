@@ -10,6 +10,27 @@ use specta::Type;
 pub type TabId = u32;
 pub type FileId = u64;
 
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub enum Either<A, B> {
+    Left(A),
+    Right(B),
+}
+impl<A, B> Either<A, B> {
+    pub fn left(&self) -> Option<&A> {
+        match self {
+            Either::Left(a) => Some(a),
+            Either::Right(_) => None,
+        }
+    }
+
+    pub fn right(&self) -> Option<&B> {
+        match self {
+            Either::Right(b) => Some(b),
+            Either::Left(_) => None,
+        }
+    }
+}
+
 // u64 は JS の number に完全に変換できないが、53bitまでの値なら大丈夫
 // ファイルid、ファイルサイズ、更新日時は 53bit 以内になるはず
 // Rust の u64 を JS の number にするために、specta_typescript::Number を指定する (tauri_specta でエラーになる)
@@ -47,7 +68,8 @@ impl SortType {
 pub struct FileInfo {
     pub name: Arc<str>, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
     pub is_dir: bool,
-    pub metadata: Option<FileMetadata>,
+    /// メタデータか、メタデータ取得時のエラーメッセージが入る
+    pub metadata: Option<Either<FileMetadata, String>>,
 }
 
 /// Rust内部で使用するファイル情報
@@ -56,8 +78,7 @@ pub struct FileInfoOs {
     pub name: Arc<OsStr>,
     pub is_dir: bool,
 
-    pub metadata: Option<FileMetadata>,
-    pub metadata_error: Option<String>,
+    pub metadata: Option<Either<FileMetadata, String>>,
 }
 impl FileInfoOs {
     pub fn to_ui(&self) -> FileInfo {

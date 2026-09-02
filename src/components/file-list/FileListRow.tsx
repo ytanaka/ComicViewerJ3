@@ -10,9 +10,9 @@ import { logic } from '@/lib/bindings-helper';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 
-function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined; errorMsg: string | undefined }) {
+function Icon({ fileInfo, hasError }: { fileInfo: FileInfo | undefined; hasError: boolean }) {
   let icon: string;
-  if (errorMsg) {
+  if (hasError) {
     icon = '❌';
   } else if (fileInfo === undefined || fileInfo.metadata === null) {
     icon = ' ';
@@ -57,7 +57,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
 function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let size = undefined;
   if (!fileInfo?.is_dir) {
-    size = fileInfo?.metadata?.size;
+    size = fileInfo?.metadata?.Left?.size;
   }
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1 text-right'}>
@@ -68,7 +68,7 @@ function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1'}>
-      {unixTime2str(fileInfo?.metadata?.modified)}
+      {unixTime2str(fileInfo?.metadata?.Left?.modified)}
     </td>
   );
 }
@@ -80,9 +80,11 @@ export function FileListRow(
     dirEntry: DirEntry;
   } & React.HTMLAttributes<HTMLTableRowElement>) {
   const fileInfo = useTabStore(state => state.getFileInfo(tab.id, fileIndex));
-  const errorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, fileIndex));
+  const fileInfoErrorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, fileIndex));
   const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
   const isFocused = useTabStore(state => state.getSelection(tab.id).focusIndex === fileIndex);
+  let errorMsg: string | undefined = fileInfoErrorMsg;
+  if (!errorMsg && fileInfo) errorMsg = fileInfo.metadata?.Right;
 
   useEffect(() => {
     const read = async () => {
@@ -104,8 +106,8 @@ export function FileListRow(
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'border-dashed border dark:border-white border-black';
   return (
-    <tr title={`TODO: ...`} className={`${bg} ${border}`} onClick={handleClick} {...props}>
-      <Icon fileInfo={fileInfo} errorMsg={errorMsg} />
+    <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
+      <Icon fileInfo={fileInfo} hasError={!!errorMsg} />
       <Name dirEntry={dirEntry} >{isFocused && <SearchResult tab={tab} />}</Name>
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
       <Size fileInfo={fileInfo} />

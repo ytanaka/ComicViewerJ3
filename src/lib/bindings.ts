@@ -28,7 +28,9 @@ export const commands = {
 	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
+	/**  設定取得 */
 	loadPreferences: () => typedError<AppPreferences, string>(__TAURI_INVOKE("load_preferences")),
+	/**  設定保存 */
 	savePreferences: (preferences: AppPreferences) => typedError<null, string>(__TAURI_INVOKE("save_preferences", { preferences })),
 };
 
@@ -43,11 +45,14 @@ export type DirEntry = {
 	name: string,
 };
 
+export type Either<A, B> = ({ Left: A }) & { Right?: never } | ({ Right: B }) & { Left?: never };
+
 /**  UIに返す詳細ファイル情報 */
 export type FileInfo = {
 	name: string,
 	is_dir: boolean,
-	metadata: FileMetadata | null,
+	/**  メタデータか、メタデータ取得時のエラーメッセージが入る */
+	metadata: Either<FileMetadata, string> | null,
 };
 
 /**  詳細ファイル情報のメタデータ */

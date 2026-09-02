@@ -16,6 +16,7 @@ fn get_preferences_path(app: &AppHandle) -> Result<PathBuf> {
 
 #[tauri::command]
 #[specta::specta]
+/// 設定取得
 pub async fn load_preferences(state: State<'_, Arc<AppState>>) -> Result<AppPreferences, String> {
     log::trace!("load_preferences()");
     let pref = state.preferences.read().unwrap();
@@ -24,6 +25,7 @@ pub async fn load_preferences(state: State<'_, Arc<AppState>>) -> Result<AppPref
 
 #[tauri::command]
 #[specta::specta]
+/// 設定保存
 pub async fn save_preferences(
     app: AppHandle,
     state: State<'_, Arc<AppState>>,

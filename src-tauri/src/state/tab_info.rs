@@ -10,7 +10,7 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
-    types::{DirEntry, FileId, FileInfoOs, FileMetadata, SortType, TabId},
+    types::{DirEntry, Either, FileId, FileInfoOs, FileMetadata, SortType, TabId},
     util::to_unix_time,
 };
 
@@ -126,20 +126,20 @@ impl TabInfo {
             file_id,
             self.tab_id
         ))?;
-        if file_info.metadata.is_some() || file_info.metadata_error.is_some() {
+        if file_info.metadata.is_some() {
             return Ok(file_info.clone());
         }
         match current_dir.join(&*file_info.name).metadata() {
             Err(err) => {
-                file_info.metadata_error = Some(err.to_string());
+                file_info.metadata = Some(Either::Right(err.to_string()));
             }
             Ok(metadata) => {
-                file_info.metadata = Some(FileMetadata {
+                file_info.metadata = Some(Either::Left(FileMetadata {
                     size: Some(metadata.len()),
                     created: to_unix_time(metadata.created()),
                     modified: to_unix_time(metadata.modified()),
                     accessed: to_unix_time(metadata.accessed()),
-                });
+                }));
             }
         };
         Ok(file_info.clone())
@@ -168,7 +168,6 @@ mod tests {
                     name: Arc::from(OsStr::new(fname)),
                     is_dir: false,
                     metadata: None,
-                    metadata_error: None,
                 },
             );
         }

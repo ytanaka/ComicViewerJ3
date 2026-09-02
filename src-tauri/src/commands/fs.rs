@@ -112,7 +112,6 @@ fn read_dir_entries_impl2(
             name: Arc::from(entry.file_name()),
             is_dir: entry.file_type()?.is_dir(),
             metadata: None,
-            metadata_error: None,
         };
         ret.insert(state.next_file_id.fetch_add(1, SeqCst), info);
     }
@@ -251,20 +250,20 @@ mod tests {
             .unwrap();
         assert_eq!(finfo.name, Arc::from("f3-1.txt"));
         assert_eq!(finfo.is_dir, false);
-        assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(1));
+        assert_eq!(finfo.metadata.as_ref().unwrap().left().unwrap().size, Some(1));
         // f3-3.txt
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id))
             .await
             .unwrap();
         assert_eq!(finfo.name, Arc::from("f3-3.txt"));
         assert_eq!(finfo.is_dir, false);
-        assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(3));
+        assert_eq!(finfo.metadata.as_ref().unwrap().left().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id))
             .await
             .unwrap();
         assert_eq!(finfo.name, Arc::from("xxx"));
         assert_eq!(finfo.is_dir, true);
-        assert_eq!(finfo.metadata.as_ref().unwrap().size, Some(0));
+        assert_eq!(finfo.metadata.as_ref().unwrap().left().unwrap().size, Some(0));
     }
 }
