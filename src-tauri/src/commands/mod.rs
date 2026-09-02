@@ -1,4 +1,4 @@
 pub mod app;
 pub mod fs;
-pub mod migemo;
+pub mod search;
 pub mod preferences;

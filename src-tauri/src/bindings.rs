@@ -3,7 +3,7 @@ use tauri_specta::{collect_commands, Builder};
 pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::app;
     use crate::commands::fs;
-    use crate::commands::migemo;
+    use crate::commands::search;
     use crate::commands::preferences;
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
@@ -16,7 +16,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::get_dir_entries,
         fs::get_file_info,
         fs::sort_files,
-        migemo::search_next_filename,
+        search::search_next_filename,
         preferences::load_preferences,
         preferences::save_preferences,
     ])
