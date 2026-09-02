@@ -120,7 +120,7 @@ export default function FileList() {
         ) : (
           <TableVirtuoso
             ref={virtuoso}
-            // key={`${tab.id}`} // タブ変更時に内部状態をリセットしないと、古い情報で子コンポーネントが描画されてしまう https://github.com/petyosi/react-virtuoso/issues/1396 TableVirtuosoにしたのでコメントアウト
+            // key={`${tab.id}`} // タブ変更時に内部状態をリセットしないと、古い情報で子コンポーネントが描画されてしまう https://github.com/petyosi/react-virtuoso/issues/1396 Virtuoso -> TableVirtuosoにしたのでコメントアウト
             components={{
               TableRow: (props: ItemProps<ReactNode>) =>
               (
@@ -148,10 +148,10 @@ export default function FileList() {
             fixedHeaderContent={FileListHeader}
             totalCount={dirEntries.length}
             rangeChanged={handleRangeChanged}
-            itemContent={index => {
-              const fileIndex = index;
-              return <FileListRow tab={tab} fileIndex={fileIndex} dirEntry={dirEntries[fileIndex]} />;
-            }}
+          // itemContent={index => {
+          //   const fileIndex = index;
+          //   return <FileListRow tab={tab} fileIndex={fileIndex} dirEntry={dirEntries[fileIndex]} />;
+          // }}
           />
         )}
       </div>

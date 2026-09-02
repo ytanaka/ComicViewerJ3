@@ -1,7 +1,6 @@
 import { useUiStore } from '@/store/ui-store';
 import React from 'react';
 
-
 export function FileListHeader() {
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
   const setFileListHeaderSizes = useUiStore(state => state.setFileListHeaderSizes);
