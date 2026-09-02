@@ -86,8 +86,7 @@ export function tabFiles_handleKeyDown(
       st().moveFocusWithSelectionArea(tab.id, index as number);
     }
     e.preventDefault();
-    // ヘッダーがあるので +1 する (※ 先頭行にうまくスクロールできないので、強制的に 0 にする)
-    virtuoso.scrollIntoView({ index: index === 0 ? 0 : index + 1 });
+    virtuoso.scrollIntoView({ index });
 
     return true;
   }

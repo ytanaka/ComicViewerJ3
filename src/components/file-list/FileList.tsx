@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { ReactNode, useEffect, useRef } from 'react';
+import { ItemProps, ListRange, TableProps, TableVirtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -80,8 +80,7 @@ export default function FileList() {
         return;
       }
 
-      // ヘッダーがあるので -1
-      if (tabFiles_handleKeyDown(e, tab, visibleListRange.current - 1, virtuoso.current)) {
+      if (tabFiles_handleKeyDown(e, tab, visibleListRange.current, virtuoso.current)) {
         return;
       }
     };
@@ -98,7 +97,7 @@ export default function FileList() {
     function scr() {
       const tab = st().getCurrentTab();
       virtuoso.current?.scrollIntoView({
-        index: st().getSelection(tab.id).focusIndex + 1, // ヘッダーがあるので +1
+        index: st().getSelection(tab.id).focusIndex,
       });
     }
 
@@ -116,19 +115,39 @@ export default function FileList() {
         {dirEntries === undefined ? (
           <div>更新中</div>
         ) : (
-          <Virtuoso
+          <TableVirtuoso
             ref={virtuoso}
-            key={`${tab.id}`} // タブ変更時に内部状態をリセットしないと、古い情報で子コンポーネントが描画されてしまう https://github.com/petyosi/react-virtuoso/issues/1396
-            totalCount={dirEntries.length + 1}
-            topItemCount={1}
+            // key={`${tab.id}`} // タブ変更時に内部状態をリセットしないと、古い情報で子コンポーネントが描画されてしまう https://github.com/petyosi/react-virtuoso/issues/1396 TableVirtuosoにしたのでコメントアウト
+            components={{
+              TableRow: (props: ItemProps<ReactNode>) =>
+              (
+                <FileListRow
+                  tab={tab}
+                  fileIndex={props['data-index']}
+                  dirEntry={dirEntries[props['data-index']]}
+                  {...props}
+                />
+              ),
+              Table: ({ children, ...props }: TableProps) =>
+              (
+                <table {...props} className='w-full' style={{ tableLayout: 'fixed' }}>
+                  <colgroup>
+                    <col style={{ width: 30 }} />
+                    <col style={{ width: 'auto' }} />
+                    <col style={{ width: 100 }} />
+                    <col style={{ width: 100 }} />
+                    <col style={{ width: 150 }} />
+                  </colgroup>
+                  {children}
+                </table>
+              ),
+            }}
+            fixedHeaderContent={FileListHeader}
+            totalCount={dirEntries.length}
             rangeChanged={handleRangeChanged}
             itemContent={index => {
-              if (index === 0) {
-                return <FileListHeader />;
-              } else {
-                const fileIndex = index - 1;
-                return <FileListRow tab={tab} fileIndex={fileIndex} dirEntry={dirEntries[fileIndex]} />;
-              }
+              const fileIndex = index;
+              return <FileListRow tab={tab} fileIndex={fileIndex} dirEntry={dirEntries[fileIndex]} />;
             }}
           />
         )}

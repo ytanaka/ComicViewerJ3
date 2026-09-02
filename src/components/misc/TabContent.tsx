@@ -18,7 +18,7 @@ export function TabContent() {
   const tabs = useTabStore(state => state.tabs);
 
   return (
-    <div ref={ref} tabIndex={0} style={{ outline: 'none' }} className="flex flex-1">
+    <div ref={ref} tabIndex={0} style={{ outline: 'none' }} className="flex flex-1 select-none">
       {tabs.length !== 0 ? (
         <FileList />
       ) : (

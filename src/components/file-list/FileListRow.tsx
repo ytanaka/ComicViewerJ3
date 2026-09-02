@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 
 import { path } from '@tauri-apps/api';
 
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-
 import { DirEntry, FileInfo } from '@/lib/bindings';
-import { FileListHeaderN, useUiStore } from '@/store/ui-store';
 import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { TabInfo } from '@/store/tab/types';
@@ -13,13 +10,7 @@ import { logic } from '@/lib/bindings-helper';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 
-function useHeaderSize(n: FileListHeaderN): number {
-  const sizes = useUiStore(state => state.fileListHeaderSizes);
-  return sizes[n];
-}
-
 function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined; errorMsg: string | undefined }) {
-  const width = useHeaderSize(FileListHeaderN.Icon);
   let icon: string;
   if (errorMsg) {
     icon = '❌';
@@ -31,16 +22,15 @@ function Icon({ fileInfo, errorMsg }: { fileInfo: FileInfo | undefined; errorMsg
     icon = '📄';
   }
   return (
-    <div style={{ width: `${width}px` }} className="box-border w-[3%] pl-1 pr-1">
+    <td style={{}} className="box-border w-[3%] pl-1 pr-1">
       {icon}
-    </div>
+    </td>
   );
 }
-function Name({ dirEntry }: { dirEntry: DirEntry }) {
-  return <div className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>{dirEntry.name}</div>;
+function Name({ dirEntry, children }: { dirEntry: DirEntry, children: ReactNode }) {
+  return <td className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>{dirEntry.name}{children}</td>;
 }
 function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
-  const width = useHeaderSize(FileListHeaderN.Ext);
   const [ext, setExt] = useState('');
 
   useEffect(() => {
@@ -59,33 +49,36 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
   }, [dirEntry.name, fileInfo]);
 
   return (
-    <div style={{ width: `${width}px` }} className={'box-border truncate pl-1 pr-1'}>
+    <td style={{}} className={'box-border truncate pl-1 pr-1'}>
       {ext}
-    </div>
+    </td>
   );
 }
 function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
-  const width = useHeaderSize(FileListHeaderN.Size);
   let size = undefined;
   if (!fileInfo?.is_dir) {
     size = fileInfo?.metadata?.size;
   }
   return (
-    <div style={{ width: `${width}px` }} className={'box-border truncate pl-1 pr-1 text-right'}>
+    <td style={{}} className={'box-border truncate pl-1 pr-1 text-right'}>
       {size?.toLocaleString()}
-    </div>
+    </td>
   );
 }
 function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
-  const width = useHeaderSize(FileListHeaderN.Date);
   return (
-    <div style={{ width: `${width}px` }} className={'box-border truncate pl-1 pr-1'}>
+    <td style={{}} className={'box-border truncate pl-1 pr-1'}>
       {unixTime2str(fileInfo?.metadata?.modified)}
-    </div>
+    </td>
   );
 }
 
-export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
+export function FileListRow(
+  { tab, fileIndex, dirEntry, ...props }: {
+    tab: TabInfo;
+    fileIndex: number;
+    dirEntry: DirEntry;
+  } & React.HTMLAttributes<HTMLTableRowElement>) {
   const fileInfo = useTabStore(state => state.getFileInfo(tab.id, fileIndex));
   const errorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, fileIndex));
   const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
@@ -110,27 +103,13 @@ export function FileListRow({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIn
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'border-dashed border dark:border-white border-black';
-  const baseComponent = (
-    <div className={`${bg} ${border} flex select-none w-full pl-1.5 pr-1.5 h-6`} onClick={handleClick}>
-      {isFocused && <SearchResult tab={tab} />}
+  return (
+    <tr title={`TODO: ...`} className={`${bg} ${border}`} onClick={handleClick} {...props}>
       <Icon fileInfo={fileInfo} errorMsg={errorMsg} />
-      <Name dirEntry={dirEntry} />
+      <Name dirEntry={dirEntry} >{isFocused && <SearchResult tab={tab} />}</Name>
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
       <Size fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
-    </div>
+    </tr>
   );
-
-  if (errorMsg) {
-    return (
-      <Tooltip>
-        <TooltipTrigger render={baseComponent} />
-        <TooltipContent>
-          <p>{errorMsg}</p>
-        </TooltipContent>
-      </Tooltip>
-    );
-  } else {
-    return baseComponent;
-  }
 }

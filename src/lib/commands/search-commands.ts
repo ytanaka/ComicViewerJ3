@@ -117,5 +117,5 @@ async function search(text: string, startIndex: number, reverse: boolean): Promi
 
 function virtuoso_scrollIntoView(fileIndex: number) {
   if (searchVirtuoso === null) return;
-  searchVirtuoso.scrollIntoView({ index: fileIndex + 1 });
+  searchVirtuoso.scrollIntoView({ index: fileIndex });
 }
