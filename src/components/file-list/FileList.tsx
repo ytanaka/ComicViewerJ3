@@ -12,6 +12,7 @@ import { logic } from '@/lib/bindings-helper';
 import { errToStr } from '@/lib/string-util';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
+import { useUiStore } from '@/store/ui-store';
 
 function st() {
   return useTabStore.getState();
@@ -106,6 +107,8 @@ export default function FileList() {
     setScroll(false);
   }, [doScroll, setScroll]); // スクロールが指示されたら実行する
 
+  const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
+
   const dirEntries = tab.dirEntries;
   // console.debug(`<FileList> dirEntries: [${dirEntries?.length}]`)
 
@@ -132,11 +135,11 @@ export default function FileList() {
               (
                 <table {...props} className='w-full' style={{ tableLayout: 'fixed' }}>
                   <colgroup>
-                    <col style={{ width: 30 }} />
+                    <col style={{ width: fileListHeaderSizes[0] }} />
                     <col style={{ width: 'auto' }} />
-                    <col style={{ width: 100 }} />
-                    <col style={{ width: 100 }} />
-                    <col style={{ width: 150 }} />
+                    <col style={{ width: fileListHeaderSizes[2] }} />
+                    <col style={{ width: fileListHeaderSizes[3] }} />
+                    <col style={{ width: fileListHeaderSizes[4] }} />
                   </colgroup>
                   {children}
                 </table>
