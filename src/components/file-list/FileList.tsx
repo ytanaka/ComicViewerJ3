@@ -13,6 +13,8 @@ import { errToStr } from '@/lib/string-util';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
+import { commands } from '@/lib/bindings';
+import { FileId } from '@/store/tab/types';
 
 function st() {
   return useTabStore.getState();
@@ -62,8 +64,35 @@ export default function FileList() {
   // スクロール位置検知
   const visibleListRange = useRef(1);
   const handleRangeChanged = (range: ListRange) => {
+    readFileInfos(range.startIndex, range.endIndex);
     visibleListRange.current = Math.max(1, range.endIndex - range.startIndex);
   };
+  // スクロール位置が変化したら、表示する範囲のファイル情報を取得する
+  async function readFileInfos(startIndex: number, endIndex: number) {
+    if (!dirEntries) return;
+    const overscan = 0;
+    const s = Math.max(0, startIndex - overscan);
+    const e = Math.min(dirEntries.length - 1, endIndex + overscan);
+    const fileIds = [];
+    for (let i = s; i <= e; i++) {
+      if (st().getFileInfo(tab.id, dirEntries[i].id as FileId) === undefined
+        && st().getFileInfoErrorMsg(tab.id, dirEntries[i].id as FileId) === undefined) {
+        fileIds.push(dirEntries[i].id.toString());
+      }
+    }
+    if (fileIds.length === 0) return;
+
+    const ret = await commands.getFileInfos(tab.id, fileIds);
+    if (ret.status === 'error') {
+      // TODO: toast
+      console.error("commands.getFileInfos()", ret.error);
+    } else {
+      for (let i = 0; i < ret.data.length; i++) {
+        const f = ret.data[i];
+        st().setFileInfo(tab.id, f.file_id as FileId, f);
+      }
+    }
+  }
 
   // キー操作
   useEffect(() => {

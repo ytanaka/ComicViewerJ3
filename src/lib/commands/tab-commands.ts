@@ -5,6 +5,7 @@ import { commands } from '../bindings';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { mkTabInfo, TabId } from '@/store/tab/types';
+import { rustcmd } from '../bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -40,7 +41,7 @@ export const tabCommands = {
       path = await tauri_homeDir();
     }
     const absPath = await tauri_path_resolve(path);
-    const tabId = await commands.createTab();
+    const tabId = await rustcmd.createTab();
     st().addTab(mkTabInfo(tabId, absPath));
   },
 

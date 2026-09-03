@@ -1,5 +1,5 @@
 import { useTabStore } from '@/store/tab/store';
-import { TabId } from '@/store/tab/types';
+import { FileId, TabId } from '@/store/tab/types';
 import { commands } from './bindings';
 
 function st() {
@@ -43,15 +43,16 @@ export const logic = {
     await tab.execExclusive.try_start(index, async () => {
       const tab = st().getTab(tabId);
       if (!tab.dirEntries) throw Error('no dirEntries');
-      if (!tab.dirEntries[index]) throw Error(`no dirEntries[${index}]`);
+      const dirEnt = tab.dirEntries[index];
+      if (!dirEnt) throw Error(`no dirEntries[${index}]`);
 
-      const result = await commands.getFileInfo(tabId, tab.dirEntries[index].id.toString());
+      const result = await commands.getFileInfo(tabId, dirEnt.id.toString());
 
       if (result.status === 'ok') {
-        st().setFileInfo(tabId, index, result.data);
+        st().setFileInfo(tabId, dirEnt.id as FileId, result.data);
       } else {
         console.info('readFileInfo() error: ', result.error);
-        st().setFileInfoErrorMsg(tabId, index, result.error);
+        st().setFileInfoErrorMsg(tabId, dirEnt.id as FileId, result.error);
       }
     });
   },

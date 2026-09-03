@@ -1,8 +1,9 @@
 import { DirEntry, FileInfo } from '@/lib/bindings';
 import { ExecExclusibe } from '@/lib/utils';
 
-export type TabId = number;
-export type FileId = number;
+
+export type TabId = number & { readonly __brand: unique symbol };
+export type FileId = number & { readonly __brand: unique symbol };
 
 export const MAX_HIST = 10;
 

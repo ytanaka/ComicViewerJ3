@@ -67,34 +67,34 @@ export type FileMetadata = {
 };
 
 /**  ファイル検索結果 */
-export type FileSearchResult = 
-/**  見つかった */
-{ type: "Success"; index: number; name: string; match_str: string } | 
-/**  形態素解析が終わっていない */
-{ type: "FailNoMatch" } | 
-/**  見つからなかった */
-{ type: "FailNoCache" } | 
-/**  状態が変わったのでキャンセル */
-{ type: "Canceled" };
+export type FileSearchResult =
+	/**  見つかった */
+	{ type: "Success"; index: number; name: string; match_str: string } |
+	/**  形態素解析が終わっていない */
+	{ type: "FailNoMatch" } |
+	/**  見つからなかった */
+	{ type: "FailNoCache" } |
+	/**  状態が変わったのでキャンセル */
+	{ type: "Canceled" };
 
 /**  ファイルのソート条件 */
-export type SortType = 
-/**  名前でソート */
-{ type: "Name"; asc: boolean } | 
-/**  拡張子でソート */
-{ type: "Ext"; asc: boolean } | 
-/**  ファイルサイズでソート */
-{ type: "Size"; asc: boolean } | 
-/**  更新日時でソート */
-{ type: "Time"; asc: boolean };
+export type SortType =
+	/**  名前でソート */
+	{ type: "Name"; asc: boolean } |
+	/**  拡張子でソート */
+	{ type: "Ext"; asc: boolean } |
+	/**  ファイルサイズでソート */
+	{ type: "Size"; asc: boolean } |
+	/**  更新日時でソート */
+	{ type: "Time"; asc: boolean };
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {
-    try {
-        return { status: "ok", data: await result };
-    } catch (e) {
-        if (e instanceof Error) throw e;
-        return { status: "error", error: e as any };
-    }
+	try {
+		return { status: "ok", data: await result };
+	} catch (e) {
+		if (e instanceof Error) throw e;
+		return { status: "error", error: e as any };
+	}
 }
 

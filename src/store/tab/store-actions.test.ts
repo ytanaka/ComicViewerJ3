@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { useTabStore } from './store';
 import { ExecExclusibe } from '@/lib/utils';
+import { TabId } from './types';
 
 function st() {
   return useTabStore.getState();
@@ -8,7 +9,7 @@ function st() {
 
 function addTab(id: number, path: string) {
   st().addTab({
-    id,
+    id: id as TabId,
     path,
     execExclusive: new ExecExclusibe(),
     refreshCount: 0,

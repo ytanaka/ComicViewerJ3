@@ -1,7 +1,7 @@
 import { create, StoreApi } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { AllTabs, FileFocusHistory, MAX_HIST } from './types';
+import { AllTabs, FileFocusHistory, MAX_HIST, TabId } from './types';
 import { createTabInfoActions, TabInfoActions } from './tab-info-actions';
 import { TabStoreActions, createAllTabsActions } from './store-actions';
 import { createFileInfoWrapperActions, FileInfoWrapperActions } from './file-info-wrapper-actions';
@@ -9,6 +9,7 @@ import { createFileSelectionActions, FileSelectionActions } from './file-selecti
 import { createFileFocusHistoryActions, FileFocusHistoryActions } from './file-focus-history-actions';
 import { ExecExclusibe } from '@/lib/utils';
 import { commands } from '@/lib/bindings';
+import { rustcmd } from '@/lib/bindings-wrapper';
 
 export type TabActions = TabStoreActions &
   TabInfoActions &
@@ -58,7 +59,7 @@ export const useTabStore = create<TabStore>()(
         try {
           // 保存しておいたタブIDは使えなくなっているので、タブIDを負数にしておいて、後で↓の関数を呼んで初期化する
           for (let i = 0; i < state.tabs.length; i++) {
-            state.tabs[i].id = state.tabs[i].id * -1;
+            state.tabs[i].id = state.tabs[i].id * -1 as TabId;
             state.tabs[i].execExclusive = new ExecExclusibe();
             state.tabs[i].refreshCount = 0;
           }
@@ -98,7 +99,7 @@ export async function fixTabStore_from_FromLocalStrage() {
   for (let i = 0; i < tabs.length; i++) {
     // 新規タブID発行
     const oldId = tabs[i].id;
-    const newId = await commands.createTab();
+    const newId = await rustcmd.createTab();
     tabs[i].id = newId;
 
     // focusHistories 再構築

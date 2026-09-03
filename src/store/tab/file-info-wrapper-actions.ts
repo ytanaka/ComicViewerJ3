@@ -1,30 +1,31 @@
 import { FileInfo } from '@/lib/bindings';
-import { FileInfoWrapper, TabId } from './types';
+import { FileId, FileInfoWrapper, TabId } from './types';
 import { TabStore } from './store';
 
 export interface FileInfoWrapperActions {
   clearFileInfoWrapper: (tabId: TabId) => void;
 
-  getFileInfo: (tabId: TabId, index: number) => FileInfo | undefined;
-  setFileInfo: (tabId: TabId, index: number, fileInfo: FileInfo) => void;
-  getFileInfoErrorMsg: (tabId: TabId, index: number) => string | undefined;
-  setFileInfoErrorMsg: (tabId: TabId, index: number, errorMsg: string) => void;
+  getFileInfo: (tabId: TabId, fileId: FileId) => FileInfo | undefined;
+  setFileInfo: (tabId: TabId, fileId: FileId, fileInfo: FileInfo) => void;
+  // setFileInfos: (tabId: TabId, fileId: FileId, fileInfo: FileInfo) => void;
+  getFileInfoErrorMsg: (tabId: TabId, fileId: FileId) => string | undefined;
+  setFileInfoErrorMsg: (tabId: TabId, fileId: FileId, errorMsg: string) => void;
 }
 
 export const createFileInfoWrapperActions = (
   set: (fn: (state: TabStore) => Partial<TabStore>) => void,
   get: () => TabStore
 ): FileInfoWrapperActions => {
-  function getWrapper(tabId: TabId, index: number): FileInfoWrapper | undefined {
-    return get().fileInfoListList[tabId][index];
+  function getWrapper(tabId: TabId, fileId: FileId): FileInfoWrapper | undefined {
+    return get().fileInfoListList[tabId][fileId];
   }
-  function setWrapper(tabId: TabId, index: number, wrapper: FileInfoWrapper) {
+  function setWrapper(tabId: TabId, fileId: FileId, wrapper: FileInfoWrapper) {
     set(state => ({
       fileInfoListList: {
         ...state.fileInfoListList,
         [tabId]: {
           ...state.fileInfoListList[tabId],
-          [index]: wrapper,
+          [fileId]: wrapper,
         },
       },
     }));
@@ -40,18 +41,18 @@ export const createFileInfoWrapperActions = (
       }));
     },
 
-    getFileInfo: (tabId: TabId, index: number) => {
-      return getWrapper(tabId, index)?.fileInfo;
+    getFileInfo: (tabId: TabId, fileId: FileId) => {
+      return getWrapper(tabId, fileId)?.fileInfo;
     },
-    getFileInfoErrorMsg: (tabId: TabId, index: number) => {
-      return getWrapper(tabId, index)?.errorMsg;
+    getFileInfoErrorMsg: (tabId: TabId, fileId: FileId) => {
+      return getWrapper(tabId, fileId)?.errorMsg;
     },
 
-    setFileInfo: (tabId: TabId, index: number, fileInfo: FileInfo) => {
-      setWrapper(tabId, index, { fileInfo });
+    setFileInfo: (tabId: TabId, fileId: FileId, fileInfo: FileInfo) => {
+      setWrapper(tabId, fileId, { fileInfo });
     },
-    setFileInfoErrorMsg: (tabId: TabId, index: number, errorMsg: string) => {
-      setWrapper(tabId, index, { errorMsg });
+    setFileInfoErrorMsg: (tabId: TabId, fileId: FileId, errorMsg: string) => {
+      setWrapper(tabId, fileId, { errorMsg });
     },
   };
 };
