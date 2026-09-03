@@ -66,13 +66,16 @@ fn search_next_filename_impl(
         let filenames = {
             let tab = state.get_tab(tab_id)?;
             let tab = tab.write().unwrap();
-            if !tab.check(&generation) {
-                // タブ状態が変わったら検索する意味がないので、キャンセル
+            if !generation.check(&tab) {
+                // ソート状態など、タブ状態が変わったら検索する意味がないのでキャンセルする
                 return Ok(FileSearchResult::Canceled);
             }
             let ret: Vec<_> = file_ids_2
                 .par_iter()
-                .flat_map(|(index, file_id)| tab.get_file(*file_id).map(|n| (*index, n.name)))
+                .flat_map(|(index, file_id)| {
+                    tab.get_file_info(*file_id)
+                        .map(|n| (*index, n.name.clone()))
+                })
                 .collect();
             ret
         };

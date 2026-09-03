@@ -96,7 +96,7 @@ fn read_dir_entries_impl(
     // 形態素解析する
     let names: Vec<_> = ret.iter().map(|f| f.name.clone()).collect();
     if state.is_initialized() {
-        state.text_matcher.send_to_worker(tab_id, path, names);
+        state.text_matcher.send_to_worker(&tab, names);
     }
 
     Ok(ret)
@@ -143,9 +143,8 @@ pub async fn get_file_infos_impl(
     let mut ret = Vec::new();
     for s in file_ids {
         let file_id: u64 = s.parse().map_err(|_| anyhow!("invalid file_id"))?;
-        let file_info = tab.get_file_info(file_id)?;
-        let file_info = file_info.to_ui()?;
-        ret.push(file_info);
+        let file_info = tab.fill_metadata_to_file_info(file_id)?;
+        ret.push(file_info.to_ui()?);
     }
     Ok(ret)
 }

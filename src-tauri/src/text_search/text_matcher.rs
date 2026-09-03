@@ -6,13 +6,15 @@ use dashmap::DashMap;
 use rayon::prelude::*;
 use regex::Regex;
 use std::{
-    path::{Path, PathBuf},
     sync::{mpsc, Arc},
     thread,
 };
 
 use crate::{
-    state::app_state::AppState,
+    state::{
+        app_state::AppState,
+        tab_info::{TabGeneration, TabInfo},
+    },
     text_search::{reverse_migemo::ReverseMigemo, vibrato::Vibrato, vibrato_data::SplStr},
     types::TabId,
 };
@@ -20,14 +22,14 @@ use crate::{
 /// ワーカースレッドに投げるタスク
 struct WorkerPacket {
     tab_id: TabId,
-    path: PathBuf,
+    generation: TabGeneration,
     list: Vec<Arc<str>>,
 
     progress: usize,
     total: usize,
 }
 impl WorkerPacket {
-    fn create(tab_id: TabId, path: impl AsRef<Path>, list: Vec<Arc<str>>) -> Vec<Self> {
+    fn create(tab: &TabInfo, list: Vec<Arc<str>>) -> Vec<Self> {
         let list2: Vec<_> = list.chunks(1000).map(|c| c.to_vec()).collect();
         let mut progress = 0;
         list2
@@ -35,8 +37,8 @@ impl WorkerPacket {
             .map(|v| {
                 progress += v.len();
                 WorkerPacket {
-                    tab_id,
-                    path: path.as_ref().to_path_buf(),
+                    tab_id: tab.get_id(),
+                    generation: tab.get_generation(),
                     list: v.to_vec(),
                     progress,
                     total: list.len(),
@@ -46,11 +48,11 @@ impl WorkerPacket {
     }
 
     /// タブが存在して、ディレクトリが変わっていないことを確認
-    /// 変わっていたら、タスクをキャンセルする
+    /// 変わっていたら、タスクをキャンセルする (ソート状態が変わっただけならOK)
     fn check_tab(&self, state: &AppState) -> bool {
         match state.get_tab(self.tab_id) {
             Err(_) => false,
-            Ok(tab) => tab.read().unwrap().get_current_dir() == Some(&self.path),
+            Ok(tab) => self.generation.check_path(&tab.read().unwrap()),
         }
     }
 }
@@ -105,8 +107,8 @@ impl TextMatcher {
         ret2
     }
 
-    pub fn send_to_worker(&self, tab_id: TabId, path: impl AsRef<Path>, list: Vec<Arc<str>>) {
-        for list in WorkerPacket::create(tab_id, path, list) {
+    pub fn send_to_worker(&self, tab: &TabInfo, list: Vec<Arc<str>>) {
+        for list in WorkerPacket::create(tab, list) {
             self.tx.send(list).unwrap();
         }
     }

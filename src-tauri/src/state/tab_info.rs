@@ -10,9 +10,9 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
+    file_operations::{self, file_utils::read_metadata},
     file_sort::cmp_file,
     types::{DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId},
-    util::to_unix_time,
 };
 
 #[derive(Debug, Clone)]
@@ -29,12 +29,20 @@ pub struct TabInfo {
 
     _pending_metadata: usize, // filesのmetada未取得の項目数。「ファイル名」以外でソートするときは取得済みである必要がある
     path_generation: u32, // current_dir が更新された回数。メタデータ取得タスクで比較して中止する
-    sort_generation: u32, // sorted_list が更新された回数。ファイル名検索で比較して中断する
+    sort_generation: u32, // sorted_list が更新された回数。ファイル名検索で比較して中断する (path_generationが更新されるときは必ず更新される)
 }
 /// タブ状態が変化したかどうかを判定するためのヘルパークラス
 pub struct TabGeneration {
     path: u32,
     sort: u32,
+}
+impl TabGeneration {
+    pub fn check(&self, tab: &TabInfo) -> bool {
+        self.path == tab.path_generation && self.sort == tab.sort_generation
+    }
+    pub fn check_path(&self, tab: &TabInfo) -> bool {
+        self.path == tab.path_generation
+    }
 }
 impl TabInfo {
     pub fn new(tab_id: TabId) -> Self {
@@ -50,6 +58,9 @@ impl TabInfo {
             sort_generation: 0,
         }
     }
+    pub fn get_id(&self) -> TabId {
+        self.tab_id
+    }
     pub fn get_current_dir(&self) -> Option<&Path> {
         self.current_dir.as_deref()
     }
@@ -58,9 +69,6 @@ impl TabInfo {
             path: self.path_generation,
             sort: self.sort_generation,
         }
-    }
-    pub fn check(&self, gen: &TabGeneration) -> bool {
-        self.path_generation == gen.path && self.sort_generation == gen.sort
     }
 
     pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOS>) {
@@ -113,41 +121,38 @@ impl TabInfo {
         ret
     }
 
-    pub fn get_file(&self, file_id: FileId) -> Option<FileInfoOS> {
-        self.files.get(&file_id).cloned()
+    pub fn get_file_info(&self, file_id: FileId) -> Option<&FileInfoOS> {
+        self.files.get(&file_id)
+    }
+    pub fn get_file_info_mut(&mut self, file_id: FileId) -> anyhow::Result<&mut FileInfoOS> {
+        let ret = self
+            .files
+            .get_mut(&file_id)
+            .ok_or_else(|| anyhow!("no file[{}] for tab[{}]", file_id, self.tab_id))?;
+        Ok(ret)
+    }
+    pub fn set_metadata_to_file_info(
+        &mut self,
+        file_id: FileId,
+        metadata: Either<FileMetadata, String>,
+    ) -> anyhow::Result<()> {
+        let file_info = self.get_file_info_mut(file_id)?;
+        file_info.metadata = Some(Arc::new(metadata));
+        Ok(())
     }
 
-    // ファイル情報取得 (メタデータが未取得の場合は取得する)
-    pub fn get_file_info(&mut self, file_id: FileId) -> anyhow::Result<FileInfoOS> {
-        let current_dir = self
-            .current_dir
-            .as_ref()
-            .ok_or(anyhow!("not initialized tab: {}", self.tab_id))?;
-        let file_info = self.files.get_mut(&file_id).ok_or(anyhow!(
-            "invalid file_id: {} for tab_id[{}]",
-            file_id,
-            self.tab_id
-        ))?;
-        if file_info.metadata.is_some() {
-            return Ok(file_info.clone());
+    pub fn fill_metadata_to_file_info(&mut self, file_id: FileId) -> anyhow::Result<FileInfoOS> {
+        let file_info = self
+            .files
+            .get_mut(&file_id)
+            .ok_or_else(|| anyhow!("no file[{}] for tab[{}]", file_id, self.tab_id))?;
+        if file_info.metadata.is_none() {
+            let current_dir = self
+                .current_dir
+                .as_ref()
+                .ok_or(anyhow!("not initialized tab: {}", self.tab_id))?;
+            file_info.metadata = Some(Arc::new(read_metadata(current_dir, &file_info.name)));
         }
-        match current_dir.join(&*file_info.name).metadata() {
-            Err(err) => {
-                file_info.metadata = Some(Arc::new(Either::Right(err.to_string())));
-            }
-            Ok(metadata) => {
-                file_info.metadata = Some(Arc::new(Either::Left(FileMetadata {
-                    size: if file_info.is_dir {
-                        None
-                    } else {
-                        Some(metadata.len())
-                    },
-                    created: to_unix_time(metadata.created()),
-                    modified: to_unix_time(metadata.modified()),
-                    accessed: to_unix_time(metadata.accessed()),
-                })));
-            }
-        };
         Ok(file_info.clone())
     }
 }
