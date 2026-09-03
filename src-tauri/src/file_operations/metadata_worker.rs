@@ -99,41 +99,37 @@ impl MetadataWorker {
             }
 
             let mut done = 0;
-            match get_filenames(packet.list) {
-                Err(e) => {
-                    log::error!("{comment}get_filenames err: {}", e);
-                }
-                Ok((dir, filenames)) => {
-                    // メタデータを一括取得 (タブをロックしない)
-                    let file_id_metadata_list: Vec<_> = filenames
-                        .iter()
-                        .map(|(file_id, name)| {
-                            let metadata = read_metadata(&dir, &name);
-                            (file_id, metadata)
-                        })
-                        .collect();
+            let read_metadatas_and_write_file_info = || -> anyhow::Result<()> {
+                // ファイルIDをファイル名に変換
+                let (dir, filenames) =
+                    get_filenames(packet.list).map_err(|e| anyhow!("get_filenames err: {}", e))?;
 
-                    // メタデータを一括設定 (タブをロックする)
-                    match ret.state.get_tab(packet.tab_id) {
-                        Err(e) => {
-                            log::error!("{comment}state.get_tab err: {}", e);
-                        }
-                        Ok(tab) => {
-                            let mut tab = tab.write().unwrap();
-                            for (file_id, metadata) in file_id_metadata_list {
-                                match tab.set_metadata_to_file_info(*file_id, metadata) {
-                                    Err(e) => {
-                                        log::error!("{comment}set_metadata err: {}", e);
-                                    }
-                                    Ok(()) => {
-                                        done += 1;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                // メタデータを一括取得 (タブをロックしない)
+                let file_id_metadata_list: Vec<_> = filenames
+                    .iter()
+                    .map(|(file_id, name)| {
+                        let metadata = read_metadata(&dir, &name);
+                        (file_id, metadata)
+                    })
+                    .collect();
+
+                // メタデータを一括設定 (タブをロックする)
+                let tab = ret
+                    .state
+                    .get_tab(packet.tab_id)
+                    .map_err(|e| anyhow!("state.get_tab err: {}", e))?;
+                let mut tab = tab.write().unwrap();
+                for (file_id, metadata) in file_id_metadata_list {
+                    tab.set_metadata_to_file_info(*file_id, metadata)
+                        .map_err(|e| anyhow!("set_metadata err: {}", e))?;
+                    done += 1;
                 }
-            }
+                Ok(())
+            };
+            match read_metadatas_and_write_file_info() {
+                Err(e) => log::error!("{comment}{}", e),
+                Ok(()) => {}
+            };
 
             if done != 0 {
                 log::debug!(
