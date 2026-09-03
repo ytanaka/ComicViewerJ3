@@ -1,5 +1,6 @@
 use std::{ffi::OsStr, sync::Arc};
 
+use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -69,7 +70,8 @@ pub struct FileInfo {
     pub name: Arc<str>, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
     pub is_dir: bool,
     /// メタデータか、メタデータ取得時のエラーメッセージが入る
-    pub metadata: Option<Either<FileMetadata, String>>,
+    //  ※ FileInfoOS の metadata が Some でない場合はこの構造体は作成できない
+    pub metadata: Arc<Either<FileMetadata, String>>,
 }
 
 /// Rust内部で使用するファイル情報
@@ -78,15 +80,18 @@ pub struct FileInfoOs {
     pub name: Arc<OsStr>,
     pub is_dir: bool,
 
-    pub metadata: Option<Either<FileMetadata, String>>,
+    pub metadata: Option<Arc<Either<FileMetadata, String>>>,
 }
 impl FileInfoOs {
-    pub fn to_ui(&self) -> FileInfo {
-        FileInfo {
+    pub fn to_ui(&self) -> anyhow::Result<FileInfo> {
+        Ok(FileInfo {
             name: Arc::from(self.name.to_string_lossy()),
             is_dir: self.is_dir,
-            metadata: self.metadata.clone(),
-        }
+            metadata: self
+                .metadata
+                .clone()
+                .ok_or_else(|| anyhow!("BUG: no metadata for `{}`", self.name.to_string_lossy()))?,
+        })
     }
 }
 

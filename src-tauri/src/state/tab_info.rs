@@ -131,15 +131,15 @@ impl TabInfo {
         }
         match current_dir.join(&*file_info.name).metadata() {
             Err(err) => {
-                file_info.metadata = Some(Either::Right(err.to_string()));
+                file_info.metadata = Some(Arc::new(Either::Right(err.to_string())));
             }
             Ok(metadata) => {
-                file_info.metadata = Some(Either::Left(FileMetadata {
+                file_info.metadata = Some(Arc::new(Either::Left(FileMetadata {
                     size: Some(metadata.len()),
                     created: to_unix_time(metadata.created()),
                     modified: to_unix_time(metadata.modified()),
                     accessed: to_unix_time(metadata.accessed()),
-                }));
+                })));
             }
         };
         Ok(file_info.clone())

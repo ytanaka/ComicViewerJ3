@@ -52,7 +52,7 @@ export type FileInfo = {
 	name: string,
 	is_dir: boolean,
 	/**  メタデータか、メタデータ取得時のエラーメッセージが入る */
-	metadata: Either<FileMetadata, string> | null,
+	metadata: Either<FileMetadata, string>,
 };
 
 /**  詳細ファイル情報のメタデータ */

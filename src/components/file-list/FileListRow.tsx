@@ -14,7 +14,7 @@ function Icon({ fileInfo, hasError }: { fileInfo: FileInfo | undefined; hasError
   let icon: string;
   if (hasError) {
     icon = '❌';
-  } else if (fileInfo === undefined || fileInfo.metadata === null) {
+  } else if (fileInfo === undefined) {
     icon = ' ';
   } else if (fileInfo?.is_dir) {
     icon = '📁';
@@ -36,7 +36,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
   useEffect(() => {
     async function getExt() {
       setExt('');
-      if (!fileInfo || !fileInfo.metadata) return;
+      if (!fileInfo) return;
       const isDir = fileInfo.is_dir;
       if (!isDir) {
         const ext = await path.extname(dirEntry.name).catch(() => {
@@ -57,7 +57,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
 function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   let size = undefined;
   if (!fileInfo?.is_dir) {
-    size = fileInfo?.metadata?.Left?.size;
+    size = fileInfo?.metadata.Left?.size;
   }
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1 text-right'}>
@@ -68,7 +68,7 @@ function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1'}>
-      {unixTime2str(fileInfo?.metadata?.Left?.modified)}
+      {unixTime2str(fileInfo?.metadata.Left?.modified)}
     </td>
   );
 }
@@ -84,7 +84,7 @@ export function FileListRow(
   const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
   const isFocused = useTabStore(state => state.getSelection(tab.id).focusIndex === fileIndex);
   let errorMsg: string | undefined = fileInfoErrorMsg;
-  if (!errorMsg && fileInfo) errorMsg = fileInfo.metadata?.Right;
+  if (!errorMsg) errorMsg = fileInfo?.metadata.Right;
 
   useEffect(() => {
     const read = async () => {

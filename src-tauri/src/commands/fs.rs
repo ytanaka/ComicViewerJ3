@@ -141,7 +141,7 @@ async fn get_file_info_impl(
     let tab = state.get_tab(tab_id)?;
     let mut tab = tab.write().unwrap();
     let file_id: u64 = file_id.parse().map_err(|_| anyhow!("invalid file_id"))?;
-    tab.get_file_info(file_id).map(|f| f.to_ui())
+    tab.get_file_info(file_id).map(|f| f.to_ui())?
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -250,20 +250,20 @@ mod tests {
             .unwrap();
         assert_eq!(finfo.name, Arc::from("f3-1.txt"));
         assert_eq!(finfo.is_dir, false);
-        assert_eq!(finfo.metadata.as_ref().unwrap().left().unwrap().size, Some(1));
+        assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(1));
         // f3-3.txt
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id))
             .await
             .unwrap();
         assert_eq!(finfo.name, Arc::from("f3-3.txt"));
         assert_eq!(finfo.is_dir, false);
-        assert_eq!(finfo.metadata.as_ref().unwrap().left().unwrap().size, Some(3));
+        assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
         let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id))
             .await
             .unwrap();
         assert_eq!(finfo.name, Arc::from("xxx"));
         assert_eq!(finfo.is_dir, true);
-        assert_eq!(finfo.metadata.as_ref().unwrap().left().unwrap().size, Some(0));
+        assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(0));
     }
 }
