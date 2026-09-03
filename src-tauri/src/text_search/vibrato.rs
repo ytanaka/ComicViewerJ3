@@ -40,7 +40,7 @@ impl Vibrato {
         }
 
         let mut worker = self.tokenizer.new_worker();
-        worker.reset_sentence(&s);
+        worker.reset_sentence(s);
         worker.tokenize();
 
         let mut ret: Vec<_> = Vec::new();

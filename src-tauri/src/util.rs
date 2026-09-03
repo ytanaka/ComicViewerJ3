@@ -12,7 +12,7 @@ pub fn to_unix_time(t: Result<SystemTime, std::io::Error>) -> Option<u64> {
 macro_rules! LOG_RESULT {
     ($msg:expr, $block:block) => {{
         let msg2 = $msg; // ここで代入しないと、$msg に format!("{}", String) を渡せない
-        let result = (|| $block)();
+        let result = { $block };
         match &result {
             Ok(_) => log::trace!("{}: Ok", msg2),
             Err(e) => log::trace!("{}: Err({})", msg2, e),

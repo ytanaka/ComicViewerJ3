@@ -193,8 +193,8 @@ impl SplStr {
             if end.is_none() && elmidx.1 <= i {
                 end = Some(n);
             }
-            if start.is_some() && end.is_some() {
-                return (start.unwrap(), end.unwrap());
+            if let (Some(s), Some(e)) = (start, end) {
+                return (s, e);
             }
         }
         (0, n)
