@@ -6,7 +6,6 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
-import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { logic } from '@/lib/bindings-helper';
 import { errToStr } from '@/lib/string-util';
@@ -63,9 +62,10 @@ export default function FileList() {
   // スクロール位置検知
   const visibleListRange = useRef(1);
   const handleRangeChanged = (range: ListRange) => {
+    // スクロール位置が変化したら、表示する範囲のファイル情報を取得する
     visibleListRange.current = Math.max(1, range.endIndex - range.startIndex);
 
-    // スクロール位置が変化したら、表示する範囲のファイル情報を取得する
+    // ファイル情報読み込み
     logic.readFileInfos(tab.id, range.startIndex, range.endIndex);
   };
 
@@ -94,26 +94,7 @@ export default function FileList() {
     return () => window.removeEventListener('keydown', handler);
   }); // 初回だけ実行する
 
-  // スクロール位置調整
-  const doScroll = useScrollToFocusStore(state => state.doScroll);
-  const setScroll = useScrollToFocusStore(state => state.setScroll);
-  useEffect(() => {
-    if (!doScroll) return;
-    function scr() {
-      const tab = st().getCurrentTab();
-      virtuoso.current?.scrollIntoView({
-        index: st().getSelection(tab.id).focusIndex,
-      });
-    }
-
-    // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
-    setTimeout(() => scr(), 100);
-    setScroll(false);
-  }, [doScroll, setScroll]); // スクロールが指示されたら実行する
-
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
-
-  // console.debug(`<FileList> dirEntries: [${dirEntries?.length}]`)
 
   return (
     <div className="flex flex-1 flex-col">
@@ -123,7 +104,6 @@ export default function FileList() {
         ) : (
           <TableVirtuoso
             ref={virtuoso}
-            // key={`${tab.id}`} // タブ変更時に内部状態をリセットしないと、古い情報で子コンポーネントが描画されてしまう https://github.com/petyosi/react-virtuoso/issues/1396 Virtuoso -> TableVirtuosoにしたのでコメントアウト
             components={{
               TableRow: (props: ItemProps<ReactNode>) =>
               (
@@ -148,6 +128,7 @@ export default function FileList() {
                 </table>
               ),
             }}
+            initialTopMostItemIndex={{ index: st().getSelection(tab.id).focusIndex, align: 'center' }}
             fixedHeaderContent={FileListHeader}
             totalCount={dirEntries.length}
             rangeChanged={handleRangeChanged}

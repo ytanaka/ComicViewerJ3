@@ -1,6 +1,5 @@
 import { TabId, TabInfo } from './types';
 import { TabStore } from './store';
-import { useScrollToFocusStore } from '../scroll-to-focus-store';
 import { DirEntry } from '@/lib/bindings-wrapper';
 
 export interface TabInfoActions {
@@ -55,7 +54,6 @@ export const createTabInfoActions = (
     });
     get().clearFileInfoWrapper(tabId);
     get().setSelection(tabId, sel);
-    useScrollToFocusStore.getState().setScroll(true);
   },
 
   setErrorMsg: (tabId: TabId, msg: string) => {

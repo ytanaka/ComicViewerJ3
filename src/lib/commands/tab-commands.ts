@@ -1,7 +1,6 @@
 import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
-import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { mkTabInfo, TabId } from '@/store/tab/types';
 import { rustcmds } from '../bindings-wrapper';
@@ -50,7 +49,6 @@ export const tabCommands = {
     console.info(`tabCommands.removeTab(${id})`);
     st().removeTab(id);
     await rustcmds.removeTab(id);
-    useScrollToFocusStore.getState().setScroll(true);
   },
 
   // タブ削除 (カレント)
@@ -63,7 +61,6 @@ export const tabCommands = {
   // フォーカスするタブの指定
   setCurrentTabIndex(index: number) {
     st().setCurrentTabIndex(index);
-    useScrollToFocusStore.getState().setScroll(true);
   },
 
   // フォーカスするタブを移動
