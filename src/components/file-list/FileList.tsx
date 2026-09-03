@@ -148,10 +148,6 @@ export default function FileList() {
             fixedHeaderContent={FileListHeader}
             totalCount={dirEntries.length}
             rangeChanged={handleRangeChanged}
-          // itemContent={index => {
-          //   const fileIndex = index;
-          //   return <FileListRow tab={tab} fileIndex={fileIndex} dirEntry={dirEntries[fileIndex]} />;
-          // }}
           />
         )}
       </div>

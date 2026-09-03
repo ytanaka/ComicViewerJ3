@@ -40,7 +40,7 @@ export const logic = {
     const tab = st().getTab(tabId);
 
     // 同一IDの同時呼び出しを防ぐ
-    tab.execExclusive.try_start(index, async () => {
+    await tab.execExclusive.try_start(index, async () => {
       const tab = st().getTab(tabId);
       if (!tab.dirEntries) throw Error('no dirEntries');
       if (!tab.dirEntries[index]) throw Error(`no dirEntries[${index}]`);
