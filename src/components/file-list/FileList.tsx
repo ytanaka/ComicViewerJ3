@@ -13,8 +13,6 @@ import { errToStr } from '@/lib/string-util';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
-import { FileId } from '@/store/tab/types';
-import { rustcmds } from '@/lib/bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -65,35 +63,11 @@ export default function FileList() {
   // スクロール位置検知
   const visibleListRange = useRef(1);
   const handleRangeChanged = (range: ListRange) => {
-    readFileInfos(range.startIndex, range.endIndex);
     visibleListRange.current = Math.max(1, range.endIndex - range.startIndex);
-  };
-  // スクロール位置が変化したら、表示する範囲のファイル情報を取得する
-  async function readFileInfos(startIndex: number, endIndex: number) {
-    if (!dirEntries) return;
-    const overscan = 0;
-    const s = Math.max(0, startIndex - overscan);
-    const e = Math.min(dirEntries.length - 1, endIndex + overscan);
-    const fileIds: FileId[] = [];
-    for (let i = s; i <= e; i++) {
-      if (st().getFileInfo(tab.id, dirEntries[i].file_id) === undefined
-        && st().getFileInfoErrorMsg(tab.id, dirEntries[i].file_id) === undefined) {
-        fileIds.push(dirEntries[i].file_id);
-      }
-    }
-    if (fileIds.length === 0) return;
 
-    const ret = await rustcmds.getFileInfos(tab.id, fileIds);
-    if (ret.status === 'error') {
-      // TODO: toast
-      console.error("rustcmds.getFileInfos()", ret.error);
-    } else {
-      for (let i = 0; i < ret.data.length; i++) {
-        const f = ret.data[i];
-        st().setFileInfo(tab.id, fileIds[i], f);
-      }
-    }
-  }
+    // スクロール位置が変化したら、表示する範囲のファイル情報を取得する
+    logic.readFileInfos(tab.id, range.startIndex, range.endIndex);
+  };
 
   // キー操作
   useEffect(() => {

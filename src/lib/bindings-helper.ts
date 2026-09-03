@@ -1,5 +1,5 @@
 import { useTabStore } from '@/store/tab/store';
-import { TabId } from '@/store/tab/types';
+import { FileId, TabId } from '@/store/tab/types';
 import { rustcmds } from './bindings-wrapper';
 
 function st() {
@@ -55,5 +55,34 @@ export const logic = {
         st().setFileInfoErrorMsg(tabId, dirEnt.file_id, result.error);
       }
     });
+  },
+
+  async readFileInfos(tabId: TabId, startIndex: number, endIndex: number) {
+    const dirEntries = st().getTab(tabId).dirEntries;
+    if (!dirEntries) return;
+    const overscan = 0;
+    const s = Math.max(0, startIndex - overscan);
+    const e = Math.min(dirEntries.length - 1, endIndex + overscan);
+
+    // 取得対象のファイルIDを集める
+    const fileIds: FileId[] = [];
+    for (let i = s; i <= e; i++) {
+      if (st().getFileInfo(tabId, dirEntries[i].file_id) === undefined
+        && st().getFileInfoErrorMsg(tabId, dirEntries[i].file_id) === undefined) {
+        fileIds.push(dirEntries[i].file_id);
+      }
+    }
+    if (fileIds.length === 0) return;
+
+    const ret = await rustcmds.getFileInfos(tabId, fileIds);
+    if (ret.status === 'error') {
+      // TODO: toast
+      console.error("rustcmds.getFileInfos()", ret.error);
+    } else {
+      for (let i = 0; i < ret.data.length; i++) {
+        const f = ret.data[i];
+        st().setFileInfo(tabId, fileIds[i], f);
+      }
+    }
   },
 };

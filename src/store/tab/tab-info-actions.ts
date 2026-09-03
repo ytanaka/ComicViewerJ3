@@ -55,7 +55,7 @@ export const createTabInfoActions = (
     });
     get().clearFileInfoWrapper(tabId);
     get().setSelection(tabId, sel);
-    useScrollToFocusStore.getState().setScroll(true); // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
+    useScrollToFocusStore.getState().setScroll(true);
   },
 
   setErrorMsg: (tabId: TabId, msg: string) => {
