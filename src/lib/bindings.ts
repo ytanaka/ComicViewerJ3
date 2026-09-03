@@ -27,7 +27,7 @@ export const commands = {
 	/**  ファイル情報まとめて取得 */
 	getFileInfos: (tabId: number, fileIds: string[]) => typedError<FileInfoUI[], string>(__TAURI_INVOKE("get_file_infos", { tabId, fileIds })),
 	/**  ファイル一覧をソートする */
-	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
+	sortFiles: (tabId: number, sortType: SortCondition) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  設定取得 */
@@ -74,16 +74,21 @@ export type FileSearchResult =
 /**  状態が変わったのでキャンセル */
 { type: "Canceled" };
 
+export type SortCondition = {
+	sort_type: SortType,
+	asc: boolean,
+};
+
 /**  ファイルのソート条件 */
 export type SortType = 
 /**  名前でソート */
-{ type: "Name"; asc: boolean } | 
+{ type: "Name" } | 
 /**  拡張子でソート */
-{ type: "Ext"; asc: boolean } | 
+{ type: "Ext" } | 
 /**  ファイルサイズでソート */
-{ type: "Size"; asc: boolean } | 
+{ type: "Size" } | 
 /**  更新日時でソート */
-{ type: "Time"; asc: boolean };
+{ type: "Time" };
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {

@@ -11,7 +11,7 @@ use tauri::State;
 
 use crate::{
     state::{app_state::AppState, tab_info::TabInfo},
-    types::{DirEntryUI, FileId, FileInfoOS, FileInfoUI, SortType, TabId},
+    types::{DirEntryUI, FileId, FileInfoOS, FileInfoUI, SortCondition, TabId},
     LOG_RESULT,
 };
 
@@ -177,7 +177,11 @@ pub async fn get_file_infos_impl(
 #[tauri::command]
 #[specta::specta]
 /// ファイル一覧をソートする
-pub fn sort_files(_state: State<'_, Arc<AppState>>, _tab_id: TabId, _sort_type: SortType) -> bool {
+pub fn sort_files(
+    _state: State<'_, Arc<AppState>>,
+    _tab_id: TabId,
+    _sort_type: SortCondition,
+) -> bool {
     todo!("")
 }
 

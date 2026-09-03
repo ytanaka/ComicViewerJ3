@@ -28,12 +28,19 @@ impl<A, B> Either<A, B> {
         }
     }
 
-    pub fn right(&self) -> Option<&B> {
-        match self {
-            Either::Right(b) => Some(b),
-            Either::Left(_) => None,
-        }
-    }
+    // pub fn right(&self) -> Option<&B> {
+    //     match self {
+    //         Either::Right(b) => Some(b),
+    //         Either::Left(_) => None,
+    //     }
+    // }
+
+    // pub fn is_left(&self) -> bool {
+    //     matches!(self, Either::Left(_))
+    // }
+    // pub fn is_right(&self) -> bool {
+    //     !&self.is_left()
+    // }
 }
 
 // =====================================================================================================================
@@ -59,17 +66,25 @@ pub struct DirEntryUI {
 #[serde(tag = "type")]
 pub enum SortType {
     /// 名前でソート
-    Name { asc: bool },
+    Name,
     /// 拡張子でソート
-    Ext { asc: bool },
+    Ext,
     /// ファイルサイズでソート
-    Size { asc: bool },
+    Size,
     /// 更新日時でソート
-    Time { asc: bool },
+    Time,
 }
-impl SortType {
-    pub fn default() -> Self {
-        Self::Name { asc: true }
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub struct SortCondition {
+    pub sort_type: SortType,
+    pub asc: bool,
+}
+impl Default for SortCondition {
+    fn default() -> Self {
+        Self {
+            sort_type: SortType::Name,
+            asc: true,
+        }
     }
 }
 
@@ -97,10 +112,19 @@ impl FileInfoOS {
                 .ok_or_else(|| anyhow!("BUG: no metadata for `{}`", self.name.to_string_lossy()))?,
         })
     }
+    pub fn get_size(&self) -> Option<u64> {
+        self.get_metadata().and_then(|m| m.size)
+    }
+    pub fn get_modified(&self) -> Option<u64> {
+        self.get_metadata().and_then(|m| m.modified)
+    }
+    fn get_metadata(&self) -> Option<&FileMetadata> {
+        self.metadata.as_ref().and_then(|m| m.left())
+    }
 }
 
 /// 詳細ファイル情報のメタデータ
-#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 pub struct FileMetadata {
     #[specta(type = Option<specta_typescript::Number>)]
     pub size: Option<u64>,

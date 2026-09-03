@@ -10,7 +10,8 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
-    types::{DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortType, TabId},
+    file_sort::cmp_file,
+    types::{DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId},
     util::to_unix_time,
 };
 
@@ -23,7 +24,7 @@ pub struct TabInfo {
     files: HashMap<FileId, FileInfoOS>,
     file_names: HashMap<Arc<OsStr>, FileId>,
 
-    sort_type: SortType,
+    sort_condition: SortCondition,
     sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
     _pending_metadata: usize, // filesのmetada未取得の項目数。「ファイル名」以外でソートするときは取得済みである必要がある
@@ -42,7 +43,7 @@ impl TabInfo {
             current_dir: None,
             files: HashMap::new(),
             file_names: HashMap::new(),
-            sort_type: SortType::default(),
+            sort_condition: SortCondition::default(),
             sorted_list: None,
             _pending_metadata: 0,
             path_generation: 0,
@@ -66,7 +67,7 @@ impl TabInfo {
         self.current_dir = Some(current_dir);
         self.files.clear();
         self.file_names.clear();
-        self.sort_type = SortType::default();
+        self.sort_condition = SortCondition::default();
         self.sorted_list = None;
         self.path_generation += 1;
         self.sort_generation += 1;
@@ -82,7 +83,7 @@ impl TabInfo {
         list.sort_by(|a, b| {
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            a.name.cmp(&b.name)
+            cmp_file(&self.sort_condition, a, b)
         });
         self.sorted_list = Some(list);
         self.sort_generation += 1;
@@ -136,7 +137,11 @@ impl TabInfo {
             }
             Ok(metadata) => {
                 file_info.metadata = Some(Arc::new(Either::Left(FileMetadata {
-                    size: Some(metadata.len()),
+                    size: if file_info.is_dir {
+                        None
+                    } else {
+                        Some(metadata.len())
+                    },
                     created: to_unix_time(metadata.created()),
                     modified: to_unix_time(metadata.modified()),
                     accessed: to_unix_time(metadata.accessed()),
@@ -154,7 +159,10 @@ impl TabInfo {
 mod tests {
     use maplit::hashmap;
 
-    use crate::state::app_state::{AppState, START_FILE_ID};
+    use crate::{
+        state::app_state::{AppState, START_FILE_ID},
+        types::SortType,
+    };
 
     use super::*;
 
@@ -186,7 +194,10 @@ mod tests {
         // データの準備
         let current_dir = PathBuf::from("/a/b/c");
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
-        tab.sort_type = SortType::Size { asc: false };
+        tab.sort_condition = SortCondition {
+            sort_type: SortType::Ext,
+            asc: false,
+        };
         tab.set_files(current_dir.clone(), files.clone());
 
         // データを set した結果を確認
@@ -200,7 +211,7 @@ mod tests {
                 Arc::from(OsStr::new("f3.txt")) => START_FILE_ID + 2
             }
         );
-        assert_eq!(tab.sort_type, SortType::default()); // 初期状態に戻っている
+        assert_eq!(tab.sort_condition, SortCondition::default()); // 初期状態に戻っている
 
         let dir_entries = tab.create_dir_entries();
         assert_eq!(dir_entries.len(), 3);
