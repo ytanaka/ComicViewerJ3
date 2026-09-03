@@ -141,7 +141,36 @@ async fn get_file_info_impl(
     let tab = state.get_tab(tab_id)?;
     let mut tab = tab.write().unwrap();
     let file_id: u64 = file_id.parse().map_err(|_| anyhow!("invalid file_id"))?;
-    tab.get_file_info(file_id).map(|f| f.to_ui())?
+    tab.get_file_info(file_id).map(|f| f.to_ui(file_id))?
+}
+/// ファイル情報まとめて取得
+#[tauri::command]
+#[specta::specta]
+pub async fn get_file_infos(
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    file_ids: Vec<String>,
+) -> Result<Vec<FileInfo>, String> {
+    log::trace!("get_file_infos({}, [{}]", tab_id, file_ids.len());
+    get_file_infos_impl(state, tab_id, file_ids)
+        .await
+        .map_err(|e| e.to_string())
+}
+pub async fn get_file_infos_impl(
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    file_ids: Vec<String>,
+) -> anyhow::Result<Vec<FileInfo>> {
+    let tab = state.get_tab(tab_id)?;
+    let mut tab = tab.write().unwrap();
+    let mut ret = Vec::new();
+    for s in file_ids {
+        let file_id: u64 = s.parse().map_err(|_| anyhow!("invalid file_id"))?;
+        let file_info = tab.get_file_info(file_id)?;
+        let file_info = file_info.to_ui(file_id)?;
+        ret.push(file_info);
+    }
+    Ok(ret)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

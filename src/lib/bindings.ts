@@ -24,6 +24,8 @@ export const commands = {
 	getDirEntries: (tabId: number) => typedError<DirEntry[], string>(__TAURI_INVOKE("get_dir_entries", { tabId })),
 	/**  ファイル情報取得 */
 	getFileInfo: (tabId: number, fileId: string) => typedError<FileInfo, string>(__TAURI_INVOKE("get_file_info", { tabId, fileId })),
+	/**  ファイル情報まとめて取得 */
+	getFileInfos: (tabId: number, fileIds: string[]) => typedError<FileInfo[], string>(__TAURI_INVOKE("get_file_infos", { tabId, fileIds })),
 	/**  ファイル一覧をソートする */
 	sortFiles: (tabId: number, sortType: SortType) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
 	/**  ローマ字入力からファイル名をあいまい検索 */
@@ -50,6 +52,7 @@ export type Either<A, B> = ({ Left: A }) & { Right?: never } | ({ Right: B }) & 
 /**  UIに返す詳細ファイル情報 */
 export type FileInfo = {
 	name: string,
+	file_id: number,
 	is_dir: boolean,
 	/**  メタデータか、メタデータ取得時のエラーメッセージが入る */
 	metadata: Either<FileMetadata, string>,

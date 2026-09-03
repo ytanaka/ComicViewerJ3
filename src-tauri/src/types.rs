@@ -68,6 +68,10 @@ impl SortType {
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileInfo {
     pub name: Arc<str>, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
+
+    #[specta(type = specta_typescript::Number)]
+    pub file_id: FileId,
+
     pub is_dir: bool,
     /// メタデータか、メタデータ取得時のエラーメッセージが入る
     //  ※ FileInfoOS の metadata が Some でない場合はこの構造体は作成できない
@@ -83,9 +87,10 @@ pub struct FileInfoOs {
     pub metadata: Option<Arc<Either<FileMetadata, String>>>,
 }
 impl FileInfoOs {
-    pub fn to_ui(&self) -> anyhow::Result<FileInfo> {
+    pub fn to_ui(&self, file_id: FileId) -> anyhow::Result<FileInfo> {
         Ok(FileInfo {
             name: Arc::from(self.name.to_string_lossy()),
+            file_id,
             is_dir: self.is_dir,
             metadata: self
                 .metadata
