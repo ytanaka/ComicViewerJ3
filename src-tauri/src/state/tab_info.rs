@@ -10,7 +10,7 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
-    types::{DirEntry, Either, FileId, FileInfoOs, FileMetadata, SortType, TabId},
+    types::{DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortType, TabId},
     util::to_unix_time,
 };
 
@@ -20,7 +20,7 @@ pub struct TabInfo {
 
     current_dir: Option<PathBuf>, // タブ作成直後はNone
 
-    files: HashMap<FileId, FileInfoOs>,
+    files: HashMap<FileId, FileInfoOS>,
     file_names: HashMap<Arc<OsStr>, FileId>,
 
     sort_type: SortType,
@@ -62,7 +62,7 @@ impl TabInfo {
         self.path_generation == gen.path && self.sort_generation == gen.sort
     }
 
-    pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOs>) {
+    pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOS>) {
         self.current_dir = Some(current_dir);
         self.files.clear();
         self.file_names.clear();
@@ -98,12 +98,13 @@ impl TabInfo {
     }
 
     /// UI表示用のファイル一覧を取得
-    pub fn create_dir_entries(&mut self) -> Vec<DirEntry> {
-        let mut ret: Vec<DirEntry> = Vec::new();
+    pub fn create_dir_entries(&mut self) -> Vec<DirEntryUI> {
+        let mut ret: Vec<DirEntryUI> = Vec::new();
         for i in self.get_sorted_list() {
             if let Some(info) = self.files.get(&i) {
-                ret.push(DirEntry {
-                    id: i,
+                ret.push(DirEntryUI {
+                    file_id: i,
+                    is_dir: info.is_dir,
                     name: Arc::from(info.name.to_string_lossy()),
                 });
             }
@@ -111,12 +112,12 @@ impl TabInfo {
         ret
     }
 
-    pub fn get_file(&self, file_id: FileId) -> Option<FileInfoOs> {
+    pub fn get_file(&self, file_id: FileId) -> Option<FileInfoOS> {
         self.files.get(&file_id).cloned()
     }
 
     // ファイル情報取得 (メタデータが未取得の場合は取得する)
-    pub fn get_file_info(&mut self, file_id: FileId) -> anyhow::Result<FileInfoOs> {
+    pub fn get_file_info(&mut self, file_id: FileId) -> anyhow::Result<FileInfoOS> {
         let current_dir = self
             .current_dir
             .as_ref()
@@ -157,14 +158,14 @@ mod tests {
 
     use super::*;
 
-    fn mk_dummy_files(state: &AppState, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOs> {
+    fn mk_dummy_files(state: &AppState, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOS> {
         let mut ret = HashMap::new();
         for fname in file_names {
             ret.insert(
                 state
                     .next_file_id
                     .fetch_add(1, std::sync::atomic::Ordering::SeqCst),
-                FileInfoOs {
+                FileInfoOS {
                     name: Arc::from(OsStr::new(fname)),
                     is_dir: false,
                     metadata: None,

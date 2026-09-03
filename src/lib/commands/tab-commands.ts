@@ -1,11 +1,10 @@
 import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
-import { commands } from '../bindings';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { mkTabInfo, TabId } from '@/store/tab/types';
-import { rustcmd } from '../bindings-wrapper';
+import { rustcmds } from '../bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -41,7 +40,7 @@ export const tabCommands = {
       path = await tauri_homeDir();
     }
     const absPath = await tauri_path_resolve(path);
-    const tabId = await rustcmd.createTab();
+    const tabId = await rustcmds.createTab();
     st().addTab(mkTabInfo(tabId, absPath));
   },
 
@@ -50,7 +49,7 @@ export const tabCommands = {
     if (st().tabs.length === 0) return;
     console.info(`tabCommands.removeTab(${id})`);
     st().removeTab(id);
-    await commands.removeTab(id);
+    await rustcmds.removeTab(id);
     useScrollToFocusStore.getState().setScroll(true);
   },
 

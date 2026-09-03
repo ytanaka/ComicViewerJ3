@@ -8,8 +8,7 @@ import { createFileInfoWrapperActions, FileInfoWrapperActions } from './file-inf
 import { createFileSelectionActions, FileSelectionActions } from './file-selection-actions';
 import { createFileFocusHistoryActions, FileFocusHistoryActions } from './file-focus-history-actions';
 import { ExecExclusibe } from '@/lib/utils';
-import { commands } from '@/lib/bindings';
-import { rustcmd } from '@/lib/bindings-wrapper';
+import { rustcmds } from '@/lib/bindings-wrapper';
 
 export type TabActions = TabStoreActions &
   TabInfoActions &
@@ -88,9 +87,9 @@ function st() {
 export async function fixTabStore_from_FromLocalStrage() {
   const tabs = st().tabs;
 
-  for (const tabId of await commands.getTabIds()) {
+  for (const tabId of await rustcmds.getTabIds()) {
     console.info('fixFromLocalStrageStore() remove unused old tabId: ', tabId);
-    await commands.removeTab(tabId);
+    await rustcmds.removeTab(tabId);
   }
 
   // タブIDは store から復元時に負数に変換してあるので、tabs[].`id` と focusHistories[`tabId`] を新しいタブIDに作り直す
@@ -99,7 +98,7 @@ export async function fixTabStore_from_FromLocalStrage() {
   for (let i = 0; i < tabs.length; i++) {
     // 新規タブID発行
     const oldId = tabs[i].id;
-    const newId = await rustcmd.createTab();
+    const newId = await rustcmds.createTab();
     tabs[i].id = newId;
 
     // focusHistories 再構築

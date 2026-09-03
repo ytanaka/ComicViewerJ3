@@ -13,8 +13,8 @@ import { errToStr } from '@/lib/string-util';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
-import { commands } from '@/lib/bindings';
 import { FileId } from '@/store/tab/types';
+import { rustcmds } from '@/lib/bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -24,6 +24,7 @@ export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
   const tab = useTabStore(state => state.getCurrentTab());
+  const dirEntries = tab.dirEntries;
 
   console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id})`);
 
@@ -73,23 +74,23 @@ export default function FileList() {
     const overscan = 0;
     const s = Math.max(0, startIndex - overscan);
     const e = Math.min(dirEntries.length - 1, endIndex + overscan);
-    const fileIds = [];
+    const fileIds: FileId[] = [];
     for (let i = s; i <= e; i++) {
-      if (st().getFileInfo(tab.id, dirEntries[i].id as FileId) === undefined
-        && st().getFileInfoErrorMsg(tab.id, dirEntries[i].id as FileId) === undefined) {
-        fileIds.push(dirEntries[i].id.toString());
+      if (st().getFileInfo(tab.id, dirEntries[i].file_id) === undefined
+        && st().getFileInfoErrorMsg(tab.id, dirEntries[i].file_id) === undefined) {
+        fileIds.push(dirEntries[i].file_id);
       }
     }
     if (fileIds.length === 0) return;
 
-    const ret = await commands.getFileInfos(tab.id, fileIds);
+    const ret = await rustcmds.getFileInfos(tab.id, fileIds);
     if (ret.status === 'error') {
       // TODO: toast
-      console.error("commands.getFileInfos()", ret.error);
+      console.error("rustcmds.getFileInfos()", ret.error);
     } else {
       for (let i = 0; i < ret.data.length; i++) {
         const f = ret.data[i];
-        st().setFileInfo(tab.id, f.file_id as FileId, f);
+        st().setFileInfo(tab.id, fileIds[i], f);
       }
     }
   }
@@ -138,7 +139,6 @@ export default function FileList() {
 
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
 
-  const dirEntries = tab.dirEntries;
   // console.debug(`<FileList> dirEntries: [${dirEntries?.length}]`)
 
   return (

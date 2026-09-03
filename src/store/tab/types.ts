@@ -1,4 +1,4 @@
-import { DirEntry, FileInfo } from '@/lib/bindings';
+import { DirEntry, FileInfo } from '@/lib/bindings-wrapper';
 import { ExecExclusibe } from '@/lib/utils';
 
 

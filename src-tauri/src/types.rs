@@ -4,12 +4,16 @@ use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
-// =====================================================================================================================
-// fs.rs
-// =====================================================================================================================
-
 pub type TabId = u32;
 pub type FileId = u64;
+
+// XyzUI 構造体はUIとやり取りするための型
+// UI側で Xyz に変換して使用する
+// UI側で内部の number を別の型の type 宣言に置き換えて Xyz に変換して使用する
+//
+// XyzOS は XyzUI と対になる
+//
+// Xyz はUI,Rust側共通
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub enum Either<A, B> {
@@ -32,16 +36,21 @@ impl<A, B> Either<A, B> {
     }
 }
 
+// =====================================================================================================================
+// fs.rs
+// =====================================================================================================================
+
 // u64 は JS の number に完全に変換できないが、53bitまでの値なら大丈夫
 // ファイルid、ファイルサイズ、更新日時は 53bit 以内になるはず
 // Rust の u64 を JS の number にするために、specta_typescript::Number を指定する (tauri_specta でエラーになる)
 
 /// UIへ返すファイル一覧の要素
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-pub struct DirEntry {
+pub struct DirEntryUI {
     #[specta(type = specta_typescript::Number)]
-    pub id: FileId,
+    pub file_id: FileId,
 
+    pub is_dir: bool,
     pub name: Arc<str>,
 }
 
@@ -66,32 +75,22 @@ impl SortType {
 
 /// UIに返す詳細ファイル情報
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-pub struct FileInfo {
-    pub name: Arc<str>, // OsString だと JS 側で byte[] になってしまうので、JSに返す構造体は String にする
-
-    #[specta(type = specta_typescript::Number)]
-    pub file_id: FileId,
-
-    pub is_dir: bool,
-    /// メタデータか、メタデータ取得時のエラーメッセージが入る
+pub struct FileInfoUI {
     //  ※ FileInfoOS の metadata が Some でない場合はこの構造体は作成できない
     pub metadata: Arc<Either<FileMetadata, String>>,
 }
 
 /// Rust内部で使用するファイル情報
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct FileInfoOs {
+pub struct FileInfoOS {
     pub name: Arc<OsStr>,
     pub is_dir: bool,
-
+    /// メタデータか、メタデータ取得時のエラーメッセージが入る
     pub metadata: Option<Arc<Either<FileMetadata, String>>>,
 }
-impl FileInfoOs {
-    pub fn to_ui(&self, file_id: FileId) -> anyhow::Result<FileInfo> {
-        Ok(FileInfo {
-            name: Arc::from(self.name.to_string_lossy()),
-            file_id,
-            is_dir: self.is_dir,
+impl FileInfoOS {
+    pub fn to_ui(&self) -> anyhow::Result<FileInfoUI> {
+        Ok(FileInfoUI {
             metadata: self
                 .metadata
                 .clone()

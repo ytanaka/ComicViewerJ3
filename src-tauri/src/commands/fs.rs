@@ -11,7 +11,7 @@ use tauri::State;
 
 use crate::{
     state::{app_state::AppState, tab_info::TabInfo},
-    types::{DirEntry, FileId, FileInfo, FileInfoOs, SortType, TabId},
+    types::{DirEntryUI, FileId, FileInfoOS, FileInfoUI, SortType, TabId},
     LOG_RESULT,
 };
 
@@ -67,7 +67,7 @@ pub fn read_dir_entries(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     path: String,
-) -> Result<Vec<DirEntry>, String> {
+) -> Result<Vec<DirEntryUI>, String> {
     LOG_RESULT!(format!("read_dir_entries({}, {})", tab_id, path), {
         read_dir_entries_impl(&state, tab_id, path).map_err(|e| e.to_string())
     })
@@ -76,7 +76,7 @@ fn read_dir_entries_impl(
     state: &AppState,
     tab_id: TabId,
     path: String,
-) -> anyhow::Result<Vec<DirEntry>> {
+) -> anyhow::Result<Vec<DirEntryUI>> {
     // path 存在確認
     let path = Path::new(&path);
     if !path.is_dir() {
@@ -104,11 +104,11 @@ fn read_dir_entries_impl(
 fn read_dir_entries_impl2(
     state: &AppState,
     path: &Path,
-) -> anyhow::Result<HashMap<FileId, FileInfoOs>> {
-    let mut ret = HashMap::<FileId, FileInfoOs>::new();
+) -> anyhow::Result<HashMap<FileId, FileInfoOS>> {
+    let mut ret = HashMap::<FileId, FileInfoOS>::new();
     for entry in fs::read_dir(path)? {
         let entry = entry?;
-        let info = FileInfoOs {
+        let info = FileInfoOS {
             name: Arc::from(entry.file_name()),
             is_dir: entry.file_type()?.is_dir(),
             metadata: None,
@@ -127,7 +127,7 @@ pub async fn get_file_info(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_id: &str,
-) -> Result<FileInfo, String> {
+) -> Result<FileInfoUI, String> {
     let ret = get_file_info_impl(&state, tab_id, file_id)
         .await
         .map_err(|e| e.to_string());
@@ -137,11 +137,11 @@ async fn get_file_info_impl(
     state: &AppState,
     tab_id: TabId,
     file_id: &str,
-) -> anyhow::Result<FileInfo> {
+) -> anyhow::Result<FileInfoUI> {
     let tab = state.get_tab(tab_id)?;
     let mut tab = tab.write().unwrap();
     let file_id: u64 = file_id.parse().map_err(|_| anyhow!("invalid file_id"))?;
-    tab.get_file_info(file_id).map(|f| f.to_ui(file_id))?
+    tab.get_file_info(file_id).map(|f| f.to_ui())?
 }
 /// ファイル情報まとめて取得
 #[tauri::command]
@@ -150,7 +150,7 @@ pub async fn get_file_infos(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_ids: Vec<String>,
-) -> Result<Vec<FileInfo>, String> {
+) -> Result<Vec<FileInfoUI>, String> {
     log::trace!("get_file_infos({}, [{}]", tab_id, file_ids.len());
     get_file_infos_impl(state, tab_id, file_ids)
         .await
@@ -160,14 +160,14 @@ pub async fn get_file_infos_impl(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_ids: Vec<String>,
-) -> anyhow::Result<Vec<FileInfo>> {
+) -> anyhow::Result<Vec<FileInfoUI>> {
     let tab = state.get_tab(tab_id)?;
     let mut tab = tab.write().unwrap();
     let mut ret = Vec::new();
     for s in file_ids {
         let file_id: u64 = s.parse().map_err(|_| anyhow!("invalid file_id"))?;
         let file_info = tab.get_file_info(file_id)?;
-        let file_info = file_info.to_ui(file_id)?;
+        let file_info = file_info.to_ui()?;
         ret.push(file_info);
     }
     Ok(ret)
@@ -188,7 +188,7 @@ pub fn sort_files(_state: State<'_, Arc<AppState>>, _tab_id: TabId, _sort_type: 
 pub fn get_dir_entries(
     _state: State<'_, Arc<AppState>>,
     _tab_id: TabId,
-) -> Result<Vec<DirEntry>, String> {
+) -> Result<Vec<DirEntryUI>, String> {
     todo!("")
 }
 
@@ -233,10 +233,16 @@ mod tests {
         let ret = read_dir_entries_impl(&state, tab_id, "./testdata".to_string()).unwrap();
 
         assert_eq!(ret.len(), 4);
+
         assert_eq!(ret[0].name, Arc::from("d1"));
         assert_eq!(ret[1].name, Arc::from("d2"));
         assert_eq!(ret[2].name, Arc::from("d3"));
         assert_eq!(ret[3].name, Arc::from("fff.txt"));
+
+        assert_eq!(ret[0].is_dir, true);
+        assert_eq!(ret[1].is_dir, true);
+        assert_eq!(ret[2].is_dir, true);
+        assert_eq!(ret[3].is_dir, false);
 
         let ret = read_dir_entries_impl(&state, tab_id, "./testdata/d2".to_string()).unwrap();
         assert_eq!(ret.len(), 2);
@@ -252,47 +258,46 @@ mod tests {
                 .await
                 .map_err(|e| e.to_string())
         };
+        // タブを作る前はエラー
         assert_eq!(f(0, "").await, Err("invalid tab_id: 0".to_string()));
+
         let tab_id = create_tab_imp(&state);
+        // タブが初期化される前はエラー
         assert_eq!(
             f(tab_id, "0").await,
             Err("not initialized tab: 1".to_string())
         );
 
-        // ディレクトリ読み込み
-        let dir_entries =
-            read_dir_entries_impl(&state, tab_id, "./testdata/d3".to_string()).unwrap();
-
+        // 不正なファイルIDを渡すとエラー
         assert_eq!(f(tab_id, "").await, Err("invalid file_id".to_string()));
         assert_eq!(f(tab_id, " 1").await, Err("invalid file_id".to_string()));
         assert_eq!(f(tab_id, "1 ").await, Err("invalid file_id".to_string()));
         assert_eq!(f(tab_id, "１").await, Err("invalid file_id".to_string()));
 
+        // ディレクトリ読み込み
+        let dir_entries =
+            read_dir_entries_impl(&state, tab_id, "./testdata/d3".to_string()).unwrap();
+
+        // 存在しないファイルIDを渡すとエラー
         assert_eq!(
             f(tab_id, "99999").await,
             Err("invalid file_id: 99999 for tab_id[1]".to_string())
         );
 
         // f3-1.txt
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].id))
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].file_id))
             .await
             .unwrap();
-        assert_eq!(finfo.name, Arc::from("f3-1.txt"));
-        assert_eq!(finfo.is_dir, false);
         assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(1));
         // f3-3.txt
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].id))
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].file_id))
             .await
             .unwrap();
-        assert_eq!(finfo.name, Arc::from("f3-3.txt"));
-        assert_eq!(finfo.is_dir, false);
         assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].id))
+        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].file_id))
             .await
             .unwrap();
-        assert_eq!(finfo.name, Arc::from("xxx"));
-        assert_eq!(finfo.is_dir, true);
         assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(0));
     }
 }

@@ -2,16 +2,16 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { open as tauri_open } from '@tauri-apps/plugin-dialog';
 import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 
-import { commands } from '../bindings';
 import { tabCommands } from './tab-commands';
 import { useTabStore } from '@/store/tab/store';
+import { rustcmds } from '../bindings-wrapper';
 
 export const windowCommands = {
   // アプリ終了
   async exitApp() {
     const window = getCurrentWindow();
     await window.close();
-    await commands.exitApp();
+    await rustcmds.exitApp();
   },
 
   // ユーザーが選択したディレクトリで新しいタブを開く

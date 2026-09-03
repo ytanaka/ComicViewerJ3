@@ -1,7 +1,7 @@
-import { DirEntry } from '@/lib/bindings';
 import { TabId, TabInfo } from './types';
 import { TabStore } from './store';
 import { useScrollToFocusStore } from '../scroll-to-focus-store';
+import { DirEntry } from '@/lib/bindings-wrapper';
 
 export interface TabInfoActions {
   setPath: (tabId: TabId, path: string) => void;

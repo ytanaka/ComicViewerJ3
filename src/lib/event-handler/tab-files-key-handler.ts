@@ -1,7 +1,7 @@
 import React from 'react';
 import { VirtuosoHandle } from 'react-virtuoso';
 
-import { FileId, TabInfo } from '@/store/tab/types';
+import { TabInfo } from '@/store/tab/types';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
 import { searchCommands } from '../commands/search-commands';
@@ -114,10 +114,10 @@ export function tabFiles_handleKeyDown(
   // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && e.key === 'Enter') {
     const sel = st().getSelection(tab.id);
-    const info = st().getFileInfo(tab.id, dirEntries[sel.focusIndex].id as FileId);
-    if (!info || !info.is_dir) return false;
+    const ent = dirEntries[sel.focusIndex];
+    if (!ent.is_dir) return false;
 
-    fileCommands.moveToChildDirectory(info.name);
+    fileCommands.moveToChildDirectory(ent.name);
     e.preventDefault();
     return true;
   }

@@ -2,21 +2,21 @@ import React, { ReactNode, useEffect, useState } from 'react';
 
 import { path } from '@tauri-apps/api';
 
-import { DirEntry, FileInfo } from '@/lib/bindings';
 import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
-import { FileId, TabInfo } from '@/store/tab/types';
+import { TabInfo } from '@/store/tab/types';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { getObjId } from '@/lib/utils';
+import { DirEntry, FileInfo } from '@/lib/bindings-wrapper';
 
-function Icon({ fileInfo, hasError }: { fileInfo: FileInfo | undefined; hasError: boolean }) {
+function Icon({ dirEntry, fileInfo, hasError }: { dirEntry: DirEntry, fileInfo: FileInfo | undefined; hasError: boolean }) {
   let icon: string;
   if (hasError) {
     icon = '❌';
   } else if (fileInfo === undefined) {
     icon = ' ';
-  } else if (fileInfo?.is_dir) {
+  } else if (dirEntry.is_dir) {
     icon = '📁';
   } else {
     icon = '📄';
@@ -37,7 +37,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
     async function getExt() {
       setExt('');
       if (!fileInfo) return;
-      const isDir = fileInfo.is_dir;
+      const isDir = dirEntry.is_dir;
       if (!isDir) {
         const ext = await path.extname(dirEntry.name).catch(() => {
           return '';
@@ -46,7 +46,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
       }
     }
     getExt();
-  }, [dirEntry.name, fileInfo]);
+  }, [dirEntry.is_dir, dirEntry.name, fileInfo]);
 
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1'}>
@@ -54,9 +54,9 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
     </td>
   );
 }
-function Size({ fileInfo }: { fileInfo: FileInfo | undefined }) {
+function Size({ dirEntry, fileInfo }: { dirEntry: DirEntry, fileInfo: FileInfo | undefined }) {
   let size = undefined;
-  if (!fileInfo?.is_dir) {
+  if (!dirEntry.is_dir) {
     size = fileInfo?.metadata.Left?.size;
   }
   return (
@@ -79,8 +79,8 @@ export function FileListRow(
     fileIndex: number;
     dirEntry: DirEntry;
   } & React.HTMLAttributes<HTMLTableRowElement>) {
-  const fileInfo = useTabStore(state => state.getFileInfo(tab.id, dirEntry.id as FileId));
-  const fileInfoErrorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, dirEntry.id as FileId));
+  const fileInfo = useTabStore(state => state.getFileInfo(tab.id, dirEntry.file_id));
+  const fileInfoErrorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, dirEntry.file_id));
   const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
   const isFocused = useTabStore(state => state.getSelection(tab.id).focusIndex === fileIndex);
   let errorMsg: string | undefined = fileInfoErrorMsg;
@@ -98,10 +98,10 @@ export function FileListRow(
   const border = isFocused && 'border-dashed border dark:border-white border-black';
   return (
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
-      <Icon fileInfo={fileInfo} hasError={!!errorMsg} />
+      <Icon dirEntry={dirEntry} fileInfo={fileInfo} hasError={!!errorMsg} />
       <Name dirEntry={dirEntry} >{isFocused && <SearchResult tab={tab} />}</Name>
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
-      <Size fileInfo={fileInfo} />
+      <Size dirEntry={dirEntry} fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </tr>
   );

@@ -1,6 +1,6 @@
 import { useTabStore } from '@/store/tab/store';
-import { FileId, TabId } from '@/store/tab/types';
-import { commands } from './bindings';
+import { TabId } from '@/store/tab/types';
+import { rustcmds } from './bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -24,7 +24,7 @@ export const logic = {
     // 同時呼び出しを防ぐ
     await tab.execExclusive.try_start(-1, async () => {
       console.debug(`readDirEntries(): id:${tabId}, path:${tab.path}`);
-      const result = await commands.readDirEntries(tabId, tab.path);
+      const result = await rustcmds.readDirEntries(tabId, tab.path);
 
       if (result.status === 'ok') {
         st().setDirEntries(tabId, result.data);
@@ -46,13 +46,13 @@ export const logic = {
       const dirEnt = tab.dirEntries[index];
       if (!dirEnt) throw Error(`no dirEntries[${index}]`);
 
-      const result = await commands.getFileInfo(tabId, dirEnt.id.toString());
+      const result = await rustcmds.getFileInfo(tabId, dirEnt.file_id);
 
       if (result.status === 'ok') {
-        st().setFileInfo(tabId, dirEnt.id as FileId, result.data);
+        st().setFileInfo(tabId, dirEnt.file_id, result.data);
       } else {
         console.info('readFileInfo() error: ', result.error);
-        st().setFileInfoErrorMsg(tabId, dirEnt.id as FileId, result.error);
+        st().setFileInfoErrorMsg(tabId, dirEnt.file_id, result.error);
       }
     });
   },

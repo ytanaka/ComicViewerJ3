@@ -112,22 +112,22 @@ describe('removeTab', () => {
   test('正常動作', () => {
     add3tabs();
 
-    st().removeTab(1);
+    st().removeTab(1 as TabId);
     expect(getTabIds()).toEqual([2, 3]);
-    st().removeTab(3);
+    st().removeTab(3 as TabId);
     expect(getTabIds()).toEqual([2]);
-    st().removeTab(2);
+    st().removeTab(2 as TabId);
     expect(getTabIds()).toEqual([]);
   });
 
   test('空の状態で削除するとエラー', () => {
     add3tabs();
 
-    st().removeTab(3);
-    st().removeTab(2);
-    st().removeTab(1);
+    st().removeTab(3 as TabId);
+    st().removeTab(2 as TabId);
+    st().removeTab(1 as TabId);
 
-    expect(() => st().removeTab(0)).toThrow('no tab(0)');
+    expect(() => st().removeTab(0 as TabId)).toThrow('no tab(0)');
   });
 });
 
@@ -199,15 +199,15 @@ describe('currentTabId', () => {
     expect(getTabIds()).toEqual([1, 2, 3]);
     st().setCurrentTabIndex(2);
 
-    st().removeTab(2);
+    st().removeTab(2 as TabId);
     expect(getTabIds()).toEqual([1, 3]);
     expect(st().currentTabIndex).toBe(1);
 
-    st().removeTab(3);
+    st().removeTab(3 as TabId);
     expect(getTabIds()).toEqual([1]);
     expect(st().currentTabIndex).toBe(0);
 
-    st().removeTab(1);
+    st().removeTab(1 as TabId);
     expect(getTabIds()).toEqual([]);
     expect(st().currentTabIndex).toBe(0);
   });

@@ -1,4 +1,4 @@
-import { commands } from '@/lib/bindings';
+import { rustcmds } from '@/lib/bindings-wrapper';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { ReactNode, useEffect } from 'react';
 
@@ -8,7 +8,7 @@ export function RustLibInitializer({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const init = async () => {
-      await commands.init();
+      await rustcmds.init();
       setAppInitialized();
     };
     if (!appInitialized) init();

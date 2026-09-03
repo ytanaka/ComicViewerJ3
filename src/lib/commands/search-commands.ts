@@ -1,17 +1,18 @@
-import { TabInfo } from '@/store/tab/types';
-import { commands, FileSearchResult } from '../bindings';
+import { TabId, TabInfo } from '@/store/tab/types';
+import { FileSearchResult } from '../bindings';
 import { VirtuosoHandle } from 'react-virtuoso';
 import { checkCommandReturn } from '../bindings-helper';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';
 import { ExecExclusibe } from '../utils';
+import { rustcmds } from '../bindings-wrapper';
 
 let debounceTimer: number | undefined;
 let queuedInput: string | null = null; // 検索実行に入力された内容
 let queuedRevese: boolean = false;
 
 const emptyTab: Readonly<TabInfo> = {
-  id: -1,
+  id: -1 as TabId,
   path: '',
   execExclusive: new ExecExclusibe(),
   refreshCount: -1,
@@ -101,7 +102,7 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
 // ※ 検索中に状況が変わっていたら null
 async function search(text: string, startIndex: number, reverse: boolean): Promise<FileSearchResult | null> {
   console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) start`);
-  const ret = await commands.searchNextFilename(searchTab.id, startIndex, text, reverse);
+  const ret = await rustcmds.searchNextFilename(searchTab.id, startIndex, text, reverse);
   const result = checkCommandReturn('searchNextFilename', ret);
   console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) => `, result);
   if (!result) return null;

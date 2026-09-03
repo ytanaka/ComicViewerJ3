@@ -1,6 +1,6 @@
-import { FileInfo } from '@/lib/bindings';
 import { FileId, FileInfoWrapper, TabId } from './types';
 import { TabStore } from './store';
+import { FileInfo } from '@/lib/bindings-wrapper';
 
 export interface FileInfoWrapperActions {
   clearFileInfoWrapper: (tabId: TabId) => void;
