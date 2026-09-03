@@ -7,13 +7,12 @@ use specta::Type;
 pub type TabId = u32;
 pub type FileId = u64;
 
-// XyzUI 構造体はUIとやり取りするための型
-// UI側で Xyz に変換して使用する
-// UI側で内部の number を別の型の type 宣言に置き換えて Xyz に変換して使用する
+// XxxxxUI 構造体はRustからUIへ渡す型
+// UI側で内部の number を別の型の type 宣言に置き換えて Xxxxx に変換して使用する
 //
-// XyzOS は XyzUI と対になる
+// XxxxxOS はRust側で使用する型。XxxxxUI と対になっている。
 //
-// Xyz はUI,Rust側共通
+// Xxxxx はUI,Rust側共通で使用する型。
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub enum Either<A, B> {
@@ -77,6 +76,7 @@ pub enum SortType {
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct SortCondition {
     pub sort_type: SortType,
+    /// 昇順: true
     pub asc: bool,
 }
 impl Default for SortCondition {

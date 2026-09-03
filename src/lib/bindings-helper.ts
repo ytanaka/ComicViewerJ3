@@ -38,27 +38,6 @@ export const logic = {
     });
   },
 
-  async readFileInfo(tabId: TabId, index: number) {
-    const tab = st().getTab(tabId);
-
-    // 同一IDの同時呼び出しを防ぐ
-    await tab.execExclusive.try_start(index, async () => {
-      const tab = st().getTab(tabId);
-      if (!tab.dirEntries) throw Error('no dirEntries');
-      const dirEnt = tab.dirEntries[index];
-      if (!dirEnt) throw Error(`no dirEntries[${index}]`);
-
-      const result = await rustcmds.getFileInfo(tabId, dirEnt.file_id);
-
-      if (result.status === 'ok') {
-        st().setFileInfo(tabId, dirEnt.file_id, result.data);
-      } else {
-        console.info('readFileInfo() error: ', result.error);
-        st().setFileInfoErrorMsg(tabId, dirEnt.file_id, result.error);
-      }
-    });
-  },
-
   async readFileInfos(tabId: TabId, startIndex: number, endIndex: number) {
     const dirEntries = st().getTab(tabId).dirEntries;
     if (!dirEntries) return;
@@ -69,14 +48,16 @@ export const logic = {
     // 取得対象のファイルIDを集める
     const fileIds: FileId[] = [];
     for (let i = s; i <= e; i++) {
-      if (st().getFileInfo(tabId, dirEntries[i].file_id) === undefined
-        && st().getFileInfoErrorMsg(tabId, dirEntries[i].file_id) === undefined) {
+      if (
+        st().getFileInfo(tabId, dirEntries[i].file_id) === undefined &&
+        st().getFileInfoErrorMsg(tabId, dirEntries[i].file_id) === undefined
+      ) {
         fileIds.push(dirEntries[i].file_id);
       }
     }
     if (fileIds.length === 0) return;
 
-    if (DBGLOG) console.debug("call tryReadFileInfos", fileIds.length);
+    if (DBGLOG) console.debug('call tryReadFileInfos', fileIds.length);
     tryReadFileInfos(tabId, fileIds);
   },
 };
@@ -90,7 +71,7 @@ async function tryReadFileInfos(tabId: TabId, fileIds: FileId[]) {
   // 同時呼び出しを防ぐ
   const done = await tab.execExclusive.try_start(-1, () => tryReadFileInfos2(tabId, fileIds));
   if (!done) {
-    if (DBGLOG) console.debug("push queue", fileIds.length);
+    if (DBGLOG) console.debug('push queue', fileIds.length);
     readFileInfos_pendigTabId = tabId;
     readFileInfos_pendigFileIds = fileIds;
   }
@@ -98,11 +79,11 @@ async function tryReadFileInfos(tabId: TabId, fileIds: FileId[]) {
 
 async function tryReadFileInfos2(tabId: TabId, fileIds: FileId[]) {
   // ファイル情報取得
-  if (DBGLOG) console.debug("call rustcmds.getFileInfos", fileIds.length);
+  if (DBGLOG) console.debug('call rustcmds.getFileInfos', fileIds.length);
   const ret = await rustcmds.getFileInfos(tabId, fileIds);
   if (ret.status === 'error') {
     // TODO: toast
-    console.error("rustcmds.getFileInfos()", ret.error);
+    console.error('rustcmds.getFileInfos()', ret.error);
   } else {
     for (let i = 0; i < ret.data.length; i++) {
       const f = ret.data[i];
@@ -117,7 +98,7 @@ async function tryReadFileInfos2(tabId: TabId, fileIds: FileId[]) {
     readFileInfos_pendigFileIds = [];
     readFileInfos_pendigTabId = -1 as TabId;
     if (fileIds2.length !== 0) {
-      if (DBGLOG) console.debug("call2 tryReadFileInfos", fileIds2.length);
+      if (DBGLOG) console.debug('call2 tryReadFileInfos', fileIds2.length);
       tryReadFileInfos(tabId2, fileIds2);
     }
   }, 10);

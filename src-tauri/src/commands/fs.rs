@@ -119,45 +119,22 @@ fn read_dir_entries_impl2(
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-/// ファイル情報取得
-// ※ id は u64 にしたかったが、tauri_specta でエラーになるので文字列にする
 #[tauri::command]
 #[specta::specta]
-pub async fn get_file_info(
-    state: State<'_, Arc<AppState>>,
-    tab_id: TabId,
-    file_id: &str,
-) -> Result<FileInfoUI, String> {
-    let ret = get_file_info_impl(&state, tab_id, file_id)
-        .await
-        .map_err(|e| e.to_string());
-    LOG_RESULT!(format!("get_file_info({tab_id}, {file_id})"), { ret })
-}
-async fn get_file_info_impl(
-    state: &AppState,
-    tab_id: TabId,
-    file_id: &str,
-) -> anyhow::Result<FileInfoUI> {
-    let tab = state.get_tab(tab_id)?;
-    let mut tab = tab.write().unwrap();
-    let file_id: u64 = file_id.parse().map_err(|_| anyhow!("invalid file_id"))?;
-    tab.get_file_info(file_id).map(|f| f.to_ui())?
-}
 /// ファイル情報まとめて取得
-#[tauri::command]
-#[specta::specta]
+// ※ id は u64 にしたかったが、tauri_specta でエラーになるので文字列にする
 pub async fn get_file_infos(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_ids: Vec<String>,
 ) -> Result<Vec<FileInfoUI>, String> {
-    log::trace!("get_file_infos({}, [{}]", tab_id, file_ids.len());
-    get_file_infos_impl(state, tab_id, file_ids)
+    log::trace!("get_file_infos({}, [{}]) start", tab_id, file_ids.len());
+    get_file_infos_impl(&state, tab_id, file_ids)
         .await
         .map_err(|e| e.to_string())
 }
 pub async fn get_file_infos_impl(
-    state: State<'_, Arc<AppState>>,
+    state: &AppState,
     tab_id: TabId,
     file_ids: Vec<String>,
 ) -> anyhow::Result<Vec<FileInfoUI>> {
@@ -180,7 +157,7 @@ pub async fn get_file_infos_impl(
 pub fn sort_files(
     _state: State<'_, Arc<AppState>>,
     _tab_id: TabId,
-    _sort_type: SortCondition,
+    _sort_condition: SortCondition,
 ) -> bool {
     todo!("")
 }
@@ -255,10 +232,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_get_file_info() {
+    async fn test_get_file_infos() {
         let state = AppState::new();
         let f = async |tab_id: TabId, file_id: &str| {
-            get_file_info_impl(&state, tab_id, file_id)
+            get_file_infos_impl(&state, tab_id, vec![file_id.to_string()])
                 .await
                 .map_err(|e| e.to_string())
         };
@@ -288,20 +265,21 @@ mod tests {
             Err("invalid file_id: 99999 for tab_id[1]".to_string())
         );
 
+        let f = async |tab_id: TabId, file_id: FileId| {
+            get_file_infos_impl(&state, tab_id, vec![file_id.to_string()])
+                .await
+                .map_err(|e| e.to_string())
+                .map(|v| v.into_iter().next().unwrap())
+        };
+
         // f3-1.txt
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[0].file_id))
-            .await
-            .unwrap();
+        let finfo = f(tab_id, dir_entries[0].file_id).await.unwrap();
         assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(1));
         // f3-3.txt
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[2].file_id))
-            .await
-            .unwrap();
+        let finfo = f(tab_id, dir_entries[2].file_id).await.unwrap();
         assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
-        let finfo = get_file_info_impl(&state, tab_id, &format!("{}", dir_entries[3].file_id))
-            .await
-            .unwrap();
+        let finfo = f(tab_id, dir_entries[3].file_id).await.unwrap();
         assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(0));
     }
 }

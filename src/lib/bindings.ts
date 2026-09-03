@@ -22,12 +22,10 @@ export const commands = {
 	readDirEntries: (tabId: number, path: string) => typedError<DirEntryUI[], string>(__TAURI_INVOKE("read_dir_entries", { tabId, path })),
 	/**  ファイル一覧取得 (ソート後やファイル状態が更新された後で呼ぶ) */
 	getDirEntries: (tabId: number) => typedError<DirEntryUI[], string>(__TAURI_INVOKE("get_dir_entries", { tabId })),
-	/**  ファイル情報取得 */
-	getFileInfo: (tabId: number, fileId: string) => typedError<FileInfoUI, string>(__TAURI_INVOKE("get_file_info", { tabId, fileId })),
 	/**  ファイル情報まとめて取得 */
 	getFileInfos: (tabId: number, fileIds: string[]) => typedError<FileInfoUI[], string>(__TAURI_INVOKE("get_file_infos", { tabId, fileIds })),
 	/**  ファイル一覧をソートする */
-	sortFiles: (tabId: number, sortType: SortCondition) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortType }),
+	sortFiles: (tabId: number, sortCondition: SortCondition) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortCondition }),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  設定取得 */
@@ -76,6 +74,7 @@ export type FileSearchResult =
 
 export type SortCondition = {
 	sort_type: SortType,
+	/**  昇順: true */
 	asc: boolean,
 };
 

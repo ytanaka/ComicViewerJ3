@@ -105,8 +105,7 @@ export default function FileList() {
           <TableVirtuoso
             ref={virtuoso}
             components={{
-              TableRow: (props: ItemProps<ReactNode>) =>
-              (
+              TableRow: (props: ItemProps<ReactNode>) => (
                 <FileListRow
                   tab={tab}
                   fileIndex={props['data-index']}
@@ -114,9 +113,8 @@ export default function FileList() {
                   {...props}
                 />
               ),
-              Table: ({ children, ...props }: TableProps) =>
-              (
-                <table {...props} className='w-full' style={{ tableLayout: 'fixed' }}>
+              Table: ({ children, ...props }: TableProps) => (
+                <table {...props} className="w-full" style={{ tableLayout: 'fixed' }}>
                   <colgroup>
                     <col style={{ width: fileListHeaderSizes[0] }} />
                     <col style={{ width: 'auto' }} />

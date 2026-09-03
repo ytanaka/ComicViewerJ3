@@ -58,7 +58,7 @@ export const useTabStore = create<TabStore>()(
         try {
           // 保存しておいたタブIDは使えなくなっているので、タブIDを負数にしておいて、後で↓の関数を呼んで初期化する
           for (let i = 0; i < state.tabs.length; i++) {
-            state.tabs[i].id = state.tabs[i].id * -1 as TabId;
+            state.tabs[i].id = (state.tabs[i].id * -1) as TabId;
             state.tabs[i].execExclusive = new ExecExclusibe();
             state.tabs[i].refreshCount = 0;
           }
