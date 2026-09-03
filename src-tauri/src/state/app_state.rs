@@ -2,7 +2,7 @@ use std::{
     ops::Deref,
     sync::{
         atomic::{AtomicU32, AtomicU64},
-        Arc, OnceLock, RwLock,
+        Arc, OnceLock, RwLock, RwLockReadGuard,
     },
 };
 
@@ -10,6 +10,7 @@ use anyhow::anyhow;
 use dashmap::DashMap;
 
 use crate::{
+    file_operations::metadata_worker::MetadataWorker,
     state::tab_info::TabInfo,
     text_search::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
@@ -59,6 +60,8 @@ pub struct AppState {
     pub romaji_cnv: AppStateField<RomajiCnv>,
     pub text_matcher: AppStateField<TextMatcher>,
 
+    pub metadata_worker: AppStateField<MetadataWorker>,
+
     // 設定
     pub preferences: AppStateField<RwLock<AppPreferences>>,
 }
@@ -76,6 +79,8 @@ impl AppState {
             romaji_cnv: AppStateField::new(),
             text_matcher: AppStateField::new(),
 
+            metadata_worker: AppStateField::new(),
+
             preferences: AppStateField::new(),
         }
     }
@@ -88,6 +93,9 @@ impl AppState {
         state
             .text_matcher
             .get_or_init(|| TextMatcher::new(state.clone()));
+        state
+            .metadata_worker
+            .get_or_init(|| MetadataWorker::new(state.clone()));
         state
             .preferences
             .get_or_init(|| Arc::new(RwLock::new(AppPreferences::default())));

@@ -19,10 +19,13 @@ use crate::{
     types::TabId,
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 /// ワーカースレッドに投げるタスク
 struct WorkerPacket {
     tab_id: TabId,
     generation: TabGeneration,
+
     list: Vec<Arc<str>>,
 
     progress: usize,
@@ -56,6 +59,8 @@ impl WorkerPacket {
         }
     }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 pub struct TextMatcher {
     tx: mpsc::Sender<WorkerPacket>,

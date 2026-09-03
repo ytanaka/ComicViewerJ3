@@ -10,7 +10,7 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
-    file_operations::{self, file_utils::read_metadata},
+    file_operations::file_utils::read_metadata,
     file_sort::cmp_file,
     types::{DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId},
 };

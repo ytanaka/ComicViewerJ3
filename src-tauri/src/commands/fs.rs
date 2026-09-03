@@ -93,10 +93,14 @@ fn read_dir_entries_impl(
     tab.set_files(path.to_path_buf(), list);
     let ret = tab.create_dir_entries();
 
-    // 形態素解析する
-    let names: Vec<_> = ret.iter().map(|f| f.name.clone()).collect();
     if state.is_initialized() {
+        // 形態素解析する
+        let names: Vec<_> = ret.iter().map(|f| f.name.clone()).collect();
         state.text_matcher.send_to_worker(&tab, names);
+
+        // メタデータを読み込む
+        let file_ids: Vec<_> = ret.iter().map(|f| f.file_id).collect();
+        state.metadata_worker.send_to_worker(&tab, file_ids);
     }
 
     Ok(ret)
