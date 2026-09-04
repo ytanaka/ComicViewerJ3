@@ -58,7 +58,7 @@ function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; is
     <div ref={ref} className="truncate relative inline-block group">
       <Button
         ref={handleRef}
-        variant={`${isSelected ? 'outline' : 'secondary'}`}
+        variant={`${isSelected ? 'secondary' : 'outline'}`}
         className={`block truncate text-left w-full max-w-full ${isSelected ? '' : 'font-light'}`}
         style={isSelected ? { direction: 'rtl' } : {}} // カレントタブの場合だけ先頭を ・・・ で省略する
       >
