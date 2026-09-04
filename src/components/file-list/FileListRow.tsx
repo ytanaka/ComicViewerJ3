@@ -35,15 +35,14 @@ function Icon({
     </td>
   );
 }
-function Name({ dirEntry, children }: { dirEntry: DirEntry; children: ReactNode }) {
+function Name({ dirEntry }: { dirEntry: DirEntry }) {
   return (
     <td className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>
       {dirEntry.name}
-      {children}
     </td>
   );
 }
-function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
+function FileExt({ dirEntry, fileInfo, children }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined; children: ReactNode }) {
   const [ext, setExt] = useState('');
 
   useEffect(() => {
@@ -64,6 +63,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1'}>
       {ext}
+      {children}
     </td>
   );
 }
@@ -119,8 +119,8 @@ export function FileListRow({
   return (
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
       <Icon dirEntry={dirEntry} fileInfo={fileInfo} hasError={!!errorMsg} />
-      <Name dirEntry={dirEntry}>{isFocused && <SearchResult tab={tab} />}</Name>
-      <FileExt dirEntry={dirEntry} fileInfo={fileInfo} />
+      <Name dirEntry={dirEntry} />
+      <FileExt dirEntry={dirEntry} fileInfo={fileInfo} >{isFocused && <SearchResult tab={tab} />}</FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </tr>

@@ -70,10 +70,6 @@ pub fn run() {
     app_builder
         .setup(|app| {
             log::info!("app start: {}", app.package_info().name);
-            #[cfg(debug_assertions)]
-            {
-                let _ = app.get_webview_window("main").map(|w| w.open_devtools());
-            }
             Ok(())
         })
         .on_window_event(|_window, event| {
