@@ -75,6 +75,7 @@ impl PacketExecutor {
         let mut ret: Vec<(FileId, Arc<OsStr>)> = Vec::new();
         for file_id in &self.packet.list {
             if let Some(file_info) = tab.get_file_info(*file_id) {
+                // メタデータ取得済みの場合は無視する
                 if file_info.metadata.is_none() {
                     ret.push((*file_id, file_info.name.clone()));
                 }
@@ -121,6 +122,10 @@ impl PacketExecutor {
                 .map_err(|e| anyhow!("BUG: set_metadata err: {}", e))?;
             self.done += 1;
         }
+
+        // 処理済み数更新
+        tab.inc_metadata_loaded_count(self.packet.list.len());
+
         Ok(true)
     }
 

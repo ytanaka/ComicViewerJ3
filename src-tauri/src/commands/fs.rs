@@ -156,13 +156,19 @@ pub async fn get_file_infos_impl(
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
-/// ファイル一覧をソートする
+/// ファイル一覧をソートする (まだソートできない場合は false を返す)
 pub fn sort_files(
-    _state: State<'_, Arc<AppState>>,
-    _tab_id: TabId,
-    _sort_condition: SortCondition,
-) -> bool {
-    todo!("")
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    sort_condition: SortCondition,
+) -> Result<bool, String> {
+    let tab = state.get_tab(tab_id).map_err(|e| e.to_string())?;
+    let mut tab = tab.write().unwrap();
+    if !tab.sortable() {
+        return Ok(false);
+    }
+    tab.sort_items(sort_condition);
+    Ok(true)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -170,10 +176,12 @@ pub fn sort_files(
 #[specta::specta]
 /// ファイル一覧取得 (ソート後やファイル状態が更新された後で呼ぶ)
 pub fn get_dir_entries(
-    _state: State<'_, Arc<AppState>>,
-    _tab_id: TabId,
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
 ) -> Result<Vec<DirEntryUI>, String> {
-    todo!("")
+    let tab = state.get_tab(tab_id).map_err(|e| e.to_string())?;
+    let mut tab = tab.write().unwrap();
+    Ok(tab.create_dir_entries())
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

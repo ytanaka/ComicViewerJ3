@@ -27,7 +27,7 @@ pub struct TabInfo {
     sort_condition: SortCondition,
     sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
-    _pending_metadata: usize, // filesのmetada未取得の項目数。「ファイル名」以外でソートするときは取得済みである必要がある
+    metadata_loaded_count: usize, // filesのmetada未取得の項目数。Name,Ext 以外でソートするときは取得済みである必要がある (MetadataWorkerでセットされる)
     path_generation: u32, // current_dir が更新された回数。メタデータ取得タスクで比較して中止する
     sort_generation: u32, // sorted_list が更新された回数。ファイル名検索で比較して中断する (path_generationが更新されるときは必ず更新される)
 }
@@ -53,7 +53,7 @@ impl TabInfo {
             file_names: HashMap::new(),
             sort_condition: SortCondition::default(),
             sorted_list: None,
-            _pending_metadata: 0,
+            metadata_loaded_count: 0,
             path_generation: 0,
             sort_generation: 0,
         }
@@ -70,6 +70,12 @@ impl TabInfo {
             sort: self.sort_generation,
         }
     }
+    pub fn inc_metadata_loaded_count(&mut self, n: usize) {
+        self.metadata_loaded_count += n;
+    }
+    pub fn sortable(&self) -> bool {
+        self.metadata_loaded_count == self.files.len()
+    }
 
     pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOS>) {
         self.current_dir = Some(current_dir);
@@ -77,6 +83,7 @@ impl TabInfo {
         self.file_names.clear();
         self.sort_condition = SortCondition::default();
         self.sorted_list = None;
+        self.metadata_loaded_count = 0;
         self.path_generation += 1;
         self.sort_generation += 1;
 
@@ -86,7 +93,8 @@ impl TabInfo {
         }
     }
 
-    fn sort_items(&mut self) {
+    pub fn sort_items(&mut self, sort_condition: SortCondition) {
+        self.sort_condition = sort_condition;
         let mut list: Vec<_> = self.files.keys().copied().collect();
         list.sort_by(|a, b| {
             let a = self.files.get(a).unwrap();
@@ -100,7 +108,7 @@ impl TabInfo {
     // ソート済みのファイルIDリストを取得 (未ソートの場合はソートする)
     pub fn get_sorted_list(&mut self) -> Vec<FileId> {
         if self.sorted_list.is_none() {
-            self.sort_items();
+            self.sort_items(self.sort_condition.clone());
         }
         let x = self.sorted_list.clone();
         x.unwrap()
