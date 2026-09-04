@@ -52,7 +52,7 @@ function toDirEntry(from: DirEntryUI): DirEntry {
 }
 
 export type FileInfo = {
-  metadata: Either<FileMetadata, string>;
+  metadata: Either<string, FileMetadata>;
 };
 function toFileInfo(from: FileInfoUI): FileInfo {
   return {

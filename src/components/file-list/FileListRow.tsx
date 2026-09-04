@@ -70,7 +70,7 @@ function FileExt({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInf
 function Size({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
   let size = undefined;
   if (!dirEntry.is_dir) {
-    size = fileInfo?.metadata.Left?.size;
+    size = fileInfo?.metadata.Right?.size;
   }
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1 text-right'}>
@@ -81,7 +81,7 @@ function Size({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo |
 function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1'}>
-      {unixTime2str(fileInfo?.metadata.Left?.modified)}
+      {unixTime2str(fileInfo?.metadata.Right?.modified)}
     </td>
   );
 }
@@ -103,7 +103,7 @@ export function FileListRow({
   const fileInfo = useTabStore(state => state.getFileInfo(tab.id, dirEntry.file_id));
   const fileInfoErrorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, dirEntry.file_id));
   let errorMsg: string | undefined = fileInfoErrorMsg;
-  if (!errorMsg) errorMsg = fileInfo?.metadata.Right;
+  if (!errorMsg) errorMsg = fileInfo?.metadata.Left;
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {

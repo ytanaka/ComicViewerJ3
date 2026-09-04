@@ -73,8 +73,11 @@ impl TabInfo {
     pub fn inc_metadata_loaded_count(&mut self, n: usize) {
         self.metadata_loaded_count += n;
     }
-    pub fn sortable(&self) -> bool {
-        self.metadata_loaded_count == self.files.len()
+    pub fn sortable(&self, sort_condition: &SortCondition) -> bool {
+        match sort_condition.sort_type {
+            crate::types::SortType::Name | crate::types::SortType::Ext => true,
+            _ => self.metadata_loaded_count == self.files.len(),
+        }
     }
 
     pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOS>) {

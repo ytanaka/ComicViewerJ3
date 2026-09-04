@@ -50,7 +50,7 @@ export type Either<A, B> = ({ Left: A }) & { Right?: never } | ({ Right: B }) & 
 
 /**  UIに返す詳細ファイル情報 */
 export type FileInfoUI = {
-	metadata: Either<FileMetadata, string>,
+	metadata: Either<string, FileMetadata>,
 };
 
 /**  詳細ファイル情報のメタデータ */

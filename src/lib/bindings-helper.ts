@@ -1,6 +1,7 @@
 import { useTabStore } from '@/store/tab/store';
 import { FileId, TabId } from '@/store/tab/types';
 import { DirEntry, rustcmds } from './bindings-wrapper';
+import { toast } from 'sonner';
 
 function st() {
   return useTabStore.getState();
@@ -97,7 +98,7 @@ async function tryReadFileInfos2(tabId: TabId, fileIds: FileId[]) {
   if (DBGLOG) console.debug('call rustcmds.getFileInfos', fileIds.length);
   const ret = await rustcmds.getFileInfos(tabId, fileIds);
   if (ret.status === 'error') {
-    // TODO: toast
+    toast.error(`${ret.error}`);
     console.error('rustcmds.getFileInfos()', ret.error);
   } else {
     for (let i = 0; i < ret.data.length; i++) {

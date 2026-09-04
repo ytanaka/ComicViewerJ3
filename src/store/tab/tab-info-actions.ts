@@ -1,4 +1,4 @@
-import { TabId, TabInfo } from './types';
+import { mkDefaultSortCondition, TabId, TabInfo } from './types';
 import { TabStore } from './store';
 import { DirEntry } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
@@ -30,6 +30,7 @@ export const createTabInfoActions = (
     setPath: (tabId: TabId, path: string) => {
       updateTab(tabId, tab => {
         tab.path = path;
+        tab.sortCondition = mkDefaultSortCondition();
         tab.dirEntries = undefined;
         tab.errorMsg = undefined;
       });
