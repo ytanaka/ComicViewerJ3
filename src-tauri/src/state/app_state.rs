@@ -2,7 +2,7 @@ use std::{
     ops::Deref,
     sync::{
         atomic::{AtomicU32, AtomicU64},
-        Arc, OnceLock, RwLock, RwLockReadGuard,
+        Arc, OnceLock, RwLock,
     },
 };
 
