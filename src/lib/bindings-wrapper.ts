@@ -1,5 +1,5 @@
 import { FileId, TabId } from '@/store/tab/types';
-import { commands, DirEntryUI, Either, FileInfoUI, FileMetadata, SortCondition } from './bindings';
+import { commands, DirEntryUI, Either, FileInfoUI, FileMetadata, SortCondition, SortType } from './bindings';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
@@ -70,3 +70,5 @@ function cnvOk<F, T>(
     throw from;
   }
 }
+
+export type SortType_type = SortType['type'];

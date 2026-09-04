@@ -28,12 +28,14 @@ export default function FileList() {
   // データ取得
   useEffect(() => {
     const read = async () => {
-      if (tab.dirEntries == undefined && tab.errorMsg == undefined) {
+      if (tab.requestSort) {
+        await logic.getDirEntries(tab.id);
+      } else if (tab.dirEntries == undefined && tab.errorMsg == undefined) {
         await logic.readDirEntries(tab.id);
       }
     };
     read();
-  }, [tab.dirEntries, tab.errorMsg, tab.id]);
+  }, [tab.dirEntries, tab.errorMsg, tab.id, tab.requestSort]);
 
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {

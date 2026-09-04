@@ -1,7 +1,7 @@
 import { create, StoreApi } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { AllTabs, FileFocusHistory, MAX_HIST, TabId } from './types';
+import { AllTabs, FileFocusHistory, MAX_HIST, mkDefaultSortCondition, TabId } from './types';
 import { createTabInfoActions, TabInfoActions } from './tab-info-actions';
 import { TabStoreActions, createAllTabsActions } from './store-actions';
 import { createFileInfoWrapperActions, FileInfoWrapperActions } from './file-info-wrapper-actions';
@@ -59,6 +59,8 @@ export const useTabStore = create<TabStore>()(
           // 保存しておいたタブIDは使えなくなっているので、タブIDを負数にしておいて、後で↓の関数を呼んで初期化する
           for (let i = 0; i < state.tabs.length; i++) {
             state.tabs[i].id = (state.tabs[i].id * -1) as TabId;
+            state.tabs[i].sortCondition = mkDefaultSortCondition();
+            state.tabs[i].requestSort = false;
             state.tabs[i].execExclusive = new ExecExclusibe();
             state.tabs[i].refreshCount = 0;
           }

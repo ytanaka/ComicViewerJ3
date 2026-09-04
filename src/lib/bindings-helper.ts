@@ -1,6 +1,6 @@
 import { useTabStore } from '@/store/tab/store';
 import { FileId, TabId } from '@/store/tab/types';
-import { rustcmds } from './bindings-wrapper';
+import { DirEntry, rustcmds } from './bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -20,13 +20,17 @@ export function checkCommandReturn<T, E>(
 const DBGLOG = false;
 
 export const logic = {
-  async readDirEntries(tabId: TabId) {
+  async get_or_read_DirEntries(
+    tabId: TabId,
+    comment: string,
+    fn: () => Promise<{ status: 'ok'; data: DirEntry[] } | { status: 'error'; error: string }>
+  ) {
     const tab = st().getTab(tabId);
 
     // 同時呼び出しを防ぐ
     await tab.execExclusive.try_start(-1, async () => {
-      console.debug(`readDirEntries(): id:${tabId}, path:${tab.path}`);
-      const result = await rustcmds.readDirEntries(tabId, tab.path);
+      console.debug(comment);
+      const result = await fn();
 
       if (result.status === 'ok') {
         st().setDirEntries(tabId, result.data);
@@ -36,6 +40,17 @@ export const logic = {
         st().setDirEntries(tabId, []);
       }
     });
+  },
+
+  async readDirEntries(tabId: TabId) {
+    const tab = st().getTab(tabId);
+    await this.get_or_read_DirEntries(tabId, `readDirEntries(): id:${tabId}, path:${tab.path}`, () =>
+      rustcmds.readDirEntries(tabId, tab.path)
+    );
+  },
+
+  async getDirEntries(tabId: TabId) {
+    await this.get_or_read_DirEntries(tabId, `getDirEntries(): id:${tabId}`, () => rustcmds.getDirEntries(tabId));
   },
 
   async readFileInfos(tabId: TabId, startIndex: number, endIndex: number) {

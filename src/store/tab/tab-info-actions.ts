@@ -1,12 +1,15 @@
 import { TabId, TabInfo } from './types';
 import { TabStore } from './store';
 import { DirEntry } from '@/lib/bindings-wrapper';
+import { SortCondition } from '@/lib/bindings';
 
 export interface TabInfoActions {
   setPath: (tabId: TabId, path: string) => void;
 
   setDirEntries: (tabId: TabId, list: DirEntry[]) => void;
   setErrorMsg: (tabId: TabId, msg: string) => void;
+
+  setSortCondition: (tabId: TabId, sortCondition: SortCondition) => void;
 
   updateTab: (tabId: TabId, fn: (tab: TabInfo) => void) => boolean;
 }
@@ -50,6 +53,7 @@ export const createTabInfoActions = (
     get().updateTab(tabId, tab => {
       tab.dirEntries = list;
       tab.errorMsg = undefined;
+      tab.requestSort = false;
       tab.refreshCount = tab.refreshCount + 1;
     });
     get().clearFileInfoWrapper(tabId);
@@ -60,6 +64,14 @@ export const createTabInfoActions = (
     get().updateTab(tabId, tab => {
       tab.errorMsg = msg;
       tab.dirEntries = [];
+    });
+  },
+
+  setSortCondition: (tabId: TabId, sortCondition: SortCondition) => {
+    get().updateTab(tabId, tab => {
+      tab.sortCondition = sortCondition;
+      tab.requestSort = true;
+      tab.refreshCount = tab.refreshCount + 1;
     });
   },
 

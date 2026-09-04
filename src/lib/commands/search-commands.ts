@@ -1,4 +1,4 @@
-import { TabId, TabInfo } from '@/store/tab/types';
+import { mkDefaultSortCondition, TabId, TabInfo } from '@/store/tab/types';
 import { FileSearchResult } from '../bindings';
 import { VirtuosoHandle } from 'react-virtuoso';
 import { checkCommandReturn } from '../bindings-helper';
@@ -14,6 +14,8 @@ let queuedRevese: boolean = false;
 const emptyTab: Readonly<TabInfo> = {
   id: -1 as TabId,
   path: '',
+  sortCondition: mkDefaultSortCondition(),
+  requestSort: false,
   execExclusive: new ExecExclusibe(),
   refreshCount: -1,
 } as const;

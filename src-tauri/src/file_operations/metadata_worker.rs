@@ -60,6 +60,10 @@ struct PacketExecutor {
     packet: Arc<WorkerPacket>,
     done: u32,
 }
+type FileIdT<T> = Vec<(FileId, T)>;
+type FileIdOsStr = FileIdT<Arc<OsStr>>;
+type FileIdMetadata = FileIdT<Either<FileMetadata, String>>;
+
 impl PacketExecutor {
     fn new(state: Arc<AppState>, packet: Arc<WorkerPacket>) -> Self {
         PacketExecutor {
@@ -69,7 +73,7 @@ impl PacketExecutor {
         }
     }
     // ファイルIDをファイル名に変換 (タブをロックする)
-    fn get_dir_fileids_filenames(&self) -> anyhow::Result<(PathBuf, Vec<(FileId, Arc<OsStr>)>)> {
+    fn get_dir_fileids_filenames(&self) -> anyhow::Result<(PathBuf, FileIdOsStr)> {
         let tab = self.state.get_tab(self.packet.tab_id)?;
         let tab = tab.read().unwrap();
         let mut ret: Vec<(FileId, Arc<OsStr>)> = Vec::new();
@@ -90,22 +94,19 @@ impl PacketExecutor {
     fn read_metadatas(
         &mut self,
         dir: &PathBuf,
-        filenames: &Vec<(u64, Arc<OsStr>)>,
-    ) -> anyhow::Result<Vec<(u64, Either<FileMetadata, String>)>> {
+        filenames: &[(FileId, Arc<OsStr>)],
+    ) -> anyhow::Result<FileIdMetadata> {
         let ret: Vec<_> = filenames
             .iter()
             .map(|(file_id, name)| {
-                let metadata = read_metadata(&dir, &name);
+                let metadata = read_metadata(dir, name);
                 (*file_id, metadata)
             })
             .collect();
         Ok(ret)
     }
     // メタデータを一括設定 (タブをロックする)
-    fn write_metadata(
-        &mut self,
-        fileids_metadatas: Vec<(u64, Either<FileMetadata, String>)>,
-    ) -> anyhow::Result<bool> {
+    fn write_metadata(&mut self, fileids_metadatas: FileIdMetadata) -> anyhow::Result<bool> {
         let tab = self
             .state
             .get_tab(self.packet.tab_id)
@@ -147,7 +148,7 @@ impl PacketExecutor {
         // メタデータ読み込み
         let fileids_metadatas = self.read_metadatas(&dir, &fileids_filenames)?;
         // メタデータ書き込み
-        Ok(self.write_metadata(fileids_metadatas)?)
+        self.write_metadata(fileids_metadatas)
     }
 }
 

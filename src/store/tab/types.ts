@@ -1,3 +1,4 @@
+import { SortCondition } from '@/lib/bindings';
 import { DirEntry, FileInfo } from '@/lib/bindings-wrapper';
 import { ExecExclusibe } from '@/lib/utils';
 
@@ -19,9 +20,11 @@ export interface TabInfo {
   id: TabId;
   path: string;
   dirEntries?: DirEntry[];
-  errorMsg?: string;
+  errorMsg?: string; // dirEntries を更新しようとしたときのエラー
+  sortCondition: SortCondition;
+  requestSort: boolean;
   execExclusive: ExecExclusibe;
-  refreshCount: number;
+  refreshCount: number; // dirEntries が更新されたときに +1
 }
 export interface FileInfoWrapper {
   fileInfo?: FileInfo;
@@ -47,9 +50,15 @@ export function mkTabInfo(id: TabId, path: string): TabInfo {
   return {
     id,
     path,
+    sortCondition: mkDefaultSortCondition(),
+    requestSort: false,
     execExclusive: new ExecExclusibe(),
     refreshCount: 0,
   };
+}
+
+export function mkDefaultSortCondition(): SortCondition {
+  return { sort_type: { type: 'Name' }, asc: true };
 }
 
 export function mkFileSelection(): FileSelection {

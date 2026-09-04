@@ -1,19 +1,13 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { useTabStore } from './store';
-import { ExecExclusibe } from '@/lib/utils';
-import { TabId } from './types';
+import { mkTabInfo, TabId } from './types';
 
 function st() {
   return useTabStore.getState();
 }
 
 function addTab(id: number, path: string) {
-  st().addTab({
-    id: id as TabId,
-    path,
-    execExclusive: new ExecExclusibe(),
-    refreshCount: 0,
-  });
+  st().addTab(mkTabInfo(id as TabId, path));
 }
 
 function add3tabs() {

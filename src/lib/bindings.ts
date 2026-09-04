@@ -24,8 +24,8 @@ export const commands = {
 	getDirEntries: (tabId: number) => typedError<DirEntryUI[], string>(__TAURI_INVOKE("get_dir_entries", { tabId })),
 	/**  ファイル情報まとめて取得 */
 	getFileInfos: (tabId: number, fileIds: string[]) => typedError<FileInfoUI[], string>(__TAURI_INVOKE("get_file_infos", { tabId, fileIds })),
-	/**  ファイル一覧をソートする */
-	sortFiles: (tabId: number, sortCondition: SortCondition) => __TAURI_INVOKE<boolean>("sort_files", { tabId, sortCondition }),
+	/**  ファイル一覧をソートする (まだソートできない場合は false を返す) */
+	sortFiles: (tabId: number, sortCondition: SortCondition) => typedError<boolean, string>(__TAURI_INVOKE("sort_files", { tabId, sortCondition })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  設定取得 */
