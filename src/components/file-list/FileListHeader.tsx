@@ -57,12 +57,12 @@ export function FileListHeader() {
   };
 
   function getIcon(type: SortType_type | null) {
-    if (type === null || sortCondition.sort_type.type !== type) return (<></>);
+    if (type === null || sortCondition.sort_type.type !== type) return <></>;
 
     if (sortCondition.asc) {
-      return (<ChevronUp className='pl-1 h-4' />);
+      return <ChevronUp className="pl-1 h-4" />;
     } else {
-      return (<ChevronDown className='pl-1 h-4' />);
+      return <ChevronDown className="pl-1 h-4" />;
     }
   }
 
@@ -79,8 +79,7 @@ export function FileListHeader() {
                     onMouseDown={e => startResize(e, i)}
                   />
                 )}
-                <div
-                  className="flex border-b border-r pl-1 text-ellipsis overflow-hidden text-nowrap">
+                <div className="flex border-b border-r pl-1 text-ellipsis overflow-hidden text-nowrap">
                   <p>{h.label}</p>
                   {getIcon(h.sortType)}
                 </div>

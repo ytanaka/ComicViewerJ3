@@ -36,13 +36,17 @@ function Icon({
   );
 }
 function Name({ dirEntry }: { dirEntry: DirEntry }) {
-  return (
-    <td className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>
-      {dirEntry.name}
-    </td>
-  );
+  return <td className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>{dirEntry.name}</td>;
 }
-function FileExt({ dirEntry, fileInfo, children }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined; children: ReactNode }) {
+function FileExt({
+  dirEntry,
+  fileInfo,
+  children,
+}: {
+  dirEntry: DirEntry;
+  fileInfo: FileInfo | undefined;
+  children: ReactNode;
+}) {
   const [ext, setExt] = useState('');
 
   useEffect(() => {
@@ -109,7 +113,10 @@ export function FileListRow({
     tabFiles_handleMouseClick(e, tab, fileIndex);
   }
 
-  if (fileIndex === 0) console.debug(`<FileListRow>[${fileIndex}] tabId:${getObjId(tab)} dirEnt:${getObjId(dirEntry)} props:${getObjId(props)}`);
+  if (fileIndex === 0)
+    console.debug(
+      `<FileListRow>[${fileIndex}] tabId:${getObjId(tab)} dirEnt:${getObjId(dirEntry)} props:${getObjId(props)}`
+    );
 
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
@@ -118,7 +125,9 @@ export function FileListRow({
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
       <Icon dirEntry={dirEntry} fileInfo={fileInfo} hasError={!!errorMsg} />
       <Name dirEntry={dirEntry} />
-      <FileExt dirEntry={dirEntry} fileInfo={fileInfo} >{isFocused && <SearchResult tab={tab} />}</FileExt>
+      <FileExt dirEntry={dirEntry} fileInfo={fileInfo}>
+        {isFocused && <SearchResult tab={tab} />}
+      </FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </tr>

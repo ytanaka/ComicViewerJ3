@@ -16,9 +16,9 @@ export const sortCommands = {
     const result = await rustcmds.sortFiles(tab.id, cond);
     if (result.status === 'error') {
       toast.error(`${result.error}`);
-      console.error(`rustcmds.sortFiles(${tab.id}) error ${result.error}`)
+      console.error(`rustcmds.sortFiles(${tab.id}) error ${result.error}`);
     } else if (!result.data) {
-      toast.warning("このディレクトリではまだソートの準備ができていません");
+      toast.warning('このディレクトリではまだソートの準備ができていません');
     } else {
       useTabStore.getState().setSortCondition(tab.id, cond);
     }

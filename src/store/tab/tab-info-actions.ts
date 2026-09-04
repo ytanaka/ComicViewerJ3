@@ -86,5 +86,5 @@ export const createTabInfoActions = (
         tab.refreshCount = tab.refreshCount + 1;
       });
     },
-  }
+  };
 };
