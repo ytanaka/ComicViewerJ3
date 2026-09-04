@@ -1,4 +1,4 @@
-import { SortType_type } from '@/lib/bindings-wrapper';
+import { rustcmds, SortType_type } from '@/lib/bindings-wrapper';
 import { useTabStore } from '@/store/tab/store';
 import { useUiStore } from '@/store/ui-store';
 import React from 'react';
@@ -49,7 +49,7 @@ export function FileListHeader() {
     document.addEventListener('mouseup', onMouseUp);
   };
 
-  const handleClick = (index: number, type: SortType_type | null) => {
+  const handleClick = async (index: number, type: SortType_type | null) => {
     if (type === null) return;
 
     const tab = useTabStore.getState().getCurrentTab();
@@ -61,7 +61,13 @@ export function FileListHeader() {
       cond.asc = true;
     }
 
-    useTabStore.getState().setSortCondition(tab.id, cond);
+    const result = await rustcmds.sortFiles(tab.id, cond);
+    if (result.status === 'error') {
+      // TODO: toast
+      console.error(`rustcmds.sortFiles(${tab.id}) error ${result.error}`)
+    } else {
+      useTabStore.getState().setSortCondition(tab.id, cond);
+    }
 
     console.debug('click: ', index);
   };

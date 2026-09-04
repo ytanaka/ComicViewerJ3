@@ -71,6 +71,8 @@ export const createTabInfoActions = (
     get().updateTab(tabId, tab => {
       tab.sortCondition = sortCondition;
       tab.requestSort = true;
+      tab.dirEntries = undefined;
+      tab.errorMsg = undefined;
       tab.refreshCount = tab.refreshCount + 1;
     });
   },
