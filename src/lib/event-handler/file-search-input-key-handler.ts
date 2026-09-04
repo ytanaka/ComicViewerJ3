@@ -40,7 +40,7 @@ function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent, virtuoso: Virtuoso
 
   if (timeout < delay) {
     // タイムアウトしたら既存入力をクリアして新しい入力を続ける
-    useSearchTextStore.getState().clear();
+    useSearchTextStore.getState().clearText();
   }
 
   useSearchTextStore.getState().addText(e.key);

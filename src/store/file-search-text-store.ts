@@ -5,7 +5,8 @@ export interface FileSearchTextStore {
   prevTypeTime: number; // Unix time
 
   addText: (c: string) => void;
-  clear: () => void;
+  clearText: () => void;
+  cancelInput: () => void;
 }
 
 export const useSearchTextStore = create<FileSearchTextStore>()(set => ({
@@ -16,7 +17,11 @@ export const useSearchTextStore = create<FileSearchTextStore>()(set => ({
     set(state => ({ text: state.text + c, prevTypeTime: performance.now() }));
   },
 
-  clear: () => {
+  clearText: () => {
     set(() => ({ text: '', prevTypeTime: 0 }));
+  },
+
+  cancelInput: () => {
+    set(() => ({ prevTypeTime: 0 }));
   },
 }));

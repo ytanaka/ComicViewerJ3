@@ -24,7 +24,10 @@ export function SearchResult({ tab }: { tab: TabInfo }) {
 
   // Popover 表示中は Esc が Popover 内部で消費されてしまうので、ここで処理する
   function handleKeyDown(e: BaseUIEvent<React.KeyboardEvent<HTMLDivElement>>) {
-    if (e.key === 'Escape') searchCommands.cancel();
+    if (e.key === 'Escape') {
+      searchCommands.cancel();
+      useSearchTextStore.getState().cancelInput();
+    }
   }
 
   const iconSize = 14;
