@@ -4,7 +4,7 @@ import { path } from '@tauri-apps/api';
 
 import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
-import { FileSelection, TabInfo } from '@/store/tab/types';
+import { TabInfo } from '@/store/tab/types';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { getObjId } from '@/lib/utils';
@@ -97,9 +97,8 @@ export function FileListRow({
   dirEntry: DirEntry;
 } & React.HTMLAttributes<HTMLTableRowElement>) {
   // タブ削除の中の zustand set() 経由で削除済みTabInfoが引数に渡されることがあるので注意 (Virtuosoのリスト項目特有の現象？)
-  const sel: FileSelection | undefined = useTabStore(state => state.getSelection(tab.id));
-  const isSelected = !sel ? false : sel.selectionIndexes.has(fileIndex);
-  const isFocused = !sel ? false : sel.focusIndex === fileIndex;
+  const isSelected = useTabStore(state => state.getSelection(tab.id)?.selectionIndexes.has(fileIndex));
+  const isFocused = useTabStore(state => state.getSelection(tab.id)?.focusIndex === fileIndex);
   const fileInfo = useTabStore(state => state.getFileInfo(tab.id, dirEntry.file_id));
   const fileInfoErrorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, dirEntry.file_id));
   let errorMsg: string | undefined = fileInfoErrorMsg;
@@ -110,8 +109,7 @@ export function FileListRow({
     tabFiles_handleMouseClick(e, tab, fileIndex);
   }
 
-  if (fileIndex === 0)
-    console.debug(`<FileListRow> tabId:${getObjId(tab)} dirEnt:${getObjId(dirEntry)} props:${getObjId(props)}`);
+  if (fileIndex === 0) console.debug(`<FileListRow>[${fileIndex}] tabId:${getObjId(tab)} dirEnt:${getObjId(dirEntry)} props:${getObjId(props)}`);
 
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
