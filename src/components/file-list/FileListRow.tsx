@@ -4,7 +4,7 @@ import { path } from '@tauri-apps/api';
 
 import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
-import { TabInfo } from '@/store/tab/types';
+import { FileSelection, TabInfo } from '@/store/tab/types';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { getObjId } from '@/lib/utils';
@@ -96,10 +96,12 @@ export function FileListRow({
   fileIndex: number;
   dirEntry: DirEntry;
 } & React.HTMLAttributes<HTMLTableRowElement>) {
+  // タブ削除の中の zustand set() 経由で削除済みTabInfoが引数に渡されることがあるので注意 (Virtuosoのリスト項目特有の現象？)
+  const sel: FileSelection | undefined = useTabStore(state => state.getSelection(tab.id));
+  const isSelected = !sel ? false : sel.selectionIndexes.has(fileIndex);
+  const isFocused = !sel ? false : sel.focusIndex === fileIndex;
   const fileInfo = useTabStore(state => state.getFileInfo(tab.id, dirEntry.file_id));
   const fileInfoErrorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, dirEntry.file_id));
-  const isSelected = useTabStore(state => state.getSelection(tab.id).selectionIndexes.has(fileIndex));
-  const isFocused = useTabStore(state => state.getSelection(tab.id).focusIndex === fileIndex);
   let errorMsg: string | undefined = fileInfoErrorMsg;
   if (!errorMsg) errorMsg = fileInfo?.metadata.Right;
 

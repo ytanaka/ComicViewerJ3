@@ -17,7 +17,8 @@ export const createFileInfoWrapperActions = (
   get: () => TabStore
 ): FileInfoWrapperActions => {
   function getWrapper(tabId: TabId, fileId: FileId): FileInfoWrapper | undefined {
-    return get().fileInfoListList[tabId][fileId];
+    // タブ削除の中の zustand set() 経由で古いタブ情報でレンダーが呼ばれることがあるので注意
+    return get().fileInfoListList[tabId]?.[fileId];
   }
   function setWrapper(tabId: TabId, fileId: FileId, wrapper: FileInfoWrapper) {
     set(state => ({
