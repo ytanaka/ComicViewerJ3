@@ -1,4 +1,5 @@
 import { dialogCommands } from './commands/dialog-commands';
+import { sortCommands } from './commands/sort-commands';
 import { tabCommands } from './commands/tab-commands';
 import { windowCommands } from './commands/window-commands';
 
@@ -70,6 +71,11 @@ export const menuItems = {
   closeCurrentTab: M('タブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl+W'),
   nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl+PageDown'),
   prevTab: M('前のタブ', () => tabCommands.setCurrentTabNextPrev(-1), 'Ctrl+PageUp'),
+
+  sortByName: M('名前でソート', () => sortCommands.sortFiles('Name'), 'Alt+1'),
+  sortByExt: M('種類でソート', () => sortCommands.sortFiles('Ext'), 'Alt+2'),
+  sortBySize: M('サイズでソート', () => sortCommands.sortFiles('Size'), 'Alt+3'),
+  sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt+4'),
 };
 
 export function getAllMenuItems() {

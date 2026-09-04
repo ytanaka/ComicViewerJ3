@@ -132,7 +132,16 @@ pub async fn get_file_infos(
     tab_id: TabId,
     file_ids: Vec<String>,
 ) -> Result<Vec<FileInfoUI>, String> {
-    log::trace!("get_file_infos({}, [{}]) start", tab_id, file_ids.len());
+    let mut arg: String = "".to_string();
+    if file_ids.len() != 0 {
+        arg = format!(
+            "{}:{}-{}",
+            file_ids.len(),
+            file_ids[0],
+            file_ids[file_ids.len() - 1]
+        );
+    }
+    log::trace!("get_file_infos({}, [{}]) start", tab_id, arg);
     get_file_infos_impl(&state, tab_id, file_ids)
         .await
         .map_err(|e| e.to_string())
@@ -162,6 +171,15 @@ pub fn sort_files(
     tab_id: TabId,
     sort_condition: SortCondition,
 ) -> Result<bool, String> {
+    LOG_RESULT!(format!("sort_files({tab_id}, ...)"), {
+        sort_files_impl(&state, tab_id, sort_condition)
+    })
+}
+pub fn sort_files_impl(
+    state: &AppState,
+    tab_id: TabId,
+    sort_condition: SortCondition,
+) -> anyhow::Result<bool, String> {
     let tab = state.get_tab(tab_id).map_err(|e| e.to_string())?;
     let mut tab = tab.write().unwrap();
     if !tab.sortable() {
@@ -177,6 +195,14 @@ pub fn sort_files(
 /// ファイル一覧取得 (ソート後やファイル状態が更新された後で呼ぶ)
 pub fn get_dir_entries(
     state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+) -> Result<Vec<DirEntryUI>, String> {
+    LOG_RESULT!(format!("get_dir_entries({tab_id})"), {
+        get_dir_entries_impl(&state, tab_id)
+    })
+}
+pub fn get_dir_entries_impl(
+    state: &Arc<AppState>,
     tab_id: TabId,
 ) -> Result<Vec<DirEntryUI>, String> {
     let tab = state.get_tab(tab_id).map_err(|e| e.to_string())?;

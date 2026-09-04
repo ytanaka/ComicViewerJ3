@@ -1,10 +1,9 @@
-import { rustcmds, SortType_type } from '@/lib/bindings-wrapper';
-import { useTabStore } from '@/store/tab/store';
+import { SortType_type } from '@/lib/bindings-wrapper';
+import { sortCommands } from '@/lib/commands/sort-commands';
 import { useUiStore } from '@/store/ui-store';
 import React from 'react';
 
 interface HeaderInfo {
-  index: number;
   sortType: SortType_type | null;
   label: string | null;
 }
@@ -14,11 +13,11 @@ export function FileListHeader() {
   const setFileListHeaderSizes = useUiStore(state => state.setFileListHeaderSizes);
 
   const titles: HeaderInfo[] = [
-    { index: 0, sortType: null, label: '　' },
-    { index: 1, sortType: 'Name', label: '名前' },
-    { index: 2, sortType: 'Ext', label: '拡張子' },
-    { index: 3, sortType: 'Size', label: 'サイズ' },
-    { index: 4, sortType: 'Time', label: '更新日時' },
+    { sortType: null, label: '　' },
+    { sortType: 'Name', label: '名前' },
+    { sortType: 'Ext', label: '拡張子' },
+    { sortType: 'Size', label: 'サイズ' },
+    { sortType: 'Time', label: '更新日時' },
   ];
 
   // ヘッダーリサイズ処理
@@ -49,27 +48,9 @@ export function FileListHeader() {
     document.addEventListener('mouseup', onMouseUp);
   };
 
-  const handleClick = async (index: number, type: SortType_type | null) => {
+  const handleClick = async (type: SortType_type | null) => {
     if (type === null) return;
-
-    const tab = useTabStore.getState().getCurrentTab();
-    const cond = tab.sortCondition;
-    if (cond.sort_type.type === type) {
-      cond.asc = !cond.asc;
-    } else {
-      cond.sort_type = { type: type };
-      cond.asc = true;
-    }
-
-    const result = await rustcmds.sortFiles(tab.id, cond);
-    if (result.status === 'error') {
-      // TODO: toast
-      console.error(`rustcmds.sortFiles(${tab.id}) error ${result.error}`)
-    } else {
-      useTabStore.getState().setSortCondition(tab.id, cond);
-    }
-
-    console.debug('click: ', index);
+    sortCommands.sortFiles(type);
   };
 
   return (
@@ -77,7 +58,7 @@ export function FileListHeader() {
       {titles.map((h, i) => {
         return (
           <React.Fragment key={i}>
-            <td onClick={() => handleClick(i, h.sortType)}>
+            <td onClick={() => handleClick(h.sortType)}>
               <div className="relative">
                 {i !== 0 && (
                   <div

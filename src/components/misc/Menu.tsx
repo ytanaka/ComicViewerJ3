@@ -7,6 +7,9 @@ import {
   MenubarMenu,
   MenubarSeparator,
   MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
   MenubarTrigger,
 } from '@/components/ui/menubar';
 
@@ -59,6 +62,7 @@ export function Menu() {
 
   return (
     <Menubar>
+      {/* -------------------------------------------------------------------------------------------------------- */}
       <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
@@ -74,6 +78,7 @@ export function Menu() {
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
       <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>Edit</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
@@ -93,12 +98,28 @@ export function Menu() {
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
       <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>Tab</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
           <MenubarGroup>
             <MyMenuItem m={menuItems.cloneTab} />
             <MyMenuItem m={menuItems.closeCurrentTab} />
+          </MenubarGroup>
+          <MenubarSeparator />
+          <MenubarGroup>
+            <MenubarSub>
+              {/* -------------------------------------- */}
+              <MenubarSubTrigger>ソート</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarGroup>
+                  <MyMenuItem m={menuItems.sortByName} />
+                  <MyMenuItem m={menuItems.sortByExt} />
+                  <MyMenuItem m={menuItems.sortBySize} />
+                  <MyMenuItem m={menuItems.sortByTime} />
+                </MenubarGroup>
+              </MenubarSubContent>
+            </MenubarSub>
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
