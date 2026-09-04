@@ -87,26 +87,32 @@ impl TextMatcher {
         thread::spawn(move || loop {
             let packet = rx.recv().unwrap();
             let comment = format!("TextMatcher worker(tab_id:{}): ", packet.tab_id);
-            if !packet.check_tab(&state) {
-                log::debug!("{comment}cancel");
+
+            let canceled = !packet.check_tab(&state); // タブロックして状態変化を見る
+            let done = if canceled {
+                0
             } else {
-                let done = packet
+                packet
                     .list
                     .par_iter()
                     .map(|s| ret.put_cache(s).0)
                     .filter(|x| *x)
-                    .count();
-                if done != 0 {
-                    log::debug!(
-                        "{comment}tokenized({}) {}/{}",
-                        done,
-                        packet.progress,
-                        packet.total
-                    );
-                }
-                if packet.progress == packet.total {
-                    log::debug!("{comment}tokenized total={} finish", packet.total);
-                }
+                    .count()
+            };
+
+            if done != 0 {
+                log::debug!(
+                    "{comment}tokenized({}) {}/{}",
+                    done,
+                    packet.progress,
+                    packet.total
+                );
+            }
+
+            let canceled = !packet.check_tab(&state); // タブロックして状態変化を見る
+            let finish_msg = if canceled { "[CANCELED]" } else { "finish" };
+            if packet.progress == packet.total {
+                log::debug!("{comment}tokenized total={} {}", packet.total, finish_msg);
             }
         });
         ret2

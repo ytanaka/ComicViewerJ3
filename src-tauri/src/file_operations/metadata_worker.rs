@@ -1,4 +1,6 @@
 //! ファイルメタデータをバックグラウンドで取得する
+//!
+//! 起動時にワーカースレッドを起動する
 
 use std::{
     ffi::OsStr,
@@ -50,6 +52,9 @@ impl WorkerPacket {
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+/// ワーカーのタスク処理を担当する
 struct PacketExecutor {
     state: Arc<AppState>,
     packet: Arc<WorkerPacket>,
@@ -165,7 +170,7 @@ impl MetadataWorker {
                 Ok(success) => {
                     if exec.done != 0 {
                         log::debug!(
-                            "{comment}read meetadata ({}) {}/{}",
+                            "{comment}read metadata ({}) {}/{}",
                             exec.done,
                             packet.progress,
                             packet.total
