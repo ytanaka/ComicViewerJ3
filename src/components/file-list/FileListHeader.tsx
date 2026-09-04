@@ -1,6 +1,8 @@
 import { SortType_type } from '@/lib/bindings-wrapper';
 import { sortCommands } from '@/lib/commands/sort-commands';
+import { useTabStore } from '@/store/tab/store';
 import { useUiStore } from '@/store/ui-store';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import React from 'react';
 
 interface HeaderInfo {
@@ -11,6 +13,7 @@ interface HeaderInfo {
 export function FileListHeader() {
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
   const setFileListHeaderSizes = useUiStore(state => state.setFileListHeaderSizes);
+  const sortCondition = useTabStore(state => state.getCurrentTab().sortCondition);
 
   const titles: HeaderInfo[] = [
     { sortType: null, label: '　' },
@@ -53,6 +56,16 @@ export function FileListHeader() {
     sortCommands.sortFiles(type);
   };
 
+  function getIcon(type: SortType_type | null) {
+    if (type === null || sortCondition.sort_type.type !== type) return (<></>);
+
+    if (sortCondition.asc) {
+      return (<ChevronUp className='pl-1 w-5' />);
+    } else {
+      return (<ChevronDown className='pl-1 w-5' />);
+    }
+  }
+
   return (
     <tr className=" bg-gray-200 dark:bg-gray-900">
       {titles.map((h, i) => {
@@ -66,7 +79,11 @@ export function FileListHeader() {
                     onMouseDown={e => startResize(e, i)}
                   />
                 )}
-                <div className="border-b border-r pl-1 text-ellipsis overflow-hidden text-nowrap">{h.label}</div>
+                <div
+                  className="flex border-b border-r pl-1 text-ellipsis overflow-hidden text-nowrap">
+                  <p>{h.label}</p>
+                  {getIcon(h.sortType)}
+                </div>
               </div>
             </td>
           </React.Fragment>

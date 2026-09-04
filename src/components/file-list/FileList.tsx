@@ -23,7 +23,7 @@ export default function FileList() {
   const tab = useTabStore(state => state.getCurrentTab());
   const dirEntries = tab.dirEntries;
 
-  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id})`);
+  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}, ${tab.path})`);
 
   // データ取得
   useEffect(() => {

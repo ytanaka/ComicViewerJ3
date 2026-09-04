@@ -109,20 +109,19 @@ export const createAllTabsActions = (
   // ※ カレントタブが削除されたら、カレントは右のタブに移る
   // ※ 最後のタブが削除されたら、左側のタブをカレントにする
   removeTab: (tabId: TabId) => {
-    const tab = get().getTab(tabId);
     set(state => {
       // AllTabs の中の Record は tabs[] とは独立しているので、個別に削除する必要がある
       delete state.fileInfoListList[tabId];
       delete state.selections[tabId];
       delete state.focusHistories[tabId];
 
-      const newList = state.tabs.filter(t => t.id !== tab.id);
+      const newList = state.tabs.filter(t => t.id !== tabId);
       return {
         currentTabIndex: Math.max(0, Math.min(state.currentTabIndex, newList.length - 1)),
         tabs: newList,
-        fileInfoListList: state.fileInfoListList,
-        selections: state.selections,
-        focusHistories: state.focusHistories,
+        fileInfoListList: { ...state.fileInfoListList },
+        selections: { ...state.selections },
+        focusHistories: { ...state.focusHistories },
       };
     });
   },
