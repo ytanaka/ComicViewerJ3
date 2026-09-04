@@ -311,12 +311,12 @@ mod tests {
 
         // f3-1.txt
         let finfo = f(tab_id, dir_entries[0].file_id).await.unwrap();
-        assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(1));
+        assert_eq!(finfo.metadata.as_ref().right().unwrap().size, Some(1));
         // f3-3.txt
         let finfo = f(tab_id, dir_entries[2].file_id).await.unwrap();
-        assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(3));
+        assert_eq!(finfo.metadata.as_ref().right().unwrap().size, Some(3));
         // xxx (空ディレクトリ)
         let finfo = f(tab_id, dir_entries[3].file_id).await.unwrap();
-        assert_eq!(finfo.metadata.as_ref().left().unwrap().size, Some(0));
+        assert_eq!(finfo.metadata.as_ref().right().unwrap().size, Some(0));
     }
 }

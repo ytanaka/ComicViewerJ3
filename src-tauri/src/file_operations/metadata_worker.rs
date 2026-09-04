@@ -62,7 +62,7 @@ struct PacketExecutor {
 }
 type FileIdT<T> = Vec<(FileId, T)>;
 type FileIdOsStr = FileIdT<Arc<OsStr>>;
-type FileIdMetadata = FileIdT<Either<FileMetadata, String>>;
+type FileIdMetadata = FileIdT<Either<String, FileMetadata>>;
 
 impl PacketExecutor {
     fn new(state: Arc<AppState>, packet: Arc<WorkerPacket>) -> Self {

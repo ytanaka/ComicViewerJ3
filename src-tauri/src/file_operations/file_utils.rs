@@ -5,10 +5,10 @@ use crate::{
     util::to_unix_time,
 };
 
-pub fn read_metadata(dir: impl AsRef<Path>, filename: &OsStr) -> Either<FileMetadata, String> {
+pub fn read_metadata(dir: impl AsRef<Path>, filename: &OsStr) -> Either<String, FileMetadata> {
     match dir.as_ref().join(filename).metadata() {
-        Err(err) => Either::Right(err.to_string()),
-        Ok(metadata) => Either::Left(FileMetadata {
+        Err(err) => Either::Left(err.to_string()),
+        Ok(metadata) => Either::Right(FileMetadata {
             size: if metadata.is_dir() {
                 None
             } else {

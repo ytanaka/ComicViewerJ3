@@ -20,19 +20,19 @@ pub enum Either<A, B> {
     Right(B),
 }
 impl<A, B> Either<A, B> {
-    pub fn left(&self) -> Option<&A> {
-        match self {
-            Either::Left(a) => Some(a),
-            Either::Right(_) => None,
-        }
-    }
-
-    // pub fn right(&self) -> Option<&B> {
+    // pub fn left(&self) -> Option<&A> {
     //     match self {
-    //         Either::Right(b) => Some(b),
-    //         Either::Left(_) => None,
+    //         Either::Left(a) => Some(a),
+    //         Either::Right(_) => None,
     //     }
     // }
+
+    pub fn right(&self) -> Option<&B> {
+        match self {
+            Either::Right(b) => Some(b),
+            Either::Left(_) => None,
+        }
+    }
 
     // pub fn is_left(&self) -> bool {
     //     matches!(self, Either::Left(_))
@@ -92,7 +92,7 @@ impl Default for SortCondition {
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileInfoUI {
     //  ※ FileInfoOS の metadata が Some でない場合はこの構造体は作成できない
-    pub metadata: Arc<Either<FileMetadata, String>>,
+    pub metadata: Arc<Either<String, FileMetadata>>,
 }
 
 /// Rust内部で使用するファイル情報
@@ -101,7 +101,7 @@ pub struct FileInfoOS {
     pub name: Arc<OsStr>,
     pub is_dir: bool,
     /// メタデータか、メタデータ取得時のエラーメッセージが入る
-    pub metadata: Option<Arc<Either<FileMetadata, String>>>,
+    pub metadata: Option<Arc<Either<String, FileMetadata>>>,
 }
 impl FileInfoOS {
     pub fn to_ui(&self) -> anyhow::Result<FileInfoUI> {
@@ -119,7 +119,7 @@ impl FileInfoOS {
         self.get_metadata().and_then(|m| m.modified)
     }
     fn get_metadata(&self) -> Option<&FileMetadata> {
-        self.metadata.as_ref().and_then(|m| m.left())
+        self.metadata.as_ref().and_then(|m| m.right())
     }
 }
 

@@ -142,7 +142,7 @@ impl TabInfo {
     pub fn set_metadata_to_file_info(
         &mut self,
         file_id: FileId,
-        metadata: Either<FileMetadata, String>,
+        metadata: Either<String, FileMetadata>,
     ) -> anyhow::Result<()> {
         let file_info = self.get_file_info_mut(file_id)?;
         file_info.metadata = Some(Arc::new(metadata));
