@@ -60,9 +60,9 @@ export function FileListHeader() {
     if (type === null || sortCondition.sort_type.type !== type) return (<></>);
 
     if (sortCondition.asc) {
-      return (<ChevronUp className='pl-1 w-5' />);
+      return (<ChevronUp className='pl-1 h-4' />);
     } else {
-      return (<ChevronDown className='pl-1 w-5' />);
+      return (<ChevronDown className='pl-1 h-4' />);
     }
   }
 
