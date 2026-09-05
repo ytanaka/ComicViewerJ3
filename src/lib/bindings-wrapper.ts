@@ -1,21 +1,27 @@
 import { FileId, TabId } from '@/store/tab/types';
-import { commands, DirEntryUI, Either, FileInfoUI, FileMetadata, SortCondition, SortType } from './bindings';
+import { commands, DirEntryUI, Either, FileInfoUI, FileMetadata, SortCondition, SortType, TabInfoUI } from './bindings';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
   exitApp: commands.exitApp,
   init: commands.init,
-  createTab: () => {
-    return commands.createTab().then(tabId => tabId as TabId);
+  createTab: (path: string) => {
+    return commands.createTab(path).then(result => cnvOk(result, toTabInfo));
+  },
+  cloneTab: (tabId: TabId) => {
+    return commands.cloneTab(tabId).then(result => cnvOk(result, toTabInfo));
+  },
+  cloneTabChildDir: (tabId: TabId, fileId: FileId) => {
+    return commands.cloneTabChildDir(tabId, fileId.toString()).then(result => cnvOk(result, toTabInfo));
+  },
+  cloneTabParentDir: (tabId: TabId) => {
+    return commands.cloneTabParentDir(tabId).then(result => cnvOk(result, toTabInfo));
   },
   removeTab: (tabId: TabId) => {
     return commands.removeTab(tabId);
   },
-  getTabIds: () => {
-    return commands.getTabIds().then(list => list.map(tabId => tabId as TabId));
-  },
-  readDirEntries: (tabId: TabId, path: string) => {
-    return commands.readDirEntries(tabId, path).then(result => cnvOk(result, data => data.map(toDirEntry)));
+  getTabs: () => {
+    return commands.getTabs().then(list => list.map(toTabInfo));
   },
   getDirEntries: (tabId: TabId) => {
     return commands.getDirEntries(tabId).then(result => cnvOk(result, data => data.map(toDirEntry)));
@@ -38,6 +44,17 @@ export const rustcmds = {
   savePreferences: commands.savePreferences,
 };
 
+export type TabInfo2 = {
+  id: TabId,
+  path: string,
+};
+function toTabInfo(from: TabInfoUI): TabInfo2 {
+  return {
+    id: from.id as TabId,
+    path: from.path,
+  };
+}
+
 export type DirEntry = {
   file_id: FileId;
   is_dir: boolean;
@@ -59,6 +76,7 @@ function toFileInfo(from: FileInfoUI): FileInfo {
     metadata: from.metadata,
   };
 }
+
 
 function cnvOk<F, T>(
   from: { status: 'ok'; data: F } | { status: 'error'; error: string },
