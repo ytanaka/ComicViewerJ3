@@ -7,12 +7,14 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::search;
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
-        app::exit_app,
         app::init,
+        app::exit_app,
         fs::create_tab,
+        fs::clone_tab,
+        fs::clone_tab_child_dir,
+        fs::clone_tab_parent_dir,
         fs::remove_tab,
-        fs::get_tab_ids,
-        fs::read_dir_entries,
+        fs::get_tabs,
         fs::get_dir_entries,
         fs::get_file_infos,
         fs::sort_files,

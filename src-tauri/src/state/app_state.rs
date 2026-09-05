@@ -19,6 +19,8 @@ use crate::{
     types::{AppPreferences, FileId, TabId},
 };
 
+// =====================================================================================================================
+
 // AppState のフィールドの多くが OnceLock<Arc<XXX>> だったので、
 // state.xxx.get().unwrap() を毎回書かなくてもいいようにするためのクラス
 pub struct AppStateField<T> {
@@ -42,6 +44,8 @@ impl<T> Deref for AppStateField<T> {
         self.v.get().unwrap()
     }
 }
+
+// =====================================================================================================================
 
 pub const START_TAB_ID: TabId = 1;
 pub const START_FILE_ID: FileId = 100001;

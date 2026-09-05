@@ -12,87 +12,63 @@ use anyhow::anyhow;
 use crate::{
     file_operations::file_utils::read_metadata,
     file_sort::cmp_file,
-    types::{DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId},
+    types::{
+        DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId, TabInfoUI,
+    },
 };
 
-#[derive(Debug, Clone)]
+// =====================================================================================================================
+
+pub type TabGeneration = u32;
 pub struct TabInfo {
     tab_id: TabId,
-
-    current_dir: Option<PathBuf>, // タブ作成直後はNone
-
+    path: PathBuf,
     files: HashMap<FileId, FileInfoOS>,
-    file_names: HashMap<Arc<OsStr>, FileId>,
+    file_names: HashMap<Arc<OsStr>, FileId>, // ファイル更新検知からファイル名が渡されるので逆引きする
 
     sort_condition: SortCondition,
     sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
     metadata_loaded_count: usize, // filesのmetada未取得の項目数。Name,Ext 以外でソートするときは取得済みである必要がある (MetadataWorkerでセットされる)
-    path_generation: u32, // current_dir が更新された回数。メタデータ取得タスクで比較して中止する
-    sort_generation: u32, // sorted_list が更新された回数。ファイル名検索で比較して中断する (path_generationが更新されるときは必ず更新される)
-}
-/// タブ状態が変化したかどうかを判定するためのヘルパークラス
-pub struct TabGeneration {
-    path: u32,
-    sort: u32,
-}
-impl TabGeneration {
-    pub fn check(&self, tab: &TabInfo) -> bool {
-        self.path == tab.path_generation && self.sort == tab.sort_generation
-    }
-    pub fn check_path(&self, tab: &TabInfo) -> bool {
-        self.path == tab.path_generation
-    }
+    generation: TabGeneration, // sorted_list が更新された回数。ファイル名検索で比較して中断する (path_generationが更新されるときは必ず更新される)
 }
 impl TabInfo {
-    pub fn new(tab_id: TabId) -> Self {
-        TabInfo {
+    pub fn new(tab_id: TabId, path: impl AsRef<Path>, files: HashMap<FileId, FileInfoOS>) -> Self {
+        let mut ret = TabInfo {
             tab_id,
-            current_dir: None,
+            path: path.as_ref().to_path_buf(),
             files: HashMap::new(),
             file_names: HashMap::new(),
             sort_condition: SortCondition::default(),
             sorted_list: None,
             metadata_loaded_count: 0,
-            path_generation: 0,
-            sort_generation: 0,
+            generation: 0,
+        };
+        for (i, f) in files {
+            ret.file_names.insert(f.name.clone(), i);
+            ret.files.insert(i, f);
         }
+        ret
     }
     pub fn get_id(&self) -> TabId {
         self.tab_id
     }
-    pub fn get_current_dir(&self) -> Option<&Path> {
-        self.current_dir.as_deref()
+    pub fn get_path(&self) -> &Path {
+        &self.path
     }
     pub fn get_generation(&self) -> TabGeneration {
-        TabGeneration {
-            path: self.path_generation,
-            sort: self.sort_generation,
-        }
+        self.generation
     }
-    pub fn inc_metadata_loaded_count(&mut self, n: usize) {
+    pub fn check_generation(&self, gen: TabGeneration) -> bool {
+        self.generation == gen
+    }
+    pub fn add_metadata_loaded_count(&mut self, n: usize) {
         self.metadata_loaded_count += n;
     }
     pub fn sortable(&self, sort_condition: &SortCondition) -> bool {
         match sort_condition.sort_type {
             crate::types::SortType::Name | crate::types::SortType::Ext => true,
             _ => self.metadata_loaded_count == self.files.len(),
-        }
-    }
-
-    pub fn set_files(&mut self, current_dir: PathBuf, files: HashMap<FileId, FileInfoOS>) {
-        self.current_dir = Some(current_dir);
-        self.files.clear();
-        self.file_names.clear();
-        self.sort_condition = SortCondition::default();
-        self.sorted_list = None;
-        self.metadata_loaded_count = 0;
-        self.path_generation += 1;
-        self.sort_generation += 1;
-
-        for (i, f) in files {
-            self.file_names.insert(f.name.clone(), i);
-            self.files.insert(i, f);
         }
     }
 
@@ -105,7 +81,7 @@ impl TabInfo {
             cmp_file(&self.sort_condition, a, b)
         });
         self.sorted_list = Some(list);
-        self.sort_generation += 1;
+        self.generation += 1;
     }
 
     // ソート済みのファイルIDリストを取得 (未ソートの場合はソートする)
@@ -132,8 +108,12 @@ impl TabInfo {
         ret
     }
 
-    pub fn get_file_info(&self, file_id: FileId) -> Option<&FileInfoOS> {
-        self.files.get(&file_id)
+    pub fn get_file_info(&self, file_id: FileId) -> anyhow::Result<&FileInfoOS> {
+        let ret = self
+            .files
+            .get(&file_id)
+            .ok_or_else(|| anyhow!("no file[{}] for tab[{}]", file_id, self.tab_id))?;
+        Ok(ret)
     }
     pub fn get_file_info_mut(&mut self, file_id: FileId) -> anyhow::Result<&mut FileInfoOS> {
         let ret = self
@@ -142,7 +122,7 @@ impl TabInfo {
             .ok_or_else(|| anyhow!("no file[{}] for tab[{}]", file_id, self.tab_id))?;
         Ok(ret)
     }
-    pub fn set_metadata_to_file_info(
+    pub fn set_metadata(
         &mut self,
         file_id: FileId,
         metadata: Either<String, FileMetadata>,
@@ -152,35 +132,51 @@ impl TabInfo {
         Ok(())
     }
 
-    pub fn fill_metadata_to_file_info(&mut self, file_id: FileId) -> anyhow::Result<FileInfoOS> {
-        let file_info = self
-            .files
-            .get_mut(&file_id)
-            .ok_or_else(|| anyhow!("no file[{}] for tab[{}]", file_id, self.tab_id))?;
-        if file_info.metadata.is_none() {
-            let current_dir = self
-                .current_dir
-                .as_ref()
-                .ok_or(anyhow!("not initialized tab: {}", self.tab_id))?;
-            file_info.metadata = Some(Arc::new(read_metadata(current_dir, &file_info.name)));
+    pub fn load_metadata(&mut self, file_id: FileId) -> anyhow::Result<()> {
+        let file_info = self.get_file_info(file_id)?;
+        if file_info.metadata.is_some() {
+            return Ok(());
         }
-        Ok(file_info.clone())
+        let meta = read_metadata(&self.path, &file_info.name);
+        let file_info = self.get_file_info_mut(file_id)?;
+        file_info.metadata = Some(Arc::new(meta));
+        Ok(())
+    }
+
+    pub fn to_ui(&self) -> TabInfoUI {
+        TabInfoUI {
+            id: self.get_id(),
+            path: self.get_path().to_string_lossy().to_string(),
+        }
     }
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
+// =============================================================================================
+//
+// #####################   #####################      ###############      #####################
+// #####################   #####################      ###############      #####################
+//          ###            ###                     ###               ###            ###
+//          ###            ###                     ###               ###            ###
+//          ###            ###                     ###                              ###
+//          ###            ###                     ###                              ###
+//          ###            ###############            ###############               ###
+//          ###            ###############            ###############               ###
+//          ###            ###                                       ###            ###
+//          ###            ###                                       ###            ###
+//          ###            ###                     ###               ###            ###
+//          ###            ###                     ###               ###            ###
+//          ###            #####################      ###############               ###
+//          ###            #####################      ###############               ###
+//
+// =============================================================================================
+
 #[cfg(test)]
 mod tests {
-    use maplit::hashmap;
-
-    use crate::{
-        state::app_state::{AppState, START_FILE_ID},
-        types::SortType,
-    };
-
     use super::*;
+
+    use crate::state::app_state::{AppState, START_FILE_ID};
+
+    use maplit::hashmap;
 
     fn mk_dummy_files(state: &AppState, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOS> {
         let mut ret = HashMap::new();
@@ -201,24 +197,17 @@ mod tests {
 
     #[test]
     fn test_tab_info() {
-        let mut tab = TabInfo::new(123);
         let state = AppState::new();
-
-        // 初期状態を確認
-        assert_eq!(tab.current_dir, None);
-
-        // データの準備
-        let current_dir = PathBuf::from("/a/b/c");
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
-        tab.sort_condition = SortCondition {
-            sort_type: SortType::Ext,
-            asc: false,
-        };
-        tab.set_files(current_dir.clone(), files.clone());
+        let mut tab = TabInfo::new(123, "/a/b/c", files);
 
-        // データを set した結果を確認
-        assert_eq!(tab.current_dir, Some(current_dir.clone()));
-        assert_eq!(tab.files, files);
+        let mut list: Vec<_> = tab
+            .files
+            .values()
+            .map(|f| f.name.to_string_lossy().to_string())
+            .collect();
+        list.sort();
+        assert_eq!(list, vec!["f1.txt", "f2.txt", "f3.txt",]);
         assert_eq!(
             tab.file_names,
             hashmap! {
@@ -227,17 +216,12 @@ mod tests {
                 Arc::from(OsStr::new("f3.txt")) => START_FILE_ID + 2
             }
         );
-        assert_eq!(tab.sort_condition, SortCondition::default()); // 初期状態に戻っている
+        assert_eq!(tab.sort_condition, SortCondition::default());
 
         let dir_entries = tab.create_dir_entries();
         assert_eq!(dir_entries.len(), 3);
         assert_eq!(dir_entries[0].name, Arc::from("f1.txt"));
         assert_eq!(dir_entries[1].name, Arc::from("f2.txt"));
         assert_eq!(dir_entries[2].name, Arc::from("f3.txt"));
-
-        // 空のデータをセットする
-        tab.set_files(current_dir.clone(), HashMap::new());
-        assert!(tab.files.is_empty());
-        assert!(tab.file_names.is_empty());
     }
 }

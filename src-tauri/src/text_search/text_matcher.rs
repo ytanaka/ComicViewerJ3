@@ -6,6 +6,7 @@ use dashmap::DashMap;
 use rayon::prelude::*;
 use regex::Regex;
 use std::{
+    ffi::{OsStr, OsString},
     sync::{mpsc, Arc},
     thread,
 };
@@ -26,13 +27,13 @@ struct WorkerPacket {
     tab_id: TabId,
     generation: TabGeneration,
 
-    list: Vec<Arc<str>>,
+    list: Vec<Arc<OsStr>>,
 
     progress: usize,
     total: usize,
 }
 impl WorkerPacket {
-    fn create(tab: &TabInfo, list: Vec<Arc<str>>) -> Vec<Self> {
+    fn create(tab: &TabInfo, list: Vec<Arc<OsStr>>) -> Vec<Self> {
         let list2: Vec<_> = list.chunks(1000).map(|c| c.to_vec()).collect();
         let mut progress = 0;
         list2
@@ -55,7 +56,7 @@ impl WorkerPacket {
     fn check_tab(&self, state: &AppState) -> bool {
         match state.get_tab(self.tab_id) {
             Err(_) => false,
-            Ok(tab) => self.generation.check_path(&tab.read().unwrap()),
+            Ok(tab) => tab.read().unwrap().check_generation(self.generation),
         }
     }
 }
@@ -65,7 +66,7 @@ impl WorkerPacket {
 pub struct TextMatcher {
     tx: mpsc::Sender<WorkerPacket>,
 
-    yomi_cache: Arc<DashMap<String, Arc<SplStr>>>,
+    yomi_cache: Arc<DashMap<OsString, Arc<SplStr>>>,
 
     vibrato: Arc<Vibrato>,
     reverse_migemo: Arc<ReverseMigemo>,
@@ -118,28 +119,31 @@ impl TextMatcher {
         ret2
     }
 
-    pub fn send_to_worker(&self, tab: &TabInfo, list: Vec<Arc<str>>) {
+    pub fn send_to_worker(&self, tab: &TabInfo, list: Vec<Arc<OsStr>>) {
         for list in WorkerPacket::create(tab, list) {
             self.tx.send(list).unwrap();
         }
     }
 
-    pub fn has_cache(&self, s: &str) -> bool {
+    pub fn has_cache(&self, s: &OsStr) -> bool {
         self.yomi_cache.get(s).is_some()
     }
 
-    fn get_cache(&self, s: &str) -> Arc<SplStr> {
+    fn get_cache(&self, s: &OsStr) -> Arc<SplStr> {
         let ret = self.put_cache(s);
         ret.1
     }
     // キャッシュから解析結果を取得する (まだ解析していないなら解析する)
     // まだキャッシュに存在しなかったら true を返す
-    fn put_cache(&self, s: &str) -> (bool, Arc<SplStr>) {
+    fn put_cache(&self, s: &OsStr) -> (bool, Arc<SplStr>) {
         match self.yomi_cache.get(s) {
             Some(kv) => (false, kv.value().clone()),
             None => {
-                let tok = Arc::new(self.vibrato.tokenize(s, self.reverse_migemo.clone()));
-                self.yomi_cache.insert(s.to_string(), tok.clone());
+                let tok = Arc::new(
+                    self.vibrato
+                        .tokenize(&s.to_string_lossy(), self.reverse_migemo.clone()),
+                );
+                self.yomi_cache.insert(s.to_os_string(), tok.clone());
                 (true, tok)
             }
         }
@@ -152,10 +156,13 @@ impl TextMatcher {
         input_katakana: &str,    // 入力されたローマ字 -> カタカナ
         input_migemo_re: &Regex, // 入力されたローマ字のMigemo正規表現
         input_normalized: &str, // 入力されたローマ字や漢字など -> 正規化 (正規化したファイル名と単純一致させる)
-        filename: &str,         // 比較するファイル名
+        filename: &OsStr,       // 比較するファイル名
     ) -> Option<(usize, usize)> {
         // Migemo で検索
-        if let Some(m) = input_migemo_re.captures_iter(filename).next() {
+        if let Some(m) = input_migemo_re
+            .captures_iter(&filename.to_string_lossy())
+            .next()
+        {
             let m = m.get_match();
             return Some((m.start(), m.end()));
         }

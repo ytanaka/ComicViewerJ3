@@ -66,7 +66,7 @@ fn search_next_filename_impl(
         let filenames = {
             let tab = state.get_tab(tab_id)?;
             let tab = tab.write().unwrap();
-            if !generation.check(&tab) {
+            if !tab.check_generation(generation) {
                 // ソート状態など、タブ状態が変わったら検索する意味がないのでキャンセルする
                 return Ok(FileSearchResult::Canceled);
             }
@@ -84,13 +84,17 @@ fn search_next_filename_impl(
         let chunk_result = filenames
             .par_iter()
             .flat_map(|(index, name)| {
-                let name = name.to_string_lossy();
                 let matcher = state.text_matcher.clone();
                 if !matcher.has_cache(&name) {
                     return Some(FileSearchResult::FailNoCache);
                 }
                 if let Some(find) = matcher.find(&katakana, &migemo_re, &romaji, &name) {
-                    return Some(FileSearchResult::new_success(*index, &name, find.0, find.1));
+                    return Some(FileSearchResult::new_success(
+                        *index,
+                        &name.to_string_lossy(),
+                        find.0,
+                        find.1,
+                    ));
                 }
                 None
             })

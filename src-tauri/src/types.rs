@@ -7,6 +7,8 @@ use specta::Type;
 pub type TabId = u32;
 pub type FileId = u64;
 
+// =====================================================================================================================
+
 // XxxxxUI 構造体はRustからUIへ渡す型
 // UI側で内部の number を別の型の type 宣言に置き換えて Xxxxx に変換して使用する
 //
@@ -49,6 +51,14 @@ impl<A, B> Either<A, B> {
 // u64 は JS の number に完全に変換できないが、53bitまでの値なら大丈夫
 // ファイルid、ファイルサイズ、更新日時は 53bit 以内になるはず
 // Rust の u64 を JS の number にするために、specta_typescript::Number を指定する (tauri_specta でエラーになる)
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub struct TabInfoUI {
+    #[specta(type = specta_typescript::Number)]
+    pub id: TabId,
+
+    pub path: String,
+}
 
 /// UIへ返すファイル一覧の要素
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
@@ -95,8 +105,8 @@ pub struct FileInfoUI {
     pub metadata: Arc<Either<String, FileMetadata>>,
 }
 
+#[derive(Clone)]
 /// Rust内部で使用するファイル情報
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FileInfoOS {
     pub name: Arc<OsStr>,
     pub is_dir: bool,

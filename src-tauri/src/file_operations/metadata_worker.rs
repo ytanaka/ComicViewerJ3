@@ -78,17 +78,14 @@ impl PacketExecutor {
         let tab = tab.read().unwrap();
         let mut ret: Vec<(FileId, Arc<OsStr>)> = Vec::new();
         for file_id in &self.packet.list {
-            if let Some(file_info) = tab.get_file_info(*file_id) {
+            if let Ok(file_info) = tab.get_file_info(*file_id) {
                 // メタデータ取得済みの場合は無視する
                 if file_info.metadata.is_none() {
                     ret.push((*file_id, file_info.name.clone()));
                 }
             }
         }
-        let dir = tab
-            .get_current_dir()
-            .ok_or_else(|| anyhow!("BUG: no current_dir"))?;
-        Ok((dir.to_path_buf(), ret))
+        Ok((tab.get_path().to_path_buf(), ret))
     }
     // メタデータを一括取得 (時間がかかるので、タブをロックしない)
     fn read_metadatas(
@@ -114,18 +111,18 @@ impl PacketExecutor {
         let mut tab = tab.write().unwrap();
 
         // タブ状態が変わっていたらキャンセル
-        if !self.packet.generation.check_path(&tab) {
+        if !tab.check_generation(self.packet.generation) {
             return Ok(false);
         }
 
         for (file_id, metadata) in fileids_metadatas {
-            tab.set_metadata_to_file_info(file_id, metadata)
+            tab.set_metadata(file_id, metadata)
                 .map_err(|e| anyhow!("BUG: set_metadata err: {}", e))?;
             self.done += 1;
         }
 
         // 処理済み数更新
-        tab.inc_metadata_loaded_count(self.packet.list.len());
+        tab.add_metadata_loaded_count(self.packet.list.len());
 
         Ok(true)
     }
@@ -137,7 +134,7 @@ impl PacketExecutor {
         match self.state.get_tab(self.packet.tab_id) {
             Err(_) => return Ok(false),
             Ok(tab) => {
-                if !self.packet.generation.check_path(&tab.read().unwrap()) {
+                if !tab.read().unwrap().check_generation(self.packet.generation) {
                     return Ok(false);
                 }
             }

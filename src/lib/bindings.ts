@@ -8,18 +8,22 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 
 /** Commands */
 export const commands = {
-	/**  アプリ終了 */
-	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
 	/**  Rust側の初期化 (ほかのコマンドを使用する前に呼ぶ) */
 	init: () => typedError<null, string>(__TAURI_INVOKE("init")),
-	/**  新規タブ作成 */
-	createTab: () => __TAURI_INVOKE<number>("create_tab"),
+	/**  アプリ終了 */
+	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
+	/**  タブ作成 (絶対パス) */
+	createTab: (path: string) => typedError<TabInfoUI, string>(__TAURI_INVOKE("create_tab", { path })),
+	/**  タブ作成 (指定タブと同じパス) */
+	cloneTab: (tabId: number) => typedError<TabInfoUI, string>(__TAURI_INVOKE("clone_tab", { tabId })),
+	/**  タブ作成 (指定タブの子ディレクトリ) */
+	cloneTabChildDir: (tabId: number, fileId: string) => typedError<TabInfoUI, string>(__TAURI_INVOKE("clone_tab_child_dir", { tabId, fileId })),
+	/**  タブ作成 (指定タブの親ディレクトリ) */
+	cloneTabParentDir: (tabId: number) => typedError<TabInfoUI, string>(__TAURI_INVOKE("clone_tab_parent_dir", { tabId })),
 	/**  タブ削除 */
 	removeTab: (tabId: number) => typedError<null, string>(__TAURI_INVOKE("remove_tab", { tabId })),
 	/**  タブ一覧 */
-	getTabIds: () => __TAURI_INVOKE<number[]>("get_tab_ids"),
-	/**  ディレクトリ中のファイル一覧を読み込む */
-	readDirEntries: (tabId: number, path: string) => typedError<DirEntryUI[], string>(__TAURI_INVOKE("read_dir_entries", { tabId, path })),
+	getTabs: () => __TAURI_INVOKE<TabInfoUI[]>("get_tabs"),
 	/**  ファイル一覧取得 (ソート後やファイル状態が更新された後で呼ぶ) */
 	getDirEntries: (tabId: number) => typedError<DirEntryUI[], string>(__TAURI_INVOKE("get_dir_entries", { tabId })),
 	/**  ファイル情報まとめて取得 */
@@ -88,6 +92,11 @@ export type SortType =
 { type: "Size" } | 
 /**  更新日時でソート */
 { type: "Time" };
+
+export type TabInfoUI = {
+	id: number,
+	path: string,
+};
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {
