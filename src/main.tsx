@@ -6,7 +6,6 @@ import { ThemeProvider } from 'next-themes';
 import { TooltipProvider } from './components/ui/tooltip';
 
 import App from './App';
-import { TabStateInitializer } from './components/util/TabStateInitializer';
 import { RustLibInitializer } from './components/util/RustLibInitializer';
 
 const queryClient = new QueryClient();
@@ -17,9 +16,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       <TooltipProvider>
         <ThemeProvider attribute="class">
           <RustLibInitializer>
-            <TabStateInitializer>
-              <App />
-            </TabStateInitializer>
+            <App />
           </RustLibInitializer>
         </ThemeProvider>
       </TooltipProvider>

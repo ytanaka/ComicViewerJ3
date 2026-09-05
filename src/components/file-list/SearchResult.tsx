@@ -5,10 +5,10 @@ import { searchCommands } from '@/lib/commands/search-commands';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { useSearchResultStore } from '@/store/file-search-result-store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
-import { TabInfo } from '@/store/tab/types';
+import { UiTab } from '@/store/tab/types';
 import { BaseUIEvent } from '@base-ui/react';
 
-export function SearchResult({ tab }: { tab: TabInfo }) {
+export function SearchResult({ tab }: { tab: UiTab }) {
   const romaji = useSearchTextStore(state => state.text);
   const result = useSearchResultStore(state => state.getResult(tab));
   const isProgress = useSearchResultStore(state => state.isProgress(tab));

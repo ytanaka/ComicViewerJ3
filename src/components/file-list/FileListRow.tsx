@@ -4,7 +4,7 @@ import { path } from '@tauri-apps/api';
 
 import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
-import { TabInfo } from '@/store/tab/types';
+import { UiTab } from '@/store/tab/types';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { getObjId } from '@/lib/utils';
@@ -96,7 +96,7 @@ export function FileListRow({
   dirEntry,
   ...props
 }: {
-  tab: TabInfo;
+  tab: UiTab;
   fileIndex: number;
   dirEntry: DirEntry;
 } & React.HTMLAttributes<HTMLTableRowElement>) {

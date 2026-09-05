@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { useTabStore } from './store';
-import { mkTabInfo, TabId } from './types';
+import { mkUiTab, TabId } from './types';
 
 function st() {
   return useTabStore.getState();
 }
 
 function addTab(id: number, path: string) {
-  st().addTab(mkTabInfo(id as TabId, path));
+  st().addTab(mkUiTab(id as TabId, path));
 }
 
 function add3tabs() {

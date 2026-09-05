@@ -1,22 +1,22 @@
 import { create } from 'zustand';
-import { TabInfo } from './tab/types';
+import { UiTab } from './tab/types';
 import { FileSearchResult } from '@/lib/bindings';
 import { useUiStore } from './ui-store';
 
 export interface FileSearchResultStore {
-  tab: TabInfo | null;
+  tab: UiTab | null;
   progress: boolean;
   result: FileSearchResult | null;
   updateTime: number;
 
-  setResult: (tab: TabInfo, result: FileSearchResult) => void;
-  setProgress: (tab: TabInfo, progress: boolean) => void;
+  setResult: (tab: UiTab, result: FileSearchResult) => void;
+  setProgress: (tab: UiTab, progress: boolean) => void;
   clear: () => void;
 
   // 検索結果を取得 (タブ状態が変わっていたり、結果が返ってから時間が経過したら null を返す)
-  getResult: (tab: TabInfo) => FileSearchResult | null;
+  getResult: (tab: UiTab) => FileSearchResult | null;
   // 検索途中かどうか
-  isProgress: (tab: TabInfo) => boolean;
+  isProgress: (tab: UiTab) => boolean;
 }
 
 export const useSearchResultStore = create<FileSearchResultStore>()((set, get) => ({
@@ -25,7 +25,7 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
   progress: false,
   updateTime: 0,
 
-  setResult: (tab: TabInfo, result: FileSearchResult) => {
+  setResult: (tab: UiTab, result: FileSearchResult) => {
     set(() => ({
       tab,
       progress: false,
@@ -34,7 +34,7 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
     }));
   },
 
-  setProgress: (tab: TabInfo, progress: boolean) => {
+  setProgress: (tab: UiTab, progress: boolean) => {
     set(() => ({
       tab,
       progress,
@@ -51,7 +51,7 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
       updateTime: 0,
     }));
   },
-  getResult: (tab: TabInfo) => {
+  getResult: (tab: UiTab) => {
     const ret = get();
     if (!checkSameTab(tab, ret)) return null;
 
@@ -62,14 +62,14 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
     return ret.result;
   },
 
-  isProgress: (tab: TabInfo) => {
+  isProgress: (tab: UiTab) => {
     const ret = get();
     if (!checkSameTab(tab, ret)) return false;
     return ret.progress;
   },
 }));
 
-function checkSameTab(currentTab: TabInfo, ret: FileSearchResultStore): boolean {
+function checkSameTab(currentTab: UiTab, ret: FileSearchResultStore): boolean {
   if (currentTab.id !== ret.tab?.id) return false;
   if (currentTab.refreshCount !== ret.tab?.refreshCount) return false;
   return true;

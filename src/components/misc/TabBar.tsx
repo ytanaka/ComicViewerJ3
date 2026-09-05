@@ -7,7 +7,7 @@ import { Button } from '../ui/button';
 import { tabCommands } from '@/lib/commands/tab-commands';
 import { getPathBasename } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
-import { TabInfo } from '@/store/tab/types';
+import { UiTab } from '@/store/tab/types';
 
 export function TabBar() {
   const tabs = useTabStore(state => state.tabs);
@@ -49,7 +49,7 @@ function NewTabButton({ noTabs }: { noTabs: boolean }) {
   );
 }
 
-function TabButton({ tab, index, isSelected }: { tab: TabInfo; index: number; isSelected: boolean }) {
+function TabButton({ tab, index, isSelected }: { tab: UiTab; index: number; isSelected: boolean }) {
   const { ref, handleRef } = useSortable({
     id: tab.id,
     index: index,

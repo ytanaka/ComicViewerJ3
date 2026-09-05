@@ -2,7 +2,7 @@ import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabStore } from '@/store/tab/store';
-import { mkTabInfo, TabId } from '@/store/tab/types';
+import { mkUiTab, TabId } from '@/store/tab/types';
 import { rustcmds } from '../bindings-wrapper';
 
 function st() {
@@ -40,7 +40,7 @@ export const tabCommands = {
     }
     const absPath = await tauri_path_resolve(path);
     const tabId = await rustcmds.createTab();
-    st().addTab(mkTabInfo(tabId, absPath));
+    st().addTab(mkUiTab(tabId, absPath));
   },
 
   // タブ削除

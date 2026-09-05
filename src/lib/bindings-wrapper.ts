@@ -44,11 +44,11 @@ export const rustcmds = {
   savePreferences: commands.savePreferences,
 };
 
-export type TabInfo2 = {
+export type TabInfo = {
   id: TabId,
   path: string,
 };
-function toTabInfo(from: TabInfoUI): TabInfo2 {
+function toTabInfo(from: TabInfoUI): TabInfo {
   return {
     id: from.id as TabId,
     path: from.path,

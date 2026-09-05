@@ -1,4 +1,4 @@
-import { mkDefaultSortCondition, TabId, TabInfo } from '@/store/tab/types';
+import { mkDefaultSortCondition, TabId, UiTab } from '@/store/tab/types';
 import { FileSearchResult } from '../bindings';
 import { VirtuosoHandle } from 'react-virtuoso';
 import { checkCommandReturn } from '../bindings-helper';
@@ -11,7 +11,7 @@ let debounceTimer: number | undefined;
 let queuedInput: string | null = null; // 検索実行に入力された内容
 let queuedRevese: boolean = false;
 
-const emptyTab: Readonly<TabInfo> = {
+const emptyTab: Readonly<UiTab> = {
   id: -1 as TabId,
   path: '',
   sortCondition: mkDefaultSortCondition(),
@@ -20,13 +20,13 @@ const emptyTab: Readonly<TabInfo> = {
   refreshCount: -1,
 } as const;
 
-let searchTab: TabInfo = emptyTab;
+let searchTab: UiTab = emptyTab;
 let searchVirtuoso: VirtuosoHandle | null;
 
 export const searchCommands = {
   // ファイル検索
   async searchNextFilename(
-    tab: TabInfo,
+    tab: UiTab,
     startIndex: number,
     romaji: string,
     reverse: boolean,
@@ -110,7 +110,7 @@ async function search(text: string, startIndex: number, reverse: boolean): Promi
   if (!result) return null;
 
   // 検索中にタブの状況が変わっていたら結果を無視する
-  const newTab = useTabStore.getState().findTab(searchTab.id);
+  const newTab = useTabStore.getState().getTab(searchTab.id);
   if (!newTab) return null;
   if (newTab.refreshCount != searchTab.refreshCount) return null;
   if (useTabStore.getState().getCurrentTab().id !== searchTab.id) return null;

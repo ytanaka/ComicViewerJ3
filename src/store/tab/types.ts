@@ -1,6 +1,5 @@
 import { SortCondition } from '@/lib/bindings';
-import { DirEntry, FileInfo } from '@/lib/bindings-wrapper';
-import { ExecExclusibe } from '@/lib/utils';
+import { TabInfo } from '@/lib/bindings-wrapper';
 
 export type TabId = number & { readonly __brand: unique symbol };
 export type FileId = number & { readonly __brand: unique symbol };
@@ -9,26 +8,16 @@ export const MAX_HIST = 10;
 
 export interface AllTabs {
   currentTabIndex: number;
-  tabs: TabInfo[];
-
-  fileInfoListList: Record<TabId, Record<FileId, FileInfoWrapper>>;
-  selections: Record<TabId, FileSelection>;
-  focusHistories: Record<TabId, FileFocusHistory>;
-  focusHistoryMax: number;
+  tabs: UiTab[];
 }
-export interface TabInfo {
-  id: TabId;
-  path: string;
-  dirEntries?: DirEntry[];
+export interface UiTab {
+  tab: TabInfo;
   errorMsg?: string; // dirEntries を更新しようとしたときのエラー
   sortCondition: SortCondition;
   requestSort: boolean;
-  execExclusive: ExecExclusibe;
-  refreshCount: number; // dirEntries が更新されたときに +1
-}
-export interface FileInfoWrapper {
-  fileInfo?: FileInfo;
-  errorMsg?: string;
+
+  selection: FileSelection;
+  focusHistories: FileFocusHistory;
 }
 export interface FileSelection {
   focusIndex: number;
@@ -46,14 +35,13 @@ export interface HistElm {
 
 // =====================================================================================================================
 
-export function mkTabInfo(id: TabId, path: string): TabInfo {
+export function mkUiTab(tab: TabInfo): UiTab {
   return {
-    id,
-    path,
+    tab,
     sortCondition: mkDefaultSortCondition(),
     requestSort: false,
-    execExclusive: new ExecExclusibe(),
-    refreshCount: 0,
+    selection: mkFileSelection(),
+    focusHistories: { hist: [] },
   };
 }
 

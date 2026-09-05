@@ -1,10 +1,10 @@
-import { mkDefaultSortCondition, TabId, TabInfo } from './types';
+import { mkDefaultSortCondition, mkFileSelection, TabId, UiTab } from './types';
 import { TabStore } from './store';
-import { DirEntry } from '@/lib/bindings-wrapper';
+import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
 
-export interface TabInfoActions {
-  setPath: (tabId: TabId, path: string) => void;
+export interface UiTabActions {
+  updateTab: (tabId: TabId, newTab: TabInfo) => void;
 
   setDirEntries: (tabId: TabId, list: DirEntry[]) => void;
   setErrorMsg: (tabId: TabId, msg: string) => void;
@@ -12,26 +12,31 @@ export interface TabInfoActions {
   setSortCondition: (tabId: TabId, sortCondition: SortCondition) => void;
 }
 
-export const createTabInfoActions = (
+export const createUiTabActions = (
   set: (fn: (state: TabStore) => Partial<TabStore>) => void,
   get: () => TabStore
-): TabInfoActions => {
-  function updateTab(tabId: TabId, fn: (tab: TabInfo) => void) {
+): UiTabActions => {
+  function _updateTab(tabId: TabId, fn: (tab: UiTab) => void) {
     set(state => {
       const tab = state.getTab(tabId);
-      fn(tab);
-      const newTabs = state.tabs.map(t => (t.id !== tab.id ? t : { ...tab }));
-      return { tabs: newTabs };
+      if (!tab) {
+        console.error(`no tab(${tabId})`);
+        return state;
+      } else {
+        fn(tab);
+        const newTabs = state.tabs.map(t => (t.tab.id !== tab.tab.id ? t : { ...tab }));
+        return { tabs: newTabs };
+      }
     });
     return true;
   }
 
   return {
-    setPath: (tabId: TabId, path: string) => {
-      updateTab(tabId, tab => {
-        tab.path = path;
+    updateTab: (tabId: TabId, newTab: TabInfo) => {
+      _updateTab(tabId, tab => {
+        tab.tab = newTab;
+        tab.selection = mkFileSelection();
         tab.sortCondition = mkDefaultSortCondition();
-        tab.dirEntries = undefined;
         tab.errorMsg = undefined;
       });
     },
@@ -60,7 +65,7 @@ export const createTabInfoActions = (
         }
       }
 
-      updateTab(tabId, tab => {
+      _updateTab(tabId, tab => {
         tab.dirEntries = list;
         tab.errorMsg = undefined;
         tab.requestSort = false;
@@ -71,14 +76,14 @@ export const createTabInfoActions = (
     },
 
     setErrorMsg: (tabId: TabId, msg: string) => {
-      updateTab(tabId, tab => {
+      _updateTab(tabId, tab => {
         tab.errorMsg = msg;
         tab.dirEntries = [];
       });
     },
 
     setSortCondition: (tabId: TabId, sortCondition: SortCondition) => {
-      updateTab(tabId, tab => {
+      _updateTab(tabId, tab => {
         tab.sortCondition = sortCondition;
         tab.requestSort = true;
         tab.dirEntries = undefined;

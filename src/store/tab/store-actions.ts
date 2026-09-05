@@ -1,15 +1,13 @@
 import { TabStore } from './store';
-import { FileFocusHistory, FileId, FileInfoWrapper, FileSelection, mkFileSelection, TabId, TabInfo } from './types';
+import { TabId, UiTab } from './types';
 
 export interface TabStoreActions {
   setCurrentTabIndex: (index: number) => void;
 
-  getTab: (tabId: TabId) => TabInfo;
-  findTab: (tabId: TabId) => TabInfo | undefined;
-  getCurrentTab: () => TabInfo;
-  initTabs: (tabs: TabInfo[], focusHistories: Record<number, FileFocusHistory>) => void;
+  getTab: (tabId: TabId) => UiTab | undefined;
+  getCurrentTab: () => UiTab | undefined;
 
-  addTab: (tab: TabInfo) => void;
+  addTab: (tab: UiTab) => void;
   moveTab: (fromIndex: number, toIndex: number) => void;
   removeTab: (tabId: TabId) => void;
 }
@@ -27,53 +25,22 @@ export const createAllTabsActions = (
   },
 
   getTab: (tabId: TabId) => {
-    const ret = get().findTab(tabId);
-    if (!ret) throw new Error(`no tab(${tabId})`);
-    return ret;
+    return get().tabs.find(t => t.tab.id === tabId);
   },
 
-  findTab: (tabId: TabId) => {
-    return get().tabs.find(t => t.id === tabId);
-  },
-
-  getCurrentTab: (): TabInfo => {
+  getCurrentTab: (): UiTab => {
     const { tabs, currentTabIndex } = get();
     if (!tabs[currentTabIndex]) throw new Error(`no tab`);
     return tabs[currentTabIndex];
   },
 
-  // TabStateInitializer から使う
-  initTabs: (tabs: TabInfo[], focusHistories: Record<number, FileFocusHistory>) => {
-    set(() => {
-      const fileInfoListList: Record<TabId, Record<FileId, FileInfoWrapper>> = {};
-      tabs.forEach(t => {
-        fileInfoListList[t.id] = {};
-      });
-
-      const selections: Record<TabId, FileSelection> = {};
-      tabs.forEach(t => {
-        selections[t.id] = mkFileSelection();
-      });
-
-      return {
-        tabs: [...tabs],
-        fileInfoListList,
-        selections,
-        focusHistories: { ...focusHistories },
-      };
-    });
-  },
-
   // ※ カレントタブは追加されたタブに移る
-  addTab: tab => {
+  addTab: (tab: UiTab) => {
     set(state => {
-      if (0 <= state.tabs.findIndex(t => t.id === tab.id)) throw Error(`addTab(): dup tab.id: ${tab.id}`);
+      if (0 <= state.tabs.findIndex(t => t.tab.id === tab.tab.id)) throw Error(`addTab(): dup tab.id: ${tab.tab.id}`);
       return {
         tabs: [...state.tabs, tab],
         currentTabIndex: state.tabs.length,
-        fileInfoListList: { ...state.fileInfoListList, [tab.id]: {} },
-        selections: { ...state.selections, [tab.id]: mkFileSelection() },
-        focusHistories: { ...state.focusHistories, [tab.id]: { hist: [] } },
       };
     });
   },
@@ -110,18 +77,10 @@ export const createAllTabsActions = (
   // ※ 最後のタブが削除されたら、左側のタブをカレントにする
   removeTab: (tabId: TabId) => {
     set(state => {
-      // AllTabs の中の Record は tabs[] とは独立しているので、個別に削除する必要がある
-      delete state.fileInfoListList[tabId];
-      delete state.selections[tabId];
-      delete state.focusHistories[tabId];
-
-      const newList = state.tabs.filter(t => t.id !== tabId);
+      const newList = state.tabs.filter(t => t.tab.id !== tabId);
       return {
         currentTabIndex: Math.max(0, Math.min(state.currentTabIndex, newList.length - 1)),
         tabs: newList,
-        fileInfoListList: { ...state.fileInfoListList },
-        selections: { ...state.selections },
-        focusHistories: { ...state.focusHistories },
       };
     });
   },

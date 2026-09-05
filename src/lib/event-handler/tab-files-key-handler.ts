@@ -1,7 +1,7 @@
 import React from 'react';
 import { VirtuosoHandle } from 'react-virtuoso';
 
-import { TabInfo } from '@/store/tab/types';
+import { UiTab } from '@/store/tab/types';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
 import { searchCommands } from '../commands/search-commands';
@@ -14,7 +14,7 @@ function st() {
 
 export function tabFiles_handleKeyDown(
   e: KeyboardEvent,
-  tab: TabInfo,
+  tab: UiTab,
   pageNum: number,
   virtuoso: VirtuosoHandle
 ): boolean {
@@ -130,7 +130,7 @@ export function tabFiles_handleKeyDown(
   return false;
 }
 
-export function tabFiles_handleMouseClick(e: React.MouseEvent, tab: TabInfo, fileIndex: number): boolean {
+export function tabFiles_handleMouseClick(e: React.MouseEvent, tab: UiTab, fileIndex: number): boolean {
   const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
   const CTRL = C && !S && !A;
   const SHIFT = !C && S && !A;
