@@ -20,10 +20,13 @@ export function queryKey_useCmdCreateTab(tabInfo: TabInfo) {
 export function useCmdCreateTab(tabInfo: TabInfo) {
   return useQuery({
     queryKey: queryKey_useCmdCreateTab(tabInfo),
-    queryFn: async () => await rustcmds.createTab(tabInfo.path),
+    queryFn: async () => {
+      const result = await rustcmds.createTab(tabInfo.path)
+      logResult(`rustcmds.createTab(${tabInfo.path})`, result);
+      return result;
+    },
     enabled: tabInfo.id < 0,
     select: data => {
-      logResult(`rustcmds.createTab(${tabInfo.path})`, data);
       if (data.status === 'error') {
         // TODO error
         return undefined;
@@ -43,10 +46,13 @@ export function queryKey_useCmdGetDirEntries(tabId: TabId) {
 export function useCmdGetDirEntries(tabInfo: TabInfo) {
   return useQuery({
     queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
-    queryFn: async () => await rustcmds.getDirEntries(tabInfo.id),
+    queryFn: async () => {
+      const result = await rustcmds.getDirEntries(tabInfo.id)
+      logResult(`rustcmds.getDirEntries(${tabInfo.id})`, result);
+      return result;
+    },
     enabled: 0 < tabInfo.id,
     select: data => {
-      logResult(`rustcmds.getDirEntries(${tabInfo.id})`, data);
       return select_getDirEntries(data);
     },
   });
@@ -85,11 +91,14 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   const queryClient = useQueryClient();
   return useQuery({
     queryKey: queryKey_useFileInfosQuery(tabInfo, fileIds),
-    queryFn: () => rustcmds.getFileInfos(tabInfo.id, fileIds),
+    queryFn: async () => {
+      const result = await rustcmds.getFileInfos(tabInfo.id, fileIds);
+      logResult(`rustcmds.getFileInfos(${tabInfo.id},[${fileIds.length}])`, result);
+      return result;
+    },
     enabled: 0 < fileIds.length,
     staleTime: 30_000,
     select: data => {
-      logResult(`rustcmds.getFileInfos(${tabInfo.id},[${fileIds.length}])`, data);
       if (data.status === 'error') {
         // TODO
         return undefined;
