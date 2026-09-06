@@ -101,6 +101,8 @@ impl Default for SortCondition {
 /// UIに返す詳細ファイル情報
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileInfoUI {
+    #[specta(type = specta_typescript::Number)]
+    pub file_id: FileId,
     //  ※ FileInfoOS の metadata が Some でない場合はこの構造体は作成できない
     pub metadata: Arc<Either<String, FileMetadata>>,
 }
@@ -114,8 +116,9 @@ pub struct FileInfoOS {
     pub metadata: Option<Arc<Either<String, FileMetadata>>>,
 }
 impl FileInfoOS {
-    pub fn to_ui(&self) -> anyhow::Result<FileInfoUI> {
+    pub fn to_ui(&self, file_id: FileId) -> anyhow::Result<FileInfoUI> {
         Ok(FileInfoUI {
+            file_id,
             metadata: self
                 .metadata
                 .clone()

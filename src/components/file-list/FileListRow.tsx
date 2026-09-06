@@ -9,6 +9,7 @@ import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-han
 import { SearchResult } from './SearchResult';
 import { getObjId } from '@/lib/utils';
 import { DirEntry, FileInfo } from '@/lib/bindings-wrapper';
+import { useFileInfo1Query } from '@/services/files';
 
 function Icon({
   dirEntry,
@@ -100,13 +101,10 @@ export function FileListRow({
   fileIndex: number;
   dirEntry: DirEntry;
 } & React.HTMLAttributes<HTMLTableRowElement>) {
-  // タブ削除の中の zustand set() 経由で削除済みTabInfoが引数に渡されることがあるので注意 (Virtuosoのリスト項目特有の現象？)
-  const isSelected = useTabStore(state => state.getSelection(tab.id)?.selectionIndexes.has(fileIndex));
-  const isFocused = useTabStore(state => state.getSelection(tab.id)?.focusIndex === fileIndex);
-  const fileInfo = useTabStore(state => state.getFileInfo(tab.id, dirEntry.file_id));
-  const fileInfoErrorMsg = useTabStore(state => state.getFileInfoErrorMsg(tab.id, dirEntry.file_id));
-  let errorMsg: string | undefined = fileInfoErrorMsg;
-  if (!errorMsg) errorMsg = fileInfo?.metadata.Left;
+  const isSelected = useTabStore(state => state.getTab(tab.info.id)?.selection.selectionIndexes.has(fileIndex));
+  const isFocused = useTabStore(state => state.getTab(tab.info.id)?.selection.focusIndex === fileIndex);
+  const { data: fileInfo } = useFileInfo1Query(tab.info, dirEntry.file_id);
+  const errorMsg = fileInfo?.metadata.Left;
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {

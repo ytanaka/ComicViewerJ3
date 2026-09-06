@@ -28,18 +28,19 @@ export const tabCommands = {
   // index を渡すと、インデックスにあるタブをコピーする
   // path を渡すと、そのパスでタブを開く
   async cloneTab(index_or_path: number | string) {
-    if (20 <= st().tabs.length) return;
+    if (20 <= st().tabs.length) return; // TODO
 
-    let path: string;
-    if (typeof index_or_path === 'string') {
+    let path: string | undefined;
+    if (typeof index_or_path === 'number') {
+      path = st().tabs[index_or_path]?.info.path;
+    } else if (typeof index_or_path === 'string') {
       path = index_or_path;
-    } else if (typeof index_or_path === 'number') {
-      path = st().tabs[index_or_path].path;
-    } else {
+    }
+    if (!path) {
       path = await tauri_homeDir();
     }
     const absPath = await tauri_path_resolve(path);
-    const tabId = await rustcmds.createTab();
+    const tabId = await rustcmds.createTab(path);
     st().addTab(mkUiTab(tabId, absPath));
   },
 

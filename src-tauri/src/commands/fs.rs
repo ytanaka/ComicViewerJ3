@@ -172,8 +172,7 @@ fn get_tabs_impl(state: &AppState) -> Vec<TabInfoUI> {
         let tab = state.get_tab(id).unwrap();
         ret.push(tab.read().unwrap().to_ui());
     }
-
-    todo!()
+    ret
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -230,7 +229,7 @@ async fn get_file_infos_impl(
         let file_id: u64 = s.parse().map_err(|_| anyhow!("invalid file_id as u64"))?;
         tab.load_metadata(file_id)?;
         let file_info = tab.get_file_info(file_id)?;
-        ret.push(file_info.to_ui()?);
+        ret.push(file_info.to_ui(file_id)?);
     }
     Ok(ret)
 }

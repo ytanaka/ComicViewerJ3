@@ -69,10 +69,12 @@ function toDirEntry(from: DirEntryUI): DirEntry {
 }
 
 export type FileInfo = {
+  file_id: FileId,
   metadata: Either<string, FileMetadata>;
 };
 function toFileInfo(from: FileInfoUI): FileInfo {
   return {
+    file_id: from.file_id as FileId,
     metadata: from.metadata,
   };
 }

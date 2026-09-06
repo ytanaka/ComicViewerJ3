@@ -1,3 +1,4 @@
+import { useCmdGetDirEntries } from '@/services/files';
 import { useTabStore } from '@/store/tab/store';
 
 export function StatusBar() {
@@ -11,20 +12,25 @@ export function StatusBar() {
 }
 
 function NormalStatusBar() {
-  const tab = useTabStore(state => state.getCurrentTab());
-  const selection = useTabStore(state => state.getSelection(tab.id));
-  const dirEntries = tab.dirEntries;
+  const tab = useTabStore(state => state.getCurrentTab()!);
+  const selection = tab.selection;
+  const { data: data } = useCmdGetDirEntries(tab.info);
 
   let msg: string | undefined;
-  if (dirEntries !== undefined) {
-    const n = dirEntries.length;
-    const sel = selection.selectionIndexes.size;
-    msg = `選択 ${sel} / 全 ${n}`;
+  let errMsg: string | undefined;
+  if (data) {
+    if (data.status === 'ok') {
+      const n = data.data.length;
+      const sel = selection.selectionIndexes.size;
+      msg = `選択 ${sel} / 全 ${n}`;
+    } else {
+      errMsg = data.error;
+    }
   }
 
   return (
     <div className="border select-none">
-      <div>{tab.errorMsg}</div>
+      <div>{errMsg}</div>
       <div>{msg}</div>
     </div>
   );

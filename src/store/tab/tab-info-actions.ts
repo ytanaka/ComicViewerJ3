@@ -6,8 +6,6 @@ import { StateCreator } from 'zustand';
 
 export interface UiTabActions {
   updateTab: (tabId: TabId, newTab: TabInfo) => void;
-
-
   setSortCondition: (tabId: TabId, sortCondition: SortCondition) => void;
 }
 

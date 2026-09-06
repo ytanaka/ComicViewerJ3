@@ -31,7 +31,7 @@ export function TabBar() {
       >
         <div className="flex overflow-hidden">
           {tabs.map((t, i) => (
-            <TabButton key={t.id} tab={t} index={i} isSelected={i == currentTabIndex} />
+            <TabButton key={t.info.id} tab={t} index={i} isSelected={i == currentTabIndex} />
           ))}
         </div>
       </DragDropProvider>
@@ -51,7 +51,7 @@ function NewTabButton({ noTabs }: { noTabs: boolean }) {
 
 function TabButton({ tab, index, isSelected }: { tab: UiTab; index: number; isSelected: boolean }) {
   const { ref, handleRef } = useSortable({
-    id: tab.id,
+    id: tab.info.id,
     index: index,
   });
   return (
@@ -62,11 +62,11 @@ function TabButton({ tab, index, isSelected }: { tab: UiTab; index: number; isSe
         className={`block truncate text-left w-full max-w-full rounded-b-none ${isSelected ? '' : 'font-light'}`}
         style={isSelected ? { direction: 'rtl' } : {}} // カレントタブの場合だけ先頭を ・・・ で省略する
       >
-        {isSelected ? tab.path : getPathBasename(tab.path)}
+        {isSelected ? tab.info.path : getPathBasename(tab.info.path)}
       </Button>
       <div className="flex justify-end">
         <div
-          onClick={() => tabCommands.removeTab(tab.id)}
+          onClick={() => tabCommands.removeTab(tab.info.id)}
           className="absolute right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-gray-500 rounded-md "
         >
           <X size="15" />

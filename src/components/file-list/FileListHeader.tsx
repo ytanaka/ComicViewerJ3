@@ -1,6 +1,7 @@
 import { SortType_type } from '@/lib/bindings-wrapper';
 import { sortCommands } from '@/lib/commands/sort-commands';
 import { useTabStore } from '@/store/tab/store';
+import { mkDefaultSortCondition } from '@/store/tab/types';
 import { useUiStore } from '@/store/ui-store';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React from 'react';
@@ -13,7 +14,7 @@ interface HeaderInfo {
 export function FileListHeader() {
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
   const setFileListHeaderSizes = useUiStore(state => state.setFileListHeaderSizes);
-  const sortCondition = useTabStore(state => state.getCurrentTab().sortCondition);
+  const sortCondition = useTabStore(state => state.getCurrentTab()?.sortCondition ?? mkDefaultSortCondition());
 
   const titles: HeaderInfo[] = [
     { sortType: null, label: '　' },

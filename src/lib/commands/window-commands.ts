@@ -17,11 +17,9 @@ export const windowCommands = {
   // ユーザーが選択したディレクトリで新しいタブを開く
   // ※ OSのダイアログを開いてユーザーに尋ねる
   async openDirectory() {
-    let path: string;
-    if (useTabStore.getState().tabs.length === 0) {
+    let path = useTabStore.getState().getCurrentTab()?.info.path;
+    if (!path) {
       path = await tauri_homeDir();
-    } else {
-      path = useTabStore.getState().getCurrentTab().path;
     }
 
     const dir = await tauri_open({

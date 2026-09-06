@@ -30,6 +30,13 @@ export interface FileFocus {
 
 // =====================================================================================================================
 
+let nextDummyTabId = -1;
+
+export function mkDummyTab(path: string): TabInfo {
+  const tabId = nextDummyTabId;
+  nextDummyTabId += 1;
+  return { id: tabId as TabId, path }
+}
 export function mkUiTab(tab: TabInfo): UiTab {
   return {
     info: tab,

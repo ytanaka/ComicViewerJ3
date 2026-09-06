@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { ItemProps, ListRange, TableProps, TableVirtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
@@ -7,11 +7,10 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { useTabStore } from '@/store/tab/store';
-import { logic } from '@/lib/bindings-helper';
-import { errToStr } from '@/lib/string-util';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
+import { useCmdCreateTab, useCmdFileInfosQuery, useCmdGetDirEntries } from '@/services/files';
 
 function st() {
   return useTabStore.getState();
@@ -20,57 +19,50 @@ function st() {
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
-  const tab = useTabStore(state => state.getCurrentTab());
-  const dirEntries = tab.dirEntries;
+  const tab = useTabStore(state => state.getCurrentTab())!; // このコンポーネントが呼ばれているということは、タブはあるはず
+  const sel = useTabStore(state => state.getSelection(tab.info.id));
+  const [scrollStartEnd, setScrollStartEnd] = useState<number[]>([0, 0]);
 
   console.debug(
-    `<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path}, dirEnt[${tab.dirEntries?.length}], err:${tab.errorMsg}, reqSort:${tab.requestSort}`
+    `<FileList> tab[${currentTabIndex}](id:${tab.info.id}), ${tab.info.path}`
   );
 
-  // データ取得
-  useEffect(() => {
-    const read = async () => {
-      if (tab.requestSort) {
-        await logic.getDirEntries(tab.id);
-      } else if (tab.dirEntries == undefined && tab.errorMsg == undefined) {
-        await logic.readDirEntries(tab.id);
-      }
-    };
-    read();
-  }, [tab.dirEntries, tab.errorMsg, tab.id, tab.requestSort]);
+  // タブ情報作成
+  useCmdCreateTab(tab.info);
+  // ファイル一覧取得
+  const { data: dirEntriesData } = useCmdGetDirEntries(tab.info);
+  const dirEntries = dirEntriesData?.status === 'error' ? undefined : dirEntriesData?.data;
+  // スクロール範囲のファイル情報取得
+  useCmdFileInfosQuery(tab.info, scrollStartEnd[0], scrollStartEnd[1]);
 
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
     const setHist = async () => {
-      try {
-        const parent = await tauri_dirname(tab.path);
-        if (!st().findHistory(tab.id, parent)) {
-          const base = await tauri_basename(tab.path);
-          st().pushHistory(tab.id, parent, base);
-        }
-      } catch (e) {
-        console.debug(`<FileList> setHist() error path=${tab.path}`, errToStr(e));
+      const parent = await tauri_dirname(tab.info.path);
+      if (!st().findHistory(tab.info.id, parent)) {
+        const base = await tauri_basename(tab.info.path);
+        st().pushHistory(tab.info.id, parent, base);
       }
     };
     setHist();
-  }, [tab.id, tab.path]); // 初回だけ実行する
+  }, [tab.info.id, tab.info.path]); // 初回表示時だけ実行する
 
   // タイトルバー更新
   useEffect(() => {
     const setTitle = async () => {
-      await getCurrentWindow().setTitle(tab.path);
+      await getCurrentWindow().setTitle(tab.info.path);
     };
     setTitle();
-  }, [tab.path]);
+  }, [tab.info.path]);
 
   // スクロール位置検知
-  const visibleListRange = useRef(1);
+  const visibleListRows = useRef(1);
   const handleRangeChanged = (range: ListRange) => {
     // スクロール位置が変化したら、表示する範囲のファイル情報を取得する
-    visibleListRange.current = Math.max(1, range.endIndex - range.startIndex);
+    visibleListRows.current = Math.max(1, range.endIndex - range.startIndex);
 
     // ファイル情報読み込み
-    logic.readFileInfos(tab.id, range.startIndex, range.endIndex);
+    setScrollStartEnd([range.startIndex, range.endIndex]);
   };
 
   // キー操作
@@ -89,7 +81,7 @@ export default function FileList() {
         return;
       }
 
-      if (tabFiles_handleKeyDown(e, tab, visibleListRange.current, virtuoso.current)) {
+      if (tabFiles_handleKeyDown(e, tab, visibleListRows.current, virtuoso.current)) {
         return;
       }
     };
@@ -130,7 +122,7 @@ export default function FileList() {
                 </table>
               ),
             }}
-            initialTopMostItemIndex={{ index: st().getSelection(tab.id).focusIndex, align: 'center' }}
+            initialTopMostItemIndex={{ index: sel ? sel.focusIndex : 0, align: 'center' }}
             fixedHeaderContent={FileListHeader}
             totalCount={dirEntries.length}
             rangeChanged={handleRangeChanged}
