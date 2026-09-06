@@ -24,9 +24,7 @@ export default function FileList() {
   const sel = useTabStore(state => state.getSelection(tab.info.id));
   const [scrollFileIds, setScrollFileIds] = useState<FileId[]>([]);
 
-  console.debug(
-    `<FileList> tab[${currentTabIndex}](id:${tab.info.id}), ${tab.info.path}`
-  );
+  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.info.id}), ${tab.info.path}`);
 
   // タブ情報作成
   useCmdCreateTab(tab.info);

@@ -1,7 +1,7 @@
 import { SortCondition } from '@/lib/bindings';
 import { TabInfo } from '@/lib/bindings-wrapper';
 import { TabStore } from './store';
-import type { Draft } from "immer";
+import type { Draft } from 'immer';
 
 export type TabId = number & { readonly __brand: unique symbol };
 export type FileId = number & { readonly __brand: unique symbol };
@@ -66,7 +66,11 @@ export function _useTabStore_getImmerTab(state: Draft<TabStore>, tabId: TabId): 
   return state.tabs.find(t => t.info.id === tabId);
 }
 
-export function _useTabStore_setExistTabFields(state: Draft<TabStore>, tabId: TabId, fn: (tab: UiTab) => void): boolean {
+export function _useTabStore_setExistTabFields(
+  state: Draft<TabStore>,
+  tabId: TabId,
+  fn: (tab: UiTab) => void
+): boolean {
   const tab = _useTabStore_getImmerTab(state, tabId);
   if (!tab) return false;
   fn(tab);

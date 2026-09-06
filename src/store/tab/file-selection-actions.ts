@@ -19,7 +19,7 @@ export interface FileSelectionActions {
 
 export const createFileSelectionActions: StateCreator<
   TabStore,
-  [["zustand/immer", never]],
+  [['zustand/immer', never]],
   [],
   FileSelectionActions
 > = (set, get) => ({
@@ -28,7 +28,7 @@ export const createFileSelectionActions: StateCreator<
   },
   setSelection: (tabId: TabId, sel: FileSelection) => {
     set(state => {
-      _useTabStore_setExistTabFields(state, tabId, (tab) => {
+      _useTabStore_setExistTabFields(state, tabId, tab => {
         tab.selection = sel;
       });
     });
@@ -38,37 +38,37 @@ export const createFileSelectionActions: StateCreator<
   // Focus, Anchor, Select が変わる
   moveFocusNormal: (tabId: TabId, index: number) => {
     if (!get().isValidFileIndex(tabId, index)) return;
-    set((state) => {
-      _useTabStore_setExistTabFields(state, tabId, (tab) => {
+    set(state => {
+      _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
         sel.focusIndex = index;
         sel.anchorIndex = index;
         sel.selectionIndexes = new Set([index]);
       });
       _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId);
-    })
+    });
   },
 
   // Ctrl + ↑↓でフォーカスだけが移動する
   // Select が変化せずに Focus, Anchor が変わる
   moveFocusOnly: (tabId: TabId, index: number) => {
     if (!get().isValidFileIndex(tabId, index)) return;
-    set((state) => {
-      _useTabStore_setExistTabFields(state, tabId, (tab) => {
+    set(state => {
+      _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
         sel.focusIndex = index;
         sel.anchorIndex = index;
       });
       _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId);
-    })
+    });
   },
 
   // Shift + ↑↓で選択エリアを変更する
   // Anchor が変化せずに Focus, Select が変わる
   moveFocusWithSelectionArea: (tabId: TabId, index: number) => {
     if (!get().isValidFileIndex(tabId, index)) return;
-    set((state) => {
-      _useTabStore_setExistTabFields(state, tabId, (tab) => {
+    set(state => {
+      _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
         sel.focusIndex = index;
 
@@ -85,15 +85,14 @@ export const createFileSelectionActions: StateCreator<
         }
       });
       _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId);
-    })
-
+    });
   },
 
   // Ctrl + 'Space' でフォーカス一の選択をON/OFF
   toggleSelection: (tabId: TabId, index: number) => {
     if (!get().isValidFileIndex(tabId, index)) return;
-    set((state) => {
-      _useTabStore_setExistTabFields(state, tabId, (tab) => {
+    set(state => {
+      _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
         if (sel.selectionIndexes.has(index)) {
           sel.selectionIndexes.delete(index);
@@ -102,15 +101,15 @@ export const createFileSelectionActions: StateCreator<
         }
       });
       _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId);
-    })
+    });
   },
 
   // Ctrl+A で全選択切替
   toggleAllSelection: (tabId: TabId) => {
     const dirEntries = getQueryData_getDirEntries(tabId);
     if (!dirEntries) return;
-    set((state) => {
-      _useTabStore_setExistTabFields(state, tabId, (tab) => {
+    set(state => {
+      _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
         if (sel.selectionIndexes.size === dirEntries.length) {
           sel.selectionIndexes.clear();
@@ -120,7 +119,7 @@ export const createFileSelectionActions: StateCreator<
           }
         }
       });
-    })
+    });
   },
 
   isValidFileIndex: (tabId: TabId, index: number) => {

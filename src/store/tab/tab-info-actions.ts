@@ -10,12 +10,7 @@ export interface UiTabActions {
   setSortCondition: (tabId: TabId, sortCondition: SortCondition) => void;
 }
 
-export const createUiTabActions: StateCreator<
-  TabStore,
-  [["zustand/immer", never]],
-  [],
-  UiTabActions
-> = (set, get) => {
+export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never]], [], UiTabActions> = (set, get) => {
   return {
     updateTab: (tabId: TabId, newTab: TabInfo) => {
       // 以前のフォーカス状態をなるべく保持する
@@ -46,8 +41,8 @@ export const createUiTabActions: StateCreator<
         }
       }
 
-      set((state) => {
-        _useTabStore_setExistTabFields(state, tabId, (tab) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
           tab.info = newTab;
           tab.sortCondition = mkDefaultSortCondition();
           tab.selection = sel;
@@ -56,11 +51,11 @@ export const createUiTabActions: StateCreator<
     },
 
     setSortCondition: (tabId: TabId, sortCondition: SortCondition) => {
-      set((state) => {
-        _useTabStore_setExistTabFields(state, tabId, (tab) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
           tab.sortCondition = sortCondition;
           tab.refreshCount += 1;
-        })
+        });
       });
     },
   };

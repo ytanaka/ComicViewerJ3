@@ -23,13 +23,7 @@ let searchVirtuoso: VirtuosoHandle | null;
 
 export const searchCommands = {
   // ファイル検索
-  async searchNextFilename(
-    tab: UiTab,
-    startIndex: number,
-    romaji: string,
-    reverse: boolean,
-    virtuoso: VirtuosoHandle
-  ) {
+  async searchNextFilename(tab: UiTab, startIndex: number, romaji: string, reverse: boolean, virtuoso: VirtuosoHandle) {
     searchTab = tab;
     searchVirtuoso = virtuoso;
 

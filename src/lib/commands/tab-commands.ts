@@ -3,14 +3,14 @@ import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabStore } from '@/store/tab/store';
 import { mkUiTab, TabId } from '@/store/tab/types';
-import { rustcmds, TabInfo } from '../bindings-wrapper';
+import { RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/files';
 
 function st() {
   return useTabStore.getState();
 }
 
-async function _addTab(cmdResult: { status: "error"; error: string; } | { status: "ok"; data: TabInfo; }) {
+async function _addTab(cmdResult: RustCmdResult<TabInfo>) {
   if (cmdResult.status === 'error') {
     // TODO
   } else {

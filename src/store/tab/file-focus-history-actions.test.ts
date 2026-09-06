@@ -58,7 +58,10 @@ describe('pushHistory', () => {
     const hist = st().getTab(TAB_ID)!.focusHistories;
     expect(hist.length).toBe(MAX_HIST);
     expect(hist[0]).toEqual({ path: `path-${OVER}`, filename: `name-${OVER}` });
-    expect(hist[MAX_HIST - 1]).toEqual({ path: `path-${MAX_HIST + OVER - 1}`, filename: `name-${MAX_HIST + OVER - 1}` });
+    expect(hist[MAX_HIST - 1]).toEqual({
+      path: `path-${MAX_HIST + OVER - 1}`,
+      filename: `name-${MAX_HIST + OVER - 1}`,
+    });
   });
 });
 

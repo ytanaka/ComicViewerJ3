@@ -13,12 +13,10 @@ export interface TabStoreActions {
   removeTab: (tabId: TabId) => void;
 }
 
-export const createAllTabsActions: StateCreator<
-  TabStore,
-  [["zustand/immer", never]],
-  [],
-  TabStoreActions
-> = (set, get) => ({
+export const createAllTabsActions: StateCreator<TabStore, [['zustand/immer', never]], [], TabStoreActions> = (
+  set,
+  get
+) => ({
   setCurrentTabIndex: (index: number) => {
     set(state => {
       if (index < 0 || (index !== 0 && state.tabs.length <= index))
@@ -39,7 +37,8 @@ export const createAllTabsActions: StateCreator<
   // ※ カレントタブは追加されたタブに移る
   addTab: (tab: UiTab) => {
     set(state => {
-      if (0 <= state.tabs.findIndex(t => t.info.id === tab.info.id)) throw Error(`addTab(): dup tab.id: ${tab.info.id}`);
+      if (0 <= state.tabs.findIndex(t => t.info.id === tab.info.id))
+        throw Error(`addTab(): dup tab.id: ${tab.info.id}`);
       return {
         tabs: [...state.tabs, tab],
         currentTabIndex: state.tabs.length,

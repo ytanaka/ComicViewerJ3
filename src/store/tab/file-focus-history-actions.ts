@@ -11,23 +11,29 @@ export interface FileFocusHistoryActions {
 
 export const createFileFocusHistoryActions: StateCreator<
   TabStore,
-  [["zustand/immer", never]],
+  [['zustand/immer', never]],
   [],
   FileFocusHistoryActions
 > = (set, get) => ({
-
   pushHistory: (tabId: TabId, path: string, filename: string) => {
-    set((state) => {
+    set(state => {
       _useTabStore_pushHistory_toImmer(state, tabId, path, filename);
-    })
+    });
   },
 
   findHistory: (tabId: TabId, path: string) => {
-    return get().getTab(tabId)?.focusHistories?.find(h => h.path === path)?.filename;
+    return get()
+      .getTab(tabId)
+      ?.focusHistories?.find(h => h.path === path)?.filename;
   },
 });
 
-export function _useTabStore_pushHistory_toImmer(state: Draft<TabStore>, tabId: TabId, path: string, filename: string): boolean {
+export function _useTabStore_pushHistory_toImmer(
+  state: Draft<TabStore>,
+  tabId: TabId,
+  path: string,
+  filename: string
+): boolean {
   const tab = _useTabStore_getImmerTab(state, tabId);
   let hist = tab?.focusHistories;
   if (!tab || !hist) return false;
@@ -48,4 +54,3 @@ export function _useTabStore_pushHistoryCurrentFile_toImmer(state: Draft<TabStor
   if (!dirEntry) return false;
   return _useTabStore_pushHistory_toImmer(state, tabId, tab.info.path, dirEntry.name);
 }
-

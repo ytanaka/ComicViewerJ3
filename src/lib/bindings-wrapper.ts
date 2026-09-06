@@ -45,8 +45,8 @@ export const rustcmds = {
 };
 
 export type TabInfo = {
-  id: TabId,
-  path: string,
+  id: TabId;
+  path: string;
 };
 function toTabInfo(from: TabInfoUI): TabInfo {
   return {
@@ -69,7 +69,7 @@ function toDirEntry(from: DirEntryUI): DirEntry {
 }
 
 export type FileInfo = {
-  file_id: FileId,
+  file_id: FileId;
   metadata: Either<string, FileMetadata>;
 };
 function toFileInfo(from: FileInfoUI): FileInfo {
