@@ -85,10 +85,10 @@ fn search_next_filename_impl(
             .par_iter()
             .flat_map(|(index, name)| {
                 let matcher = state.text_matcher.clone();
-                if !matcher.has_cache(&name) {
+                if !matcher.has_cache(name) {
                     return Some(FileSearchResult::FailNoCache);
                 }
-                if let Some(find) = matcher.find(&katakana, &migemo_re, &romaji, &name) {
+                if let Some(find) = matcher.find(&katakana, &migemo_re, &romaji, name) {
                     return Some(FileSearchResult::new_success(
                         *index,
                         &name.to_string_lossy(),

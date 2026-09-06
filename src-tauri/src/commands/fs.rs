@@ -204,7 +204,7 @@ pub async fn get_file_infos(
     file_ids: Vec<String>,
 ) -> Result<Vec<FileInfoUI>, String> {
     let mut arg: String = "".to_string();
-    if file_ids.len() != 0 {
+    if !file_ids.is_empty() {
         arg = format!(
             "{}:{}-{}",
             file_ids.len(),
