@@ -1,55 +1,51 @@
+import { StateCreator } from 'zustand';
 import { TabStore } from './store';
-import { FileFocusHistory, TabId } from './types';
+import { _useTabStore_getDirEntries, _useTabStore_getImmerTab, MAX_HIST, TabId } from './types';
+import { Draft } from 'immer';
 
 export interface FileFocusHistoryActions {
   pushHistory: (tabId: TabId, path: string, filename: string) => void;
   findHistory: (tabId: TabId, path: string) => string | undefined;
-
-  pushHistoryCurrentFile: (tabId: TabId) => void;
-  setFocusHistoryMax: (n: number) => void;
 }
 
-export const createFileFocusHistoryActions = (
-  set: (fn: (state: TabStore) => Partial<TabStore>) => void,
-  get: () => TabStore
-): FileFocusHistoryActions => {
-  function getHistory(tabId: TabId): FileFocusHistory {
-    return get().focusHistories[tabId];
+export const createFileFocusHistoryActions: StateCreator<
+  TabStore,
+  [["zustand/immer", never]],
+  [],
+  FileFocusHistoryActions
+> = (set, get) => ({
+
+  pushHistory: (tabId: TabId, path: string, filename: string) => {
+    set((state) => {
+      _useTabStore_pushHistory_toImmer(state, tabId, path, filename);
+    })
+  },
+
+  findHistory: (tabId: TabId, path: string) => {
+    return get().getTab(tabId)?.focusHistories?.find(h => h.path === path)?.filename;
+  },
+});
+
+export function _useTabStore_pushHistory_toImmer(state: Draft<TabStore>, tabId: TabId, path: string, filename: string): boolean {
+  const tab = _useTabStore_getImmerTab(state, tabId);
+  let hist = tab?.focusHistories;
+  if (!tab || !hist) return false;
+  hist = hist.filter(e => e.path !== path);
+  hist.push({ path, filename });
+  const max = MAX_HIST;
+  if (max < hist.length) {
+    hist.splice(0, hist.length - max);
   }
-  function setHistory(tabId: TabId, hist: FileFocusHistory) {
-    set(state => ({
-      focusHistories: {
-        ...state.focusHistories,
-        [tabId]: hist,
-      },
-    }));
-  }
+  tab.focusHistories = hist;
+  return true;
+}
 
-  return {
-    pushHistory: (tabId: TabId, path: string, filename: string) => {
-      let hist = getHistory(tabId).hist;
-      hist = hist.filter(e => e.path !== path);
-      hist.push({ path, filename });
-      const max = get().focusHistoryMax;
-      if (max < hist.length) {
-        hist.splice(0, hist.length - max);
-      }
-      setHistory(tabId, { hist });
-    },
+export function _useTabStore_pushHistoryCurrentFile_toImmer(state: Draft<TabStore>, tabId: TabId): boolean {
+  const tab = _useTabStore_getImmerTab(state, tabId);
+  const dirEntries = _useTabStore_getDirEntries(tabId);
+  if (!tab || !dirEntries) return false;
+  const focus = tab.selection.focusIndex;
+  if (focus < 0 || dirEntries.length <= focus) return false;
+  return _useTabStore_pushHistory_toImmer(state, tabId, tab.info.path, dirEntries[focus].name);
+}
 
-    findHistory: (tabId: TabId, path: string) => {
-      return getHistory(tabId).hist.find(h => h.path === path)?.filename;
-    },
-
-    pushHistoryCurrentFile: (tabId: TabId) => {
-      const tab = get().getTab(tabId);
-      const name = tab.dirEntries?.[get().getSelection(tabId).focusIndex]?.name;
-      if (!name) return;
-      get().pushHistory(tabId, tab.path, name);
-    },
-
-    setFocusHistoryMax: (n: number) => {
-      set(() => ({ focusHistoryMax: n }));
-    },
-  };
-};

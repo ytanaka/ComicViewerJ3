@@ -7,7 +7,7 @@ function st() {
 }
 
 function addTab(id: number, path: string) {
-  st().addTab(mkUiTab(id as TabId, path));
+  st().addTab(mkUiTab({ id: id as TabId, path }));
 }
 
 function add3tabs() {
@@ -16,7 +16,7 @@ function add3tabs() {
   addTab(3, 'c');
 }
 function getTabIds() {
-  return st().tabs.map(tab => tab.id);
+  return st().tabs.map(tab => tab.info.id);
 }
 
 beforeEach(() => {
@@ -35,7 +35,7 @@ describe('addTab', () => {
   test('正常動作', () => {
     add3tabs();
 
-    expect(st().tabs).toMatchObject([
+    expect(st().tabs.map(t => t.info)).toMatchObject([
       { id: 1, path: 'a' },
       { id: 2, path: 'b' },
       { id: 3, path: 'c' },
@@ -112,16 +112,9 @@ describe('removeTab', () => {
     expect(getTabIds()).toEqual([2]);
     st().removeTab(2 as TabId);
     expect(getTabIds()).toEqual([]);
-  });
 
-  test('空の状態で削除するとエラー', () => {
-    add3tabs();
-
-    st().removeTab(3 as TabId);
     st().removeTab(2 as TabId);
-    st().removeTab(1 as TabId);
-
-    expect(() => st().removeTab(0 as TabId)).toThrow('no tab(0)');
+    expect(getTabIds()).toEqual([]);
   });
 });
 

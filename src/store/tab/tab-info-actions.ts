@@ -1,57 +1,37 @@
-import { mkDefaultSortCondition, mkFileSelection, TabId, UiTab } from './types';
+import { _useTabStore_getDirEntries, _useTabStore_setExistTabFields, mkDefaultSortCondition, TabId } from './types';
 import { TabStore } from './store';
-import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
+import { StateCreator } from 'zustand';
 
 export interface UiTabActions {
   updateTab: (tabId: TabId, newTab: TabInfo) => void;
 
-  setDirEntries: (tabId: TabId, list: DirEntry[]) => void;
-  setErrorMsg: (tabId: TabId, msg: string) => void;
 
   setSortCondition: (tabId: TabId, sortCondition: SortCondition) => void;
 }
 
-export const createUiTabActions = (
-  set: (fn: (state: TabStore) => Partial<TabStore>) => void,
-  get: () => TabStore
-): UiTabActions => {
-  function _updateTab(tabId: TabId, fn: (tab: UiTab) => void) {
-    set(state => {
-      const tab = state.getTab(tabId);
-      if (!tab) {
-        console.error(`no tab(${tabId})`);
-        return state;
-      } else {
-        fn(tab);
-        const newTabs = state.tabs.map(t => (t.tab.id !== tab.tab.id ? t : { ...tab }));
-        return { tabs: newTabs };
-      }
-    });
-    return true;
-  }
-
+export const createUiTabActions: StateCreator<
+  TabStore,
+  [["zustand/immer", never]],
+  [],
+  UiTabActions
+> = (set, get) => {
   return {
     updateTab: (tabId: TabId, newTab: TabInfo) => {
-      _updateTab(tabId, tab => {
-        tab.tab = newTab;
-        tab.selection = mkFileSelection();
-        tab.sortCondition = mkDefaultSortCondition();
-        tab.errorMsg = undefined;
-      });
-    },
-
-    setDirEntries: (tabId: TabId, list: DirEntry[]) => {
       // 以前のフォーカス状態をなるべく保持する
-      const sel = get().getSelection(tabId);
-      const prevName: string | undefined = get().findHistory(tabId, get().getCurrentTab().path);
-      const newName: string | undefined = list[sel.focusIndex]?.name;
+      const tab = get().getTab(tabId);
+      const fileList = _useTabStore_getDirEntries(tabId);
+      if (!tab || !fileList) return;
+      const sel = { ...tab.selection };
+      const prevName: string | undefined = get().findHistory(tabId, tab.info.path);
+      const newName: string | undefined = fileList[sel.focusIndex]?.name;
       if (!!prevName && prevName === newName) {
         // 新しいリストの同じ位置に同じ名前がある
         sel.selectionIndexes = new Set([sel.focusIndex]);
         sel.anchorIndex = sel.focusIndex;
       } else {
-        const find = list.findIndex(f => f.name === prevName);
+        const find = fileList.findIndex(f => f.name === prevName);
         if (0 <= find) {
           // フォーカスしていたファイルが別の位置に移動した
           sel.focusIndex = find;
@@ -60,35 +40,25 @@ export const createUiTabActions = (
         } else {
           // フォーカスしていたファイルがなくなった
           sel.focusIndex = 0;
-          sel.selectionIndexes = list.length === 0 ? new Set() : new Set([sel.focusIndex]);
+          sel.selectionIndexes = fileList.length === 0 ? new Set() : new Set([sel.focusIndex]);
           sel.anchorIndex = sel.focusIndex;
         }
       }
 
-      _updateTab(tabId, tab => {
-        tab.dirEntries = list;
-        tab.errorMsg = undefined;
-        tab.requestSort = false;
-        tab.refreshCount = tab.refreshCount + 1;
-      });
-      get().clearFileInfoWrapper(tabId);
-      get().setSelection(tabId, sel);
-    },
-
-    setErrorMsg: (tabId: TabId, msg: string) => {
-      _updateTab(tabId, tab => {
-        tab.errorMsg = msg;
-        tab.dirEntries = [];
+      set((state) => {
+        _useTabStore_setExistTabFields(state, tabId, (tab) => {
+          tab.info = newTab;
+          tab.sortCondition = mkDefaultSortCondition();
+          tab.selection = sel;
+        });
       });
     },
 
     setSortCondition: (tabId: TabId, sortCondition: SortCondition) => {
-      _updateTab(tabId, tab => {
-        tab.sortCondition = sortCondition;
-        tab.requestSort = true;
-        tab.dirEntries = undefined;
-        tab.errorMsg = undefined;
-        tab.refreshCount = tab.refreshCount + 1;
+      set((state) => {
+        _useTabStore_setExistTabFields(state, tabId, (tab) => {
+          tab.sortCondition = sortCondition;
+        })
       });
     },
   };

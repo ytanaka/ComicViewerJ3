@@ -1,68 +1,60 @@
-import { create, StoreApi } from 'zustand';
+import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { immer } from "zustand/middleware/immer";
 
-import { AllTabs, MAX_HIST, mkDefaultSortCondition, TabId } from './types';
+import { AllTabs, mkDefaultSortCondition, TabId } from './types';
 import { createUiTabActions, UiTabActions } from './tab-info-actions';
 import { TabStoreActions, createAllTabsActions } from './store-actions';
 import { createFileSelectionActions, FileSelectionActions } from './file-selection-actions';
 import { createFileFocusHistoryActions, FileFocusHistoryActions } from './file-focus-history-actions';
 
-export type TabActions = TabStoreActions &
+
+export type TabActions =
+  TabStoreActions &
   UiTabActions &
   FileSelectionActions &
   FileFocusHistoryActions;
 
 export type TabStore = AllTabs & TabActions;
 
-export const createTabActions = (
-  set: StoreApi<TabStore>['setState'],
-  get: StoreApi<TabStore>['getState']
-): TabActions => ({
-  ...createAllTabsActions(set, get),
-  ...createUiTabActions(set, get),
-  ...createFileSelectionActions(set, get),
-  ...createFileFocusHistoryActions(set, get),
-});
-
 export const useTabStore = create<TabStore>()(
   persist(
-    (set, get) => ({
-      currentTabIndex: 0,
-      tabs: [],
-      fileInfoListList: {},
-      selections: {},
-      focusHistories: {},
-      focusHistoryMax: MAX_HIST,
+    immer(
+      (set, get, store) => ({
+        currentTabIndex: 0,
+        tabs: [],
 
-      ...createTabActions(set, get),
-    }),
-    {
-      name: 'tab-state',
-      partialize: state => {
-        return {
-          currentTabIndex: state.currentTabIndex,
-          tabs: state.tabs.map(t => ({
-            ...t,
-            errorMsg: undefined,
-            sortCondition: mkDefaultSortCondition(),
-            requestSort: false,
-          })),
-        };
-      },
-      onRehydrateStorage: () => state => {
-        if (!state) return;
-        try {
-          for (let i = 0; i < state.tabs.length; i++) {
-            state.tabs[i].tab.id = (state.tabs[i].tab.id * -1) as TabId;
-            state.tabs[i].errorMsg = undefined;
-            state.tabs[i].sortCondition = mkDefaultSortCondition();
-            state.tabs[i].requestSort = false;
-          }
-        } catch (e) {
-          console.error(e);
+        ...createAllTabsActions(set, get, store),
+        ...createUiTabActions(set, get, store),
+        ...createFileSelectionActions(set, get, store),
+        ...createFileFocusHistoryActions(set, get, store),
+      })
+    ), {
+    name: 'tab-state',
+    partialize: state => {
+      return {
+        currentTabIndex: state.currentTabIndex,
+        tabs: state.tabs.map(t => ({
+          ...t,
+          errorMsg: undefined,
+          sortCondition: mkDefaultSortCondition(),
+          requestSort: false,
+        })),
+      };
+    },
+    onRehydrateStorage: () => state => {
+      if (!state) return;
+      try {
+        for (let i = 0; i < state.tabs.length; i++) {
+          state.tabs[i].info.id = (state.tabs[i].info.id * -1) as TabId;
+          state.tabs[i].sortCondition = mkDefaultSortCondition();
         }
-        console.info('TabState: onRehydrateStorage !!!!!', state);
-      },
-    }
+      } catch (e) {
+        console.error(e);
+      }
+      console.info('TabState: onRehydrateStorage !!!!!', state);
+    },
+  }
+
   )
 );

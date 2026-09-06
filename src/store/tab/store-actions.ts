@@ -1,3 +1,4 @@
+import { StateCreator } from 'zustand';
 import { TabStore } from './store';
 import { TabId, UiTab } from './types';
 
@@ -12,10 +13,12 @@ export interface TabStoreActions {
   removeTab: (tabId: TabId) => void;
 }
 
-export const createAllTabsActions = (
-  set: (fn: (state: TabStore) => Partial<TabStore>) => void,
-  get: () => TabStore
-): TabStoreActions => ({
+export const createAllTabsActions: StateCreator<
+  TabStore,
+  [["zustand/immer", never]],
+  [],
+  TabStoreActions
+> = (set, get) => ({
   setCurrentTabIndex: (index: number) => {
     set(state => {
       if (index < 0 || (index !== 0 && state.tabs.length <= index))
@@ -25,19 +28,18 @@ export const createAllTabsActions = (
   },
 
   getTab: (tabId: TabId) => {
-    return get().tabs.find(t => t.tab.id === tabId);
+    return get().tabs.find(t => t.info.id === tabId);
   },
 
   getCurrentTab: (): UiTab => {
     const { tabs, currentTabIndex } = get();
-    if (!tabs[currentTabIndex]) throw new Error(`no tab`);
     return tabs[currentTabIndex];
   },
 
   // ※ カレントタブは追加されたタブに移る
   addTab: (tab: UiTab) => {
     set(state => {
-      if (0 <= state.tabs.findIndex(t => t.tab.id === tab.tab.id)) throw Error(`addTab(): dup tab.id: ${tab.tab.id}`);
+      if (0 <= state.tabs.findIndex(t => t.info.id === tab.info.id)) throw Error(`addTab(): dup tab.id: ${tab.info.id}`);
       return {
         tabs: [...state.tabs, tab],
         currentTabIndex: state.tabs.length,
@@ -77,7 +79,7 @@ export const createAllTabsActions = (
   // ※ 最後のタブが削除されたら、左側のタブをカレントにする
   removeTab: (tabId: TabId) => {
     set(state => {
-      const newList = state.tabs.filter(t => t.tab.id !== tabId);
+      const newList = state.tabs.filter(t => t.info.id !== tabId);
       return {
         currentTabIndex: Math.max(0, Math.min(state.currentTabIndex, newList.length - 1)),
         tabs: newList,

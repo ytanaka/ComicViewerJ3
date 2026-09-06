@@ -1,5 +1,7 @@
 import { SortCondition } from '@/lib/bindings';
-import { TabInfo } from '@/lib/bindings-wrapper';
+import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { TabStore } from './store';
+import type { Draft } from "immer";
 
 export type TabId = number & { readonly __brand: unique symbol };
 export type FileId = number & { readonly __brand: unique symbol };
@@ -7,28 +9,21 @@ export type FileId = number & { readonly __brand: unique symbol };
 export const MAX_HIST = 10;
 
 export interface AllTabs {
-  currentTabIndex: number;
+  currentTabIndex: number; // tabs = [] の場合は 0
   tabs: UiTab[];
 }
 export interface UiTab {
-  tab: TabInfo;
-  errorMsg?: string; // dirEntries を更新しようとしたときのエラー
+  info: TabInfo;
   sortCondition: SortCondition;
-  requestSort: boolean;
-
   selection: FileSelection;
-  focusHistories: FileFocusHistory;
+  focusHistories: FileFocus[]; // 先頭が古いデータ
 }
 export interface FileSelection {
   focusIndex: number;
   anchorIndex: number;
   selectionIndexes: Set<number>;
 }
-export interface FileFocusHistory {
-  // 先頭が古いデータ
-  hist: HistElm[];
-}
-export interface HistElm {
+export interface FileFocus {
   path: string;
   filename: string;
 }
@@ -37,11 +32,10 @@ export interface HistElm {
 
 export function mkUiTab(tab: TabInfo): UiTab {
   return {
-    tab,
+    info: tab,
     sortCondition: mkDefaultSortCondition(),
-    requestSort: false,
     selection: mkFileSelection(),
-    focusHistories: { hist: [] },
+    focusHistories: [],
   };
 }
 
@@ -55,4 +49,22 @@ export function mkFileSelection(): FileSelection {
     anchorIndex: 0,
     selectionIndexes: new Set<number>(),
   };
+}
+
+// =====================================================================================================================
+
+export function _useTabStore_getImmerTab(state: Draft<TabStore>, tabId: TabId): UiTab | undefined {
+  return state.tabs.find(t => t.info.id === tabId);
+}
+
+export function _useTabStore_setExistTabFields(state: Draft<TabStore>, tabId: TabId, fn: (tab: UiTab) => void): boolean {
+  const tab = _useTabStore_getImmerTab(state, tabId);
+  if (!tab) return false;
+  fn(tab);
+  return true;
+}
+export function _useTabStore_getDirEntries(tabId: TabId): DirEntry[] | undefined {
+  // TODO:
+  if (tabId) return undefined
+  return undefined
 }
