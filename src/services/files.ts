@@ -97,7 +97,6 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
       return result;
     },
     enabled: 0 < fileIds.length,
-    staleTime: 30_000,
     select: data => {
       if (data.status === 'error') {
         // TODO
