@@ -11,6 +11,7 @@ import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-i
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
 import { useCmdCreateTab, useCmdFileInfosQuery, useCmdGetDirEntries } from '@/services/files';
+import { FileId } from '@/store/tab/types';
 
 function st() {
   return useTabStore.getState();
@@ -21,7 +22,7 @@ export default function FileList() {
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
   const tab = useTabStore(state => state.getCurrentTab())!; // このコンポーネントが呼ばれているということは、タブはあるはず
   const sel = useTabStore(state => state.getSelection(tab.info.id));
-  const [scrollStartEnd, setScrollStartEnd] = useState<number[]>([0, 0]);
+  const [scrollFileIds, setScrollFileIds] = useState<FileId[]>([]);
 
   console.debug(
     `<FileList> tab[${currentTabIndex}](id:${tab.info.id}), ${tab.info.path}`
@@ -32,7 +33,7 @@ export default function FileList() {
   // ファイル一覧取得
   const { data: dirEntries } = useCmdGetDirEntries(tab.info);
   // スクロール範囲のファイル情報取得
-  useCmdFileInfosQuery(tab.info, scrollStartEnd[0], scrollStartEnd[1]);
+  useCmdFileInfosQuery(tab.info, scrollFileIds);
 
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
@@ -61,7 +62,14 @@ export default function FileList() {
     visibleListRows.current = Math.max(1, range.endIndex - range.startIndex);
 
     // ファイル情報読み込み
-    setScrollStartEnd([range.startIndex, range.endIndex]);
+    if (dirEntries) {
+      const fileIds: FileId[] = [];
+      for (let i = range.startIndex; i <= range.endIndex; i++) {
+        const ent = dirEntries[i];
+        if (ent) fileIds.push(ent.file_id);
+      }
+      setScrollFileIds(fileIds);
+    }
   };
 
   // キー操作

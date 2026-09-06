@@ -35,7 +35,7 @@ let nextDummyTabId = -1;
 
 export function getNextDummyTabId(): TabId {
   const tabId = nextDummyTabId;
-  nextDummyTabId += 1;
+  nextDummyTabId -= 1;
   return tabId as TabId;
 }
 export function mkUiTab(tab: TabInfo): UiTab {

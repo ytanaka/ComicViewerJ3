@@ -1,4 +1,4 @@
-import { DirEntry, FileInfo, rustcmds, TabInfo } from "@/lib/bindings-wrapper";
+import { DirEntry, FileInfo, RustCmdResult, rustcmds, TabInfo } from "@/lib/bindings-wrapper";
 import { myQueryClient } from "@/main";
 import { useTabStore } from "@/store/tab/store";
 import { FileId, TabId } from "@/store/tab/types";
@@ -45,17 +45,22 @@ export function useCmdGetDirEntries(tabInfo: TabInfo) {
     queryFn: async () => await rustcmds.getDirEntries(tabInfo.id),
     enabled: 0 < tabInfo.id,
     select: (data) => {
-      if (data.status === 'error') {
-        // TODO
-        return undefined;
-      } else {
-        return data.data;
-      }
+      return select_getDirEntries(data);
     }
   });
 }
+function select_getDirEntries(data: RustCmdResult<DirEntry[]>) {
+  if (data.status === 'error') {
+    // TODO
+    return undefined;
+  } else {
+    return data.data;
+  }
+}
 export function getQueryData_getDirEntries(tabId: TabId): DirEntry[] | undefined {
-  return myQueryClient.getQueryData<DirEntry[] | undefined>(queryKey_useCmdGetDirEntries(tabId));
+  const data = myQueryClient.getQueryData<RustCmdResult<DirEntry[]>>(queryKey_useCmdGetDirEntries(tabId));
+  if (!data) return undefined;
+  return select_getDirEntries(data);
 }
 export function getQueryData_getDirEntry(tabId: TabId, fileIndex: number): DirEntry | undefined {
   const dirEntries = getQueryData_getDirEntries(tabId);
@@ -68,17 +73,16 @@ export function removeQueries_getDirEntries(tabId: TabId) {
 }
 // ---------------------------------------------------------------------------------------------------------------------
 
-export function queryKey_useFileInfosQuery(tabInfo: TabInfo, startFileIndex: number, endFileIndex: number) {
-  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, "getFileInfos", startFileIndex, endFileIndex];
+export function queryKey_useFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
+  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, "getFileInfos", fileIds];
 }
 export function queryKey_useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
   return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, "getFileInfo", fileId];
 }
-export function useCmdFileInfosQuery(tabInfo: TabInfo, startFileIndex: number, endFileIndex: number) {
+export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   const queryClient = useQueryClient();
-  const fileIds: FileId[] = []; // TODO
   return useQuery({
-    queryKey: queryKey_useFileInfosQuery(tabInfo, startFileIndex, endFileIndex),
+    queryKey: queryKey_useFileInfosQuery(tabInfo, fileIds),
     queryFn: () => rustcmds.getFileInfos(tabInfo.id, fileIds),
     enabled: 0 < fileIds.length,
     staleTime: 30_000,

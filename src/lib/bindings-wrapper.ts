@@ -79,6 +79,7 @@ function toFileInfo(from: FileInfoUI): FileInfo {
   };
 }
 
+export type RustCmdResult<T> = { status: 'ok'; data: T } | { status: 'error'; error: string };
 
 function cnvOk<F, T>(
   from: { status: 'ok'; data: F } | { status: 'error'; error: string },
