@@ -138,7 +138,7 @@ pub async fn clone_tab_parent_dir(
 }
 async fn clone_tab_parent_dir_impl(state: &AppState, tab_id: TabId) -> anyhow::Result<TabInfoUI> {
     let path = fs_util::get_tab_path(state, tab_id)?;
-    let parent = path.parent().ok_or_else(|| anyhow!(""))?;
+    let parent = path.parent().ok_or_else(|| anyhow!("no parent dir"))?;
     create_tab_imp(state, parent).await
 }
 

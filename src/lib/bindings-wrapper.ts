@@ -88,7 +88,7 @@ function cnvOk<F, T>(
   if (from.status === 'ok') {
     return { status: 'ok', data: cnv(from.data) };
   } else {
-    throw from;
+    return from;
   }
 }
 

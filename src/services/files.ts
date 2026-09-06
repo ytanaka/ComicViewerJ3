@@ -1,5 +1,5 @@
 import { DirEntry, FileInfo, RustCmdResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
-import { myQueryClient } from '@/main';
+import { myQueryClient } from '@/lib/query-client';
 import { useTabStore } from '@/store/tab/store';
 import { FileId, TabId } from '@/store/tab/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -94,7 +94,7 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
         data.data.forEach(fileInfo => {
           queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo, fileInfo.file_id), fileInfo);
         });
-        return data.data;
+        return undefined; // TODO このhookはFileList内部に記述されるので、データを取得しても更新しないようにする
       }
     },
   });

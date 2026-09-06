@@ -25,7 +25,9 @@ export default function FileList() {
   const sel = useTabStore(state => state.getSelection(tab.id));
   const [scrollFileIds, setScrollFileIds] = useState<FileId[]>([]);
 
-  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} sel:${getObjId(sel)}`);
+  console.debug(
+    `<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} sel:${getObjId(sel)}`
+  );
 
   // タブ情報作成
   useCmdCreateTab(tab);
@@ -37,10 +39,14 @@ export default function FileList() {
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
     const setHist = async () => {
-      const parent = await tauri_dirname(tab.path);
-      if (!st().findHistory(tab.id, parent)) {
-        const base = await tauri_basename(tab.path);
-        st().pushHistory(tab.id, parent, base);
+      try {
+        const parent = await tauri_dirname(tab.path);
+        if (!st().findHistory(tab.id, parent)) {
+          const base = await tauri_basename(tab.path);
+          st().pushHistory(tab.id, parent, base);
+        }
+      } catch {
+        // 現ディレクトリに親ディレクトリがない場合は例外が発生するので無視する
       }
     };
     setHist();
