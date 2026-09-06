@@ -12,6 +12,7 @@ import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handle
 import { useUiStore } from '@/store/ui-store';
 import { useCmdCreateTab, useCmdFileInfosQuery, useCmdGetDirEntries } from '@/services/files';
 import { FileId } from '@/store/tab/types';
+import { getObjId } from '@/lib/utils';
 
 function st() {
   return useTabStore.getState();
@@ -20,38 +21,38 @@ function st() {
 export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
-  const tab = useTabStore(state => state.getCurrentTab())!; // このコンポーネントが呼ばれているということは、タブはあるはず
-  const sel = useTabStore(state => state.getSelection(tab.info.id));
+  const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
+  const sel = useTabStore(state => state.getSelection(tab.id));
   const [scrollFileIds, setScrollFileIds] = useState<FileId[]>([]);
 
-  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.info.id}), ${tab.info.path}`);
+  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} sel:${getObjId(sel)}`);
 
   // タブ情報作成
-  useCmdCreateTab(tab.info);
+  useCmdCreateTab(tab);
   // ファイル一覧取得
-  const { data: dirEntries } = useCmdGetDirEntries(tab.info);
+  const { data: dirEntries } = useCmdGetDirEntries(tab);
   // スクロール範囲のファイル情報取得
-  useCmdFileInfosQuery(tab.info, scrollFileIds);
+  useCmdFileInfosQuery(tab, scrollFileIds);
 
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
     const setHist = async () => {
-      const parent = await tauri_dirname(tab.info.path);
-      if (!st().findHistory(tab.info.id, parent)) {
-        const base = await tauri_basename(tab.info.path);
-        st().pushHistory(tab.info.id, parent, base);
+      const parent = await tauri_dirname(tab.path);
+      if (!st().findHistory(tab.id, parent)) {
+        const base = await tauri_basename(tab.path);
+        st().pushHistory(tab.id, parent, base);
       }
     };
     setHist();
-  }, [tab.info.id, tab.info.path]); // 初回表示時だけ実行する
+  }, [tab.id, tab.path]); // 初回表示時だけ実行する
 
   // タイトルバー更新
   useEffect(() => {
     const setTitle = async () => {
-      await getCurrentWindow().setTitle(tab.info.path);
+      await getCurrentWindow().setTitle(tab.path);
     };
     setTitle();
-  }, [tab.info.path]);
+  }, [tab.path]);
 
   // スクロール位置検知
   const visibleListRows = useRef(1);

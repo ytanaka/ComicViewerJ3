@@ -5,10 +5,12 @@ import { searchCommands } from '@/lib/commands/search-commands';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { useSearchResultStore } from '@/store/file-search-result-store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
-import { UiTab } from '@/store/tab/types';
 import { BaseUIEvent } from '@base-ui/react';
+import { TabInfo } from '@/lib/bindings-wrapper';
+import { useTabStore } from '@/store/tab/store';
 
-export function SearchResult({ tab }: { tab: UiTab }) {
+export function SearchResult({ tabInfo }: { tabInfo: TabInfo }) {
+  const tab = useTabStore(state => state.getTab(tabInfo.id))!; // タブの中から呼ばれたからあるはず
   const romaji = useSearchTextStore(state => state.text);
   const result = useSearchResultStore(state => state.getResult(tab));
   const isProgress = useSearchResultStore(state => state.isProgress(tab));

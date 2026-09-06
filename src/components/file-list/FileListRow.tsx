@@ -4,11 +4,10 @@ import { path } from '@tauri-apps/api';
 
 import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
-import { UiTab } from '@/store/tab/types';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { getObjId } from '@/lib/utils';
-import { DirEntry, FileInfo } from '@/lib/bindings-wrapper';
+import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/files';
 
 function Icon({
@@ -92,28 +91,28 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 }
 
 export function FileListRow({
-  tab,
+  tab: tabInfo,
   fileIndex,
   dirEntry,
   ...props
 }: {
-  tab: UiTab;
+  tab: TabInfo;
   fileIndex: number;
   dirEntry: DirEntry;
 } & React.HTMLAttributes<HTMLTableRowElement>) {
-  const isSelected = useTabStore(state => state.getTab(tab.info.id)?.selection.selectionIndexes.has(fileIndex));
-  const isFocused = useTabStore(state => state.getTab(tab.info.id)?.selection.focusIndex === fileIndex);
-  const { data: fileInfo } = useFileInfo1Query(tab.info, dirEntry.file_id);
+  const isSelected = useTabStore(state => state.getTab(tabInfo.id)?.selection.selectionIndexes.has(fileIndex));
+  const isFocused = useTabStore(state => state.getTab(tabInfo.id)?.selection.focusIndex === fileIndex);
+  const { data: fileInfo } = useFileInfo1Query(tabInfo, dirEntry.file_id);
   const errorMsg = fileInfo?.metadata.Left;
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
-    tabFiles_handleMouseClick(e, tab, fileIndex);
+    tabFiles_handleMouseClick(e, tabInfo, fileIndex);
   }
 
   if (fileIndex === 0)
     console.debug(
-      `<FileListRow>[${fileIndex}] tabId:${getObjId(tab)} dirEnt:${getObjId(dirEntry)} props:${getObjId(props)}`
+      `<FileListRow>[${fileIndex}] tabId:${getObjId(tabInfo)} dirEnt:${getObjId(dirEntry)} props:${getObjId(props)}`
     );
 
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
@@ -124,7 +123,7 @@ export function FileListRow({
       <Icon dirEntry={dirEntry} fileInfo={fileInfo} hasError={!!errorMsg} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry} fileInfo={fileInfo}>
-        {isFocused && <SearchResult tab={tab} />}
+        {isFocused && <SearchResult tabInfo={tabInfo} />}
       </FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />

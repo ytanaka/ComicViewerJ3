@@ -1,13 +1,13 @@
 import React from 'react';
 import { VirtuosoHandle } from 'react-virtuoso';
 
-import { UiTab } from '@/store/tab/types';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
 import { searchCommands } from '../commands/search-commands';
 import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
 import { getQueryData_getDirEntries } from '@/services/files';
+import { TabInfo } from '../bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -15,18 +15,19 @@ function st() {
 
 export function tabFiles_handleKeyDown(
   e: KeyboardEvent,
-  tab: UiTab,
+  tabInfo: TabInfo,
   pageNum: number,
   virtuoso: VirtuosoHandle
 ): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
-  const tabId = tab.info.id;
+  const tab = st().getTab(tabInfo.id);
+  if (!tab) return false;
 
   // キーボードによるリストのフォーカス移動ハンドラー
   // フォーカスが移動したら、true
   const sel = tab.selection;
   const focusIndex = sel.focusIndex;
-  const dirEntries = getQueryData_getDirEntries(tabId);
+  const dirEntries = getQueryData_getDirEntries(tabInfo.id);
   if (dirEntries === undefined) return false;
 
   let newIndex: number | null = null;
@@ -81,11 +82,11 @@ export function tabFiles_handleKeyDown(
     index = Math.min(index, dirEntries.length - 1);
     index = Math.max(index, 0);
     if (NO_MOD) {
-      st().moveFocusNormal(tabId, index as number);
+      st().moveFocusNormal(tabInfo.id, index as number);
     } else if (CTRL_ONLY) {
-      st().moveFocusOnly(tabId, index as number);
+      st().moveFocusOnly(tabInfo.id, index as number);
     } else if (SHIFT_ONLY) {
-      st().moveFocusWithSelectionArea(tabId, index as number);
+      st().moveFocusWithSelectionArea(tabInfo.id, index as number);
     }
     e.preventDefault();
     virtuoso.scrollIntoView({ index });
@@ -97,7 +98,7 @@ export function tabFiles_handleKeyDown(
   // 1ファイルの選択ON/OFF
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && e.key === ' ') {
-    st().toggleSelection(tabId, focusIndex);
+    st().toggleSelection(tabInfo.id, focusIndex);
     e.preventDefault();
     return true;
   }
@@ -106,7 +107,7 @@ export function tabFiles_handleKeyDown(
   // 全選択切替
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && keyLow === 'a') {
-    st().toggleAllSelection(tabId);
+    st().toggleAllSelection(tabInfo.id);
     e.preventDefault();
     return true;
   }
@@ -131,8 +132,8 @@ export function tabFiles_handleKeyDown(
   return false;
 }
 
-export function tabFiles_handleMouseClick(e: React.MouseEvent, tab: UiTab, fileIndex: number): boolean {
-  const tabId = tab.info.id;
+export function tabFiles_handleMouseClick(e: React.MouseEvent, tabInfo: TabInfo, fileIndex: number): boolean {
+  const tabId = tabInfo.id;
   const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
   const CTRL = C && !S && !A;
   const SHIFT = !C && S && !A;
