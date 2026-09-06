@@ -3,60 +3,63 @@ import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabStore } from '@/store/tab/store';
 import { mkUiTab, TabId } from '@/store/tab/types';
-import { rustcmds } from '../bindings-wrapper';
+import { rustcmds, TabInfo } from '../bindings-wrapper';
+import { removeQueries_tab } from '@/services/files';
 
 function st() {
   return useTabStore.getState();
 }
 
+async function _addTab(cmdResult: { status: "error"; error: string; } | { status: "ok"; data: TabInfo; }) {
+  if (cmdResult.status === 'error') {
+    // TODO
+  } else {
+    st().addTab(mkUiTab(cmdResult.data));
+  }
+}
+
 export const tabCommands = {
   // タブを開く (ホームディレクトリ)
   async addTab_homeDir() {
-    await this.cloneTab(await tauri_homeDir());
+    _addTab(await rustcmds.createTab(await tauri_homeDir()));
   },
 
   // タブを開く (現在のタブと同じディレクトリ)
   async cloneCurrentTab() {
-    if (st().tabs.length === 0) {
+    const currentTab = st().getCurrentTab();
+    if (!currentTab) {
       await this.addTab_homeDir();
     } else {
-      await this.cloneTab(st().currentTabIndex);
+      _addTab(await rustcmds.cloneTab(currentTab.info.id));
     }
   },
 
   // タブをコピーする
   // index を渡すと、インデックスにあるタブをコピーする
   // path を渡すと、そのパスでタブを開く
-  async cloneTab(index_or_path: number | string) {
+  async cloneTab(path: string) {
     if (20 <= st().tabs.length) return; // TODO
-
-    let path: string | undefined;
-    if (typeof index_or_path === 'number') {
-      path = st().tabs[index_or_path]?.info.path;
-    } else if (typeof index_or_path === 'string') {
-      path = index_or_path;
-    }
-    if (!path) {
-      path = await tauri_homeDir();
-    }
     const absPath = await tauri_path_resolve(path);
-    const tabId = await rustcmds.createTab(path);
-    st().addTab(mkUiTab(tabId, absPath));
+    _addTab(await rustcmds.createTab(absPath));
   },
 
   // タブ削除
-  async removeTab(id: TabId) {
-    if (st().tabs.length === 0) return;
-    console.info(`tabCommands.removeTab(${id})`);
-    st().removeTab(id);
-    await rustcmds.removeTab(id);
+  async removeTab(tabId: TabId) {
+    console.info(`tabCommands.removeTab(${tabId})`);
+    const result = await rustcmds.removeTab(tabId);
+    if (result.status === 'error') {
+      // TODO
+    } else {
+      st().removeTab(tabId);
+      removeQueries_tab(tabId);
+    }
   },
 
   // タブ削除 (カレント)
   async removeCurrentTab() {
     const tab = st().getCurrentTab();
     if (!tab) return;
-    await this.removeTab(tab.id);
+    await this.removeTab(tab.info.id);
   },
 
   // フォーカスするタブの指定

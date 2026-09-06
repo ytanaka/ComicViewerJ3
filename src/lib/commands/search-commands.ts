@@ -1,10 +1,9 @@
-import { mkDefaultSortCondition, TabId, UiTab } from '@/store/tab/types';
+import { mkDefaultSortCondition, mkFileSelection, TabId, UiTab } from '@/store/tab/types';
 import { FileSearchResult } from '../bindings';
 import { VirtuosoHandle } from 'react-virtuoso';
 import { checkCommandReturn } from '../bindings-helper';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';
-import { ExecExclusibe } from '../utils';
 import { rustcmds } from '../bindings-wrapper';
 
 let debounceTimer: number | undefined;
@@ -12,12 +11,11 @@ let queuedInput: string | null = null; // 検索実行に入力された内容
 let queuedRevese: boolean = false;
 
 const emptyTab: Readonly<UiTab> = {
-  id: -1 as TabId,
-  path: '',
+  info: { id: -1 as TabId, path: '' },
   sortCondition: mkDefaultSortCondition(),
-  requestSort: false,
-  execExclusive: new ExecExclusibe(),
-  refreshCount: -1,
+  selection: mkFileSelection(),
+  focusHistories: [],
+  refreshCount: 0,
 } as const;
 
 let searchTab: UiTab = emptyTab;
@@ -88,7 +86,7 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
 
   // 検索で見つかった
   console.debug(`search success: ${text} =>`, result);
-  useTabStore.getState().moveFocusNormal(searchTab.id, result.index);
+  useTabStore.getState().moveFocusNormal(searchTab.info.id, result.index);
   virtuoso_scrollIntoView(result.index);
 
   // 検索完了後に新しい入力があれば再検索
@@ -104,16 +102,16 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
 // ※ 検索中に状況が変わっていたら null
 async function search(text: string, startIndex: number, reverse: boolean): Promise<FileSearchResult | null> {
   console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) start`);
-  const ret = await rustcmds.searchNextFilename(searchTab.id, startIndex, text, reverse);
+  const ret = await rustcmds.searchNextFilename(searchTab.info.id, startIndex, text, reverse);
   const result = checkCommandReturn('searchNextFilename', ret);
   console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) => `, result);
   if (!result) return null;
 
   // 検索中にタブの状況が変わっていたら結果を無視する
-  const newTab = useTabStore.getState().getTab(searchTab.id);
+  const newTab = useTabStore.getState().getTab(searchTab.info.id);
   if (!newTab) return null;
   if (newTab.refreshCount != searchTab.refreshCount) return null;
-  if (useTabStore.getState().getCurrentTab().id !== searchTab.id) return null;
+  if (useTabStore.getState().getCurrentTab()?.info.id !== searchTab.info.id) return null;
 
   return result;
 }

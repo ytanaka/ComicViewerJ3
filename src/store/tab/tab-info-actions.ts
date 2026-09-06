@@ -1,8 +1,9 @@
-import { _useTabStore_getDirEntries, _useTabStore_setExistTabFields, mkDefaultSortCondition, TabId } from './types';
+import { _useTabStore_setExistTabFields, mkDefaultSortCondition, TabId } from './types';
 import { TabStore } from './store';
 import { TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
 import { StateCreator } from 'zustand';
+import { getQueryData_getDirEntries } from '@/services/files';
 
 export interface UiTabActions {
   updateTab: (tabId: TabId, newTab: TabInfo) => void;
@@ -19,7 +20,7 @@ export const createUiTabActions: StateCreator<
     updateTab: (tabId: TabId, newTab: TabInfo) => {
       // 以前のフォーカス状態をなるべく保持する
       const tab = get().getTab(tabId);
-      const fileList = _useTabStore_getDirEntries(tabId);
+      const fileList = getQueryData_getDirEntries(tabId);
       if (!tab || !fileList) return;
       const sel = { ...tab.selection };
       const prevName: string | undefined = get().findHistory(tabId, tab.info.path);
@@ -56,6 +57,7 @@ export const createUiTabActions: StateCreator<
       set((state) => {
         _useTabStore_setExistTabFields(state, tabId, (tab) => {
           tab.sortCondition = sortCondition;
+          tab.refreshCount += 1;
         })
       });
     },

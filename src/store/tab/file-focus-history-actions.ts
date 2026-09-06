@@ -1,7 +1,8 @@
 import { StateCreator } from 'zustand';
 import { TabStore } from './store';
-import { _useTabStore_getDirEntries, _useTabStore_getImmerTab, MAX_HIST, TabId } from './types';
+import { _useTabStore_getImmerTab, MAX_HIST, TabId } from './types';
 import { Draft } from 'immer';
+import { getQueryData_getDirEntry } from '@/services/files';
 
 export interface FileFocusHistoryActions {
   pushHistory: (tabId: TabId, path: string, filename: string) => void;
@@ -42,10 +43,9 @@ export function _useTabStore_pushHistory_toImmer(state: Draft<TabStore>, tabId: 
 
 export function _useTabStore_pushHistoryCurrentFile_toImmer(state: Draft<TabStore>, tabId: TabId): boolean {
   const tab = _useTabStore_getImmerTab(state, tabId);
-  const dirEntries = _useTabStore_getDirEntries(tabId);
-  if (!tab || !dirEntries) return false;
-  const focus = tab.selection.focusIndex;
-  if (focus < 0 || dirEntries.length <= focus) return false;
-  return _useTabStore_pushHistory_toImmer(state, tabId, tab.info.path, dirEntries[focus].name);
+  if (!tab) return false;
+  const dirEntry = getQueryData_getDirEntry(tabId, tab.selection.focusIndex);
+  if (!dirEntry) return false;
+  return _useTabStore_pushHistory_toImmer(state, tabId, tab.info.path, dirEntry.name);
 }
 

@@ -1,6 +1,5 @@
 import { useTabStore } from '@/store/tab/store';
-import { resolve as tauri_resolve, dirname as tauri_dirname } from '@tauri-apps/api/path';
-import { errToStr } from '../string-util';
+import { DirEntry, rustcmds } from '../bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -9,24 +8,25 @@ function st() {
 export const fileCommands = {
   // 親ディレクトリへ移動
   async moveToParentDir() {
-    const path = st().getCurrentTab().path;
-    try {
-      const parent = await tauri_dirname(path);
-      this.movePath(parent);
-    } catch (e) {
-      console.debug(`fileCommands.moveParentDir(): current = ${path}, error = ${errToStr(e)}`);
-      return;
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+    const result = await rustcmds.cloneTabParentDir(tab.info.id);
+    if (result.status === 'error') {
+      // TODO
+    } else {
+      st().updateTab(tab.info.id, result.data);
     }
   },
 
   // 子ディレクトリに移動
-  async moveToChildDirectory(name: string) {
-    const path = st().getCurrentTab().path;
-    const dir = await tauri_resolve(path, name);
-    this.movePath(dir);
-  },
-
-  movePath(path: string) {
-    st().updateTab(st().getCurrentTab().id, path);
+  async moveToChildDirectory(dirEntry: DirEntry) {
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+    const result = await rustcmds.cloneTabChildDir(tab.info.id, dirEntry.file_id);
+    if (result.status === 'error') {
+      // TODO
+    } else {
+      st().updateTab(tab.info.id, result.data);
+    }
   },
 };

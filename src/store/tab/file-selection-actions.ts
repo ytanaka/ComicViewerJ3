@@ -1,7 +1,8 @@
 import { StateCreator } from 'zustand';
 import { TabStore } from './store';
-import { _useTabStore_getDirEntries, _useTabStore_setExistTabFields, FileSelection, TabId } from './types';
+import { _useTabStore_setExistTabFields, FileSelection, TabId } from './types';
 import { _useTabStore_pushHistoryCurrentFile_toImmer } from './file-focus-history-actions';
+import { getQueryData_getDirEntries, getQueryData_getDirEntry } from '@/services/files';
 
 export interface FileSelectionActions {
   getSelection: (tabId: TabId) => FileSelection | undefined;
@@ -106,7 +107,7 @@ export const createFileSelectionActions: StateCreator<
 
   // Ctrl+A で全選択切替
   toggleAllSelection: (tabId: TabId) => {
-    const dirEntries = _useTabStore_getDirEntries(tabId);
+    const dirEntries = getQueryData_getDirEntries(tabId);
     if (!dirEntries) return;
     set((state) => {
       _useTabStore_setExistTabFields(state, tabId, (tab) => {
@@ -123,8 +124,6 @@ export const createFileSelectionActions: StateCreator<
   },
 
   isValidFileIndex: (tabId: TabId, index: number) => {
-    const dirEntries = _useTabStore_getDirEntries(tabId);
-    if (!dirEntries) return false;
-    return 0 <= index && index <= dirEntries.length - 1;
+    return getQueryData_getDirEntry(tabId, index) !== undefined;
   },
 });

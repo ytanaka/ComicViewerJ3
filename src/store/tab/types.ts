@@ -1,5 +1,5 @@
 import { SortCondition } from '@/lib/bindings';
-import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { TabInfo } from '@/lib/bindings-wrapper';
 import { TabStore } from './store';
 import type { Draft } from "immer";
 
@@ -17,6 +17,7 @@ export interface UiTab {
   sortCondition: SortCondition;
   selection: FileSelection;
   focusHistories: FileFocus[]; // 先頭が古いデータ
+  refreshCount: number; // ソートされると + 1 // TODO
 }
 export interface FileSelection {
   focusIndex: number;
@@ -43,6 +44,7 @@ export function mkUiTab(tab: TabInfo): UiTab {
     sortCondition: mkDefaultSortCondition(),
     selection: mkFileSelection(),
     focusHistories: [],
+    refreshCount: 0,
   };
 }
 
@@ -69,9 +71,4 @@ export function _useTabStore_setExistTabFields(state: Draft<TabStore>, tabId: Ta
   if (!tab) return false;
   fn(tab);
   return true;
-}
-export function _useTabStore_getDirEntries(tabId: TabId): DirEntry[] | undefined {
-  // TODO:
-  if (tabId) return undefined
-  return undefined
 }

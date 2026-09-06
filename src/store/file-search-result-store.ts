@@ -51,6 +51,7 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
       updateTime: 0,
     }));
   },
+
   getResult: (tab: UiTab) => {
     const ret = get();
     if (!checkSameTab(tab, ret)) return null;
@@ -70,7 +71,7 @@ export const useSearchResultStore = create<FileSearchResultStore>()((set, get) =
 }));
 
 function checkSameTab(currentTab: UiTab, ret: FileSearchResultStore): boolean {
-  if (currentTab.id !== ret.tab?.id) return false;
+  if (currentTab.info.id !== ret.tab?.info.id) return false;
   if (currentTab.refreshCount !== ret.tab?.refreshCount) return false;
   return true;
 }

@@ -8,11 +8,11 @@ import { TooltipProvider } from './components/ui/tooltip';
 import App from './App';
 import { RustLibInitializer } from './components/util/RustLibInitializer';
 
-const queryClient = new QueryClient();
+export const myQueryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={myQueryClient}>
       <TooltipProvider>
         <ThemeProvider attribute="class">
           <RustLibInitializer>

@@ -1,11 +1,20 @@
-import { FileInfo, rustcmds, TabInfo } from "@/lib/bindings-wrapper";
+import { DirEntry, FileInfo, rustcmds, TabInfo } from "@/lib/bindings-wrapper";
+import { myQueryClient } from "@/main";
 import { useTabStore } from "@/store/tab/store";
-import { FileId } from "@/store/tab/types";
+import { FileId, TabId } from "@/store/tab/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+// タブ関連の queryKey はこれを先頭に入れ、次に TabId を入れる
+// タブを消すときはまとめて消す
+const HEAD_QUERY_KEY_FOR_TAB_ID = 'tabId';
+
+export function removeQueries_tab(tabId: TabId) {
+  myQueryClient.removeQueries({ queryKey: [HEAD_QUERY_KEY_FOR_TAB_ID, tabId] })
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 export function queryKey_useCmdCreateTab(tabInfo: TabInfo) {
-  return ["createTab", tabInfo.id];
+  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, "createTab"];
 }
 
 export function useCmdCreateTab(tabInfo: TabInfo) {
@@ -14,34 +23,56 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
     queryFn: async () => await rustcmds.createTab(tabInfo.path),
     enabled: tabInfo.id < 0,
     select: (data) => {
-      if (data.status === 'ok') {
+      if (data.status === 'error') {
+        // TODO error
+        return undefined;
+      } else {
         useTabStore.getState().updateTab(tabInfo.id, data.data)
+        return data.data;
       }
-      return data;
     },
   });
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-export function queryKey_useCmdGetDirEntries(tabInfo: TabInfo) {
-  return ["getDirEntries", tabInfo.id];
+export function queryKey_useCmdGetDirEntries(tabId: TabId) {
+  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabId, "getDirEntries"];
 }
 export function useCmdGetDirEntries(tabInfo: TabInfo) {
   return useQuery({
-    queryKey: queryKey_useCmdGetDirEntries(tabInfo),
+    queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
     queryFn: async () => await rustcmds.getDirEntries(tabInfo.id),
     enabled: 0 < tabInfo.id,
+    select: (data) => {
+      if (data.status === 'error') {
+        // TODO
+        return undefined;
+      } else {
+        return data.data;
+      }
+    }
   });
 }
-
+export function getQueryData_getDirEntries(tabId: TabId): DirEntry[] | undefined {
+  return myQueryClient.getQueryData<DirEntry[] | undefined>(queryKey_useCmdGetDirEntries(tabId));
+}
+export function getQueryData_getDirEntry(tabId: TabId, fileIndex: number): DirEntry | undefined {
+  const dirEntries = getQueryData_getDirEntries(tabId);
+  if (!dirEntries) return undefined;
+  if (fileIndex < 0 || dirEntries.length <= fileIndex) return undefined;
+  return dirEntries[fileIndex];
+}
+export function removeQueries_getDirEntries(tabId: TabId) {
+  myQueryClient.removeQueries({ queryKey: queryKey_useCmdGetDirEntries(tabId) })
+}
 // ---------------------------------------------------------------------------------------------------------------------
 
 export function queryKey_useFileInfosQuery(tabInfo: TabInfo, startFileIndex: number, endFileIndex: number) {
-  return ["getFileInfos", tabInfo.id, startFileIndex, endFileIndex];
+  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, "getFileInfos", startFileIndex, endFileIndex];
 }
 export function queryKey_useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
-  return ["getFileInfo", tabInfo.id, fileId];
+  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, "getFileInfo", fileId];
 }
 export function useCmdFileInfosQuery(tabInfo: TabInfo, startFileIndex: number, endFileIndex: number) {
   const queryClient = useQueryClient();
@@ -52,12 +83,15 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, startFileIndex: number, e
     enabled: 0 < fileIds.length,
     staleTime: 30_000,
     select: (data) => {
-      if (data.status === 'ok') {
+      if (data.status === 'error') {
+        // TODO
+        return undefined;
+      } else {
         data.data.forEach((fileInfo) => {
           queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo, fileInfo.file_id), fileInfo);
         })
+        return data.data;
       }
-      return data;
     },
   });
 }

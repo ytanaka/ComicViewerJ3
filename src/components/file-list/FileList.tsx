@@ -30,8 +30,7 @@ export default function FileList() {
   // タブ情報作成
   useCmdCreateTab(tab.info);
   // ファイル一覧取得
-  const { data: dirEntriesData } = useCmdGetDirEntries(tab.info);
-  const dirEntries = dirEntriesData?.status === 'error' ? undefined : dirEntriesData?.data;
+  const { data: dirEntries } = useCmdGetDirEntries(tab.info);
   // スクロール範囲のファイル情報取得
   useCmdFileInfosQuery(tab.info, scrollStartEnd[0], scrollStartEnd[1]);
 
