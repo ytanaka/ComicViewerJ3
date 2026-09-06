@@ -1,5 +1,5 @@
 import { useTabStore } from '@/store/tab/store';
-import { rustcmds, SortType_type } from '../bindings-wrapper';
+import { logResult, rustcmds, SortType_type } from '../bindings-wrapper';
 import { toast } from 'sonner';
 import { removeQueries_getDirEntries } from '@/services/files';
 
@@ -16,9 +16,10 @@ export const sortCommands = {
     }
 
     const result = await rustcmds.sortFiles(tab.info.id, cond);
+    logResult(`rustcmds.sortFiles(${tab.info.id},${cond})`, result);
     if (result.status === 'error') {
+      // TODO
       toast.error(`${result.error}`);
-      console.error(`rustcmds.sortFiles(${tab.info.id}) error ${result.error}`);
     } else if (!result.data) {
       toast.warning('このディレクトリではまだソートの準備ができていません');
     } else {

@@ -1,10 +1,9 @@
 import { mkDefaultSortCondition, mkFileSelection, TabId, UiTab } from '@/store/tab/types';
 import { FileSearchResult } from '../bindings';
 import { VirtuosoHandle } from 'react-virtuoso';
-import { checkCommandReturn } from '../bindings-helper';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';
-import { rustcmds } from '../bindings-wrapper';
+import { logResult, rustcmds } from '../bindings-wrapper';
 
 let debounceTimer: number | undefined;
 let queuedInput: string | null = null; // 検索実行に入力された内容
@@ -97,6 +96,7 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
 async function search(text: string, startIndex: number, reverse: boolean): Promise<FileSearchResult | null> {
   console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) start`);
   const ret = await rustcmds.searchNextFilename(searchTab.info.id, startIndex, text, reverse);
+  logResult(`rustcmds.searchNextFilename(${searchTab.info.id},...)`, ret);
   const result = checkCommandReturn('searchNextFilename', ret);
   console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) => `, result);
   if (!result) return null;
@@ -113,4 +113,15 @@ async function search(text: string, startIndex: number, reverse: boolean): Promi
 function virtuoso_scrollIntoView(fileIndex: number) {
   if (searchVirtuoso === null) return;
   searchVirtuoso.scrollIntoView({ index: fileIndex });
+}
+
+function checkCommandReturn<T, E>(
+  comment: string,
+  result: { status: 'ok'; data: T } | { status: 'error'; error: E }
+): T | null {
+  if (result.status === 'error') {
+    console.error(`command[${comment}] error: ${result.error}`);
+    return null;
+  }
+  return result.data;
 }

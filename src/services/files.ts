@@ -1,4 +1,4 @@
-import { DirEntry, FileInfo, RustCmdResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
+import { DirEntry, FileInfo, logResult, RustCmdResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
 import { myQueryClient } from '@/lib/query-client';
 import { useTabStore } from '@/store/tab/store';
 import { FileId, TabId } from '@/store/tab/types';
@@ -23,6 +23,7 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
     queryFn: async () => await rustcmds.createTab(tabInfo.path),
     enabled: tabInfo.id < 0,
     select: data => {
+      logResult(`rustcmds.createTab(${tabInfo.path})`, data);
       if (data.status === 'error') {
         // TODO error
         return undefined;
@@ -45,6 +46,7 @@ export function useCmdGetDirEntries(tabInfo: TabInfo) {
     queryFn: async () => await rustcmds.getDirEntries(tabInfo.id),
     enabled: 0 < tabInfo.id,
     select: data => {
+      logResult(`rustcmds.getDirEntries(${tabInfo.id})`, data);
       return select_getDirEntries(data);
     },
   });
@@ -87,6 +89,7 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
     enabled: 0 < fileIds.length,
     staleTime: 30_000,
     select: data => {
+      logResult(`rustcmds.getFileInfos(${tabInfo.id},[${fileIds.length}])`, data);
       if (data.status === 'error') {
         // TODO
         return undefined;

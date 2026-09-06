@@ -3,7 +3,7 @@ import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabStore } from '@/store/tab/store';
 import { mkUiTab, TabId } from '@/store/tab/types';
-import { RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
+import { logResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/files';
 
 function st() {
@@ -11,6 +11,7 @@ function st() {
 }
 
 async function _addTab(cmdResult: RustCmdResult<TabInfo>) {
+  logResult("rustcmds.create_clene_Tab(...)", cmdResult);
   if (cmdResult.status === 'error') {
     // TODO
   } else {
@@ -47,6 +48,7 @@ export const tabCommands = {
   async removeTab(tabId: TabId) {
     console.info(`tabCommands.removeTab(${tabId})`);
     const result = await rustcmds.removeTab(tabId);
+    logResult(`rustcmds.removeTab(${tabId})`, result);
     if (result.status === 'error') {
       // TODO
     } else {

@@ -93,3 +93,11 @@ function cnvOk<F, T>(
 }
 
 export type SortType_type = SortType['type'];
+
+export function logResult<T>(methodAndArgs: string, result: RustCmdResult<T>) {
+  if (result.status === 'error') {
+    console.warn(`${methodAndArgs} => {error:${result.error}}`);
+  } else {
+    console.debug(`${methodAndArgs} => {ok: ...}`);
+  }
+}
