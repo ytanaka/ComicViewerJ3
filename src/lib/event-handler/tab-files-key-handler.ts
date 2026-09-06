@@ -7,6 +7,7 @@ import { useSearchTextStore } from '@/store/file-search-text-store';
 import { searchCommands } from '../commands/search-commands';
 import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
+import { getQueryData_getDirEntries } from '@/services/files';
 
 function st() {
   return useTabStore.getState();
@@ -19,12 +20,13 @@ export function tabFiles_handleKeyDown(
   virtuoso: VirtuosoHandle
 ): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
+  const tabId = tab.info.id;
 
   // キーボードによるリストのフォーカス移動ハンドラー
   // フォーカスが移動したら、true
-  const sel = st().getSelection(tab.id);
+  const sel = tab.selection;
   const focusIndex = sel.focusIndex;
-  const dirEntries = tab.dirEntries;
+  const dirEntries = getQueryData_getDirEntries(tabId);
   if (dirEntries === undefined) return false;
 
   let newIndex: number | null = null;
@@ -79,11 +81,11 @@ export function tabFiles_handleKeyDown(
     index = Math.min(index, dirEntries.length - 1);
     index = Math.max(index, 0);
     if (NO_MOD) {
-      st().moveFocusNormal(tab.id, index as number);
+      st().moveFocusNormal(tabId, index as number);
     } else if (CTRL_ONLY) {
-      st().moveFocusOnly(tab.id, index as number);
+      st().moveFocusOnly(tabId, index as number);
     } else if (SHIFT_ONLY) {
-      st().moveFocusWithSelectionArea(tab.id, index as number);
+      st().moveFocusWithSelectionArea(tabId, index as number);
     }
     e.preventDefault();
     virtuoso.scrollIntoView({ index });
@@ -95,7 +97,7 @@ export function tabFiles_handleKeyDown(
   // 1ファイルの選択ON/OFF
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && e.key === ' ') {
-    st().toggleSelection(tab.id, focusIndex);
+    st().toggleSelection(tabId, focusIndex);
     e.preventDefault();
     return true;
   }
@@ -104,7 +106,7 @@ export function tabFiles_handleKeyDown(
   // 全選択切替
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && keyLow === 'a') {
-    st().toggleAllSelection(tab.id);
+    st().toggleAllSelection(tabId);
     e.preventDefault();
     return true;
   }
@@ -113,11 +115,10 @@ export function tabFiles_handleKeyDown(
   // ディレクトリ移動
   // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && e.key === 'Enter') {
-    const sel = st().getSelection(tab.id);
     const ent = dirEntries[sel.focusIndex];
     if (!ent.is_dir) return false;
 
-    fileCommands.moveToChildDirectory(ent.name);
+    fileCommands.moveToChildDirectory(ent);
     e.preventDefault();
     return true;
   }
@@ -131,6 +132,7 @@ export function tabFiles_handleKeyDown(
 }
 
 export function tabFiles_handleMouseClick(e: React.MouseEvent, tab: UiTab, fileIndex: number): boolean {
+  const tabId = tab.info.id;
   const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
   const CTRL = C && !S && !A;
   const SHIFT = !C && S && !A;
@@ -140,12 +142,12 @@ export function tabFiles_handleMouseClick(e: React.MouseEvent, tab: UiTab, fileI
   searchCommands.cancel();
 
   if (NO_MOD) {
-    st().moveFocusNormal(tab.id, fileIndex);
+    st().moveFocusNormal(tabId, fileIndex);
   } else if (CTRL) {
-    st().moveFocusOnly(tab.id, fileIndex);
-    st().toggleSelection(tab.id, fileIndex);
+    st().moveFocusOnly(tabId, fileIndex);
+    st().toggleSelection(tabId, fileIndex);
   } else if (SHIFT) {
-    st().moveFocusWithSelectionArea(tab.id, fileIndex);
+    st().moveFocusWithSelectionArea(tabId, fileIndex);
   } else {
     return false;
   }

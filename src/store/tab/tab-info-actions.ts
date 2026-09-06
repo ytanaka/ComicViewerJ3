@@ -20,27 +20,29 @@ export const createUiTabActions: StateCreator<
     updateTab: (tabId: TabId, newTab: TabInfo) => {
       // 以前のフォーカス状態をなるべく保持する
       const tab = get().getTab(tabId);
+      if (!tab) return;
       const fileList = getQueryData_getDirEntries(tabId);
-      if (!tab || !fileList) return;
       const sel = { ...tab.selection };
-      const prevName: string | undefined = get().findHistory(tabId, tab.info.path);
-      const newName: string | undefined = fileList[sel.focusIndex]?.name;
-      if (!!prevName && prevName === newName) {
-        // 新しいリストの同じ位置に同じ名前がある
-        sel.selectionIndexes = new Set([sel.focusIndex]);
-        sel.anchorIndex = sel.focusIndex;
-      } else {
-        const find = fileList.findIndex(f => f.name === prevName);
-        if (0 <= find) {
-          // フォーカスしていたファイルが別の位置に移動した
-          sel.focusIndex = find;
+      if (fileList) {
+        const prevName: string | undefined = get().findHistory(tabId, tab.info.path);
+        const newName: string | undefined = fileList[sel.focusIndex]?.name;
+        if (!!prevName && prevName === newName) {
+          // 新しいリストの同じ位置に同じ名前がある
           sel.selectionIndexes = new Set([sel.focusIndex]);
           sel.anchorIndex = sel.focusIndex;
         } else {
-          // フォーカスしていたファイルがなくなった
-          sel.focusIndex = 0;
-          sel.selectionIndexes = fileList.length === 0 ? new Set() : new Set([sel.focusIndex]);
-          sel.anchorIndex = sel.focusIndex;
+          const find = fileList.findIndex(f => f.name === prevName);
+          if (0 <= find) {
+            // フォーカスしていたファイルが別の位置に移動した
+            sel.focusIndex = find;
+            sel.selectionIndexes = new Set([sel.focusIndex]);
+            sel.anchorIndex = sel.focusIndex;
+          } else {
+            // フォーカスしていたファイルがなくなった
+            sel.focusIndex = 0;
+            sel.selectionIndexes = fileList.length === 0 ? new Set() : new Set([sel.focusIndex]);
+            sel.anchorIndex = sel.focusIndex;
+          }
         }
       }
 

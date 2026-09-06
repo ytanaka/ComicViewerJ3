@@ -50,7 +50,8 @@ function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent, virtuoso: Virtuoso
 
   // 検索する (非同期実行で)
   const tab = st().getCurrentTab();
-  const focusIndex = st().getSelection(tab.id).focusIndex;
+  if (!tab) return false;
+  const focusIndex = tab.selection.focusIndex;
   const reverse = false;
   searchCommands.searchNextFilename(tab, focusIndex, romaji, reverse, virtuoso);
 

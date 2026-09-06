@@ -33,10 +33,10 @@ export interface FileFocus {
 
 let nextDummyTabId = -1;
 
-export function mkDummyTab(path: string): TabInfo {
+export function getNextDummyTabId(): TabId {
   const tabId = nextDummyTabId;
   nextDummyTabId += 1;
-  return { id: tabId as TabId, path }
+  return tabId as TabId;
 }
 export function mkUiTab(tab: TabInfo): UiTab {
   return {
@@ -56,7 +56,7 @@ export function mkFileSelection(): FileSelection {
   return {
     focusIndex: 0,
     anchorIndex: 0,
-    selectionIndexes: new Set<number>(),
+    selectionIndexes: new Set(),
   };
 }
 

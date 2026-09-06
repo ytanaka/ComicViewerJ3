@@ -23,7 +23,7 @@ pub async fn create_tab(
     state: State<'_, Arc<AppState>>,
     path: String,
 ) -> Result<TabInfoUI, String> {
-    LOG_RESULT!(format!("create_tab({path}"), {
+    LOG_RESULT!(format!("create_tab({path})"), {
         create_tab_imp(&state, path)
             .await
             .map_err(|e| e.to_string())
