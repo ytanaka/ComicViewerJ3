@@ -24,10 +24,9 @@ export interface UiState {
   fileSearchResultDisplayTimeoutMs: number;
 }
 
-type UiState_and_Action = UiState
-  & {
-    setField: <K extends keyof UiState>(key: K, value: UiState[K]) => void;
-  };
+type UiState_and_Action = UiState & {
+  setField: <K extends keyof UiState>(key: K, value: UiState[K]) => void;
+};
 
 export const useUiStore = create<UiState_and_Action>()(
   persist(

@@ -1,7 +1,7 @@
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
 import { InputGroup, InputGroupInput } from '@/components/ui/input-group';
 import { Separator } from '@/components/ui/separator';
-import { MAX_TAB_NUM_LIMIT, useUiStore } from "@/store/ui-store";
+import { MAX_TAB_NUM_LIMIT, useUiStore } from '@/store/ui-store';
 
 export function GeneralPane() {
   const maxTabNum = useUiStore(state => state.maxTabNum);
@@ -29,5 +29,4 @@ export function GeneralPane() {
       </FieldGroup>
     </FieldSet>
   );
-
 }
