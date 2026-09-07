@@ -24,14 +24,13 @@ export const createFileSelectionActions: StateCreator<
   [],
   FileSelectionActions
 > = (set, get) => ({
-
   // DirEntry[] を読み込んだ後、以前のファイルフォーカス位置を復元する
   restoreDirFocus: (tabId: TabId, dirEntries: DirEntry[]) => {
     const tab = get().getTab(tabId);
     if (!tab) return;
     const name = get().findHistory(tabId, tab.info.path);
     if (!name) return;
-    const sel = mkFileSelection()
+    const sel = mkFileSelection();
     const find = dirEntries.findIndex(f => f.name === name);
     if (0 <= find) {
       // フォーカスしていたファイルが見つかった
@@ -46,10 +45,10 @@ export const createFileSelectionActions: StateCreator<
     }
 
     set(state => {
-      _useTabStore_setExistTabFields(state, tabId, (tab) => {
+      _useTabStore_setExistTabFields(state, tabId, tab => {
         tab.selection = sel;
-      })
-    })
+      });
+    });
 
     useScrollToFocusStore.getState().setScroll(true);
   },

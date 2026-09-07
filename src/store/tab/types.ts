@@ -17,7 +17,7 @@ export interface UiTab {
   sortCondition: SortCondition;
   selection: FileSelection;
   focusHistories: FileFocus[]; // 先頭が古いデータ
-  refreshCount: number; // ソートされると + 1 // TODO
+  refreshCount: number; // ソートされると + 1
 }
 export interface FileSelection {
   focusIndex: number;

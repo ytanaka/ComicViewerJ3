@@ -116,7 +116,7 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
         data.data.forEach(fileInfo => {
           queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo, fileInfo.file_id), fileInfo);
         });
-        return undefined; // TODO このhookはFileList内部に記述されるので、データを取得しても更新しないようにする
+        return undefined; // このhookの戻り値を使用することはないのでデータを返す必要はない
       }
     },
   });

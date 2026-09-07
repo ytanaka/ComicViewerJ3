@@ -87,6 +87,8 @@ export function tabFiles_handleKeyDown(
       st().moveFocusOnly(tabInfo.id, index as number);
     } else if (SHIFT_ONLY) {
       st().moveFocusWithSelectionArea(tabInfo.id, index as number);
+    } else {
+      return false;
     }
     e.preventDefault();
     virtuoso.scrollIntoView({ index });

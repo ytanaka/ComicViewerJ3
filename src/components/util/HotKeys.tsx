@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 export function HotKeys() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (e.repeat) return;
       if (dialogCommands.isOpenAnyDialog()) return;
 
       const menus = getAllMenuItems();
@@ -18,6 +19,7 @@ export function HotKeys() {
         if (m.hotkey.shift && !e.shiftKey) continue;
         if (m.hotkey.key !== e.key.toLowerCase()) continue;
         e.preventDefault();
+        e.stopPropagation();
         e.stopImmediatePropagation();
         m.exec();
         searchCommands.cancel();
