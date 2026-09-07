@@ -2,7 +2,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { open as tauri_open } from '@tauri-apps/plugin-dialog';
 import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 
-import { tabCommands } from './tab-commands';
+import { _checkMaxTabs, tabCommands } from './tab-commands';
 import { useTabStore } from '@/store/tab/store';
 import { rustcmds } from '../bindings-wrapper';
 
@@ -17,6 +17,7 @@ export const windowCommands = {
   // ユーザーが選択したディレクトリで新しいタブを開く
   // ※ OSのダイアログを開いてユーザーに尋ねる
   async openDirectory() {
+    if (!_checkMaxTabs()) return;
     let path = useTabStore.getState().getCurrentTab()?.info.path;
     if (!path) {
       path = await tauri_homeDir();

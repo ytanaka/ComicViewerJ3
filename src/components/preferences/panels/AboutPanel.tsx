@@ -7,17 +7,17 @@ import { useUiStore } from '@/store/ui-store';
 
 export function AboutPane() {
   const debugPreferenceOn = useUiStore(state => state.debugPreferenceOn);
-  const setDebugPreferenceOn = useUiStore(state => state.setDebugPreferenceOn);
+  const setField = useUiStore(state => state.setField);
   const [clickCount, setClickCount] = useState(0);
 
   function handleTitleClick() {
     setClickCount(prev => prev + 1);
     if (10 < clickCount && !debugPreferenceOn) {
-      setDebugPreferenceOn(true);
+      setField('debugPreferenceOn', true);
     }
   }
   function handleClick_debugOff() {
-    setDebugPreferenceOn(false);
+    setField('debugPreferenceOn', false);
   }
   function openExplorer(fn: () => Promise<string>) {
     return async () => {

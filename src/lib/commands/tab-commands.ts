@@ -7,6 +7,8 @@ import { logResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper
 import { removeQueries_tab } from '@/services/files';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { logErr } from '../log';
+import { useUiStore } from '@/store/ui-store';
+import { toast } from 'sonner';
 
 function st() {
   return useTabStore.getState();
@@ -15,20 +17,30 @@ function st() {
 async function _addTab(result: RustCmdResult<TabInfo>) {
   logResult('rustcmds.create_clene_Tab(...)', result);
   if (result.status === 'error') {
-      logErr(result);
+    logErr(result);
   } else {
     st().addTab(mkUiTab(result.data));
   }
+}
+export function _checkMaxTabs() {
+  const max = useUiStore.getState().maxTabNum;
+  if (max <= st().tabs.length) {
+    toast(`最大タブ数(${max}): 設定画面で変更可能です`, { id: 'max-tabs-alert' });
+    return false;
+  }
+  return true;
 }
 
 export const tabCommands = {
   // タブを開く (ホームディレクトリ)
   async addTab_homeDir() {
+    if (!_checkMaxTabs()) return;
     _addTab(await rustcmds.createTab(await tauri_homeDir()));
   },
 
   // タブを開く (現在のタブと同じディレクトリ)
   async cloneCurrentTab() {
+    if (!_checkMaxTabs()) return;
     const currentTab = st().getCurrentTab();
     if (!currentTab) {
       await this.addTab_homeDir();
@@ -41,7 +53,7 @@ export const tabCommands = {
   // index を渡すと、インデックスにあるタブをコピーする
   // path を渡すと、そのパスでタブを開く
   async cloneTab(path: string) {
-    if (20 <= st().tabs.length) return; // TODO
+    if (!_checkMaxTabs()) return;
     const absPath = await tauri_path_resolve(path);
     _addTab(await rustcmds.createTab(absPath));
   },

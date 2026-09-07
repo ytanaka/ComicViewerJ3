@@ -65,7 +65,7 @@ export function PreferencesDialog() {
             <DialogTitle>設定</DialogTitle>
           </DialogHeader>
           <Tabs
-            defaultValue={preferenceDialogTabId}
+            value={preferenceDialogTabId}
             onValueChange={setPreferenceDialogTabId}
             className="pt-3"
             orientation="vertical"

@@ -8,54 +8,37 @@ export enum FileListHeaderN {
   Size,
   Date,
 }
+export const MAX_TAB_NUM_LIMIT = 30;
 
 // localStrage に保存するUIの設定
-export interface UiStore {
+export interface UiState {
   // 設定画面でデバッグ項目を編集可能にする
   debugPreferenceOn: boolean;
-
+  // 最大タブ数
+  maxTabNum: number;
   // FileListのヘッダーサイズ
   fileListHeaderSizes: number[];
-
   // ファイル検索テキスト入力のタイムアウト
   fileSearchInputTimeoutMs: number;
-
   // ファイル検索結果を表示するタイムアウト
   fileSearchResultDisplayTimeoutMs: number;
-
-  setDebugPreferenceOn: (b: boolean) => void;
-  setFileListHeaderSizes: (sizes: number[]) => void;
-  setFileSearchInputTimeoutMs: (ms: number) => void;
-  setFileSearchResultDisplayTimeoutMs: (ms: number) => void;
 }
 
-export const useUiStore = create<UiStore>()(
+type UiState_and_Action = UiState
+  & {
+    setField: <K extends keyof UiState>(key: K, value: UiState[K]) => void;
+  };
+
+export const useUiStore = create<UiState_and_Action>()(
   persist(
     set => ({
       debugPreferenceOn: false,
+      maxTabNum: 10,
       fileListHeaderSizes: [35, 500, 100, 120, 180],
       fileSearchInputTimeoutMs: 2000,
       fileSearchResultDisplayTimeoutMs: 2000,
 
-      setDebugPreferenceOn: (b: boolean) => {
-        set(() => {
-          return { debugPreferenceOn: b };
-        });
-      },
-
-      setFileListHeaderSizes: (sizes: number[]) => {
-        set(() => {
-          return { fileListHeaderSizes: sizes };
-        });
-      },
-
-      setFileSearchInputTimeoutMs: (ms: number) => {
-        set(() => ({ fileSearchInputTimeoutMs: ms }));
-      },
-
-      setFileSearchResultDisplayTimeoutMs: (ms: number) => {
-        set(() => ({ fileSearchResultDisplayTimeoutMs: ms }));
-      },
+      setField: (key, value) => set({ [key]: value }),
     }),
     {
       name: 'ui-state',

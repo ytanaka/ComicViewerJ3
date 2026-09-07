@@ -1,5 +1,6 @@
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { Separator } from '@/components/ui/separator';
 import { usePreferences, useSavePreferences } from '@/hooks/preferences';
 import { ChangeEvent } from 'react';
 
@@ -19,6 +20,7 @@ export function DebugPane() {
       <FieldLegend>デバッグ設定</FieldLegend>
       <FieldDescription>※ 触らないこと</FieldDescription>
       <FieldGroup>
+        <Separator />
         <Field>
           <FieldLabel>ファイルサーチ時に100ファイル確認ごとにスリープを入れる</FieldLabel>
           <InputGroup className="max-w-40">

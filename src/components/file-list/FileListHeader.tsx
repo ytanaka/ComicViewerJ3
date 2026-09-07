@@ -13,7 +13,7 @@ interface HeaderInfo {
 
 export function FileListHeader() {
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
-  const setFileListHeaderSizes = useUiStore(state => state.setFileListHeaderSizes);
+  const setField = useUiStore(state => state.setField);
   const sortCondition = useTabStore(state => state.getCurrentTab()?.sortCondition ?? mkDefaultSortCondition());
 
   const titles: HeaderInfo[] = [
@@ -40,7 +40,7 @@ export function FileListHeader() {
       } else {
         newSizes[index] = Math.min(250, Math.max(10, startWidth - moveRight));
       }
-      setFileListHeaderSizes(newSizes);
+      setField('fileListHeaderSizes', newSizes);
     };
 
     const onMouseUp = () => {
