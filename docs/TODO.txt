@@ -1,2 +1,4 @@
 useTabStore のデータ構造変更
 キー押しっぱなし試験 (alt+1, enter, backspace, ctrl+pageup)
+
+ファイルが更新されたらUI更新

@@ -54,6 +54,10 @@ export function useCmdGetDirEntries(tabInfo: TabInfo) {
     queryFn: async () => {
       const result = await rustcmds.getDirEntries(tabInfo.id);
       logResult(`rustcmds.getDirEntries(${tabInfo.id})`, result);
+      if (result.status === 'ok') {
+        // ファイル一覧が取得出来たら、以前のディレクトリでのファイルフォーカス位置を復元する
+        useTabStore.getState().restoreDirFocus(tabInfo.id, result.data);
+      }
       return result;
     },
     enabled: 0 < tabInfo.id,

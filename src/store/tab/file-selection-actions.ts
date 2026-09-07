@@ -1,12 +1,13 @@
 import { StateCreator } from 'zustand';
 import { TabStore } from './store';
-import { _useTabStore_setExistTabFields, FileSelection, TabId } from './types';
+import { _useTabStore_setExistTabFields, mkFileSelection, TabId } from './types';
 import { _useTabStore_pushHistoryCurrentFile_toImmer } from './file-focus-history-actions';
 import { getQueryData_getDirEntries, getQueryData_getDirEntry } from '@/services/files';
+import { useScrollToFocusStore } from '../scroll-to-focus-store';
+import { DirEntry } from '@/lib/bindings-wrapper';
 
 export interface FileSelectionActions {
-  getSelection: (tabId: TabId) => FileSelection | undefined;
-  setSelection: (tabId: TabId, sel: FileSelection) => void;
+  restoreDirFocus: (tabId: TabId, dirEntries: DirEntry[]) => void;
 
   moveFocusNormal: (tabId: TabId, index: number) => void;
   moveFocusOnly: (tabId: TabId, index: number) => void;
@@ -23,15 +24,34 @@ export const createFileSelectionActions: StateCreator<
   [],
   FileSelectionActions
 > = (set, get) => ({
-  getSelection: (tabId: TabId) => {
-    return get().getTab(tabId)?.selection;
-  },
-  setSelection: (tabId: TabId, sel: FileSelection) => {
+
+  // DirEntry[] を読み込んだ後、以前のファイルフォーカス位置を復元する
+  restoreDirFocus: (tabId: TabId, dirEntries: DirEntry[]) => {
+    const tab = get().getTab(tabId);
+    if (!tab) return;
+    const name = get().findHistory(tabId, tab.info.path);
+    if (!name) return;
+    const sel = mkFileSelection()
+    const find = dirEntries.findIndex(f => f.name === name);
+    if (0 <= find) {
+      // フォーカスしていたファイルが見つかった
+      sel.focusIndex = find;
+      sel.selectionIndexes = new Set([sel.focusIndex]);
+      sel.anchorIndex = sel.focusIndex;
+    } else {
+      // フォーカスしていたファイルがなくなった
+      sel.focusIndex = 0;
+      sel.selectionIndexes = dirEntries.length === 0 ? new Set() : new Set([sel.focusIndex]);
+      sel.anchorIndex = sel.focusIndex;
+    }
+
     set(state => {
-      _useTabStore_setExistTabFields(state, tabId, tab => {
+      _useTabStore_setExistTabFields(state, tabId, (tab) => {
         tab.selection = sel;
-      });
-    });
+      })
+    })
+
+    useScrollToFocusStore.getState().setScroll(true);
   },
 
   // ↑↓で普通にフォーカス移動、マウスクリックでファイル選択
