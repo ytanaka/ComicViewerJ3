@@ -15,6 +15,7 @@ import { FileId } from '@/store/tab/types';
 import { getObjId } from '@/lib/utils';
 import { create } from 'zustand';
 import { TabInfo } from '@/lib/bindings-wrapper';
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 
 function st() {
   return useTabStore.getState();
@@ -99,6 +100,25 @@ export default function FileList() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }); // 初回だけ実行する
+
+  // スクロール位置調整
+  const doScroll = useScrollToFocusStore(state => state.doScroll);
+  const setScroll = useScrollToFocusStore(state => state.setScroll);
+  useEffect(() => {
+    if (!doScroll) return;
+    function scr() {
+      const focusIndex = st().getCurrentTab()?.selection.focusIndex;
+      if (focusIndex !== undefined) {
+        virtuoso.current?.scrollIntoView({
+          index: focusIndex,
+        });
+      }
+    }
+
+    // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
+    setTimeout(() => scr(), 100);
+    setScroll(false);
+  }, [doScroll, setScroll]); // スクロールが指示されたら実行する
 
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
 

@@ -5,6 +5,7 @@ import { useTabStore } from '@/store/tab/store';
 import { mkUiTab, TabId } from '@/store/tab/types';
 import { logResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/files';
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 
 function st() {
   return useTabStore.getState();
@@ -54,6 +55,7 @@ export const tabCommands = {
     } else {
       st().removeTab(tabId);
       removeQueries_tab(tabId);
+      useScrollToFocusStore.getState().setScroll(true);
     }
   },
 
@@ -67,6 +69,7 @@ export const tabCommands = {
   // フォーカスするタブの指定
   setCurrentTabIndex(index: number) {
     st().setCurrentTabIndex(index);
+    useScrollToFocusStore.getState().setScroll(true);
   },
 
   // フォーカスするタブを移動

@@ -45,7 +45,7 @@ export const createFileSelectionActions: StateCreator<
         sel.anchorIndex = index;
         sel.selectionIndexes = new Set([index]);
       });
-      _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId);
+      _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId, index);
     });
   },
 
@@ -59,7 +59,7 @@ export const createFileSelectionActions: StateCreator<
         sel.focusIndex = index;
         sel.anchorIndex = index;
       });
-      _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId);
+      _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId, index);
     });
   },
 
@@ -84,7 +84,7 @@ export const createFileSelectionActions: StateCreator<
           sel.selectionIndexes.add(i);
         }
       });
-      _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId);
+      _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId, index);
     });
   },
 
@@ -100,7 +100,6 @@ export const createFileSelectionActions: StateCreator<
           sel.selectionIndexes.add(index);
         }
       });
-      _useTabStore_pushHistoryCurrentFile_toImmer(state, tabId);
     });
   },
 
