@@ -13,7 +13,11 @@ export function removeQueries_tab(tabId: TabId) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-export function queryKey_useCmdCreateTab(tabInfo: TabInfo) {
+// タブ作成
+// ※ zustand が localStrage から復元したタブはまだRust側と結び付けられていないので、ここで結び付ける
+// ※ 普通のタブ作成は、タブ作成時に TabInfo.id が設定されているのでここでは処理しない
+
+function queryKey_useCmdCreateTab(tabInfo: TabInfo) {
   return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, 'createTab'];
 }
 
@@ -39,8 +43,9 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// タブのファイル一覧を表示するため、DirEntry[] 取得
 
-export function queryKey_useCmdGetDirEntries(tabId: TabId) {
+function queryKey_useCmdGetDirEntries(tabId: TabId) {
   return [HEAD_QUERY_KEY_FOR_TAB_ID, tabId, 'getDirEntries'];
 }
 export function useCmdGetDirEntries(tabInfo: TabInfo) {
@@ -80,11 +85,12 @@ export function removeQueries_getDirEntries(tabId: TabId) {
   myQueryClient.removeQueries({ queryKey: queryKey_useCmdGetDirEntries(tabId) });
 }
 // ---------------------------------------------------------------------------------------------------------------------
+// タブ内の個々のファイルを表示するための情報取得
 
-export function queryKey_useFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
+function queryKey_useFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, 'getFileInfos', fileIds];
 }
-export function queryKey_useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
+function queryKey_useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
   return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, 'getFileInfo', fileId];
 }
 export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {

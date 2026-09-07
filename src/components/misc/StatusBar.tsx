@@ -14,7 +14,7 @@ export function StatusBar() {
 function NormalStatusBar() {
   const tab = useTabStore(state => state.getCurrentTab()!);
   const selection = tab.selection;
-  const { data: data } = useCmdGetDirEntries(tab.info);
+  const { data: data } = useCmdGetDirEntries(tab.info); // TODO
 
   let msg: string | undefined;
   let errMsg: string | undefined;

@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { ItemProps, ListRange, TableProps, TableVirtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
@@ -13,6 +13,8 @@ import { useUiStore } from '@/store/ui-store';
 import { useCmdCreateTab, useCmdFileInfosQuery, useCmdGetDirEntries } from '@/services/files';
 import { FileId } from '@/store/tab/types';
 import { getObjId } from '@/lib/utils';
+import { create } from 'zustand';
+import { TabInfo } from '@/lib/bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -22,7 +24,6 @@ export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
-  const [scrollFileIds, setScrollFileIds] = useState<FileId[]>([]);
 
   console.debug(
     `<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} `
@@ -32,8 +33,6 @@ export default function FileList() {
   useCmdCreateTab(tab);
   // ファイル一覧取得
   const { data: dirEntries } = useCmdGetDirEntries(tab);
-  // スクロール範囲のファイル情報取得
-  useCmdFileInfosQuery(tab, scrollFileIds);
 
   // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
   useEffect(() => {
@@ -72,7 +71,7 @@ export default function FileList() {
         const ent = dirEntries[i];
         if (ent) fileIds.push(ent.file_id);
       }
-      setScrollFileIds(fileIds);
+      useScrollFileIdsStore.getState().setFileIds(fileIds);
     }
   };
 
@@ -105,6 +104,7 @@ export default function FileList() {
 
   return (
     <div className="flex flex-1 flex-col">
+      <CmdFileInfosQueryWrapper tab={tab} />
       <div className="flex-1">
         {dirEntries === undefined ? (
           <div>更新中</div>
@@ -142,3 +142,23 @@ export default function FileList() {
     </div>
   );
 }
+
+// <FileList> 内にスクロールした結果を useState<ListRange>() すると、スクロールするたびに <FileList> がレンダーされるので、
+// このコンポーネントを <FileList> の子にする
+export function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
+  const fileIds = useScrollFileIdsStore(state => state.fileIds);
+  useCmdFileInfosQuery(tab, fileIds);
+  return (<></>)
+}
+
+export interface ScrollFileIdsStore {
+  fileIds: FileId[];
+  setFileIds: (fileIds: FileId[]) => void;
+}
+
+export const useScrollFileIdsStore = create<ScrollFileIdsStore>()(set => ({
+  fileIds: [],
+  setFileIds: (fileIds: FileId[]) => {
+    set(() => ({ fileIds }))
+  },
+}));
