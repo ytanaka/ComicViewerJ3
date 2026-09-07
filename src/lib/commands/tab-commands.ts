@@ -6,17 +6,18 @@ import { mkUiTab, TabId } from '@/store/tab/types';
 import { logResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/files';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
+import { logErr } from '../log';
 
 function st() {
   return useTabStore.getState();
 }
 
-async function _addTab(cmdResult: RustCmdResult<TabInfo>) {
-  logResult('rustcmds.create_clene_Tab(...)', cmdResult);
-  if (cmdResult.status === 'error') {
-    // TODO
+async function _addTab(result: RustCmdResult<TabInfo>) {
+  logResult('rustcmds.create_clene_Tab(...)', result);
+  if (result.status === 'error') {
+      logErr(result);
   } else {
-    st().addTab(mkUiTab(cmdResult.data));
+    st().addTab(mkUiTab(result.data));
   }
 }
 
@@ -51,7 +52,7 @@ export const tabCommands = {
     const result = await rustcmds.removeTab(tabId);
     logResult(`rustcmds.removeTab(${tabId})`, result);
     if (result.status === 'error') {
-      // TODO
+      logErr(result);
     } else {
       st().removeTab(tabId);
       removeQueries_tab(tabId);

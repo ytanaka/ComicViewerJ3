@@ -1,5 +1,6 @@
 import { useTabStore } from '@/store/tab/store';
 import { DirEntry, logResult, rustcmds } from '../bindings-wrapper';
+import { logErr } from '../log';
 
 function st() {
   return useTabStore.getState();
@@ -13,7 +14,7 @@ export const fileCommands = {
     const result = await rustcmds.cloneTabParentDir(tab.info.id);
     logResult(`rustcmds.cloneTabParentDir(${tab.info.id})`, result);
     if (result.status === 'error') {
-      // TODO
+      logErr(result);
     } else {
       st().updateTab(tab.info.id, result.data);
     }
@@ -26,7 +27,7 @@ export const fileCommands = {
     const result = await rustcmds.cloneTabChildDir(tab.info.id, dirEntry.file_id);
     logResult(`rustcmds.cloneTabChildDir(${tab.info.id},${dirEntry.file_id})`, result);
     if (result.status === 'error') {
-      // TODO
+      logErr(result);
     } else {
       st().updateTab(tab.info.id, result.data);
     }

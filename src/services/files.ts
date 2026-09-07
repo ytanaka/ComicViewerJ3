@@ -1,4 +1,5 @@
 import { DirEntry, FileInfo, logResult, RustCmdResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
+import { logErr } from '@/lib/log';
 import { myQueryClient } from '@/lib/query-client';
 import { useTabStore } from '@/store/tab/store';
 import { FileId, TabId } from '@/store/tab/types';
@@ -32,7 +33,7 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
     enabled: tabInfo.id < 0,
     select: data => {
       if (data.status === 'error') {
-        // TODO error
+        logErr(data);
         return undefined;
       } else {
         useTabStore.getState().updateTab(tabInfo.id, data.data);
@@ -134,7 +135,7 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
     enabled: 0 < tabInfo.id && 0 < fileIds.length,
     select: data => {
       if (data.status === 'error') {
-        // TODO
+        logErr(data);
         return undefined;
       } else {
         // ここで取得したデータは個別に取得するので、キャッシュに格納しておく

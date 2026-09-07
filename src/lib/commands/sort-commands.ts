@@ -3,6 +3,7 @@ import { logResult, rustcmds, SortType_type } from '../bindings-wrapper';
 import { toast } from 'sonner';
 import { removeQueries_getDirEntries } from '@/services/files';
 import { DelayedToast } from '../delayed-toast';
+import { logErr } from '../log';
 
 export const sortCommands = {
   async sortFiles(type: SortType_type) {
@@ -21,7 +22,7 @@ export const sortCommands = {
       const result = await rustcmds.sortFiles(tab.info.id, cond);
       logResult(`rustcmds.sortFiles(${tab.info.id},${cond})`, result);
       if (result.status === 'error') {
-        // TODO
+        logErr(result);
         toast.error(`${result.error}`);
       } else if (!result.data) {
         toast.error('このディレクトリではまだソートの準備ができていません', { id: 'sort-not-yet-ready' });
