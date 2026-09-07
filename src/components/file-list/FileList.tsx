@@ -22,11 +22,10 @@ export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
-  const sel = useTabStore(state => state.getSelection(tab.id));
   const [scrollFileIds, setScrollFileIds] = useState<FileId[]>([]);
 
   console.debug(
-    `<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} sel:${getObjId(sel)}`
+    `<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} `
   );
 
   // タブ情報作成
@@ -134,7 +133,6 @@ export default function FileList() {
                 </table>
               ),
             }}
-            initialTopMostItemIndex={{ index: sel ? sel.focusIndex : 0, align: 'center' }}
             fixedHeaderContent={FileListHeader}
             totalCount={dirEntries.length}
             rangeChanged={handleRangeChanged}
