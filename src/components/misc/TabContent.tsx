@@ -15,11 +15,11 @@ export function TabContent() {
     }
   }, [getFocus, doneFocus]);
 
-  const tabs = useTabStore(state => state.tabs);
+  const tabsLength = useTabStore(state => state.tabs.length);
 
   return (
     <div ref={ref} tabIndex={0} style={{ outline: 'none' }} className="flex flex-1 select-none">
-      {tabs.length !== 0 ? (
+      {tabsLength !== 0 ? (
         <FileList />
       ) : (
         <div className="w-full h-full justify-center items-center text-xl">No Tabs</div>
