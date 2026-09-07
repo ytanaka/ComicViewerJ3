@@ -48,21 +48,32 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
 function queryKey_useCmdGetDirEntries(tabId: TabId) {
   return [HEAD_QUERY_KEY_FOR_TAB_ID, tabId, 'getDirEntries'];
 }
+async function queryFn_getDirEntries(tabId: TabId) {
+  const result = await rustcmds.getDirEntries(tabId);
+  logResult(`rustcmds.getDirEntries(${tabId})`, result);
+  if (result.status === 'ok') {
+    // ファイル一覧が取得出来たら、以前のディレクトリでのファイルフォーカス位置を復元する
+    useTabStore.getState().restoreDirFocus(tabId, result.data);
+  }
+  return result;
+}
 export function useCmdGetDirEntries(tabInfo: TabInfo) {
   return useQuery({
     queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
-    queryFn: async () => {
-      const result = await rustcmds.getDirEntries(tabInfo.id);
-      logResult(`rustcmds.getDirEntries(${tabInfo.id})`, result);
-      if (result.status === 'ok') {
-        // ファイル一覧が取得出来たら、以前のディレクトリでのファイルフォーカス位置を復元する
-        useTabStore.getState().restoreDirFocus(tabInfo.id, result.data);
-      }
-      return result;
-    },
+    queryFn: async () => (queryFn_getDirEntries(tabInfo.id)),
     enabled: 0 < tabInfo.id,
     select: data => {
       return select_getDirEntries(data);
+    },
+  });
+}
+export function useCmdGetDirEntries_error(tabInfo: TabInfo) {
+  return useQuery({
+    queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
+    queryFn: async () => (queryFn_getDirEntries(tabInfo.id)),
+    enabled: 0 < tabInfo.id,
+    select: data => {
+      return select_getDirEntries_error(data);
     },
   });
 }

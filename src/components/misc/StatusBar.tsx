@@ -1,4 +1,4 @@
-import { getQueryData_getDirEntries, getQueryData_getDirEntries_error } from '@/services/files';
+import { useCmdGetDirEntries, useCmdGetDirEntries_error } from '@/services/files';
 import { useTabStore } from '@/store/tab/store';
 
 export function StatusBar() {
@@ -14,8 +14,11 @@ export function StatusBar() {
 function NormalStatusBar() {
   const tab = useTabStore(state => state.getCurrentTab()!.info);
   const selSize = useTabStore(state => state.getCurrentTab()!.selection.selectionIndexes.size);
-  const errMsg = getQueryData_getDirEntries_error(tab.id);
-  const fileNum = getQueryData_getDirEntries(tab.id)?.length;
+  const { data: errMsg } = useCmdGetDirEntries_error(tab);
+  const { data: dirEntries } = useCmdGetDirEntries(tab);
+  const fileNum = dirEntries?.length;
+
+  console.log(`<NormalStatusBar> tab(${tab.id}) sel=${selSize} fileNum=${fileNum}`)
 
   let msg: string | undefined;
   if (fileNum !== undefined) {
