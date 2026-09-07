@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    future::Future,
     path::Path,
     sync::{atomic::Ordering::SeqCst, Arc, RwLock},
 };
@@ -11,11 +12,45 @@ use crate::{
     commands::fs_util,
     file_operations::file_utils,
     state::{app_state::AppState, tab_info::TabInfo},
-    types::{DirEntryUI, FileInfoUI, SortCondition, TabId, TabInfoUI},
+    types::{DirEntryUI, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI},
     LOG_RESULT,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
+#[derive(Debug)]
+struct CreateTabResult {
+    tab: TabInfoUI,
+    min_file_id: Option<FileId>,
+    max_file_id: Option<FileId>,
+}
+impl CreateTabResult {
+    fn new(tab: TabInfoUI, min_file_id: Option<FileId>, max_file_id: Option<FileId>) -> Self {
+        CreateTabResult {
+            tab,
+            min_file_id,
+            max_file_id,
+        }
+    }
+}
+async fn log_create_tab_result(
+    comment: String,
+    result: impl Future<Output = anyhow::Result<CreateTabResult>>,
+) -> Result<TabInfoUI, String> {
+    let result = result.await;
+    match &result {
+        Ok(r) => {
+            let msg = match (r.min_file_id, r.max_file_id) {
+                (Some(min), Some(max)) => format!("[{min}-{max}]"),
+                _ => "[]".to_string(),
+            };
+            log::trace!("{comment}: Ok({msg})");
+        }
+        Err(e) => {
+            log::trace!("{comment}: Err({e})");
+        }
+    }
+    result.map(|r| r.tab).map_err(|e| e.to_string())
+}
 #[tauri::command]
 #[specta::specta]
 /// タブ作成 (絶対パス)
@@ -23,13 +58,12 @@ pub async fn create_tab(
     state: State<'_, Arc<AppState>>,
     path: String,
 ) -> Result<TabInfoUI, String> {
-    LOG_RESULT!(format!("create_tab({path})"), {
-        create_tab_imp(&state, path)
-            .await
-            .map_err(|e| e.to_string())
-    })
+    log_create_tab_result(format!("create_tab({path})"), create_tab_imp(&state, path)).await
 }
-async fn create_tab_imp(state: &AppState, arg_path: impl AsRef<Path>) -> anyhow::Result<TabInfoUI> {
+async fn create_tab_imp(
+    state: &AppState,
+    arg_path: impl AsRef<Path>,
+) -> anyhow::Result<CreateTabResult> {
     // ディレクトリチェック
     let arg_path = arg_path.as_ref().to_path_buf();
     if !arg_path.is_absolute() {
@@ -55,6 +89,8 @@ async fn create_tab_imp(state: &AppState, arg_path: impl AsRef<Path>) -> anyhow:
     }
     let names: Vec<_> = files_map.values().map(|v| v.name.clone()).collect();
     let file_ids: Vec<_> = files_map.keys().copied().collect();
+    let min = file_ids.iter().min().copied();
+    let max = file_ids.iter().max().copied();
 
     // タブ作成
     let tab_id = state.next_tab_id.fetch_add(1, SeqCst);
@@ -71,7 +107,7 @@ async fn create_tab_imp(state: &AppState, arg_path: impl AsRef<Path>) -> anyhow:
         state.metadata_worker.send_to_worker(tab_id, file_ids);
     }
 
-    Ok(tab_ui)
+    Ok(CreateTabResult::new(tab_ui, min, max))
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -82,13 +118,13 @@ pub async fn clone_tab(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
 ) -> Result<TabInfoUI, String> {
-    LOG_RESULT!(format!("clone_tab({tab_id})"), {
-        clone_tab_impl(&state, tab_id)
-            .await
-            .map_err(|e| e.to_string())
-    })
+    log_create_tab_result(
+        format!("clone_tab({tab_id})"),
+        clone_tab_impl(&state, tab_id),
+    )
+    .await
 }
-async fn clone_tab_impl(state: &AppState, tab_id: TabId) -> anyhow::Result<TabInfoUI> {
+async fn clone_tab_impl(state: &AppState, tab_id: TabId) -> anyhow::Result<CreateTabResult> {
     let path = fs_util::get_tab_path(state, tab_id)?;
     create_tab_imp(state, path).await
 }
@@ -102,18 +138,18 @@ pub async fn clone_tab_child_dir(
     tab_id: TabId,
     file_id: String,
 ) -> Result<TabInfoUI, String> {
-    LOG_RESULT!(format!("clone_tab_child_dir({tab_id}, {file_id})"), {
-        clone_tab_child_dir_impl(&state, tab_id, file_id)
-            .await
-            .map_err(|e| e.to_string())
-    })
+    log_create_tab_result(
+        format!("clone_tab_child_dir({tab_id}, {file_id})"),
+        clone_tab_child_dir_impl(&state, tab_id, file_id),
+    )
+    .await
 }
 
 async fn clone_tab_child_dir_impl(
     state: &AppState,
     tab_id: TabId,
     file_id: String,
-) -> anyhow::Result<TabInfoUI> {
+) -> anyhow::Result<CreateTabResult> {
     let file_id: u64 = file_id
         .parse()
         .map_err(|_| anyhow!("invalid file_id as u64"))?;
@@ -130,13 +166,16 @@ pub async fn clone_tab_parent_dir(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
 ) -> Result<TabInfoUI, String> {
-    LOG_RESULT!(format!("clone_tab_parent_dir({tab_id})"), {
-        clone_tab_parent_dir_impl(&state, tab_id)
-            .await
-            .map_err(|e| e.to_string())
-    })
+    log_create_tab_result(
+        format!("clone_tab_parent_dir({tab_id})"),
+        clone_tab_parent_dir_impl(&state, tab_id),
+    )
+    .await
 }
-async fn clone_tab_parent_dir_impl(state: &AppState, tab_id: TabId) -> anyhow::Result<TabInfoUI> {
+async fn clone_tab_parent_dir_impl(
+    state: &AppState,
+    tab_id: TabId,
+) -> anyhow::Result<CreateTabResult> {
     let path = fs_util::get_tab_path(state, tab_id)?;
     let parent = path.parent().ok_or_else(|| anyhow!("no parent dir"))?;
     create_tab_imp(state, parent).await
@@ -297,11 +336,17 @@ mod tests {
         let state = AppState::new();
         assert_eq!(state.tabs.len(), 0);
 
-        assert_eq!(1, create_tab_imp(&state, get_test_dir()).await.unwrap().id);
+        assert_eq!(
+            1,
+            create_tab_imp(&state, get_test_dir()).await.unwrap().tab.id
+        );
         assert_eq!(state.tabs.len(), 1);
         assert_eq!(state.get_tab_ids(), vec![1]);
 
-        assert_eq!(2, create_tab_imp(&state, get_test_dir()).await.unwrap().id);
+        assert_eq!(
+            2,
+            create_tab_imp(&state, get_test_dir()).await.unwrap().tab.id
+        );
         assert_eq!(state.tabs.len(), 2);
         assert_eq!(state.get_tab_ids(), vec![1, 2]);
 
@@ -318,7 +363,11 @@ mod tests {
         };
         assert_eq!(
             expect.to_string(),
-            create_tab_imp(&state, abs_path_dummy).await.unwrap().path
+            create_tab_imp(&state, abs_path_dummy)
+                .await
+                .unwrap()
+                .tab
+                .path
         );
 
         assert_eq!(
@@ -347,7 +396,7 @@ mod tests {
     async fn test_get_dir_entries() {
         let state = AppState::new();
 
-        let tab_id = create_tab_imp(&state, get_test_dir()).await.unwrap().id;
+        let tab_id = create_tab_imp(&state, get_test_dir()).await.unwrap().tab.id;
         let ret = get_dir_entries_impl(&state, tab_id).unwrap();
 
         assert_eq!(ret.len(), 4);
@@ -363,7 +412,7 @@ mod tests {
         assert_eq!(ret[3].is_dir, false);
 
         let test_dir = get_test_dir().join("d2");
-        let tab_id = create_tab_imp(&state, test_dir).await.unwrap().id;
+        let tab_id = create_tab_imp(&state, test_dir).await.unwrap().tab.id;
         let ret = get_dir_entries_impl(&state, tab_id).unwrap();
 
         assert_eq!(ret.len(), 2);
@@ -386,6 +435,7 @@ mod tests {
         let tab_id = create_tab_imp(&state, get_test_dir().join("d3"))
             .await
             .unwrap()
+            .tab
             .id;
 
         // 不正なファイルIDを渡すとエラー

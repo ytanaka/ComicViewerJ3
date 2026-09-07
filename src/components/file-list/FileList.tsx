@@ -16,7 +16,7 @@ import {
   useCmdFileInfosQuery,
   useCmdGetDirEntries,
 } from '@/services/files';
-import { FileId } from '@/store/tab/types';
+import { FileId, TabId } from '@/store/tab/types';
 import { getObjId } from '@/lib/utils';
 import { create } from 'zustand';
 import { TabInfo } from '@/lib/bindings-wrapper';
@@ -79,7 +79,7 @@ export default function FileList() {
         const fileInfo = getQueryData_getFileInfo1(tab, dirEntries[i].file_id);
         if (ent && !fileInfo) fileIds.push(ent.file_id);
       }
-      if (fileIds.length !== 0) useScrollFileIdsStore.getState().setFileIds(fileIds);
+      if (fileIds.length !== 0) useScrollFileIdsStore.getState().setFileIds(tab.id, fileIds);
     }
   };
 
@@ -174,18 +174,21 @@ export default function FileList() {
 // このコンポーネントを <FileList> の子にする
 export function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
   const fileIds = useScrollFileIdsStore(state => state.fileIds);
-  useCmdFileInfosQuery(tab, fileIds);
+  const tabId = useScrollFileIdsStore(state => state.tabId);
+  useCmdFileInfosQuery(tab, tabId == tab.id ? fileIds : []);
   return <></>;
 }
 
 export interface ScrollFileIdsStore {
+  tabId: TabId;
   fileIds: FileId[];
-  setFileIds: (fileIds: FileId[]) => void;
+  setFileIds: (tabId: TabId, fileIds: FileId[]) => void;
 }
 
 export const useScrollFileIdsStore = create<ScrollFileIdsStore>()(set => ({
+  tabId: 0 as TabId,
   fileIds: [],
-  setFileIds: (fileIds: FileId[]) => {
-    set(() => ({ fileIds }));
+  setFileIds: (tabId: TabId, fileIds: FileId[]) => {
+    set(() => ({ tabId, fileIds }));
   },
 }));
