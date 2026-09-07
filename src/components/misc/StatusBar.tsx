@@ -1,10 +1,10 @@
-import { useCmdGetDirEntries } from '@/services/files';
+import { getQueryData_getDirEntries, getQueryData_getDirEntries_error } from '@/services/files';
 import { useTabStore } from '@/store/tab/store';
 
 export function StatusBar() {
-  const tabs = useTabStore(state => state.tabs);
+  const tabsLength = useTabStore(state => state.tabs.length);
 
-  if (tabs.length === 0) {
+  if (tabsLength === 0) {
     return <div></div>;
   } else {
     return <NormalStatusBar />;
@@ -12,20 +12,14 @@ export function StatusBar() {
 }
 
 function NormalStatusBar() {
-  const tab = useTabStore(state => state.getCurrentTab()!);
-  const selection = tab.selection;
-  const { data: data } = useCmdGetDirEntries(tab.info); // TODO
+  const tab = useTabStore(state => state.getCurrentTab()!.info);
+  const selSize = useTabStore(state => state.getCurrentTab()!.selection.selectionIndexes.size);
+  const errMsg = getQueryData_getDirEntries_error(tab.id);
+  const fileNum = getQueryData_getDirEntries(tab.id)?.length;
 
   let msg: string | undefined;
-  let errMsg: string | undefined;
-  if (data) {
-    if (data.status === 'ok') {
-      const n = data.data.length;
-      const sel = selection.selectionIndexes.size;
-      msg = `選択 ${sel} / 全 ${n}`;
-    } else {
-      errMsg = data.error;
-    }
+  if (fileNum !== undefined) {
+    msg = `選択 ${selSize} / 全 ${fileNum}`;
   }
 
   return (

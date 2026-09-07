@@ -68,16 +68,27 @@ export function useCmdGetDirEntries(tabInfo: TabInfo) {
 }
 function select_getDirEntries(data: RustCmdResult<DirEntry[]>) {
   if (data.status === 'error') {
-    // TODO
     return undefined;
   } else {
     return data.data;
+  }
+}
+function select_getDirEntries_error(data: RustCmdResult<DirEntry[]>) {
+  if (data.status === 'error') {
+    return data.error;
+  } else {
+    return undefined
   }
 }
 export function getQueryData_getDirEntries(tabId: TabId): DirEntry[] | undefined {
   const data = myQueryClient.getQueryData<RustCmdResult<DirEntry[]>>(queryKey_useCmdGetDirEntries(tabId));
   if (!data) return undefined;
   return select_getDirEntries(data);
+}
+export function getQueryData_getDirEntries_error(tabId: TabId): string | undefined {
+  const data = myQueryClient.getQueryData<RustCmdResult<DirEntry[]>>(queryKey_useCmdGetDirEntries(tabId));
+  if (!data) return undefined;
+  return select_getDirEntries_error(data);
 }
 export function getQueryData_getDirEntry(tabId: TabId, fileIndex: number): DirEntry | undefined {
   const dirEntries = getQueryData_getDirEntries(tabId);
