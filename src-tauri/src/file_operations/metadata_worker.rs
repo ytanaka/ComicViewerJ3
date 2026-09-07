@@ -13,10 +13,7 @@ use anyhow::anyhow;
 
 use crate::{
     file_operations::file_utils::read_metadata,
-    state::{
-        app_state::AppState,
-        tab_info::{TabGeneration, TabInfo},
-    },
+    state::{app_state::AppState, tab_info::TabInfo},
     types::{Either, FileId, FileMetadata, TabId},
 };
 
@@ -25,8 +22,6 @@ use crate::{
 /// ワーカースレッドに投げるタスク
 struct WorkerPacket {
     tab_id: TabId,
-    generation: TabGeneration,
-
     list: Vec<FileId>,
 
     progress: usize,
@@ -42,7 +37,6 @@ impl WorkerPacket {
                 progress += v.len();
                 WorkerPacket {
                     tab_id: tab.get_id(),
-                    generation: tab.get_generation(),
                     list: v.to_vec(),
                     progress,
                     total: list.len(),
@@ -103,17 +97,12 @@ impl PacketExecutor {
         Ok(ret)
     }
     // メタデータを一括設定 (タブをロックする)
-    fn write_metadata(&mut self, fileids_metadatas: FileIdMetadata) -> anyhow::Result<bool> {
+    fn write_metadata(&mut self, fileids_metadatas: FileIdMetadata) -> anyhow::Result<()> {
         let tab = self
             .state
             .get_tab(self.packet.tab_id)
             .map_err(|e| anyhow!("state.get_tab err: {}", e))?;
         let mut tab = tab.write().unwrap();
-
-        // タブ状態が変わっていたらキャンセル
-        if !tab.check_generation(self.packet.generation) {
-            return Ok(false);
-        }
 
         for (file_id, metadata) in fileids_metadatas {
             tab.set_metadata(file_id, metadata)
@@ -124,20 +113,15 @@ impl PacketExecutor {
         // 処理済み数更新
         tab.add_metadata_loaded_count(self.packet.list.len());
 
-        Ok(true)
+        Ok(())
     }
 
     // メタデータを取得してタブ情報に設定する
     // キャンセルされたら false を返す
     fn exec_or_cancel(&mut self) -> anyhow::Result<bool> {
-        // タブ状態が変わっていたらキャンセル
-        match self.state.get_tab(self.packet.tab_id) {
-            Err(_) => return Ok(false),
-            Ok(tab) => {
-                if !tab.read().unwrap().check_generation(self.packet.generation) {
-                    return Ok(false);
-                }
-            }
+        // タブがなくなっていたらキャンセル
+        if self.state.get_tab(self.packet.tab_id).is_err() {
+            return Ok(false);
         }
 
         // ファイルIDをファイル名に変換
@@ -145,7 +129,9 @@ impl PacketExecutor {
         // メタデータ読み込み
         let fileids_metadatas = self.read_metadatas(&dir, &fileids_filenames)?;
         // メタデータ書き込み
-        self.write_metadata(fileids_metadatas)
+        self.write_metadata(fileids_metadatas)?;
+
+        Ok(true)
     }
 }
 

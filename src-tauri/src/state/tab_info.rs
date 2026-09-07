@@ -30,7 +30,7 @@ pub struct TabInfo {
     sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
     metadata_loaded_count: usize, // filesのmetada未取得の項目数。Name,Ext 以外でソートするときは取得済みである必要がある (MetadataWorkerでセットされる)
-    generation: TabGeneration, // sorted_list が更新された回数。ファイル名検索で比較して中断する (path_generationが更新されるときは必ず更新される)
+    generation: TabGeneration, // sorted_list が更新された回数。ファイル名検索で比較して中断する
 }
 impl TabInfo {
     pub fn new(tab_id: TabId, path: impl AsRef<Path>, files: HashMap<FileId, FileInfoOS>) -> Self {

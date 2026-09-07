@@ -12,10 +12,7 @@ use std::{
 };
 
 use crate::{
-    state::{
-        app_state::AppState,
-        tab_info::{TabGeneration, TabInfo},
-    },
+    state::{app_state::AppState, tab_info::TabInfo},
     text_search::{reverse_migemo::ReverseMigemo, vibrato::Vibrato, vibrato_data::SplStr},
     types::TabId,
 };
@@ -25,8 +22,6 @@ use crate::{
 /// ワーカースレッドに投げるタスク
 struct WorkerPacket {
     tab_id: TabId,
-    generation: TabGeneration,
-
     list: Vec<Arc<OsStr>>,
 
     progress: usize,
@@ -42,7 +37,6 @@ impl WorkerPacket {
                 progress += v.len();
                 WorkerPacket {
                     tab_id: tab.get_id(),
-                    generation: tab.get_generation(),
                     list: v.to_vec(),
                     progress,
                     total: list.len(),
@@ -51,13 +45,9 @@ impl WorkerPacket {
             .collect()
     }
 
-    /// タブが存在して、ディレクトリが変わっていないことを確認
-    /// 変わっていたら、タスクをキャンセルする (ソート状態が変わっただけならOK)
+    /// タブが存在することを確認
     fn check_tab(&self, state: &AppState) -> bool {
-        match state.get_tab(self.tab_id) {
-            Err(_) => false,
-            Ok(tab) => tab.read().unwrap().check_generation(self.generation),
-        }
+        state.get_tab(self.tab_id).is_ok()
     }
 }
 
