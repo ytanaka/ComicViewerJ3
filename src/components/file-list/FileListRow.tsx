@@ -109,10 +109,7 @@ export function FileListRow({
     tabFiles_handleMouseClick(e, tabInfo, fileIndex);
   }
 
-  if (fileIndex === 0)
-    console.debug(
-      `<FileListRow>[${fileIndex}] tabId:${tabInfo.id}`
-    );
+  if (fileIndex === 0) console.debug(`<FileListRow>[${fileIndex}] tabId:${tabInfo.id}`);
 
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';

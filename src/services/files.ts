@@ -60,7 +60,7 @@ async function queryFn_getDirEntries(tabId: TabId) {
 export function useCmdGetDirEntries(tabInfo: TabInfo) {
   return useQuery({
     queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
-    queryFn: async () => (queryFn_getDirEntries(tabInfo.id)),
+    queryFn: async () => queryFn_getDirEntries(tabInfo.id),
     enabled: 0 < tabInfo.id,
     select: data => {
       return select_getDirEntries(data);
@@ -70,7 +70,7 @@ export function useCmdGetDirEntries(tabInfo: TabInfo) {
 export function useCmdGetDirEntries_error(tabInfo: TabInfo) {
   return useQuery({
     queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
-    queryFn: async () => (queryFn_getDirEntries(tabInfo.id)),
+    queryFn: async () => queryFn_getDirEntries(tabInfo.id),
     enabled: 0 < tabInfo.id,
     select: data => {
       return select_getDirEntries_error(data);
@@ -88,7 +88,7 @@ function select_getDirEntries_error(data: RustCmdResult<DirEntry[]>) {
   if (data.status === 'error') {
     return data.error;
   } else {
-    return undefined
+    return undefined;
   }
 }
 export function getQueryData_getDirEntries(tabId: TabId): DirEntry[] | undefined {
@@ -125,7 +125,10 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
     queryKey: queryKey_useFileInfosQuery(tabInfo, fileIds),
     queryFn: async () => {
       const result = await rustcmds.getFileInfos(tabInfo.id, fileIds);
-      logResult(`rustcmds.getFileInfos(${tabInfo.id},[${fileIds.length}])`, result);
+      logResult(
+        `rustcmds.getFileInfos(${tabInfo.id},[${fileIds.length}:${Math.min(...fileIds)}-${Math.max(...fileIds)}])`,
+        result
+      );
       return result;
     },
     enabled: 0 < tabInfo.id && 0 < fileIds.length,

@@ -16,7 +16,7 @@ export const sortCommands = {
       cond.asc = true;
     }
 
-    const t = new DelayedToast(100, () => toast("ソート中", { id: 'sorting' }));
+    const t = new DelayedToast(100, () => toast('ソート中', { id: 'sorting' }));
     try {
       const result = await rustcmds.sortFiles(tab.info.id, cond);
       logResult(`rustcmds.sortFiles(${tab.info.id},${cond})`, result);
@@ -24,7 +24,7 @@ export const sortCommands = {
         // TODO
         toast.error(`${result.error}`);
       } else if (!result.data) {
-        toast.error('このディレクトリではまだソートの準備ができていません', { id: "sort-not-yet-ready" });
+        toast.error('このディレクトリではまだソートの準備ができていません', { id: 'sort-not-yet-ready' });
       } else {
         removeQueries_getDirEntries(tab.info.id);
         useTabStore.getState().setSortCondition(tab.info.id, cond);

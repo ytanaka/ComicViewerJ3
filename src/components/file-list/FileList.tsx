@@ -76,8 +76,7 @@ export default function FileList() {
       const e = Math.min(dirEntries.length - 1, range.endIndex + OVER_SCAN);
       for (let i = s; i <= e; i++) {
         const ent = dirEntries[i];
-        const fileInfo = getQueryData_getFileInfo1(tab, dirEntries[i].file_id);
-        if (ent && !fileInfo) fileIds.push(ent.file_id);
+        if (ent) fileIds.push(ent.file_id);
       }
       if (fileIds.length !== 0) useScrollFileIdsStore.getState().setFileIds(tab.id, fileIds);
     }
@@ -175,7 +174,11 @@ export default function FileList() {
 export function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
   const fileIds = useScrollFileIdsStore(state => state.fileIds);
   const tabId = useScrollFileIdsStore(state => state.tabId);
-  useCmdFileInfosQuery(tab, tabId == tab.id ? fileIds : []);
+  const fileIds2 = fileIds.filter(fileId => {
+    const fileInfo = getQueryData_getFileInfo1(tab, fileId);
+    return fileInfo === undefined;
+  });
+  useCmdFileInfosQuery(tab, tabId == tab.id ? fileIds2 : []);
   return <></>;
 }
 

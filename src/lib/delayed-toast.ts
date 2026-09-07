@@ -1,4 +1,4 @@
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
 export class DelayedToast {
   toastId?: string | number = undefined;
@@ -13,6 +13,6 @@ export class DelayedToast {
   }
   dismiss() {
     this.canceled = true;
-    toast.dismiss(this.toastId)
+    toast.dismiss(this.toastId);
   }
 }
