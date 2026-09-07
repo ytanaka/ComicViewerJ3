@@ -3,6 +3,7 @@ import { UiTab } from './tab/types';
 import { FileSearchResult } from '@/lib/bindings';
 import { useUiStore } from './ui-store';
 
+// ファイル一覧画面でローマ字入力をしてRustに問い合わせた結果
 export interface FileSearchResultStore {
   tab: UiTab | null;
   progress: boolean;

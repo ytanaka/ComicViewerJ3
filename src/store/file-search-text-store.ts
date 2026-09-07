@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+// ファイル一覧画面でローマ字入力をしている途中の文字列を格納する
 export interface FileSearchTextStore {
   text: string;
   prevTypeTime: number; // Unix time
