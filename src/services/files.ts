@@ -112,6 +112,7 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
         // TODO
         return undefined;
       } else {
+        // ここで取得したデータは個別に取得するので、キャッシュに格納しておく
         data.data.forEach(fileInfo => {
           queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo, fileInfo.file_id), fileInfo);
         });
@@ -128,4 +129,7 @@ export function useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
     },
     enabled: false,
   });
+}
+export function getQueryData_getFileInfo1(tabInfo: TabInfo, fileId: FileId): FileInfo | undefined {
+  return myQueryClient.getQueryData<FileInfo>(queryKey_useFileInfo1Query(tabInfo, fileId));
 }

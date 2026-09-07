@@ -10,7 +10,7 @@ import { useTabStore } from '@/store/tab/store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
-import { useCmdCreateTab, useCmdFileInfosQuery, useCmdGetDirEntries } from '@/services/files';
+import { getQueryData_getFileInfo1, useCmdCreateTab, useCmdFileInfosQuery, useCmdGetDirEntries } from '@/services/files';
 import { FileId } from '@/store/tab/types';
 import { getObjId } from '@/lib/utils';
 import { create } from 'zustand';
@@ -65,12 +65,16 @@ export default function FileList() {
 
     // ファイル情報読み込み
     if (dirEntries) {
+      const OVER_SCAN = visibleListRows.current + 1;
       const fileIds: FileId[] = [];
-      for (let i = range.startIndex; i <= range.endIndex; i++) {
+      const s = Math.max(0, range.startIndex - OVER_SCAN);
+      const e = Math.min(dirEntries.length - 1, range.endIndex + OVER_SCAN);
+      for (let i = s; i <= e; i++) {
         const ent = dirEntries[i];
-        if (ent) fileIds.push(ent.file_id);
+        const fileInfo = getQueryData_getFileInfo1(tab, dirEntries[i].file_id);
+        if (ent && !fileInfo) fileIds.push(ent.file_id);
       }
-      useScrollFileIdsStore.getState().setFileIds(fileIds);
+      if (fileIds.length !== 0) useScrollFileIdsStore.getState().setFileIds(fileIds);
     }
   };
 
