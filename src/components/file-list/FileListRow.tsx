@@ -6,7 +6,6 @@ import { unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
-import { getObjId } from '@/lib/utils';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/files';
 
@@ -112,7 +111,7 @@ export function FileListRow({
 
   if (fileIndex === 0)
     console.debug(
-      `<FileListRow>[${fileIndex}] tabId:${getObjId(tabInfo)} dirEnt:${getObjId(dirEntry)} props:${getObjId(props)}`
+      `<FileListRow>[${fileIndex}] tabId:${tabInfo.id}`
     );
 
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';

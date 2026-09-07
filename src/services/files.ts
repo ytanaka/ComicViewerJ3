@@ -128,7 +128,7 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
       logResult(`rustcmds.getFileInfos(${tabInfo.id},[${fileIds.length}])`, result);
       return result;
     },
-    enabled: 0 < fileIds.length,
+    enabled: 0 < tabInfo.id && 0 < fileIds.length,
     select: data => {
       if (data.status === 'error') {
         // TODO
