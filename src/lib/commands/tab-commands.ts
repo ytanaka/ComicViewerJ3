@@ -12,7 +12,7 @@ function st() {
 }
 
 async function _addTab(cmdResult: RustCmdResult<TabInfo>) {
-  logResult("rustcmds.create_clene_Tab(...)", cmdResult);
+  logResult('rustcmds.create_clene_Tab(...)', cmdResult);
   if (cmdResult.status === 'error') {
     // TODO
   } else {

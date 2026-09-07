@@ -47,7 +47,11 @@ export function _useTabStore_pushHistory_toImmer(
   return true;
 }
 
-export function _useTabStore_pushHistoryCurrentFile_toImmer(state: Draft<TabStore>, tabId: TabId, fileIndex: number): boolean {
+export function _useTabStore_pushHistoryCurrentFile_toImmer(
+  state: Draft<TabStore>,
+  tabId: TabId,
+  fileIndex: number
+): boolean {
   const tab = _useTabStore_getImmerTab(state, tabId);
   if (!tab) return false;
   const dirEntry = getQueryData_getDirEntry(tabId, fileIndex);

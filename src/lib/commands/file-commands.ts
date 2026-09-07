@@ -1,5 +1,5 @@
 import { useTabStore } from '@/store/tab/store';
-import { DirEntry, logResult, rustcmds} from '../bindings-wrapper';
+import { DirEntry, logResult, rustcmds } from '../bindings-wrapper';
 
 function st() {
   return useTabStore.getState();

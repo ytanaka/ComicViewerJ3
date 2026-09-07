@@ -25,7 +25,7 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
   return useQuery({
     queryKey: queryKey_useCmdCreateTab(tabInfo),
     queryFn: async () => {
-      const result = await rustcmds.createTab(tabInfo.path)
+      const result = await rustcmds.createTab(tabInfo.path);
       logResult(`rustcmds.createTab(${tabInfo.path})`, result);
       return result;
     },
@@ -52,7 +52,7 @@ export function useCmdGetDirEntries(tabInfo: TabInfo) {
   return useQuery({
     queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
     queryFn: async () => {
-      const result = await rustcmds.getDirEntries(tabInfo.id)
+      const result = await rustcmds.getDirEntries(tabInfo.id);
       logResult(`rustcmds.getDirEntries(${tabInfo.id})`, result);
       return result;
     },

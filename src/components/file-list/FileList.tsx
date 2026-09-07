@@ -26,9 +26,7 @@ export default function FileList() {
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
 
-  console.debug(
-    `<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} `
-  );
+  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} `);
 
   // タブ情報作成
   useCmdCreateTab(tab);
@@ -168,7 +166,7 @@ export default function FileList() {
 export function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
   const fileIds = useScrollFileIdsStore(state => state.fileIds);
   useCmdFileInfosQuery(tab, fileIds);
-  return (<></>)
+  return <></>;
 }
 
 export interface ScrollFileIdsStore {
@@ -179,6 +177,6 @@ export interface ScrollFileIdsStore {
 export const useScrollFileIdsStore = create<ScrollFileIdsStore>()(set => ({
   fileIds: [],
   setFileIds: (fileIds: FileId[]) => {
-    set(() => ({ fileIds }))
+    set(() => ({ fileIds }));
   },
 }));
