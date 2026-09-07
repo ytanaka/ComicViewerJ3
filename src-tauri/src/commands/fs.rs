@@ -60,16 +60,16 @@ async fn create_tab_imp(state: &AppState, arg_path: impl AsRef<Path>) -> anyhow:
     let tab_id = state.next_tab_id.fetch_add(1, SeqCst);
     let tab = TabInfo::new(tab_id, path, files_map);
 
-    if state.is_initialized() {
-        // 形態素解析する
-        state.text_matcher.send_to_worker(&tab, names);
-        // メタデータを読み込む
-        state.metadata_worker.send_to_worker(&tab, file_ids);
-    }
-
     // AppState に追加
     let tab_ui = tab.to_ui();
     state.tabs.insert(tab_id, Arc::new(RwLock::new(tab)));
+
+    if state.is_initialized() {
+        // 形態素解析する
+        state.text_matcher.send_to_worker(tab_id, names);
+        // メタデータを読み込む
+        state.metadata_worker.send_to_worker(tab_id, file_ids);
+    }
 
     Ok(tab_ui)
 }

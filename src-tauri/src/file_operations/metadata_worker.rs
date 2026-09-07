@@ -13,7 +13,7 @@ use anyhow::anyhow;
 
 use crate::{
     file_operations::file_utils::read_metadata,
-    state::{app_state::AppState, tab_info::TabInfo},
+    state::app_state::AppState,
     types::{Either, FileId, FileMetadata, TabId},
 };
 
@@ -28,7 +28,7 @@ struct WorkerPacket {
     total: usize,
 }
 impl WorkerPacket {
-    fn create(tab: &TabInfo, list: Vec<FileId>) -> Vec<Self> {
+    fn create(tab_id: TabId, list: Vec<FileId>) -> Vec<Self> {
         let list2: Vec<_> = list.chunks(1000).map(|c| c.to_vec()).collect();
         let mut progress = 0;
         list2
@@ -36,7 +36,7 @@ impl WorkerPacket {
             .map(|v| {
                 progress += v.len();
                 WorkerPacket {
-                    tab_id: tab.get_id(),
+                    tab_id,
                     list: v.to_vec(),
                     progress,
                     total: list.len(),
@@ -179,8 +179,8 @@ impl MetadataWorker {
         ret2
     }
 
-    pub fn send_to_worker(&self, tab: &TabInfo, list: Vec<FileId>) {
-        for list in WorkerPacket::create(tab, list) {
+    pub fn send_to_worker(&self, tab_id: TabId, list: Vec<FileId>) {
+        for list in WorkerPacket::create(tab_id, list) {
             self.tx.send(list).unwrap();
         }
     }

@@ -12,7 +12,7 @@ use std::{
 };
 
 use crate::{
-    state::{app_state::AppState, tab_info::TabInfo},
+    state::app_state::AppState,
     text_search::{reverse_migemo::ReverseMigemo, vibrato::Vibrato, vibrato_data::SplStr},
     types::TabId,
 };
@@ -28,7 +28,7 @@ struct WorkerPacket {
     total: usize,
 }
 impl WorkerPacket {
-    fn create(tab: &TabInfo, list: Vec<Arc<OsStr>>) -> Vec<Self> {
+    fn create(tab_id: TabId, list: Vec<Arc<OsStr>>) -> Vec<Self> {
         let list2: Vec<_> = list.chunks(1000).map(|c| c.to_vec()).collect();
         let mut progress = 0;
         list2
@@ -36,7 +36,7 @@ impl WorkerPacket {
             .map(|v| {
                 progress += v.len();
                 WorkerPacket {
-                    tab_id: tab.get_id(),
+                    tab_id,
                     list: v.to_vec(),
                     progress,
                     total: list.len(),
@@ -93,10 +93,11 @@ impl TextMatcher {
 
             if done != 0 {
                 log::debug!(
-                    "{comment}tokenized({}) {}/{}",
+                    "{comment}tokenized({}) {}/{} cache({})",
                     done,
                     packet.progress,
-                    packet.total
+                    packet.total,
+                    ret.get_cache_size(),
                 );
             }
 
@@ -109,8 +110,8 @@ impl TextMatcher {
         ret2
     }
 
-    pub fn send_to_worker(&self, tab: &TabInfo, list: Vec<Arc<OsStr>>) {
-        for list in WorkerPacket::create(tab, list) {
+    pub fn send_to_worker(&self, tab_id: TabId, list: Vec<Arc<OsStr>>) {
+        for list in WorkerPacket::create(tab_id, list) {
             self.tx.send(list).unwrap();
         }
     }
@@ -137,6 +138,9 @@ impl TextMatcher {
                 (true, tok)
             }
         }
+    }
+    fn get_cache_size(&self) -> usize {
+        self.yomi_cache.len()
     }
 
     // ファイル名が入力に一致するかどうか判定する
