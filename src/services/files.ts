@@ -7,10 +7,22 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // タブ関連の queryKey はこれを先頭に入れ、次に TabId を入れる
 // タブを消すときはまとめて消す
-const HEAD_QUERY_KEY_FOR_TAB_ID = 'tabId';
+const HEAD_QUERY_KEY_FOR_TAB_ID = 'tabId=';
+
+function mkTabQueryKey(tabId: TabId) {
+  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabId];
+}
 
 export function removeQueries_tab(tabId: TabId) {
-  myQueryClient.removeQueries({ queryKey: [HEAD_QUERY_KEY_FOR_TAB_ID, tabId] });
+  myQueryClient.removeQueries({ queryKey: mkTabQueryKey(tabId) });
+  console.debug(`TanStack Query tab cache = [${getQueryData_tabIds()}]`);
+}
+
+export function getQueryData_tabIds() {
+  const list = myQueryClient.getQueryCache().getAll().filter(q =>
+    (q.queryKey[0] === HEAD_QUERY_KEY_FOR_TAB_ID)
+  ).map(q => q.queryKey[1] as TabId)
+  return [...new Set(list)];
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,7 +31,7 @@ export function removeQueries_tab(tabId: TabId) {
 // ※ 普通のタブ作成は、タブ作成時に TabInfo.id が設定されているのでここでは処理しない
 
 function queryKey_useCmdCreateTab(tabInfo: TabInfo) {
-  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, 'createTab'];
+  return [...mkTabQueryKey(tabInfo.id), 'createTab'];
 }
 
 export function useCmdCreateTab(tabInfo: TabInfo) {
@@ -31,6 +43,7 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
       return result;
     },
     enabled: tabInfo.id < 0,
+    gcTime: 0,
     select: data => {
       if (data.status === 'error') {
         logErr(data);
@@ -47,7 +60,7 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
 // タブのファイル一覧を表示するため、DirEntry[] 取得
 
 function queryKey_useCmdGetDirEntries(tabId: TabId) {
-  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabId, 'getDirEntries'];
+  return [...mkTabQueryKey(tabId), 'getDirEntries'];
 }
 async function queryFn_getDirEntries(tabId: TabId) {
   const result = await rustcmds.getDirEntries(tabId);
@@ -115,10 +128,10 @@ export function removeQueries_getDirEntries(tabId: TabId) {
 // タブ内の個々のファイルを表示するための情報取得
 
 function queryKey_useFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
-  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, 'getFileInfos', fileIds];
+  return [...mkTabQueryKey(tabInfo.id), 'getFileInfos', fileIds];
 }
 function queryKey_useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
-  return [HEAD_QUERY_KEY_FOR_TAB_ID, tabInfo.id, 'getFileInfo', fileId];
+  return [...mkTabQueryKey(tabInfo.id), 'getFileInfo', fileId];
 }
 export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   const queryClient = useQueryClient();
