@@ -9,13 +9,18 @@ use notify::{
     ReadDirectoryChangesWatcher, RecursiveMode,
 };
 use notify_debouncer_full::{new_debouncer, DebouncedEvent, Debouncer, FileIdMap};
+use tauri::{AppHandle, Emitter};
 
-use crate::{state::app_state::AppState, types::TabId};
+use crate::{
+    state::app_state::AppState,
+    types::{FileNotifyEvent, TabId, EVENT_ID_FILE_NOTIFY},
+};
 
 pub struct FileWatcher {
     debouncer: Option<Debouncer<ReadDirectoryChangesWatcher, FileIdMap>>,
 }
 struct FileWatcherHandler {
+    app: AppHandle,
     state: Arc<AppState>,
     tab_id: TabId,
     path: PathBuf,
@@ -38,7 +43,16 @@ impl FileWatcherHandler {
         match ev.kind {
             Create(_) => {
                 ev.paths.iter().for_each(|path| {
-                    log::trace!("Create: {:?}", path);
+                    log::trace!("Create: (tab:{}) {:?}", self.tab_id, path);
+                    self.app
+                        .emit(
+                            EVENT_ID_FILE_NOTIFY,
+                            FileNotifyEvent {
+                                tab_id: self.tab_id,
+                                file_id: None,
+                            },
+                        )
+                        .unwrap()
                 });
             }
             Modify(kind) => {
@@ -61,11 +75,13 @@ impl FileWatcherHandler {
 
 impl FileWatcher {
     pub fn new(
+        app: &AppHandle,
         state: &Arc<AppState>,
         tab_id: TabId,
         path: impl AsRef<Path>,
     ) -> anyhow::Result<Self> {
         let handler = FileWatcherHandler {
+            app: app.clone(),
             state: state.clone(),
             tab_id,
             path: path.as_ref().to_path_buf(),

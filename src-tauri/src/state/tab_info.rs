@@ -161,13 +161,13 @@ impl TabInfo {
         }
     }
 
-    pub fn handleModifyFile(&self, file_id: FileId) {
+    pub fn handle_modify_file(&self, file_id: FileId) {
         todo!()
     }
-    pub fn handleCreateFile(&self, file_id: FileId) {
+    pub fn handle_create_file(&self, file_id: FileId) {
         todo!()
     }
-    pub fn handleDeleteFile(&self, file_id: FileId) {
+    pub fn handle_delete_file(&self, file_id: FileId) {
         todo!()
     }
 }
@@ -194,11 +194,19 @@ impl TabInfo {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use maplit::hashmap;
+    use tauri::AppHandle;
 
     use crate::state::app_state::{AppState, START_FILE_ID};
 
-    use maplit::hashmap;
-
+    fn mk_dummy_app() -> AppHandle {
+        tauri::Builder::default()
+            .setup(|_app| Ok(()))
+            .build(tauri::generate_context!())
+            .expect("failed to build app")
+            .handle()
+            .clone()
+    }
     fn mk_dummy_files(state: &AppState, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOS> {
         let mut ret = HashMap::new();
         for fname in file_names {
@@ -218,9 +226,10 @@ mod tests {
 
     #[test]
     fn test_tab_info() {
+        let app = mk_dummy_app();
         let state = Arc::new(AppState::new());
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
-        let watcher = FileWatcher::new(&state, 123, "/a/b/c").unwrap();
+        let watcher = FileWatcher::new(&app, &state, 123, "/a/b/c").unwrap();
         let mut tab = TabInfo::new(123, "/a/b/c", files, watcher);
 
         let mut list: Vec<_> = tab

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use tauri::{AppHandle, State};
 
-use crate::state::app_state::AppState;
+use crate::{state::app_state::AppState, types::FileNotifyEvent};
 
 #[tauri::command]
 #[specta::specta]
@@ -24,4 +24,11 @@ pub async fn init(state: State<'_, Arc<AppState>>) -> Result<(), String> {
 pub fn exit_app(app: AppHandle) {
     log::info!("command::exit_app()");
     app.exit(0);
+}
+
+#[tauri::command]
+#[specta::specta]
+/// ダミー
+pub fn dummy(_file_notify: FileNotifyEvent) {
+    log::info!("command::dummy()");
 }

@@ -207,3 +207,20 @@ pub struct AppPreferences {
     // ファイル名検索するとき
     pub debug_filename_search_sleep_ms: i32,
 }
+
+// =====================================================================================================================
+// Event
+// =====================================================================================================================
+
+pub const EVENT_ID_FILE_NOTIFY: &str = "file-notify";
+
+/// ファイル更新をUIに通知する
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub struct FileNotifyEvent {
+    #[specta(type = specta_typescript::Number)]
+    pub tab_id: TabId,
+
+    #[specta(type = Option<specta_typescript::Number>)]
+    pub file_id: Option<FileId>, // Someの場合は、そのファイルのサイズや更新日時が変更された場合
+                                 // Noneの場合は、そのディレクトリを再読み込みする必要がある場合
+}

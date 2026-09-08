@@ -12,6 +12,8 @@ export const commands = {
 	init: () => typedError<null, string>(__TAURI_INVOKE("init")),
 	/**  アプリ終了 */
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
+	/**  ダミー */
+	dummy: (fileNotify: FileNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify }),
 	/**  タブ作成 (絶対パス) */
 	createTab: (path: string) => typedError<TabInfoUI, string>(__TAURI_INVOKE("create_tab", { path })),
 	/**  タブ作成 (指定タブと同じパス) */
@@ -65,6 +67,12 @@ export type FileMetadata = {
 	modified: number | null,
 	accessed: number | null,
 	created: number | null,
+};
+
+/**  ファイル更新をUIに通知する */
+export type FileNotifyEvent = {
+	tab_id: number,
+	file_id: number | null,
 };
 
 /**  ファイル検索結果 */
