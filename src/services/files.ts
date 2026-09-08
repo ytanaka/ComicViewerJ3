@@ -29,7 +29,7 @@ export function getQueryData_tabIds() {
 // タブ作成
 // ※ zustand が localStrage から復元したタブはまだRust側と結び付けられていないので、ここで結び付ける
 // ※ 普通のタブ作成は、タブ作成時に TabInfo.id が設定されているのでここでは処理しない
-
+// useQuery() -> useMutate() に変えようとしたら、useTabStore.getState().updateTab() の中で再レンダーされて無限ループになってしまった
 function queryKey_useCmdCreateTab(tabInfo: TabInfo) {
   return [...mkTabQueryKey(tabInfo.id), 'createTab'];
 }
