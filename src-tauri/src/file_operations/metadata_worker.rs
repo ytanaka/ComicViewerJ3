@@ -98,10 +98,10 @@ impl PacketExecutor {
     }
     // メタデータを一括設定 (タブをロックする)
     fn write_metadata(&mut self, fileids_metadatas: FileIdMetadata) -> anyhow::Result<()> {
-        let tab = self
-            .state
-            .get_tab(self.packet.tab_id)
-            .map_err(|e| anyhow!("state.get_tab err: {}", e))?;
+        let tab = match self.state.get_tab(self.packet.tab_id) {
+            Ok(tab) => tab,
+            Err(_) => return Ok(()), // タブがなくなっていたらキャンセル
+        };
         let mut tab = tab.write().unwrap();
 
         for (file_id, metadata) in fileids_metadatas {

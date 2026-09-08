@@ -51,14 +51,6 @@ impl SplStr {
         self.list.iter().map(|i| &i.org_str).collect()
     }
 
-    pub fn get_org_str(&self) -> String {
-        self.get_org_str_vec()
-            .iter()
-            .map(|s| s.as_ref())
-            .collect::<Vec<_>>()
-            .join("")
-    }
-
     // 読み候補を全て取得する (Migemo辞書も使用する)
     fn get_yomi(&self, i: usize) -> HashSet<Arc<[char]>> {
         let mut ret = HashSet::new();

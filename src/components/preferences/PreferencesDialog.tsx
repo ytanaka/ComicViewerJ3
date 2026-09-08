@@ -9,17 +9,9 @@ import { DebugPane } from './panels/DebugPanel';
 import { AboutPane } from './panels/AboutPanel';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { AdvancedPane } from './panels/AdvancedPanel';
+import { DebugCmdPane } from './panels/DebugCmdPanel';
 
-export type PreferenceDialogTabId = 'general' | 'advanced' | 'debug' | 'about';
-
-export interface PanelProp {
-  id: PreferenceDialogTabId;
-  label: string;
-  icon: typeof Settings;
-  node: typeof GeneralPane;
-}
-
-const allPanelList: PanelProp[] = [
+const allPanelList = [
   {
     id: 'general',
     label: '基本',
@@ -39,12 +31,21 @@ const allPanelList: PanelProp[] = [
     node: DebugPane,
   },
   {
+    id: 'debugCmd',
+    label: 'デバッグ用コマンド',
+    icon: Zap,
+    node: DebugCmdPane,
+  },
+  {
     id: 'about',
     label: 'アプリについて',
     icon: Info,
     node: AboutPane,
   },
-];
+] as const;
+
+export type PanelProp = typeof allPanelList[number];
+export type PreferenceDialogTabId = PanelProp['id'];
 
 export function PreferencesDialog() {
   const showPreferencesDialog = useUiVolatileStore(state => state.showPreferencesDialog);
@@ -55,7 +56,7 @@ export function PreferencesDialog() {
 
   const debugPreferenceOn = useUiStore(state => state.debugPreferenceOn);
 
-  const panelList = allPanelList.filter(p => p.id !== 'debug' || debugPreferenceOn);
+  const panelList = allPanelList.filter(p => !p.id.startsWith('debug') || debugPreferenceOn);
 
   return (
     <Dialog open={showPreferencesDialog} onOpenChange={setShowPreferencesDialog}>

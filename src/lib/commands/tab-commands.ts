@@ -49,9 +49,7 @@ export const tabCommands = {
     }
   },
 
-  // タブをコピーする
-  // index を渡すと、インデックスにあるタブをコピーする
-  // path を渡すと、そのパスでタブを開く
+  // タブを開く (指定パスで)
   async cloneTab(path: string) {
     if (!_checkMaxTabs()) return;
     const absPath = await tauri_path_resolve(path);

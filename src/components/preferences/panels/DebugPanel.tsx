@@ -18,11 +18,10 @@ export function DebugPane() {
   return (
     <FieldSet className="flex-1">
       <FieldLegend>デバッグ設定</FieldLegend>
-      <FieldDescription>※ 触らないこと</FieldDescription>
       <FieldGroup>
         <Separator />
         <Field>
-          <FieldLabel>ファイルサーチ時に100ファイル確認ごとにスリープを入れる</FieldLabel>
+          <FieldLabel>ファイルサーチ時に100ファイル確認ごとにRust側でスリープを入れる</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
               type="number"
