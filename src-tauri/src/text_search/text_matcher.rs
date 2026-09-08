@@ -56,6 +56,8 @@ impl WorkerPacket {
 pub struct TextMatcher {
     tx: mpsc::Sender<WorkerPacket>,
 
+    // Map<ファイル名, 分割文字列>
+    // ※ ファイル名は OsString, 分割文字列の解析元は OsString.to_string_lossy()
     yomi_cache: Arc<DashMap<OsString, Arc<SplStr>>>,
 
     vibrato: Arc<Vibrato>,
@@ -145,6 +147,7 @@ impl TextMatcher {
 
     // ファイル名が入力に一致するかどうか判定する
     // ファイル名の一致個所を返す (String中の 開始インデックス, 終了インデックス)
+    // ※ 返すインデックスは引数のfilename(OsStr)のインデックスでなく、filename.to_string_lossy() のインデックス
     pub fn find(
         &self,
         input_katakana: &str,    // 入力されたローマ字 -> カタカナ
@@ -170,7 +173,8 @@ impl TextMatcher {
         // 正規化した文字列に対して単純検索 (アルファベットや数字に一致するかも)
         if vstr.get_normalized_str().find(input_normalized).is_some() {
             // 正規化する前後で文字列長が変わることがあるので、元の文字列のどこに一致したかはわからなくなる
-            return Some((0, vstr.get_org_str().len()));
+            // ※ ASCIIファイル名は形態素解析していないので、vstr.get_org_str() が空になるので引数の filename を使用する
+            return Some((0, filename.to_string_lossy().len()));
         }
 
         None
