@@ -12,7 +12,6 @@ export interface UiTabActions {
 export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never]], [], UiTabActions> = (set, get) => {
   return {
     updateTab: (tabId: TabId, newTab: TabInfo) => {
-      // 以前のフォーカス状態をなるべく保持する
       const tab = get().getTab(tabId);
       if (!tab) return;
 

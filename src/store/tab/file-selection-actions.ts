@@ -29,7 +29,6 @@ export const createFileSelectionActions: StateCreator<
     const tab = get().getTab(tabId);
     if (!tab) return;
     const name = get().findHistory(tabId, tab.info.path);
-    if (!name) return;
     const sel = mkFileSelection();
     const find = dirEntries.findIndex(f => f.name === name);
     if (0 <= find) {
