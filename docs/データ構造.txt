@@ -1,0 +1,55 @@
+Rust側データ構造
+  すべてのデータは src-tauri/src/state/app_state.rs の AppState 構造体で管理する。
+  AppState は Rustコマンドに tauri::State<Arc<AppState>> として渡される。
+  ※ AppState でなく Arc<AppState> にしたのは、バックグラウンドのワーカースレッドに AppState を渡したいから
+
+  UIとのやり取りをするデータ構造は src-tauri/src/types.ts にある
+    AppState
+      tabs: Map<TabId, TabInfo> // タブ一覧
+
+    // タブ情報はパスが変わるたびに新規作成され、state.tabs に追加、削除される 
+    // ※ Rust側はUI画面のタブ表示状態に関知しない
+    //    UIはディレクトリ移動するたびにRustに新しいTabInfo作成を依頼し、Rustに古いTabInfoの削除を依頼する
+    TabInfo 
+      tab_id                          // (不変)
+      path                            // (不変)
+      files: Map<FileId, FileInfoOS>  // (基本的に不変) ※ TabInfo 作成時にpath以下のファイル一覧を読む
+                                      // TODO: ディレクトリ内のファイル更新通知を受け取ると変更される
+
+      sorted_list: Option<Vec<FileId>>  // UI画面に表示する並び順 (初期化時はNone、UIからファイル名一覧の取得依頼があったときにSomeになる)
+      sort_condition                    // ソート条件 (これが変更されたときは sorted_list を None にする)
+
+    FileInfoOS
+      name    // (TabInfo作成時に設定され、不変)
+      is_dir  // (TabInfo作成時に設定され、不変)
+      metadata // バックグラウンドのワーカースレッドで設定される
+               // ※ メタデータ取得は時間がかかるので、ディレクトリ移動時のUI応答を改善するため
+
+  RustとUIのTypeScriptで扱う情報が微妙に違うので、構造体名が XyzUI, XyzOS となっている。 (UI: TypeScript, OS: Rust)
+  Rust側、UI側ともにタブIDはTabId, ファイルIDはFileId として typedef している。
+
+  タブ一覧は実際には DashMap<TabId, Arc<RwLock<TabInfo>>> となっているので、特定のタブ情報を読み書きするときはロックする必要がある。
+  ※ 別々のタブは複数同時に読み書きできるが、UIは1つのタブしか表示しないのであまり意味はないかも。
+
+UI側データ構造
+  タブ情報は zustand で管理する (src/store/tab/types.ts の AllTabs)
+  zustand では、Rust側のTabId/パス/ソート条件などを管理するが、ファイル名やファイル更新日時などは管理しない。
+  ファイル名などは TanStack Query でRust側から取得してキャッシュとして管理する (src/services/files.ts)
+
+  ※ Rust側から取得したデータは TanStack Query、UI側にしかないデータは zustand で管理するのが定石らしい。
+    ただし、TabId/パス はRust側から取得しているが、タブの並び順やパスを再起動後に復元したいので zustand で管理する。
+  ※ TabId は再起動後に使えなくなっているので、起動後にRustへ指定パスでタブ作成を依頼してTabIdを置き換える必要がある。
+
+UI側 zustand の使用時の注意
+  タブ一覧は tabs: UiTab[] として、タブに関する情報はすべてUiTab に入っている。
+  ファイルフォーカス状態も UiTab -> FileSelection -> focusIndex として保存しているので、
+  画面上で↑↓キーでファイルフォーカスを移動すると、tabs[] が別のオブジェクトに置き換わる。(zustandの定石)
+
+  もし、あるコンポーネント内でタブ数を参照するために
+    const tabs = useTabStore(state => state.tabs);
+    <div>タブ数: {tabs.length}</div>;
+  として参照していると、フォーカス状態が変わるたびにそのコンポーネントが再描画されてしまう。
+
+  その場合は、
+    const tabNum = useTabStore(state => state.tabs.length);
+  とすれば、tabs[] が別オブジェクトに変わってもコンポーネントの再描画がされない。(zustand使用時の定石)

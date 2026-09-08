@@ -33,6 +33,7 @@ impl CreateTabResult {
     }
 }
 async fn log_create_tab_result(
+    state: &AppState,
     comment: String,
     result: impl Future<Output = anyhow::Result<CreateTabResult>>,
 ) -> Result<TabInfoUI, String> {
@@ -43,7 +44,11 @@ async fn log_create_tab_result(
                 (Some(min), Some(max)) => format!("[{min}-{max}]"),
                 _ => "[]".to_string(),
             };
-            log::trace!("{comment}: Ok({msg})");
+            log::trace!(
+                "{comment}: Ok({}, {msg}) total tabs = {}",
+                r.tab.id,
+                state.tabs.len()
+            );
         }
         Err(e) => {
             log::trace!("{comment}: Err({e})");
@@ -51,6 +56,8 @@ async fn log_create_tab_result(
     }
     result.map(|r| r.tab).map_err(|e| e.to_string())
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
 /// タブ作成 (絶対パス)
@@ -58,7 +65,12 @@ pub async fn create_tab(
     state: State<'_, Arc<AppState>>,
     path: String,
 ) -> Result<TabInfoUI, String> {
-    log_create_tab_result(format!("create_tab({path})"), create_tab_imp(&state, path)).await
+    log_create_tab_result(
+        &state,
+        format!("create_tab({path})"),
+        create_tab_imp(&state, path),
+    )
+    .await
 }
 async fn create_tab_imp(
     state: &AppState,
@@ -119,6 +131,7 @@ pub async fn clone_tab(
     tab_id: TabId,
 ) -> Result<TabInfoUI, String> {
     log_create_tab_result(
+        &state,
         format!("clone_tab({tab_id})"),
         clone_tab_impl(&state, tab_id),
     )
@@ -139,6 +152,7 @@ pub async fn clone_tab_child_dir(
     file_id: String,
 ) -> Result<TabInfoUI, String> {
     log_create_tab_result(
+        &state,
         format!("clone_tab_child_dir({tab_id}, {file_id})"),
         clone_tab_child_dir_impl(&state, tab_id, file_id),
     )
@@ -167,6 +181,7 @@ pub async fn clone_tab_parent_dir(
     tab_id: TabId,
 ) -> Result<TabInfoUI, String> {
     log_create_tab_result(
+        &state,
         format!("clone_tab_parent_dir({tab_id})"),
         clone_tab_parent_dir_impl(&state, tab_id),
     )

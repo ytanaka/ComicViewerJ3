@@ -50,6 +50,7 @@ export type DirEntryUI = {
 	name: string,
 };
 
+/**  2つの型のどちらか片方だけ保持するための構造体 */
 export type Either<A, B> = ({ Left: A }) & { Right?: never } | ({ Right: B }) & { Left?: never };
 
 /**  UIに返す詳細ファイル情報 */

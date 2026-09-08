@@ -9,13 +9,14 @@ pub type FileId = u64;
 
 // =====================================================================================================================
 
+/// 2つの型のどちらか片方だけ保持するための構造体
+//
 // XxxxxUI 構造体はRustからUIへ渡す型
 // UI側で内部の number を別の型の type 宣言に置き換えて Xxxxx に変換して使用する
 //
 // XxxxxOS はRust側で使用する型。XxxxxUI と対になっている。
 //
 // Xxxxx はUI,Rust側共通で使用する型。
-
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub enum Either<A, B> {
     Left(A),
