@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppPreferences } from '../lib/bindings';
-import { rustcmds } from '@/lib/bindings-wrapper';
+import { logResult, rustcmds } from '@/lib/bindings-wrapper';
 
 const preferencesQueryKey = 'preferences';
 
@@ -14,8 +14,6 @@ export function usePreferences() {
       }
       return result.data;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 10, // 10 minutes
   });
 }
 
@@ -25,6 +23,7 @@ export function useSavePreferences() {
   return useMutation({
     mutationFn: async (preferences: AppPreferences) => {
       const result = await rustcmds.savePreferences(preferences);
+      logResult("rustcmds.savePreferences()", result);
       if (result.status === 'error') {
         throw new Error(result.error);
       }

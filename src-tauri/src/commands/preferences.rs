@@ -1,11 +1,13 @@
 use std::{path::PathBuf, sync::Arc};
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context};
 use tauri::{AppHandle, Manager, State};
 
 use crate::{state::app_state::AppState, types::AppPreferences, LOG_RESULT};
 
-fn get_preferences_path(app: &AppHandle) -> Result<PathBuf> {
+// ---------------------------------------------------------------------------------------------------------------------
+/// 設定JSONファイルのフルパスを取得
+fn get_preferences_path(app: &AppHandle) -> anyhow::Result<PathBuf> {
     let app_data_dir = app
         .path()
         .app_data_dir()
@@ -14,15 +16,37 @@ fn get_preferences_path(app: &AppHandle) -> Result<PathBuf> {
     Ok(app_data_dir.join("preferences.json"))
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
 /// 設定取得
-pub async fn load_preferences(state: State<'_, Arc<AppState>>) -> Result<AppPreferences, String> {
-    log::trace!("load_preferences()");
-    let pref = state.preferences.read().unwrap();
-    Ok(pref.clone())
+pub async fn load_preferences(app: AppHandle) -> Result<AppPreferences, String> {
+    LOG_RESULT!("load_preferences()", {
+        load_preferences_impl(app).map_err(|e| e.to_string())
+    })
+}
+pub fn load_preferences_impl(app: AppHandle) -> anyhow::Result<AppPreferences> {
+    let default = Ok(AppPreferences::default());
+    let prefs_path = get_preferences_path(&app)?;
+
+    // ファイル存在チェック (存在しない場合はデフォルトを返す)
+    if !prefs_path.exists() {
+        return default;
+    }
+
+    // JSONファイルから読み込み (読めない場合はデフォルトを返す)
+    let pref: AppPreferences = match std::fs::read_to_string(&prefs_path) {
+        Err(_) => return default,
+        Ok(json_str) => match serde_json::from_str(&json_str) {
+            Err(_) => return default,
+            Ok(json) => json,
+        },
+    };
+
+    Ok(pref)
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
 /// 設定保存
@@ -39,7 +63,7 @@ pub fn save_preferences_impl(
     app: AppHandle,
     state: State<'_, Arc<AppState>>,
     preferences: AppPreferences,
-) -> Result<()> {
+) -> anyhow::Result<()> {
     let prefs_path = get_preferences_path(&app)?;
     let json_content =
         serde_json::to_string_pretty(&preferences).context("Failed to serialize preferences")?;
