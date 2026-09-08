@@ -10,7 +10,7 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
-    file_operations::file_utils::read_metadata,
+    file_operations::{file_utils::read_metadata, file_watcher::FileWatcher},
     file_sort::cmp_file,
     types::{
         DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId, TabInfoUI,
@@ -31,9 +31,16 @@ pub struct TabInfo {
 
     metadata_loaded_count: usize, // filesのmetada未取得の項目数。Name,Ext 以外でソートするときは取得済みである必要がある (MetadataWorkerでセットされる)
     generation: TabGeneration,    // sorted_list が更新された回数。ファイル名検索で比較して中断する
+
+    file_watcher: FileWatcher,
 }
 impl TabInfo {
-    pub fn new(tab_id: TabId, path: impl AsRef<Path>, files: HashMap<FileId, FileInfoOS>) -> Self {
+    pub fn new(
+        tab_id: TabId,
+        path: impl AsRef<Path>,
+        files: HashMap<FileId, FileInfoOS>,
+        file_watcher: FileWatcher,
+    ) -> Self {
         let mut ret = TabInfo {
             tab_id,
             path: path.as_ref().to_path_buf(),
@@ -43,6 +50,7 @@ impl TabInfo {
             sorted_list: None,
             metadata_loaded_count: 0,
             generation: 0,
+            file_watcher,
         };
         for (i, f) in files {
             ret.file_names.insert(f.name.clone(), i);
@@ -55,6 +63,9 @@ impl TabInfo {
     }
     pub fn get_path(&self) -> &Path {
         &self.path
+    }
+    pub fn stop(&mut self) {
+        self.file_watcher.stop();
     }
     pub fn get_generation(&self) -> TabGeneration {
         self.generation
@@ -197,9 +208,10 @@ mod tests {
 
     #[test]
     fn test_tab_info() {
-        let state = AppState::new();
+        let state = Arc::new(AppState::new());
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
-        let mut tab = TabInfo::new(123, "/a/b/c", files);
+        let watcher = FileWatcher::new(&state, 123, "/a/b/c").unwrap();
+        let mut tab = TabInfo::new(123, "/a/b/c", files, watcher);
 
         let mut list: Vec<_> = tab
             .files

@@ -42,6 +42,9 @@ pub fn run() {
     app_builder = app_builder.plugin(
         tauri_plugin_log::Builder::new()
             .level(tauri_plugin_log::log::LevelFilter::Trace)
+            .filter(|metadata| {
+                metadata.target().starts_with("comicviewerj") || metadata.level() < log::Level::Info
+            })
             .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepSome(10))
             .timezone_strategy(tauri_plugin_log::TimezoneStrategy::UseLocal)
             .format(|out, message, record| {

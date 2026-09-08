@@ -5,12 +5,12 @@ use std::{
     sync::{atomic::Ordering::SeqCst, Arc, RwLock},
 };
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use tauri::State;
 
 use crate::{
     commands::fs_util,
-    file_operations::file_utils,
+    file_operations::{file_utils, file_watcher::FileWatcher},
     state::{app_state::AppState, tab_info::TabInfo},
     types::{DirEntryUI, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI},
     LOG_RESULT,
@@ -73,7 +73,7 @@ pub async fn create_tab(
     .await
 }
 async fn create_tab_imp(
-    state: &AppState,
+    state: &Arc<AppState>,
     arg_path: impl AsRef<Path>,
 ) -> anyhow::Result<CreateTabResult> {
     // ディレクトリチェック
@@ -93,6 +93,9 @@ async fn create_tab_imp(
             .to_path_buf();
     }
 
+    let tab_id = state.next_tab_id.fetch_add(1, SeqCst);
+    let watcher = FileWatcher::new(&state, tab_id, &path).context("FileWatcher error")?;
+
     // ファイル一覧取得
     let mut files_map = HashMap::new();
     for f in file_utils::read_dir(&path)? {
@@ -105,10 +108,9 @@ async fn create_tab_imp(
     let max = file_ids.iter().max().copied();
 
     // タブ作成
-    let tab_id = state.next_tab_id.fetch_add(1, SeqCst);
-    let tab = TabInfo::new(tab_id, path, files_map);
+    let tab = TabInfo::new(tab_id, path, files_map, watcher);
 
-    // AppState に追加
+    // AppStateにタブ追加
     let tab_ui = tab.to_ui();
     state.tabs.insert(tab_id, Arc::new(RwLock::new(tab)));
 
@@ -137,7 +139,7 @@ pub async fn clone_tab(
     )
     .await
 }
-async fn clone_tab_impl(state: &AppState, tab_id: TabId) -> anyhow::Result<CreateTabResult> {
+async fn clone_tab_impl(state: &Arc<AppState>, tab_id: TabId) -> anyhow::Result<CreateTabResult> {
     let path = fs_util::get_tab_path(state, tab_id)?;
     create_tab_imp(state, path).await
 }
@@ -160,7 +162,7 @@ pub async fn clone_tab_child_dir(
 }
 
 async fn clone_tab_child_dir_impl(
-    state: &AppState,
+    state: &Arc<AppState>,
     tab_id: TabId,
     file_id: String,
 ) -> anyhow::Result<CreateTabResult> {
@@ -188,7 +190,7 @@ pub async fn clone_tab_parent_dir(
     .await
 }
 async fn clone_tab_parent_dir_impl(
-    state: &AppState,
+    state: &Arc<AppState>,
     tab_id: TabId,
 ) -> anyhow::Result<CreateTabResult> {
     let path = fs_util::get_tab_path(state, tab_id)?;
@@ -208,7 +210,10 @@ pub fn remove_tab(state: State<'_, Arc<AppState>>, tab_id: TabId) -> Result<(), 
 fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
     match state.tabs.remove(&tab_id) {
         None => Err(format!("no tab: {tab_id}")),
-        Some(_kv) => Ok(()),
+        Some(kv) => {
+            kv.1.write().unwrap().stop();
+            Ok(())
+        },
     }
 }
 
@@ -348,7 +353,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_tab() {
-        let state = AppState::new();
+        let state = Arc::new(AppState::new());
         assert_eq!(state.tabs.len(), 0);
 
         assert_eq!(
@@ -393,7 +398,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_remove_tab() {
-        let state = AppState::new();
+        let state = Arc::new(AppState::new());
         create_tab_imp(&state, get_test_dir()).await.unwrap();
         create_tab_imp(&state, get_test_dir()).await.unwrap();
 
@@ -409,7 +414,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_dir_entries() {
-        let state = AppState::new();
+        let state = Arc::new(AppState::new());
 
         let tab_id = create_tab_imp(&state, get_test_dir()).await.unwrap().tab.id;
         let ret = get_dir_entries_impl(&state, tab_id).unwrap();
@@ -437,7 +442,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_file_infos() {
-        let state = AppState::new();
+        let state = Arc::new(AppState::new());
         let call = async |tab_id: TabId, file_id: &str| {
             get_file_infos_impl(&state, tab_id, vec![file_id.to_string()])
                 .await
