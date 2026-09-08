@@ -211,9 +211,9 @@ fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
     match state.tabs.remove(&tab_id) {
         None => Err(format!("no tab: {tab_id}")),
         Some(kv) => {
-            kv.1.write().unwrap().stop();
+            kv.1.write().unwrap().destroy();
             Ok(())
-        },
+        }
     }
 }
 

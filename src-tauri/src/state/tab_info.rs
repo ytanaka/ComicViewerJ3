@@ -64,7 +64,7 @@ impl TabInfo {
     pub fn get_path(&self) -> &Path {
         &self.path
     }
-    pub fn stop(&mut self) {
+    pub fn destroy(&mut self) {
         self.file_watcher.stop();
     }
     pub fn get_generation(&self) -> TabGeneration {
@@ -159,6 +159,16 @@ impl TabInfo {
             id: self.get_id(),
             path: self.get_path().to_string_lossy().to_string(),
         }
+    }
+
+    pub fn handleModifyFile(&self, file_id: FileId) {
+        todo!()
+    }
+    pub fn handleCreateFile(&self, file_id: FileId) {
+        todo!()
+    }
+    pub fn handleDeleteFile(&self, file_id: FileId) {
+        todo!()
     }
 }
 
