@@ -3,10 +3,9 @@ import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabStore } from '@/store/tab/store';
 import { mkUiTab, TabId } from '@/store/tab/types';
-import { logResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
+import { handleRustCmdResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/files';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
-import { logErr } from '../log';
 import { useUiStore } from '@/store/ui-store';
 import { toast } from 'sonner';
 
@@ -15,12 +14,9 @@ function st() {
 }
 
 async function _addTab(result: RustCmdResult<TabInfo>) {
-  logResult('rustcmds.create_clene_Tab(...)', result);
-  if (result.status === 'error') {
-    logErr(result);
-  } else {
-    st().addTab(mkUiTab(result.data));
-  }
+  handleRustCmdResult(result, 'rustcmds.create_clene_Tab(...)', 'タブ追加失敗', data => {
+    st().addTab(mkUiTab(data));
+  });
 }
 export function _checkMaxTabs() {
   const max = useUiStore.getState().maxTabNum;
@@ -60,14 +56,11 @@ export const tabCommands = {
   async removeTab(tabId: TabId) {
     console.info(`tabCommands.removeTab(${tabId})`);
     const result = await rustcmds.removeTab(tabId);
-    logResult(`rustcmds.removeTab(${tabId})`, result);
-    if (result.status === 'error') {
-      logErr(result);
-    } else {
+    handleRustCmdResult(result, `rustcmds.removeTab(${tabId})`, 'タブ削除失敗', () => {
       st().removeTab(tabId);
       removeQueries_tab(tabId);
       useScrollToFocusStore.getState().setScroll(true);
-    }
+    });
   },
 
   // タブ削除 (カレント)

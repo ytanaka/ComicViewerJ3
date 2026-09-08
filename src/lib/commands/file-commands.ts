@@ -1,6 +1,5 @@
 import { useTabStore } from '@/store/tab/store';
-import { DirEntry, logResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
-import { logErr } from '../log';
+import { DirEntry, handleRustCmdResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/files';
 
 function st() {
@@ -15,8 +14,7 @@ export const fileCommands = {
     const comment = `rustcmds.cloneTabParentDir(${tab.info.id})`;
     _moveDir(tab.info, comment, () => {
       return rustcmds.cloneTabParentDir(tab.info.id);
-    })
-
+    });
   },
 
   // 子ディレクトリに移動
@@ -26,25 +24,20 @@ export const fileCommands = {
     const comment = `rustcmds.cloneTabChildDir(${tab.info.id},${dirEntry.file_id})`;
     _moveDir(tab.info, comment, () => {
       return rustcmds.cloneTabChildDir(tab.info.id, dirEntry.file_id);
-    })
+    });
   },
 };
 
 async function _moveDir(tab: TabInfo, comment: string, createNewTabFn: () => Promise<RustCmdResult<TabInfo>>) {
   const result = await createNewTabFn();
-  logResult(comment, result);
-  if (result.status === 'error') {
-    logErr(result);
-  } else {
-    st().updateTab(tab.id, result.data);
+  handleRustCmdResult(result, comment, 'ディレクトリ移動できません', async data => {
+    st().updateTab(tab.id, data);
     removeQueries_tab(tab.id);
     await _rmTab(tab);
-  }
+  });
 }
+
 async function _rmTab(tab: TabInfo) {
   const result = await rustcmds.removeTab(tab.id);
-  logResult(`rustcmds.removeTab(${tab.id})`, result);
-  if (result.status === 'error') {
-    logErr(result);
-  }
+  handleRustCmdResult(result, `rustcmds.removeTab(${tab.id})`, 'タブ削除失敗');
 }

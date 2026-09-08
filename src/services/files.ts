@@ -1,9 +1,9 @@
-import { DirEntry, FileInfo, logResult, RustCmdResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
-import { logErr } from '@/lib/log';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { DirEntry, FileInfo, handleRustCmdResult, RustCmdResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
 import { myQueryClient } from '@/lib/query-client';
 import { useTabStore } from '@/store/tab/store';
 import { FileId, TabId } from '@/store/tab/types';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // タブ関連の queryKey はこれを先頭に入れ、次に TabId を入れる
 // タブを消すときはまとめて消す
@@ -19,9 +19,11 @@ export function removeQueries_tab(tabId: TabId) {
 }
 
 export function getQueryData_tabIds() {
-  const list = myQueryClient.getQueryCache().getAll().filter(q =>
-    (q.queryKey[0] === HEAD_QUERY_KEY_FOR_TAB_ID)
-  ).map(q => q.queryKey[1] as TabId)
+  const list = myQueryClient
+    .getQueryCache()
+    .getAll()
+    .filter(q => q.queryKey[0] === HEAD_QUERY_KEY_FOR_TAB_ID)
+    .map(q => q.queryKey[1] as TabId);
   return [...new Set(list)];
 }
 
@@ -39,19 +41,14 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
     queryKey: queryKey_useCmdCreateTab(tabInfo),
     queryFn: async () => {
       const result = await rustcmds.createTab(tabInfo.path);
-      logResult(`rustcmds.createTab(${tabInfo.path})`, result);
       return result;
     },
     enabled: tabInfo.id < 0,
     gcTime: 0,
     select: data => {
-      if (data.status === 'error') {
-        logErr(data);
-        return undefined;
-      } else {
-        useTabStore.getState().updateTab(tabInfo.id, data.data);
-        return data.data;
-      }
+      handleRustCmdResult(data, `rustcmds.createTab(${tabInfo.path})`, 'タブ初期化失敗', data => {
+        useTabStore.getState().updateTab(tabInfo.id, data);
+      });
     },
   });
 }
@@ -64,11 +61,10 @@ function queryKey_useCmdGetDirEntries(tabId: TabId) {
 }
 async function queryFn_getDirEntries(tabId: TabId) {
   const result = await rustcmds.getDirEntries(tabId);
-  logResult(`rustcmds.getDirEntries(${tabId})`, result);
-  if (result.status === 'ok') {
+  handleRustCmdResult(result, `rustcmds.getDirEntries(${tabId})`, 'ファイル名一覧取得失敗', data => {
     // ファイル一覧が取得出来たら、以前のディレクトリでのファイルフォーカス位置を復元する
-    useTabStore.getState().restoreDirFocus(tabId, result.data);
-  }
+    useTabStore.getState().restoreDirFocus(tabId, data);
+  });
   return result;
 }
 export function useCmdGetDirEntries(tabInfo: TabInfo) {
@@ -139,24 +135,22 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
     queryKey: queryKey_useFileInfosQuery(tabInfo, fileIds),
     queryFn: async () => {
       const result = await rustcmds.getFileInfos(tabInfo.id, fileIds);
-      logResult(
+      handleRustCmdResult(
+        result,
         `rustcmds.getFileInfos(${tabInfo.id},[${fileIds.length}:${Math.min(...fileIds)}-${Math.max(...fileIds)}])`,
-        result
+        'ファイル情報取得失敗'
       );
       return result;
     },
     enabled: 0 < tabInfo.id && 0 < fileIds.length,
     select: data => {
-      if (data.status === 'error') {
-        logErr(data);
-        return undefined;
-      } else {
+      if (data.status === 'ok') {
         // ここで取得したデータは個別に取得するので、キャッシュに格納しておく
         data.data.forEach(fileInfo => {
           queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo, fileInfo.file_id), fileInfo);
         });
-        return undefined; // このhookの戻り値を使用することはないのでデータを返す必要はない
       }
+      return undefined; // このhookの戻り値を使用することはないのでデータを返す必要はない
     },
   });
 }

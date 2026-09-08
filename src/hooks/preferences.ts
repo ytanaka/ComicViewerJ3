@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppPreferences } from '../lib/bindings';
-import { logResult, rustcmds } from '@/lib/bindings-wrapper';
+import { handleRustCmdResult, rustcmds } from '@/lib/bindings-wrapper';
 
 const preferencesQueryKey = 'preferences';
 
@@ -23,7 +23,7 @@ export function useSavePreferences() {
   return useMutation({
     mutationFn: async (preferences: AppPreferences) => {
       const result = await rustcmds.savePreferences(preferences);
-      logResult("rustcmds.savePreferences()", result);
+      handleRustCmdResult(result, 'rustcmds.savePreferences()', '設定ファイル保存失敗');
       if (result.status === 'error') {
         throw new Error(result.error);
       }

@@ -3,7 +3,7 @@ import { FileSearchResult } from '../bindings';
 import { VirtuosoHandle } from 'react-virtuoso';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';
-import { logResult, rustcmds } from '../bindings-wrapper';
+import { handleRustCmdResult, rustcmds } from '../bindings-wrapper';
 
 let debounceTimer: number | undefined;
 let queuedInput: string | null = null; // 検索実行に入力された内容
@@ -95,11 +95,11 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
 // ※ 検索中に状況が変わっていたら null
 async function search(text: string, startIndex: number, reverse: boolean): Promise<FileSearchResult | null> {
   console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) start`);
-  const ret = await rustcmds.searchNextFilename(searchTab.info.id, startIndex, text, reverse);
-  logResult(`rustcmds.searchNextFilename(${searchTab.info.id},...)`, ret);
-  const result = checkCommandReturn('searchNextFilename', ret);
-  console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) => `, result);
-  if (!result) return null;
+  const result = await rustcmds.searchNextFilename(searchTab.info.id, startIndex, text, reverse);
+  handleRustCmdResult(result, `rustcmds.searchNextFilename(${searchTab.info.id},...)`, 'ファイル名検索失敗');
+  const resultData = checkCommandReturn('searchNextFilename', result);
+  console.debug(`searchCommands search(${text}, ${startIndex}, ${reverse}) => `, resultData);
+  if (!resultData) return null;
 
   // 検索中にタブの状況が変わっていたら結果を無視する
   const newTab = useTabStore.getState().getTab(searchTab.info.id);
@@ -107,7 +107,7 @@ async function search(text: string, startIndex: number, reverse: boolean): Promi
   if (newTab.refreshCount != searchTab.refreshCount) return null;
   if (useTabStore.getState().getCurrentTab()?.info.id !== searchTab.info.id) return null;
 
-  return result;
+  return resultData;
 }
 
 function virtuoso_scrollIntoView(fileIndex: number) {

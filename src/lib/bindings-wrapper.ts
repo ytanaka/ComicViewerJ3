@@ -1,5 +1,6 @@
 import { FileId, TabId } from '@/store/tab/types';
 import { commands, DirEntryUI, Either, FileInfoUI, FileMetadata, SortCondition, SortType, TabInfoUI } from './bindings';
+import { logErr } from './log';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
@@ -94,10 +95,19 @@ function cnvOk<F, T>(
 
 export type SortType_type = SortType['type'];
 
-export function logResult<T>(methodAndArgs: string, result: RustCmdResult<T>) {
+export function handleRustCmdResult<T>(
+  result: RustCmdResult<T>,
+  logComment: string,
+  useMsg: string,
+  okFn?: (data: T) => void
+): boolean {
   if (result.status === 'error') {
-    console.warn(`${methodAndArgs} => {error:${result.error}}`);
+    console.warn(`${logComment} => {error:${result.error}}`);
+    logErr(`システムエラー(${useMsg})`, result);
+    return false;
   } else {
-    console.debug(`${methodAndArgs} => {ok: ...}`);
+    console.debug(`${logComment} => {ok: ...}`);
+    if (okFn) okFn(result.data);
+    return true;
   }
 }

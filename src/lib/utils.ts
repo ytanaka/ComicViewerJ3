@@ -5,62 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function assert_eq<T>(a: T, b: T) {
-  if (a !== b) throw Error(`assertion error: ${a} !== ${b}`);
-}
-
-export class ExecExclusibe {
-  private ids: Set<number>;
-
-  constructor() {
-    this.ids = new Set();
-  }
-
-  async try_start(id: number, fn: () => Promise<void>): Promise<boolean> {
-    if (!this.start(id)) return false;
-    try {
-      await fn();
-      return true;
-    } finally {
-      this.end(id);
-    }
-  }
-
-  private start(id: number): boolean {
-    if (this.ids.has(id)) return false;
-    this.ids.add(id);
-    return true;
-  }
-
-  private end(id: number) {
-    if (!this.ids.has(id)) throw new Error(`no id: ${id}`);
-    this.ids.delete(id);
-  }
-}
-
-export class AsyncLimiter {
-  private running = 0;
-  private readonly limit: number;
-
-  constructor(limit: number) {
-    this.limit = limit;
-  }
-
-  async run<T>(fn: () => Promise<T>): Promise<boolean> {
-    if (this.running >= this.limit) {
-      return false;
-    }
-
-    this.running++;
-
-    try {
-      await fn();
-      return true;
-    } finally {
-      this.running--;
-    }
-  }
-}
 class ObjectId {
   private readonly map = new WeakMap<object, number>();
   private nextId = 1;

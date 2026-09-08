@@ -44,7 +44,7 @@ const allPanelList = [
   },
 ] as const;
 
-export type PanelProp = typeof allPanelList[number];
+export type PanelProp = (typeof allPanelList)[number];
 export type PreferenceDialogTabId = PanelProp['id'];
 
 export function PreferencesDialog() {
