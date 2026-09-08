@@ -98,12 +98,12 @@ export type SortType_type = SortType['type'];
 export function handleRustCmdResult<T>(
   result: RustCmdResult<T>,
   logComment: string,
-  useMsg: string,
+  userMsg: string,
   okFn?: (data: T) => void
 ): boolean {
   if (result.status === 'error') {
     console.warn(`${logComment} => {error:${result.error}}`);
-    logErr(`システムエラー(${useMsg})`, result);
+    logErr(`システムエラー(${userMsg})`, result);
     return false;
   } else {
     console.debug(`${logComment} => {ok: ...}`);

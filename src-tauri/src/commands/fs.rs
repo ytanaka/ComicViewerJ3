@@ -240,8 +240,9 @@ pub fn get_tabs(state: State<'_, Arc<AppState>>) -> Vec<TabInfoUI> {
 fn get_tabs_impl(state: &AppState) -> Vec<TabInfoUI> {
     let mut ret = Vec::new();
     for id in state.get_tab_ids() {
-        let tab = state.get_tab(id).unwrap();
-        ret.push(tab.read().unwrap().to_ui());
+        if let Ok(tab) = state.get_tab(id) {
+            ret.push(tab.read().unwrap().to_ui())
+        }
     }
     ret
 }

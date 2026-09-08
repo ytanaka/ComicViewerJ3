@@ -16,63 +16,10 @@ use crate::{
     types::{FileNotifyEvent, TabId, EVENT_ID_FILE_NOTIFY},
 };
 
+// ---------------------------------------------------------------------------------------------------------------------
 pub struct FileWatcher {
     debouncer: Option<Debouncer<ReadDirectoryChangesWatcher, FileIdMap>>,
 }
-struct FileWatcherHandler {
-    app: AppHandle,
-    state: Arc<AppState>,
-    tab_id: TabId,
-    path: PathBuf,
-}
-impl FileWatcherHandler {
-    fn handle_events(&self, ev: Result<Vec<DebouncedEvent>, Vec<notify::Error>>) {
-        match ev {
-            Ok(events) => {
-                events.into_iter().for_each(|e| {
-                    self.handle_event(e);
-                });
-            }
-            Err(errors) => {
-                // 何をしていいのかわからないので、ログを出しておく
-                errors.iter().for_each(|e| log::error!("{}", e));
-            }
-        }
-    }
-    fn handle_event(&self, ev: DebouncedEvent) {
-        match ev.kind {
-            Create(_) => {
-                ev.paths.iter().for_each(|path| {
-                    log::trace!("Create: (tab:{}) {:?}", self.tab_id, path);
-                    self.app
-                        .emit(
-                            EVENT_ID_FILE_NOTIFY,
-                            FileNotifyEvent {
-                                tab_id: self.tab_id,
-                                file_id: None,
-                            },
-                        )
-                        .unwrap()
-                });
-            }
-            Modify(kind) => {
-                log::trace!("{:?}", ev);
-                ev.paths.iter().for_each(|path| {
-                    log::trace!("Modify({:?}): {:?}", kind, path);
-                });
-            }
-            Remove(_) => {
-                ev.paths.iter().for_each(|path| {
-                    log::trace!("Remove: {:?}", path);
-                });
-            }
-            ev => {
-                log::trace!("UNKNOWN DebouncedEvent: {:?}", ev)
-            }
-        }
-    }
-}
-
 impl FileWatcher {
     pub fn new(
         app: &AppHandle,
@@ -100,5 +47,66 @@ impl FileWatcher {
         if let Some(d) = self.debouncer.take() {
             d.stop_nonblocking();
         }
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+struct FileWatcherHandler {
+    app: AppHandle,
+    state: Arc<AppState>,
+    tab_id: TabId,
+    path: PathBuf,
+}
+impl FileWatcherHandler {
+    fn handle_events(&self, ev: Result<Vec<DebouncedEvent>, Vec<notify::Error>>) {
+        match ev {
+            Ok(events) => {
+                events.into_iter().for_each(|e| {
+                    if let Err(e) = self.handle_event(e) {
+                        log::error!("FileWatcher error: {}", e);
+                    }
+                });
+            }
+            Err(errors) => {
+                // 何をしていいのかわからないので、ログを出しておく
+                errors.iter().for_each(|e| log::error!("{}", e));
+            }
+        }
+    }
+    fn handle_event(&self, ev: DebouncedEvent) -> anyhow::Result<()> {
+        match ev.kind {
+            Create(_) => {
+                for path in &ev.paths {
+                    log::trace!("FileWatcher Create: (tab:{}) {:?}", self.tab_id, path);
+                    self.emit_all()?
+                }
+            }
+            Modify(kind) => {
+                log::trace!("{:?}", ev);
+                for path in &ev.paths {
+                    log::trace!("FileWatcher Modify({:?}): {:?}", kind, path);
+                    self.emit_all()?
+                }
+            }
+            Remove(_) => {
+                for path in &ev.paths {
+                    log::trace!("FileWatcher Remove: {:?}", path);
+                    self.emit_all()?
+                }
+            }
+            ev => {
+                log::warn!("UNKNOWN DebouncedEvent: {:?}", ev);
+            }
+        };
+        Ok(())
+    }
+    fn emit_all(&self) -> anyhow::Result<()> {
+        Ok(self.app.emit(
+            EVENT_ID_FILE_NOTIFY,
+            FileNotifyEvent {
+                tab_id: self.tab_id,
+                file_id: None,
+            },
+        )?)
     }
 }

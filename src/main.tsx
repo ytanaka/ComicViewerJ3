@@ -10,6 +10,7 @@ import App from './App';
 import { RustLibInitializer } from './components/util/RustLibInitializer';
 import { myQueryClient } from './lib/query-client';
 
+// immer で Set, Map を扱うときはこれを呼ぶこと
 enableMapSet();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
