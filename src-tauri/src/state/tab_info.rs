@@ -154,7 +154,7 @@ impl TabInfo {
             .ok_or_else(|| anyhow!("no file[{}] for tab[{}]", file_id, self.tab_id))?;
         Ok(ret)
     }
-    
+
     // MetadataWorker のスレッドで一括取得されたメタデータを設定する
     pub fn set_metadata(
         &mut self,
@@ -250,6 +250,7 @@ mod tests {
     #[test]
     fn test_tab_info() {
         let state = Arc::new(AppState::new());
+        state.init_for_test();
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
         let watcher = FileWatcher::new(app(), &state, 123, "/a/b/c").unwrap();
         let mut tab = TabInfo::new(123, "/a/b/c", files, watcher, state.clone());

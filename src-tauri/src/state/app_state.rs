@@ -104,6 +104,11 @@ impl AppState {
             .preferences
             .get_or_init(|| Arc::new(RwLock::new(AppPreferences::default())));
     }
+    #[cfg(test)]
+    pub fn init_for_test(&self) {
+        self.preferences
+            .get_or_init(|| Arc::new(RwLock::new(AppPreferences::default())));
+    }
     pub fn is_initialized(&self) -> bool {
         self.text_matcher.get().is_some()
     }

@@ -1,5 +1,15 @@
 import { FileId, TabId } from '@/store/tab/types';
-import { commands, DirEntryUI, Either, FileInfoUI, FileMetadata, SortCondition, SortType, TabInfoUI } from './bindings';
+import {
+  AppPreferences,
+  commands,
+  DirEntryUI,
+  Either,
+  FileInfoUI,
+  FileMetadata,
+  SortCondition,
+  SortType,
+  TabInfoUI,
+} from './bindings';
 import { logErr } from './log';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
@@ -77,6 +87,13 @@ function toFileInfo(from: FileInfoUI): FileInfo {
   return {
     file_id: from.file_id as FileId,
     metadata: from.metadata,
+  };
+}
+
+export function mkAppPreferencesDefault(): AppPreferences {
+  return {
+    debug_filename_search_sleep_ms: 0,
+    filename_sort_strength: 'Identical',
   };
 }
 

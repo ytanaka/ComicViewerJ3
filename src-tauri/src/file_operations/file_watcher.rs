@@ -31,7 +31,7 @@ impl FileWatcher {
         }
 
         let handler = FileWatcherHandler {
-            app: app,
+            app,
             state: state.clone(),
             tab_id,
         };
@@ -145,11 +145,5 @@ fn file_notify_impl<E: EventEmitter>(
     tab_id: TabId,
     file_id: Option<FileId>,
 ) -> anyhow::Result<()> {
-    Ok(app.emit(
-        EVENT_ID_FILE_NOTIFY,
-        FileNotifyEvent {
-            tab_id: tab_id,
-            file_id: file_id,
-        },
-    )?)
+    app.emit(EVENT_ID_FILE_NOTIFY, FileNotifyEvent { tab_id, file_id })
 }

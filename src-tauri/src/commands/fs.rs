@@ -370,10 +370,15 @@ mod tests {
     fn get_test_dir() -> PathBuf {
         std::env::current_dir().unwrap().join("testdata")
     }
+    fn state() -> Arc<AppState> {
+        let state = Arc::new(AppState::new());
+        state.init_for_test();
+        state
+    }
 
     #[tokio::test]
     async fn test_create_tab() {
-        let state = Arc::new(AppState::new());
+        let state = state();
         assert_eq!(state.tabs.len(), 0);
 
         assert_eq!(
@@ -429,7 +434,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_remove_tab() {
-        let state = Arc::new(AppState::new());
+        let state = state();
         create_tab_imp(app(), &state, get_test_dir()).await.unwrap();
         create_tab_imp(app(), &state, get_test_dir()).await.unwrap();
 
@@ -445,7 +450,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_dir_entries() {
-        let state = Arc::new(AppState::new());
+        let state = state();
 
         let tab_id = create_tab_imp(app(), &state, get_test_dir())
             .await
@@ -481,7 +486,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_file_infos() {
-        let state = Arc::new(AppState::new());
+        let state = state();
         let call = async |tab_id: TabId, file_id: &str| {
             get_file_infos_impl(&state, tab_id, vec![file_id.to_string()])
                 .await

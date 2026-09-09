@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppPreferences } from '../lib/bindings';
-import { handleRustCmdResult, rustcmds } from '@/lib/bindings-wrapper';
+import { handleRustCmdResult, mkAppPreferencesDefault, rustcmds } from '@/lib/bindings-wrapper';
 
 const preferencesQueryKey = 'preferences';
 
@@ -10,7 +10,7 @@ export function usePreferences() {
     queryFn: async (): Promise<AppPreferences> => {
       const result = await rustcmds.loadPreferences();
       if (result.status === 'error') {
-        return { debug_filename_search_sleep_ms: 0 };
+        return mkAppPreferencesDefault();
       }
       return result.data;
     },

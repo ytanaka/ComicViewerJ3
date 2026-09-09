@@ -15,13 +15,13 @@ import { FileListPanel } from './panels/FileListPanel';
 const allPanelList = [
   {
     id: 'general',
-    label: '基本',
+    label: '基本設定',
     icon: Settings2,
     node: GeneralPanel,
   },
   {
     id: 'fileList',
-    label: 'ファイル一覧',
+    label: 'ファイル一覧表示',
     icon: Settings2,
     node: FileListPanel,
   },
