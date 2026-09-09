@@ -4,8 +4,8 @@ use std::{
     time::Duration,
 };
 
-use notify::{EventKind, ReadDirectoryChangesWatcher, RecursiveMode};
-use notify_debouncer_full::{new_debouncer, DebouncedEvent, Debouncer, FileIdMap};
+use notify::{EventKind, RecommendedWatcher, RecursiveMode};
+use notify_debouncer_full::{DebouncedEvent, Debouncer, RecommendedCache, new_debouncer};
 
 use crate::{
     state::{
@@ -17,7 +17,7 @@ use crate::{
 
 // ---------------------------------------------------------------------------------------------------------------------
 pub struct FileWatcher {
-    debouncer: Option<Debouncer<ReadDirectoryChangesWatcher, FileIdMap>>,
+    debouncer: Option<Debouncer<RecommendedWatcher, RecommendedCache>>,
 }
 impl FileWatcher {
     pub fn new<E: EventEmitter>(
@@ -106,6 +106,7 @@ impl<E: EventEmitter> FileWatcherHandler<E> {
                     }
                 }
             }
+            EventKind::Access(_) => { /* 無視する */},
             ev => {
                 log::warn!("UNKNOWN DebouncedEvent: {:?}", ev);
                 self.ui_all_refresh()?
