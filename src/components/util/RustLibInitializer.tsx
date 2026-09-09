@@ -38,6 +38,6 @@ async function removeOldRustTabs() {
   for (const tab of await rustcmds.getTabs()) {
     console.info(`remove unused old tab: ${tab.id}`);
     const result = await rustcmds.removeTab(tab.id);
-    handleRustCmdResult(result, `rustcmds.removeTab(${tab.id})`, "古いタブ情報削除に失敗");
+    handleRustCmdResult(result, `rustcmds.removeTab(${tab.id})`, '古いタブ情報削除に失敗');
   }
 }

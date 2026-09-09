@@ -10,7 +10,7 @@ use tauri::{AppHandle, Emitter};
 
 use crate::{
     state::app_state::AppState,
-    types::{FileNotifyEvent, TabId, EVENT_ID_FILE_NOTIFY},
+    types::{FileId, FileNotifyEvent, TabId, EVENT_ID_FILE_NOTIFY},
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,7 +28,6 @@ impl FileWatcher {
             app: app.clone(),
             state: state.clone(),
             tab_id,
-            path: path.as_ref().to_path_buf(),
         };
         let mut debouncer = new_debouncer(Duration::from_secs(1), None, move |ev| {
             handler.handle_events(ev);
@@ -52,7 +51,6 @@ struct FileWatcherHandler {
     app: AppHandle,
     state: Arc<AppState>,
     tab_id: TabId,
-    path: PathBuf,
 }
 impl FileWatcherHandler {
     fn handle_events(&self, ev: Result<Vec<DebouncedEvent>, Vec<notify::Error>>) {
@@ -79,24 +77,37 @@ impl FileWatcherHandler {
         );
 
         match ev.kind {
-            EventKind::Create(_) => self.emit_all()?,
-            EventKind::Remove(_) => self.emit_all()?,
+            EventKind::Create(_) => self.ui_all_refresh()?,
+            EventKind::Remove(_) => self.ui_all_refresh()?,
             EventKind::Modify(_) => {
                 let paths: Vec<_> = ev.paths.iter().collect();
-                if paths.len() == 1 {
-                    self.emit_all()?
+                if paths.len() != 1 {
+                    self.ui_all_refresh()?
                 } else {
-                    self.emit_all()?
+                    // 1ファイルが変更されたときのみ、1ファイルのメタデータ再取得をする
+                    // ※ それ以外はディレクトリ再読み込み
+                    let filenames = &&paths
+                        .first()
+                        .iter()
+                        .flat_map(|p| p.file_name())
+                        .collect::<Vec<_>>();
+                    for filename in *filenames {
+                        let tab = self.state.get_tab(self.tab_id).unwrap();
+                        let mut tab = tab.write().unwrap();
+                        if let Some(file_id) = tab.handle_modify_file(filename) {
+                            self.ui_1file_refresh(file_id)?
+                        }
+                    }
                 }
             }
             ev => {
                 log::warn!("UNKNOWN DebouncedEvent: {:?}", ev);
-                self.emit_all()?
+                self.ui_all_refresh()?
             }
         };
         Ok(())
     }
-    fn emit_all(&self) -> anyhow::Result<()> {
+    fn ui_all_refresh(&self) -> anyhow::Result<()> {
         Ok(self.app.emit(
             EVENT_ID_FILE_NOTIFY,
             FileNotifyEvent {
@@ -105,9 +116,18 @@ impl FileWatcherHandler {
             },
         )?)
     }
+    fn ui_1file_refresh(&self, file_id: FileId) -> anyhow::Result<()> {
+        Ok(self.app.emit(
+            EVENT_ID_FILE_NOTIFY,
+            FileNotifyEvent {
+                tab_id: self.tab_id,
+                file_id: Some(file_id),
+            },
+        )?)
+    }
 }
 
-fn paths_str(paths: &Vec<PathBuf>) -> String {
+fn paths_str(paths: &[PathBuf]) -> String {
     paths
         .iter()
         .map(|p| p.to_string_lossy())

@@ -161,14 +161,15 @@ impl TabInfo {
         }
     }
 
-    pub fn handle_modify_file(&self, file_id: FileId) {
-        todo!()
-    }
-    pub fn handle_create_file(&self, file_id: FileId) {
-        todo!()
-    }
-    pub fn handle_delete_file(&self, file_id: FileId) {
-        todo!()
+    pub fn handle_modify_file(&mut self, filename: &OsStr) -> Option<FileId> {
+        let ret = self.file_names.get(filename);
+        if let Some(file_id) = ret {
+            if let Some(f) = self.files.get_mut(file_id) {
+                f.metadata = None;
+                self.sorted_list = None;
+            }
+        }
+        ret.copied()
     }
 }
 

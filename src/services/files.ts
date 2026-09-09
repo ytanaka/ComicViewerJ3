@@ -23,7 +23,7 @@ function getQueryData_tabIds() {
     .getQueryCache()
     .getAll()
     .filter(q => q.queryKey[0] === HEAD_QUERY_KEY_FOR_TAB_ID)
-    .filter(q => typeof q.queryKey[1] === 'number' ? 0 < q.queryKey[1] : true)
+    .filter(q => (typeof q.queryKey[1] === 'number' ? 0 < q.queryKey[1] : true))
     .map(q => q.queryKey[1] as TabId);
   return [...new Set(list)];
 }
@@ -128,7 +128,7 @@ function queryKey_useFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   return [...mkTabQueryKey(tabInfo.id), 'getFileInfos', fileIds];
 }
 function queryKey_useFileInfo1Query(tabId: TabId, fileId: FileId) {
-  return [...mkTabQueryKey(tabId), 'getFileInfo', fileId];
+  return [...mkTabQueryKey(tabId), 'getFileInfo1', fileId];
 }
 export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   const queryClient = useQueryClient();
@@ -167,6 +167,6 @@ export function useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
 export function getQueryData_getFileInfo1(tabId: TabId, fileId: FileId): FileInfo | undefined {
   return myQueryClient.getQueryData<FileInfo>(queryKey_useFileInfo1Query(tabId, fileId));
 }
-export function removeQueries_getFileInfo1(tabId: TabId, fileId: FileId) {
-  myQueryClient.removeQueries({ queryKey: queryKey_useFileInfo1Query(tabId, fileId) });
+export function setQueryData_getFileInfo1(tabId: TabId, fileId: FileId, fileInfo: FileInfo) {
+  myQueryClient.setQueryData(queryKey_useFileInfo1Query(tabId, fileId), fileInfo);
 }

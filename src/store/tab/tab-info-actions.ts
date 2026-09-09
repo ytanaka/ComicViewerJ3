@@ -40,6 +40,6 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
           tab.info.id = (tab.info.id * -1) as TabId;
         });
       });
-    }
+    },
   };
 };

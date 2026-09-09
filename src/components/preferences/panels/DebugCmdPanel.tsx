@@ -15,11 +15,11 @@ export function DebugCmdPane() {
 
   async function handleClickCreateTab() {
     const result = await rustcmds.createTab(newTabPath);
-    handleRustCmdResult(result, `rustcmds.createTab for DEBUG`, "タブ作成失敗", (data) => {
+    handleRustCmdResult(result, `rustcmds.createTab for DEBUG`, 'タブ作成失敗', data => {
       toast(`OK: id=${data.id}, path=${data.path}`, { duration: 5000 });
       useTabStore.getState().addTab(mkUiTab(data));
       useUiVolatileStore.getState().setShowPreferencesDialog(false);
-    })
+    });
   }
 
   return (

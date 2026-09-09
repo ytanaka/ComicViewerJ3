@@ -6,5 +6,4 @@ export function logErr(userMsg: string, errorResult: { status: 'error'; error: s
     duration: 5000,
     description: errorResult.error,
   });
-
 }
