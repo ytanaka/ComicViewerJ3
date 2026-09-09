@@ -114,22 +114,10 @@ impl<E: EventEmitter> FileWatcherHandler<E> {
         Ok(())
     }
     fn ui_all_refresh(&self) -> anyhow::Result<()> {
-        Ok(self.app.emit(
-            EVENT_ID_FILE_NOTIFY,
-            FileNotifyEvent {
-                tab_id: self.tab_id,
-                file_id: None,
-            },
-        )?)
+        file_notify_tab(&self.app, self.tab_id)
     }
     fn ui_1file_refresh(&self, file_id: FileId) -> anyhow::Result<()> {
-        Ok(self.app.emit(
-            EVENT_ID_FILE_NOTIFY,
-            FileNotifyEvent {
-                tab_id: self.tab_id,
-                file_id: Some(file_id),
-            },
-        )?)
+        file_notify_1file(&self.app, self.tab_id, file_id)
     }
 }
 
@@ -139,4 +127,29 @@ fn paths_str(paths: &[PathBuf]) -> String {
         .map(|p| p.to_string_lossy())
         .collect::<Vec<_>>()
         .join(", ")
+}
+
+pub fn file_notify_tab<E: EventEmitter>(app: &AppContext<E>, tab_id: TabId) -> anyhow::Result<()> {
+    file_notify_impl(app, tab_id, None)
+}
+pub fn file_notify_1file<E: EventEmitter>(
+    app: &AppContext<E>,
+    tab_id: TabId,
+    file_id: FileId,
+) -> anyhow::Result<()> {
+    file_notify_impl(app, tab_id, Some(file_id))
+}
+
+fn file_notify_impl<E: EventEmitter>(
+    app: &AppContext<E>,
+    tab_id: TabId,
+    file_id: Option<FileId>,
+) -> anyhow::Result<()> {
+    Ok(app.emit(
+        EVENT_ID_FILE_NOTIFY,
+        FileNotifyEvent {
+            tab_id: tab_id,
+            file_id: file_id,
+        },
+    )?)
 }
