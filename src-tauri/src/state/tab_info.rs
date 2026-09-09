@@ -196,18 +196,12 @@ impl TabInfo {
 mod tests {
     use super::*;
     use maplit::hashmap;
-    use tauri::AppHandle;
 
-    use crate::state::app_state::{AppState, START_FILE_ID};
+    use crate::state::{
+        app_state::{AppState, START_FILE_ID},
+        util::AppContext,
+    };
 
-    fn mk_dummy_app() -> AppHandle {
-        tauri::Builder::default()
-            .setup(|_app| Ok(()))
-            .build(tauri::generate_context!())
-            .expect("failed to build app")
-            .handle()
-            .clone()
-    }
     fn mk_dummy_files(state: &AppState, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOS> {
         let mut ret = HashMap::new();
         for fname in file_names {
@@ -227,7 +221,7 @@ mod tests {
 
     #[test]
     fn test_tab_info() {
-        let app = mk_dummy_app();
+        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
         let watcher = FileWatcher::new(&app, &state, 123, "/a/b/c").unwrap();

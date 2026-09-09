@@ -11,7 +11,7 @@ use tauri::{AppHandle, State};
 use crate::{
     commands::fs_util,
     file_operations::{file_utils, file_watcher::FileWatcher},
-    state::{app_state::AppState, tab_info::TabInfo},
+    state::{app_state::AppState, tab_info::TabInfo, util::AppContext},
     types::{DirEntryUI, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI},
     LOG_RESULT,
 };
@@ -69,12 +69,12 @@ pub async fn create_tab(
     log_create_tab_result(
         &state,
         format!("create_tab({path})"),
-        create_tab_imp(&app, &state, path),
+        create_tab_imp(&AppContext::new(app), &state, path),
     )
     .await
 }
 async fn create_tab_imp(
-    app: &AppHandle,
+    app: &AppContext,
     state: &Arc<AppState>,
     arg_path: impl AsRef<Path>,
 ) -> anyhow::Result<CreateTabResult> {
@@ -139,17 +139,17 @@ pub async fn clone_tab(
     log_create_tab_result(
         &state,
         format!("clone_tab({tab_id})"),
-        clone_tab_impl(app, &state, tab_id),
+        clone_tab_impl(&AppContext::new(app), &state, tab_id),
     )
     .await
 }
 async fn clone_tab_impl(
-    app: AppHandle,
+    app: &AppContext,
     state: &Arc<AppState>,
     tab_id: TabId,
 ) -> anyhow::Result<CreateTabResult> {
     let path = fs_util::get_tab_path(state, tab_id)?;
-    create_tab_imp(&app, state, path).await
+    create_tab_imp(app, state, path).await
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -165,13 +165,13 @@ pub async fn clone_tab_child_dir(
     log_create_tab_result(
         &state,
         format!("clone_tab_child_dir({tab_id}, {file_id})"),
-        clone_tab_child_dir_impl(app, &state, tab_id, file_id),
+        clone_tab_child_dir_impl(&AppContext::new(app), &state, tab_id, file_id),
     )
     .await
 }
 
 async fn clone_tab_child_dir_impl(
-    app: AppHandle,
+    app: &AppContext,
     state: &Arc<AppState>,
     tab_id: TabId,
     file_id: String,
@@ -181,7 +181,7 @@ async fn clone_tab_child_dir_impl(
         .map_err(|_| anyhow!("invalid file_id as u64"))?;
     let (path, file) = fs_util::get_tab_file(state, tab_id, file_id)?;
     let child = path.join(file.name.as_ref());
-    create_tab_imp(&app, state, child).await
+    create_tab_imp(app, state, child).await
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -196,18 +196,18 @@ pub async fn clone_tab_parent_dir(
     log_create_tab_result(
         &state,
         format!("clone_tab_parent_dir({tab_id})"),
-        clone_tab_parent_dir_impl(app, &state, tab_id),
+        clone_tab_parent_dir_impl(&AppContext::new(app), &state, tab_id),
     )
     .await
 }
 async fn clone_tab_parent_dir_impl(
-    app: AppHandle,
+    app: &AppContext,
     state: &Arc<AppState>,
     tab_id: TabId,
 ) -> anyhow::Result<CreateTabResult> {
     let path = fs_util::get_tab_path(state, tab_id)?;
     let parent = path.parent().ok_or_else(|| anyhow!("no parent dir"))?;
-    create_tab_imp(&app, state, parent).await
+    create_tab_imp(app, state, parent).await
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -360,21 +360,13 @@ mod tests {
 
     use super::*;
 
-    fn mk_dummy_app() -> AppHandle {
-        tauri::Builder::default()
-            .setup(|_app| Ok(()))
-            .build(tauri::generate_context!())
-            .expect("failed to build app")
-            .handle()
-            .clone()
-    }
     fn get_test_dir() -> PathBuf {
         std::env::current_dir().unwrap().join("testdata")
     }
 
     #[tokio::test]
     async fn test_create_tab() {
-        let app = mk_dummy_app();
+        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
         assert_eq!(state.tabs.len(), 0);
 
@@ -431,7 +423,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_remove_tab() {
-        let app = mk_dummy_app();
+        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
         create_tab_imp(&app, &state, get_test_dir()).await.unwrap();
         create_tab_imp(&app, &state, get_test_dir()).await.unwrap();
@@ -448,7 +440,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_dir_entries() {
-        let app = mk_dummy_app();
+        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
 
         let tab_id = create_tab_imp(&app, &state, get_test_dir())
@@ -481,7 +473,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_file_infos() {
-        let app = mk_dummy_app();
+        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
         let call = async |tab_id: TabId, file_id: &str| {
             get_file_infos_impl(&state, tab_id, vec![file_id.to_string()])

@@ -6,10 +6,9 @@ use std::{
 
 use notify::{EventKind, ReadDirectoryChangesWatcher, RecursiveMode};
 use notify_debouncer_full::{new_debouncer, DebouncedEvent, Debouncer, FileIdMap};
-use tauri::{AppHandle, Emitter};
 
 use crate::{
-    state::app_state::AppState,
+    state::{app_state::AppState, util::AppContext},
     types::{FileId, FileNotifyEvent, TabId, EVENT_ID_FILE_NOTIFY},
 };
 
@@ -19,7 +18,7 @@ pub struct FileWatcher {
 }
 impl FileWatcher {
     pub fn new(
-        app: &AppHandle,
+        app: &AppContext,
         state: &Arc<AppState>,
         tab_id: TabId,
         path: impl AsRef<Path>,
@@ -48,7 +47,7 @@ impl FileWatcher {
 
 // ---------------------------------------------------------------------------------------------------------------------
 struct FileWatcherHandler {
-    app: AppHandle,
+    app: AppContext,
     state: Arc<AppState>,
     tab_id: TabId,
 }
