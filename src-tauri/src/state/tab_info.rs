@@ -8,12 +8,10 @@ use std::{
 };
 
 use anyhow::anyhow;
-use icu::locale::locale;
-use icu_collator::{options::CollatorOptions, Collator, CollatorBorrowed};
 
 use crate::{
     file_operations::{file_utils::read_metadata, file_watcher::FileWatcher},
-    file_sort::cmp_file,
+    file_sort::{cmp_file, mk_filename_cmp},
     state::app_state::AppState,
     types::{
         DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId, TabInfoUI,
@@ -95,22 +93,13 @@ impl TabInfo {
     }
 
     fn sort_items(&mut self) {
-        let mut options = CollatorOptions::default();
-        options.strength = Some(
-            self.state
-                .preferences
-                .read()
-                .unwrap()
-                .get_collator_options(),
-        );
-        let collator: Option<CollatorBorrowed> =
-            Collator::try_new(locale!("ja").into(), options).ok();
+        let cmp = mk_filename_cmp(&self.state);
 
         let mut list: Vec<_> = self.files.keys().copied().collect();
         list.sort_by(|a, b| {
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(a, b, &self.sort_condition, &collator)
+            cmp_file(a, b, &self.sort_condition, &cmp)
         });
         self.sorted_list = Some(list);
         self.generation += 1;

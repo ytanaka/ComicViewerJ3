@@ -206,7 +206,11 @@ impl std::fmt::Debug for FileSearchResult {
 pub struct AppPreferences {
     /// ファイル名検索するとき
     pub debug_filename_search_sleep_ms: i32,
-    /// ファイル名ソート (icu_collator::options::Strength)
+
+    /// ファイル名ソート時の文字比較方法
+    pub filename_cmp: FilenameCmpType,
+
+    /// ファイル名ソート時のCollator設定 (icu_collator::options::Strength)
     /// 'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'
     pub filename_sort_strength: String,
 }
@@ -220,6 +224,19 @@ impl AppPreferences {
             _ => icu_collator::options::Strength::Identical,
         }
     }
+}
+
+/// ファイル名ソート時の文字比較方法
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+#[serde(tag = "type")]
+pub enum FilenameCmpType {
+    /// Unicode文字コード順
+    #[default]
+    Unicode = 0,
+    /// Shift-JIS
+    Sjis,
+    /// 自然
+    Icu,
 }
 
 // =====================================================================================================================
