@@ -1,6 +1,19 @@
+/// 単体テストで tauri::* の型を参照すると(間接的でも)Windowsで以下のエラーになる
+///
+/// error: test failed, to rerun pass `--lib`
+///
+/// Caused by:
+///   process didn't exit successfully: `C:\ComicViewerJ3\src-tauri\target\debug\deps\comicviewerj3_lib-ff02ba61011af069.exe` (exit code: 0xc0000139, STATUS_ENTRYPOINT_NOT_FOUND)
+/// note: test exited abnormally; to see the full output pass --no-capture to the harness.
+/// [ELIFECYCLE] Command failed with exit code 3221225785.
+///
+/// tauri::AppHndle を単体テストから見えないようにするために、AppHandle をラップして AppContext を使うようにする
+///
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 
+// ---------------------------------------------------------------------------------------------------------------------
+// AppHandle.emit() と同じインターフェイスを持つ trait
 pub trait EventEmitter: Send + Sync + 'static {
     fn emit_payload<S: Serialize + Clone + Send + 'static>(
         &self,
@@ -12,6 +25,7 @@ pub trait EventEmitter: Send + Sync + 'static {
     fn is_dummy(&self) -> bool;
 }
 
+// アプリ実行時は本物の AppHandle を trait の実体として使う
 impl EventEmitter for AppHandle {
     fn emit_payload<S: Serialize + Clone + Send + 'static>(
         &self,
@@ -26,6 +40,7 @@ impl EventEmitter for AppHandle {
     }
 }
 
+// 単体テスト時はAppHandleの代わりにこれを使う
 #[cfg(test)]
 pub struct DummyAppHandle {}
 #[cfg(test)]
@@ -43,9 +58,8 @@ impl EventEmitter for DummyAppHandle {
     }
 }
 
-// --------------------------------------------------
-// 構造体の定義：ジェネリクス E を保持する
-// --------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+// AppHandle のラッパー
 pub struct AppContext<E: EventEmitter> {
     emitter: E,
 }
