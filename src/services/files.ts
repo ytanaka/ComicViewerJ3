@@ -15,7 +15,14 @@ function mkTabQueryKey(tabId: TabId) {
 
 export function removeQueries_tab(tabId: TabId) {
   myQueryClient.removeQueries({ queryKey: mkTabQueryKey(tabId) });
-  console.debug(`TanStack Query tab cache = [${getQueryData_tabIds()}]`);
+  const cachedTabIds = getQueryData_tabIds();
+  console.debug(`TanStack Query tab cache = [${cachedTabIds}]`);
+
+  // 負数のタブIDは消すタイミングがないので、ここで消しておく
+  cachedTabIds.filter(tabId => tabId < 0).forEach(tabId => {
+    console.debug(`queryClient.removeQueries(${tabId})`);
+    myQueryClient.removeQueries({ queryKey: mkTabQueryKey(tabId) });
+  });
 }
 
 function getQueryData_tabIds() {
@@ -23,7 +30,6 @@ function getQueryData_tabIds() {
     .getQueryCache()
     .getAll()
     .filter(q => q.queryKey[0] === HEAD_QUERY_KEY_FOR_TAB_ID)
-    .filter(q => (typeof q.queryKey[1] === 'number' ? 0 < q.queryKey[1] : true))
     .map(q => q.queryKey[1] as TabId);
   return [...new Set(list)];
 }
@@ -42,15 +48,13 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
     queryKey: queryKey_useCmdCreateTab(tabInfo),
     queryFn: async () => {
       const result = await rustcmds.createTab(tabInfo.path);
-      return result;
+      handleRustCmdResult(result, `rustcmds.createTab(${tabInfo.path})`, 'タブ初期化失敗', data => {
+        useTabStore.getState().updateTab(tabInfo.id, data);
+      });
+      return null;
     },
     enabled: tabInfo.id < 0,
     gcTime: 0,
-    select: data => {
-      handleRustCmdResult(data, `rustcmds.createTab(${tabInfo.path})`, 'タブ初期化失敗', data => {
-        useTabStore.getState().updateTab(tabInfo.id, data);
-      });
-    },
   });
 }
 
