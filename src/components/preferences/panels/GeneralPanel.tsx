@@ -3,7 +3,7 @@ import { InputGroup, InputGroupInput } from '@/components/ui/input-group';
 import { Separator } from '@/components/ui/separator';
 import { MAX_TAB_NUM_LIMIT, useUiStore } from '@/store/ui-store';
 
-export function GeneralPane() {
+export function GeneralPanel() {
   const maxTabNum = useUiStore(state => state.maxTabNum);
   const setField = useUiStore(state => state.setField);
 

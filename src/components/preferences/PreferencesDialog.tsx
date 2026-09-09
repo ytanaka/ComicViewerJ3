@@ -4,43 +4,50 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 import { useUiStore } from '@/store/ui-store';
-import { GeneralPane } from './panels/GeneralPane';
-import { DebugPane } from './panels/DebugPanel';
-import { AboutPane } from './panels/AboutPanel';
+import { GeneralPanel } from './panels/GeneralPanel';
+import { DebugPane as DebugPanel } from './panels/DebugPanel';
+import { AboutPane as AboutPanel } from './panels/AboutPanel';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { AdvancedPane } from './panels/AdvancedPanel';
-import { DebugCmdPane } from './panels/DebugCmdPanel';
+import { AdvancedPane as AdvancedPanel } from './panels/AdvancedPanel';
+import { DebugCmdPane as DebugCmdPanel } from './panels/DebugCmdPanel';
+import { FileListPanel } from './panels/FileListPanel';
 
 const allPanelList = [
   {
     id: 'general',
     label: '基本',
     icon: Settings2,
-    node: GeneralPane,
+    node: GeneralPanel,
+  },
+  {
+    id: 'fileList',
+    label: 'ファイル一覧',
+    icon: Settings2,
+    node: FileListPanel,
   },
   {
     id: 'advanced',
     label: '高度な設定',
     icon: Settings,
-    node: AdvancedPane,
+    node: AdvancedPanel,
   },
   {
     id: 'debug',
     label: 'デバッグ用設定',
     icon: Zap,
-    node: DebugPane,
+    node: DebugPanel,
   },
   {
     id: 'debugCmd',
     label: 'デバッグ用コマンド',
     icon: Zap,
-    node: DebugCmdPane,
+    node: DebugCmdPanel,
   },
   {
     id: 'about',
     label: 'アプリについて',
     icon: Info,
-    node: AboutPane,
+    node: AboutPanel,
   },
 ] as const;
 

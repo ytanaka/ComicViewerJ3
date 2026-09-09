@@ -1,8 +1,15 @@
 use std::{cmp::Ordering, path::Path};
 
+use icu_collator::CollatorBorrowed;
+
 use crate::types::{FileInfoOS, SortCondition, SortType};
 
-pub fn cmp_file(sort: &SortCondition, f1: &FileInfoOS, f2: &FileInfoOS) -> Ordering {
+pub fn cmp_file(
+    f1: &FileInfoOS,
+    f2: &FileInfoOS,
+    sort: &SortCondition,
+    collator: &Option<CollatorBorrowed>,
+) -> Ordering {
     // ディレクトリとファイルを比較する場合
     let cmp = match (f1.is_dir, f2.is_dir) {
         (true, false) => Ordering::Less,
@@ -16,7 +23,10 @@ pub fn cmp_file(sort: &SortCondition, f1: &FileInfoOS, f2: &FileInfoOS) -> Order
 
     // ファイル同士 or ディレクトリ同士
     let cmp = match sort.sort_type {
-        SortType::Name => f1.name.cmp(&f2.name),
+        SortType::Name => match collator {
+            Some(c) => c.compare(&f1.name.to_string_lossy(), &f2.name.to_string_lossy()),
+            None => f1.name.cmp(&f2.name),
+        },
         SortType::Ext => {
             let ext1 = Path::new(&f1.name).extension().unwrap_or_default();
             let ext2 = Path::new(&f2.name).extension().unwrap_or_default();

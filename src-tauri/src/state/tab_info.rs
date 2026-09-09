@@ -8,10 +8,13 @@ use std::{
 };
 
 use anyhow::anyhow;
+use icu::locale::locale;
+use icu_collator::{options::CollatorOptions, Collator, CollatorBorrowed};
 
 use crate::{
     file_operations::{file_utils::read_metadata, file_watcher::FileWatcher},
     file_sort::cmp_file,
+    state::app_state::AppState,
     types::{
         DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId, TabInfoUI,
     },
@@ -33,6 +36,8 @@ pub struct TabInfo {
     generation: TabGeneration,    // sorted_list が更新された回数。ファイル名検索で比較して中断する
 
     file_watcher: FileWatcher,
+
+    state: Arc<AppState>,
 }
 impl TabInfo {
     pub fn new(
@@ -40,6 +45,7 @@ impl TabInfo {
         path: impl AsRef<Path>,
         files: HashMap<FileId, FileInfoOS>,
         file_watcher: FileWatcher,
+        state: Arc<AppState>,
     ) -> Self {
         let mut ret = TabInfo {
             tab_id,
@@ -51,6 +57,7 @@ impl TabInfo {
             metadata_loaded_count: 0,
             generation: 0,
             file_watcher,
+            state,
         };
         for (i, f) in files {
             ret.file_names.insert(f.name.clone(), i);
@@ -76,20 +83,34 @@ impl TabInfo {
     pub fn add_metadata_loaded_count(&mut self, n: usize) {
         self.metadata_loaded_count += n;
     }
-    pub fn sortable(&self, sort_condition: &SortCondition) -> bool {
+    pub fn set_sort_condition(&mut self, sort_condition: SortCondition) {
+        self.sort_condition = sort_condition;
+        self.sorted_list = None;
+    }
+    pub fn is_sortable(&self, sort_condition: &SortCondition) -> bool {
         match sort_condition.sort_type {
             crate::types::SortType::Name | crate::types::SortType::Ext => true,
             _ => self.metadata_loaded_count == self.files.len(),
         }
     }
 
-    pub fn sort_items(&mut self, sort_condition: SortCondition) {
-        self.sort_condition = sort_condition;
+    fn sort_items(&mut self) {
+        let mut options = CollatorOptions::default();
+        options.strength = Some(
+            self.state
+                .preferences
+                .read()
+                .unwrap()
+                .get_collator_options(),
+        );
+        let collator: Option<CollatorBorrowed> =
+            Collator::try_new(locale!("ja").into(), options).ok();
+
         let mut list: Vec<_> = self.files.keys().copied().collect();
         list.sort_by(|a, b| {
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(&self.sort_condition, a, b)
+            cmp_file(a, b, &self.sort_condition, &collator)
         });
         self.sorted_list = Some(list);
         self.generation += 1;
@@ -98,7 +119,7 @@ impl TabInfo {
     // ソート済みのファイルIDリストを取得 (未ソートの場合はソートする)
     pub fn get_sorted_list(&mut self) -> Vec<FileId> {
         if self.sorted_list.is_none() {
-            self.sort_items(self.sort_condition.clone());
+            self.sort_items();
         }
         let x = self.sorted_list.clone();
         x.unwrap()
@@ -126,13 +147,15 @@ impl TabInfo {
             .ok_or_else(|| anyhow!("no file[{}] for tab[{}]", file_id, self.tab_id))?;
         Ok(ret)
     }
-    pub fn get_file_info_mut(&mut self, file_id: FileId) -> anyhow::Result<&mut FileInfoOS> {
+    fn get_file_info_mut(&mut self, file_id: FileId) -> anyhow::Result<&mut FileInfoOS> {
         let ret = self
             .files
             .get_mut(&file_id)
             .ok_or_else(|| anyhow!("no file[{}] for tab[{}]", file_id, self.tab_id))?;
         Ok(ret)
     }
+    
+    // MetadataWorker のスレッドで一括取得されたメタデータを設定する
     pub fn set_metadata(
         &mut self,
         file_id: FileId,
@@ -143,6 +166,8 @@ impl TabInfo {
         Ok(())
     }
 
+    // UIから取得依頼の来たファイル情報を取得する
+    // ※ まだ未取得なら取得して設定しておく
     pub fn load_metadata(&mut self, file_id: FileId) -> anyhow::Result<()> {
         let file_info = self.get_file_info(file_id)?;
         if file_info.metadata.is_some() {
@@ -202,7 +227,7 @@ mod tests {
         util::{AppContext, DummyAppHandle},
     };
 
-    fn app() -> AppContext<DummyAppHandle>{
+    fn app() -> AppContext<DummyAppHandle> {
         AppContext::new(DummyAppHandle {})
     }
     fn mk_dummy_files(state: &AppState, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOS> {
@@ -227,7 +252,7 @@ mod tests {
         let state = Arc::new(AppState::new());
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
         let watcher = FileWatcher::new(app(), &state, 123, "/a/b/c").unwrap();
-        let mut tab = TabInfo::new(123, "/a/b/c", files, watcher);
+        let mut tab = TabInfo::new(123, "/a/b/c", files, watcher, state.clone());
 
         let mut list: Vec<_> = tab
             .files

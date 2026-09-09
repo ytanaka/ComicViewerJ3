@@ -115,7 +115,7 @@ async fn create_tab_imp<E: EventEmitter>(
     let max = file_ids.iter().max().copied();
 
     // タブ作成
-    let tab = TabInfo::new(tab_id, path, files_map, watcher);
+    let tab = TabInfo::new(tab_id, path, files_map, watcher, state.clone());
 
     // AppStateにタブ追加
     let tab_ui = tab.to_ui();
@@ -330,10 +330,10 @@ fn sort_files_impl(
 ) -> anyhow::Result<bool, String> {
     let tab = state.get_tab(tab_id).map_err(|e| e.to_string())?;
     let mut tab = tab.write().unwrap();
-    if !tab.sortable(&sort_condition) {
+    if !tab.is_sortable(&sort_condition) {
         return Ok(false);
     }
-    tab.sort_items(sort_condition);
+    tab.set_sort_condition(sort_condition);
     Ok(true)
 }
 

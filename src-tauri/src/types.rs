@@ -204,8 +204,22 @@ impl std::fmt::Debug for FileSearchResult {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 pub struct AppPreferences {
-    // ファイル名検索するとき
+    /// ファイル名検索するとき
     pub debug_filename_search_sleep_ms: i32,
+    /// ファイル名ソート (icu_collator::options::Strength)
+    /// 'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'
+    pub filename_sort_strength: String,
+}
+impl AppPreferences {
+    pub fn get_collator_options(&self) -> icu_collator::options::Strength {
+        match self.filename_sort_strength.as_str() {
+            "Primary" => icu_collator::options::Strength::Primary,
+            "Secondary" => icu_collator::options::Strength::Secondary,
+            "Tertiary" => icu_collator::options::Strength::Tertiary,
+            "Quaternary" => icu_collator::options::Strength::Quaternary,
+            _ => icu_collator::options::Strength::Identical,
+        }
+    }
 }
 
 // =====================================================================================================================

@@ -42,7 +42,13 @@ export const commands = {
 
 /* Types */
 export type AppPreferences = {
+	/**  ファイル名検索するとき */
 	debug_filename_search_sleep_ms: number,
+	/**
+	 *  ファイル名ソート (icu_collator::options::Strength)
+	 *  'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'
+	 */
+	filename_sort_strength: string,
 };
 
 /**  UIへ返すファイル一覧の要素 */
