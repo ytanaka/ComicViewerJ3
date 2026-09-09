@@ -9,8 +9,11 @@ export function RustLibInitializer({ children }: { children: ReactNode }) {
   const initializing = useRef(false);
   useEffect(() => {
     const init = async () => {
+      // Rustライブラリ初期化
       await rustcmds.init();
+      // 起動時に存在するRustタブはすべて削除
       await removeOldRustTabs();
+
       setAppInitialized();
       initializing.current = false;
     };

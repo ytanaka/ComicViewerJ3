@@ -33,11 +33,7 @@ async function _moveDir(tab: TabInfo, comment: string, createNewTabFn: () => Pro
   handleRustCmdResult(result, comment, 'ディレクトリ移動できません', async data => {
     st().updateTab(tab.id, data);
     removeQueries_tab(tab.id);
-    await _rmTab(tab);
+    const result = await rustcmds.removeTab(tab.id);
+    handleRustCmdResult(result, `rustcmds.removeTab(${tab.id})`, 'タブ更新失敗');
   });
-}
-
-async function _rmTab(tab: TabInfo) {
-  const result = await rustcmds.removeTab(tab.id);
-  handleRustCmdResult(result, `rustcmds.removeTab(${tab.id})`, 'タブ削除失敗');
 }

@@ -175,7 +175,7 @@ export function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
   const fileIds = useScrollFileIdsStore(state => state.fileIds);
   const tabId = useScrollFileIdsStore(state => state.tabId);
   const fileIds2 = fileIds.filter(fileId => {
-    const fileInfo = getQueryData_getFileInfo1(tab, fileId);
+    const fileInfo = getQueryData_getFileInfo1(tab.id, fileId);
     return fileInfo === undefined;
   });
   useCmdFileInfosQuery(tab, tabId == tab.id ? fileIds2 : []);

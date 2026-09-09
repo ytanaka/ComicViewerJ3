@@ -4,10 +4,7 @@ use std::{
     time::Duration,
 };
 
-use notify::{
-    EventKind::{Create, Modify, Remove},
-    ReadDirectoryChangesWatcher, RecursiveMode,
-};
+use notify::{EventKind, ReadDirectoryChangesWatcher, RecursiveMode};
 use notify_debouncer_full::{new_debouncer, DebouncedEvent, Debouncer, FileIdMap};
 use tauri::{AppHandle, Emitter};
 
@@ -74,28 +71,27 @@ impl FileWatcherHandler {
         }
     }
     fn handle_event(&self, ev: DebouncedEvent) -> anyhow::Result<()> {
+        log::trace!(
+            "FileWatcher {:?}: (tab:{}) {:?}",
+            ev.kind,
+            self.tab_id,
+            paths_str(&ev.paths)
+        );
+
         match ev.kind {
-            Create(_) => {
-                for path in &ev.paths {
-                    log::trace!("FileWatcher Create: (tab:{}) {:?}", self.tab_id, path);
+            EventKind::Create(_) => self.emit_all()?,
+            EventKind::Remove(_) => self.emit_all()?,
+            EventKind::Modify(_) => {
+                let paths: Vec<_> = ev.paths.iter().collect();
+                if paths.len() == 1 {
                     self.emit_all()?
-                }
-            }
-            Modify(kind) => {
-                log::trace!("{:?}", ev);
-                for path in &ev.paths {
-                    log::trace!("FileWatcher Modify({:?}): {:?}", kind, path);
-                    self.emit_all()?
-                }
-            }
-            Remove(_) => {
-                for path in &ev.paths {
-                    log::trace!("FileWatcher Remove: {:?}", path);
+                } else {
                     self.emit_all()?
                 }
             }
             ev => {
                 log::warn!("UNKNOWN DebouncedEvent: {:?}", ev);
+                self.emit_all()?
             }
         };
         Ok(())
@@ -109,4 +105,12 @@ impl FileWatcherHandler {
             },
         )?)
     }
+}
+
+fn paths_str(paths: &Vec<PathBuf>) -> String {
+    paths
+        .iter()
+        .map(|p| p.to_string_lossy())
+        .collect::<Vec<_>>()
+        .join(", ")
 }

@@ -13,7 +13,11 @@ export interface AllTabs {
   tabs: UiTab[];
 }
 export interface UiTab {
+  // TabInfo.path: 必ず設定されている
+  // TabInfo.id: 負数の場合は TabInfo.path で新しいRustタブを作成する必要がある
+  //     負数になるのは、zustand がLocalStrageから復元したときと、Rustからファイル一覧更新イベントが届いたとき
   info: TabInfo;
+
   sortCondition: SortCondition;
   selection: FileSelection;
   focusHistories: FileFocus[]; // 先頭が古いデータ

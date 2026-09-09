@@ -18,11 +18,12 @@ export function removeQueries_tab(tabId: TabId) {
   console.debug(`TanStack Query tab cache = [${getQueryData_tabIds()}]`);
 }
 
-export function getQueryData_tabIds() {
+function getQueryData_tabIds() {
   const list = myQueryClient
     .getQueryCache()
     .getAll()
     .filter(q => q.queryKey[0] === HEAD_QUERY_KEY_FOR_TAB_ID)
+    .filter(q => typeof q.queryKey[1] === 'number' ? 0 < q.queryKey[1] : true)
     .map(q => q.queryKey[1] as TabId);
   return [...new Set(list)];
 }
@@ -126,8 +127,8 @@ export function removeQueries_getDirEntries(tabId: TabId) {
 function queryKey_useFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   return [...mkTabQueryKey(tabInfo.id), 'getFileInfos', fileIds];
 }
-function queryKey_useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
-  return [...mkTabQueryKey(tabInfo.id), 'getFileInfo', fileId];
+function queryKey_useFileInfo1Query(tabId: TabId, fileId: FileId) {
+  return [...mkTabQueryKey(tabId), 'getFileInfo', fileId];
 }
 export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   const queryClient = useQueryClient();
@@ -147,7 +148,7 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
       if (data.status === 'ok') {
         // ここで取得したデータは個別に取得するので、キャッシュに格納しておく
         data.data.forEach(fileInfo => {
-          queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo, fileInfo.file_id), fileInfo);
+          queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo.id, fileInfo.file_id), fileInfo);
         });
       }
       return undefined; // このhookの戻り値を使用することはないのでデータを返す必要はない
@@ -156,13 +157,16 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
 }
 export function useFileInfo1Query(tabInfo: TabInfo, fileId: FileId) {
   return useQuery<FileInfo | undefined>({
-    queryKey: queryKey_useFileInfo1Query(tabInfo, fileId),
+    queryKey: queryKey_useFileInfo1Query(tabInfo.id, fileId),
     queryFn: () => {
       throw new Error(`fileInfo is not loaded: tabId(${tabInfo.id}), fileId(${fileId})`);
     },
     enabled: false,
   });
 }
-export function getQueryData_getFileInfo1(tabInfo: TabInfo, fileId: FileId): FileInfo | undefined {
-  return myQueryClient.getQueryData<FileInfo>(queryKey_useFileInfo1Query(tabInfo, fileId));
+export function getQueryData_getFileInfo1(tabId: TabId, fileId: FileId): FileInfo | undefined {
+  return myQueryClient.getQueryData<FileInfo>(queryKey_useFileInfo1Query(tabId, fileId));
+}
+export function removeQueries_getFileInfo1(tabId: TabId, fileId: FileId) {
+  myQueryClient.removeQueries({ queryKey: queryKey_useFileInfo1Query(tabId, fileId) });
 }

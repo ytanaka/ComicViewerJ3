@@ -7,6 +7,7 @@ import { StateCreator } from 'zustand';
 export interface UiTabActions {
   updateTab: (tabId: TabId, newTab: TabInfo) => void;
   setSortCondition: (tabId: TabId, sortCondition: SortCondition) => void;
+  invalidateTabForRefresh: (tabId: TabId) => void;
 }
 
 export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never]], [], UiTabActions> = (set, get) => {
@@ -31,5 +32,14 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
         });
       });
     },
+
+    // 同じパスで再読み込みさせる
+    invalidateTabForRefresh: (tabId: TabId) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
+          tab.info.id = (tab.info.id * -1) as TabId;
+        });
+      });
+    }
   };
 };
