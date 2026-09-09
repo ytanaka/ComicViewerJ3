@@ -5,7 +5,7 @@ use std::{
 };
 
 use notify::{EventKind, RecommendedWatcher, RecursiveMode};
-use notify_debouncer_full::{DebouncedEvent, Debouncer, RecommendedCache, new_debouncer};
+use notify_debouncer_full::{new_debouncer, DebouncedEvent, Debouncer, RecommendedCache};
 
 use crate::{
     state::{
@@ -106,7 +106,7 @@ impl<E: EventEmitter> FileWatcherHandler<E> {
                     }
                 }
             }
-            EventKind::Access(_) => { /* 無視する */},
+            EventKind::Access(_) => { /* 無視する */ }
             ev => {
                 log::warn!("UNKNOWN DebouncedEvent: {:?}", ev);
                 self.ui_all_refresh()?
