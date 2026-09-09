@@ -8,7 +8,10 @@ use notify::{EventKind, ReadDirectoryChangesWatcher, RecursiveMode};
 use notify_debouncer_full::{new_debouncer, DebouncedEvent, Debouncer, FileIdMap};
 
 use crate::{
-    state::{app_state::AppState, util::AppContext},
+    state::{
+        app_state::AppState,
+        util::{AppContext, EventEmitter},
+    },
     types::{FileId, FileNotifyEvent, TabId, EVENT_ID_FILE_NOTIFY},
 };
 
@@ -17,14 +20,18 @@ pub struct FileWatcher {
     debouncer: Option<Debouncer<ReadDirectoryChangesWatcher, FileIdMap>>,
 }
 impl FileWatcher {
-    pub fn new(
-        app: &AppContext,
+    pub fn new<E: EventEmitter>(
+        app: AppContext<E>,
         state: &Arc<AppState>,
         tab_id: TabId,
         path: impl AsRef<Path>,
     ) -> anyhow::Result<Self> {
+        if app.is_dummy() {
+            return Ok(FileWatcher { debouncer: None });
+        }
+
         let handler = FileWatcherHandler {
-            app: app.clone(),
+            app: app,
             state: state.clone(),
             tab_id,
         };
@@ -46,12 +53,12 @@ impl FileWatcher {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-struct FileWatcherHandler {
-    app: AppContext,
+struct FileWatcherHandler<E: EventEmitter> {
+    app: AppContext<E>,
     state: Arc<AppState>,
     tab_id: TabId,
 }
-impl FileWatcherHandler {
+impl<E: EventEmitter> FileWatcherHandler<E> {
     fn handle_events(&self, ev: Result<Vec<DebouncedEvent>, Vec<notify::Error>>) {
         match ev {
             Ok(events) => {

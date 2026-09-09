@@ -11,7 +11,11 @@ use tauri::{AppHandle, State};
 use crate::{
     commands::fs_util,
     file_operations::{file_utils, file_watcher::FileWatcher},
-    state::{app_state::AppState, tab_info::TabInfo, util::AppContext},
+    state::{
+        app_state::AppState,
+        tab_info::TabInfo,
+        util::{AppContext, EventEmitter},
+    },
     types::{DirEntryUI, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI},
     LOG_RESULT,
 };
@@ -69,12 +73,12 @@ pub async fn create_tab(
     log_create_tab_result(
         &state,
         format!("create_tab({path})"),
-        create_tab_imp(&AppContext::new(app), &state, path),
+        create_tab_imp(AppContext::new(app), &state, path),
     )
     .await
 }
-async fn create_tab_imp(
-    app: &AppContext,
+async fn create_tab_imp<E: EventEmitter>(
+    app: AppContext<E>,
     state: &Arc<AppState>,
     arg_path: impl AsRef<Path>,
 ) -> anyhow::Result<CreateTabResult> {
@@ -139,12 +143,12 @@ pub async fn clone_tab(
     log_create_tab_result(
         &state,
         format!("clone_tab({tab_id})"),
-        clone_tab_impl(&AppContext::new(app), &state, tab_id),
+        clone_tab_impl(AppContext::new(app), &state, tab_id),
     )
     .await
 }
-async fn clone_tab_impl(
-    app: &AppContext,
+async fn clone_tab_impl<E: EventEmitter>(
+    app: AppContext<E>,
     state: &Arc<AppState>,
     tab_id: TabId,
 ) -> anyhow::Result<CreateTabResult> {
@@ -165,13 +169,13 @@ pub async fn clone_tab_child_dir(
     log_create_tab_result(
         &state,
         format!("clone_tab_child_dir({tab_id}, {file_id})"),
-        clone_tab_child_dir_impl(&AppContext::new(app), &state, tab_id, file_id),
+        clone_tab_child_dir_impl(AppContext::new(app), &state, tab_id, file_id),
     )
     .await
 }
 
-async fn clone_tab_child_dir_impl(
-    app: &AppContext,
+async fn clone_tab_child_dir_impl<E: EventEmitter>(
+    app: AppContext<E>,
     state: &Arc<AppState>,
     tab_id: TabId,
     file_id: String,
@@ -196,12 +200,12 @@ pub async fn clone_tab_parent_dir(
     log_create_tab_result(
         &state,
         format!("clone_tab_parent_dir({tab_id})"),
-        clone_tab_parent_dir_impl(&AppContext::new(app), &state, tab_id),
+        clone_tab_parent_dir_impl(AppContext::new(app), &state, tab_id),
     )
     .await
 }
-async fn clone_tab_parent_dir_impl(
-    app: &AppContext,
+async fn clone_tab_parent_dir_impl<E: EventEmitter>(
+    app: AppContext<E>,
     state: &Arc<AppState>,
     tab_id: TabId,
 ) -> anyhow::Result<CreateTabResult> {
@@ -356,23 +360,25 @@ fn sort_files_impl(
 mod tests {
     use std::path::PathBuf;
 
-    use crate::{types::FileId, UT_LOG};
+    use crate::{state::util::DummyAppHandle, types::FileId, UT_LOG};
 
     use super::*;
 
+    fn app() -> AppContext<DummyAppHandle> {
+        AppContext::new(DummyAppHandle {})
+    }
     fn get_test_dir() -> PathBuf {
         std::env::current_dir().unwrap().join("testdata")
     }
 
     #[tokio::test]
     async fn test_create_tab() {
-        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
         assert_eq!(state.tabs.len(), 0);
 
         assert_eq!(
             1,
-            create_tab_imp(&app, &state, get_test_dir())
+            create_tab_imp(app(), &state, get_test_dir())
                 .await
                 .unwrap()
                 .tab
@@ -383,7 +389,7 @@ mod tests {
 
         assert_eq!(
             2,
-            create_tab_imp(&app, &state, get_test_dir())
+            create_tab_imp(app(), &state, get_test_dir())
                 .await
                 .unwrap()
                 .tab
@@ -405,7 +411,7 @@ mod tests {
         };
         assert_eq!(
             expect.to_string(),
-            create_tab_imp(&app, &state, abs_path_dummy)
+            create_tab_imp(app(), &state, abs_path_dummy)
                 .await
                 .unwrap()
                 .tab
@@ -414,7 +420,7 @@ mod tests {
 
         assert_eq!(
             "not absolute. path:\"xyz\"".to_string(),
-            create_tab_imp(&app, &state, "xyz")
+            create_tab_imp(app(), &state, "xyz")
                 .await
                 .unwrap_err()
                 .to_string()
@@ -423,10 +429,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_remove_tab() {
-        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
-        create_tab_imp(&app, &state, get_test_dir()).await.unwrap();
-        create_tab_imp(&app, &state, get_test_dir()).await.unwrap();
+        create_tab_imp(app(), &state, get_test_dir()).await.unwrap();
+        create_tab_imp(app(), &state, get_test_dir()).await.unwrap();
 
         assert_eq!(remove_tab_impl(&state, 99), Err("no tab: 99".to_string()));
 
@@ -440,10 +445,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_dir_entries() {
-        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
 
-        let tab_id = create_tab_imp(&app, &state, get_test_dir())
+        let tab_id = create_tab_imp(app(), &state, get_test_dir())
             .await
             .unwrap()
             .tab
@@ -463,7 +467,11 @@ mod tests {
         assert_eq!(ret[3].is_dir, false);
 
         let test_dir = get_test_dir().join("d2");
-        let tab_id = create_tab_imp(&app, &state, test_dir).await.unwrap().tab.id;
+        let tab_id = create_tab_imp(app(), &state, test_dir)
+            .await
+            .unwrap()
+            .tab
+            .id;
         let ret = get_dir_entries_impl(&state, tab_id).unwrap();
 
         assert_eq!(ret.len(), 2);
@@ -473,7 +481,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_file_infos() {
-        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
         let call = async |tab_id: TabId, file_id: &str| {
             get_file_infos_impl(&state, tab_id, vec![file_id.to_string()])
@@ -484,7 +491,7 @@ mod tests {
         // タブを作る前はエラー
         assert_eq!(call(0, "").await, Err("invalid tab_id: 0".to_string()));
 
-        let tab_id = create_tab_imp(&app, &state, get_test_dir().join("d3"))
+        let tab_id = create_tab_imp(app(), &state, get_test_dir().join("d3"))
             .await
             .unwrap()
             .tab

@@ -199,9 +199,12 @@ mod tests {
 
     use crate::state::{
         app_state::{AppState, START_FILE_ID},
-        util::AppContext,
+        util::{AppContext, DummyAppHandle},
     };
 
+    fn app() -> AppContext<DummyAppHandle>{
+        AppContext::new(DummyAppHandle {})
+    }
     fn mk_dummy_files(state: &AppState, file_names: Vec<&str>) -> HashMap<FileId, FileInfoOS> {
         let mut ret = HashMap::new();
         for fname in file_names {
@@ -221,10 +224,9 @@ mod tests {
 
     #[test]
     fn test_tab_info() {
-        let app = AppContext::dummy();
         let state = Arc::new(AppState::new());
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
-        let watcher = FileWatcher::new(&app, &state, 123, "/a/b/c").unwrap();
+        let watcher = FileWatcher::new(app(), &state, 123, "/a/b/c").unwrap();
         let mut tab = TabInfo::new(123, "/a/b/c", files, watcher);
 
         let mut list: Vec<_> = tab
