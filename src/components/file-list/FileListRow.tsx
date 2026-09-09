@@ -113,7 +113,7 @@ export function FileListRow({
 
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
-  const border = isFocused && 'border-dashed border dark:border-white border-black';
+  const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
   return (
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
       <Icon dirEntry={dirEntry} fileInfo={fileInfo} hasError={!!errorMsg} />
