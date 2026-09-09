@@ -25,7 +25,7 @@ export function FileListPanel() {
           onSuccess: () => {
             // タブ再読み込み
             useTabStore.getState().tabs.forEach(t => {
-              useTabStore.getState().invalidateTabForRefresh(t.info.id);
+              useTabStore.getState().incRefreshCount(t.info.id);
             });
           },
         }

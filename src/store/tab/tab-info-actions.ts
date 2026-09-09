@@ -7,6 +7,7 @@ import { StateCreator } from 'zustand';
 export interface UiTabActions {
   updateTab: (tabId: TabId, newTab: TabInfo) => void;
   setSortCondition: (tabId: TabId, sortCondition: SortCondition) => void;
+  incRefreshCount: (tabId: TabId) => void;
   invalidateTabForRefresh: (tabId: TabId) => void;
 }
 
@@ -33,11 +34,20 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
       });
     },
 
+    incRefreshCount: (tabId: TabId) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
+          tab.refreshCount += 1;
+        });
+      });
+    },
+
     // 同じパスで再読み込みさせる
+    // ※ これを呼ぶ前に rustcmds.removeTab() しておくこと
     invalidateTabForRefresh: (tabId: TabId) => {
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
-          tab.info.id = (tab.info.id * -1) as TabId;
+          if (0 < tab.info.id) tab.info.id = (tab.info.id * -1) as TabId;
         });
       });
     },
