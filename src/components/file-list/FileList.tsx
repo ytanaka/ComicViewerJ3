@@ -30,6 +30,7 @@ export default function FileList() {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
+  useTabStore(state => state.getCurrentTab()?.refreshCount); // ソート状態が変わったら再レンダーする
 
   console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} `);
 
