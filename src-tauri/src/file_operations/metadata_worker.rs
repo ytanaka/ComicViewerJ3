@@ -4,7 +4,7 @@
 
 use std::{
     ffi::OsStr,
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::{mpsc, Arc},
     thread,
 };
@@ -22,13 +22,14 @@ use crate::{
 /// ワーカースレッドに投げるタスク
 struct WorkerPacket {
     tab_id: TabId,
+    path: PathBuf,
     list: Vec<FileId>,
 
     progress: usize,
     total: usize,
 }
 impl WorkerPacket {
-    fn create(tab_id: TabId, list: Vec<FileId>) -> Vec<Self> {
+    fn create(tab_id: TabId, path: impl AsRef<Path>, list: Vec<FileId>) -> Vec<Self> {
         let list2: Vec<_> = list.chunks(1000).map(|c| c.to_vec()).collect();
         let mut progress = 0;
         list2
@@ -37,6 +38,7 @@ impl WorkerPacket {
                 progress += v.len();
                 WorkerPacket {
                     tab_id,
+                    path: path.as_ref().to_path_buf(),
                     list: v.to_vec(),
                     progress,
                     total: list.len(),
@@ -67,7 +69,7 @@ impl PacketExecutor {
         }
     }
     // ファイルIDをファイル名に変換 (タブをロックする)
-    fn get_dir_fileids_filenames(&self) -> anyhow::Result<(PathBuf, FileIdOsStr)> {
+    fn get_fileids_filenames(&self) -> anyhow::Result<FileIdOsStr> {
         let tab = self.state.get_tab(self.packet.tab_id)?;
         let tab = tab.read().unwrap();
         let mut ret: Vec<(FileId, Arc<OsStr>)> = Vec::new();
@@ -79,18 +81,17 @@ impl PacketExecutor {
                 }
             }
         }
-        Ok((tab.get_path().to_path_buf(), ret))
+        Ok(ret)
     }
     // メタデータを一括取得 (時間がかかるので、タブをロックしない)
     fn read_metadatas(
         &mut self,
-        dir: &PathBuf,
         filenames: &[(FileId, Arc<OsStr>)],
     ) -> anyhow::Result<FileIdMetadata> {
         let ret: Vec<_> = filenames
             .iter()
             .map(|(file_id, name)| {
-                let metadata = read_metadata(dir, name);
+                let metadata = read_metadata(&self.packet.path, name);
                 (*file_id, metadata)
             })
             .collect();
@@ -125,9 +126,9 @@ impl PacketExecutor {
         }
 
         // ファイルIDをファイル名に変換
-        let (dir, fileids_filenames) = self.get_dir_fileids_filenames()?;
+        let fileids_filenames = self.get_fileids_filenames()?;
         // メタデータ読み込み
-        let fileids_metadatas = self.read_metadatas(&dir, &fileids_filenames)?;
+        let fileids_metadatas = self.read_metadatas(&fileids_filenames)?;
         // メタデータ書き込み
         self.write_metadata(fileids_metadatas)?;
 
@@ -179,8 +180,8 @@ impl MetadataWorker {
         ret2
     }
 
-    pub fn send_to_worker(&self, tab_id: TabId, list: Vec<FileId>) {
-        for list in WorkerPacket::create(tab_id, list) {
+    pub fn send_to_worker(&self, tab_id: TabId, path: impl AsRef<Path>, list: Vec<FileId>) {
+        for list in WorkerPacket::create(tab_id, path, list) {
             self.tx.send(list).unwrap();
         }
     }

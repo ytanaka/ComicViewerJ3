@@ -3,6 +3,7 @@ use std::{
     future::Future,
     path::Path,
     sync::{atomic::Ordering::SeqCst, Arc, RwLock},
+    time::Instant,
 };
 
 use anyhow::{anyhow, Context};
@@ -41,6 +42,7 @@ async fn log_create_tab_result(
     comment: String,
     result: impl Future<Output = anyhow::Result<CreateTabResult>>,
 ) -> Result<TabInfoUI, String> {
+    let t0 = Instant::now();
     let result = result.await;
     match &result {
         Ok(r) => {
@@ -49,9 +51,10 @@ async fn log_create_tab_result(
                 _ => "[]".to_string(),
             };
             log::trace!(
-                "{comment}: Ok({}, {msg}) total tabs = {}",
+                "{comment}: Ok({}, {msg}) total tabs = {}, {}ms",
                 r.tab.id,
-                state.tabs.len()
+                state.tabs.len(),
+                t0.elapsed().as_millis(),
             );
         }
         Err(e) => {
@@ -115,7 +118,7 @@ async fn create_tab_imp<E: EventEmitter>(
     let max = file_ids.iter().max().copied();
 
     // タブ作成
-    let tab = TabInfo::new(tab_id, path, files_map, watcher, state.clone());
+    let tab = TabInfo::new(tab_id, &path, files_map, watcher, state.clone());
 
     // AppStateにタブ追加
     let tab_ui = tab.to_ui();
@@ -125,7 +128,9 @@ async fn create_tab_imp<E: EventEmitter>(
         // 形態素解析する
         state.text_matcher.send_to_worker(tab_id, names);
         // メタデータを読み込む
-        state.metadata_worker.send_to_worker(tab_id, file_ids);
+        state
+            .metadata_worker
+            .send_to_worker(tab_id, &path, file_ids);
     }
 
     Ok(CreateTabResult::new(tab_ui, min, max))

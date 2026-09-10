@@ -96,6 +96,8 @@ impl TabInfo {
         self.sorted_list = None;
         true
     }
+    /// ソート可能状態かどうか判定
+    /// return ソート条件 == (Name,Ext) or メタデータ読み込み済み
     fn is_sortable(&self, sort_condition: &SortCondition) -> bool {
         match sort_condition.sort_type {
             crate::types::SortType::Name | crate::types::SortType::Ext => true,
@@ -107,18 +109,25 @@ impl TabInfo {
     }
 
     fn sort_items(&mut self) {
-        let mut supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
         let cmp = mk_filename_cmp(&self.state);
+        let mut cmp_supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
+        let need_metadata = !matches!(
+            self.sort_condition.sort_type,
+            crate::types::SortType::Name | crate::types::SortType::Ext
+        );
 
         let mut list: Vec<_> = self.files.keys().copied().collect();
         list.sort_by(|a, b| {
-            // この関数が呼ばれているということは、MetadataWorkerでメタデータ取得済みである。
-            // しかし、ファイル監視からの通知でメタデータがクリアされているかもしれないので、未取得の場合は取得する。
-            let _ = self.load_metadata(*a);
-            let _ = self.load_metadata(*b);
+            // この関数は MetadataWorkerでメタデータ取得完了前にも呼ばれることがある。(タブ作成直後のget_dir_entries()で)
+            // その場合はソートにメタデータは不要。
+            if need_metadata {
+                // ここに来るのはファイル監視からの通知でメタデータがクリアたときだけのはず
+                let _ = self.load_metadata(*a);
+                let _ = self.load_metadata(*b);
+            }
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(a, b, &self.sort_condition, cmp.as_ref(), &mut supp)
+            cmp_file(a, b, &self.sort_condition, cmp.as_ref(), &mut cmp_supp)
         });
         self.sorted_list = Some(list);
         self.generation += 1;
