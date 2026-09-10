@@ -107,11 +107,12 @@ impl FilenameCmp for SjisFilenameCmp {
                 (Some(_), None) => return Ordering::Greater,
                 // 1文字をSJISに変換して比較
                 (Some(c1), Some(c2)) => {
-                    let ord = match (supplement.cache.get(c1), supplement.cache.get(c1)) {
+                    let ord = match (supplement.cache.get(c1), supplement.cache.get(c2)) {
                         // 両方SJISに変換可能な場合
                         (Some(c1), Some(c2)) => c1.cmp(&c2),
-                        // SJIS文字 < 非SJIS文字 にする
+                        // SJIS文字 < 非SJIS文字
                         (Some(_), None) => Ordering::Less,
+                        // 非SJIS文字 > SJIS文字
                         (None, Some(_)) => Ordering::Greater,
                         // 両方SJISにできないなら、Unicode比較
                         (None, None) => c1.cmp(&c2),
@@ -168,6 +169,7 @@ impl FilenameCmp for IcuFilenameCmp {
 #[cfg(test)]
 mod tests {
 
+    use rand::seq::SliceRandom;
     use std::{
         cmp::Ordering::{Equal, Greater, Less},
         sync::Arc,
@@ -213,5 +215,59 @@ mod tests {
         test("b", "a", Greater);
 
         test("12345", "123456", Less);
+        test("ア", "ｱ", Greater);
+        test("亜", "胃", Less);
+
+        test("Ä", "Ë", Less); // 非SJIS, 非SJIS
+        test("亜", "Ä", Less); // SJIS, 非SJIS
+    }
+
+    // SjisFilenameCmp が壊れていた時、vec.sort_by() が時々 panic になっていた
+    // 必ず panic になるわけではなかったので繰り返し実行して panic にならないことを確認する。
+    #[test]
+    fn test_sjis_loop() {
+        // このファイル一覧があるディレクトリで panic になっていた
+        let list = vec![
+            "1.txt",
+            "①.txt",
+            "10.txt",
+            "2.txt",
+            "②.txt",
+            "2⃣新規ファイル.txt",
+            "５新規ファイル.txt",
+            "ぁいうえお.txt",
+            "アイウエオ.txt",
+            "アいうえお.txt",
+            "あいうえお.txt",
+            "ｱ新規ファイル.txt",
+            "ﾊ新規ファイル.txt",
+            "ハ新規ファイル.txt",
+            "は新規ファイル.txt",
+            "ば新規ファイル.txt",
+            "ぱ新規ファイル.txt",
+            "ほ新規ファイル.txt",
+            "亜.txt",
+            "以.txt",
+            "宇.txt",
+            "映.txt",
+            "乙.txt",
+            "新規ファイル.txt",
+        ];
+        let mut list: Vec<_> = list.iter().map(|s| s.to_string()).collect();
+        assert_eq!(list.get(0).unwrap(), &"1.txt");
+
+        let cmp: Box<dyn FilenameCmp> = Box::new(SjisFilenameCmp {});
+        let mut supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
+
+        for i in 0..1000 {
+            println!("LOOP: {}", i);
+            let mut rng = rand::rng();
+            list.shuffle(&mut rng);
+            list.sort_by(|a, b| {
+                let f1 = OsStr::new(a);
+                let f2 = OsStr::new(b);
+                cmp.cmp(f1, f2, &mut supp)
+            });
+        }
     }
 }

@@ -52,6 +52,7 @@ kanaria = "0.2.0"
 tauri-plugin-window-state = "2"
 icu_collator = "2.3.1"
 icu = "2.3.1"
+rand = "0.10.2"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

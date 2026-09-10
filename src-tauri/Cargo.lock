@@ -705,6 +705,7 @@ dependencies = [
  "maplit",
  "notify",
  "notify-debouncer-full",
+ "rand 0.10.2",
  "rayon",
  "regex",
  "reqwest",
