@@ -44,8 +44,10 @@ export const commands = {
 export type AppPreferences = {
 	/**  ファイル名検索するとき */
 	debug_filename_search_sleep_ms: number,
+	/**  ファイル名ソート時の文字比較方法 */
+	filename_cmp: FilenameCmpType,
 	/**
-	 *  ファイル名ソート (icu_collator::options::Strength)
+	 *  ファイル名ソート時のCollator設定 (icu_collator::options::Strength)
 	 *  'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'
 	 */
 	filename_sort_strength: string,
@@ -91,6 +93,15 @@ export type FileSearchResult =
 { type: "FailNoCache" } | 
 /**  状態が変わったのでキャンセル */
 { type: "Canceled" };
+
+/**  ファイル名ソート時の文字比較方法 */
+export type FilenameCmpType = 
+/**  Unicode文字コード順 */
+{ type: "Unicode" } | 
+/**  Shift-JIS */
+{ type: "Sjis" } | 
+/**  自然 */
+{ type: "Icu" };
 
 export type SortCondition = {
 	sort_type: SortType,

@@ -330,11 +330,7 @@ fn sort_files_impl(
 ) -> anyhow::Result<bool, String> {
     let tab = state.get_tab(tab_id).map_err(|e| e.to_string())?;
     let mut tab = tab.write().unwrap();
-    if !tab.is_sortable(&sort_condition) {
-        return Ok(false);
-    }
-    tab.set_sort_condition(sort_condition);
-    Ok(true)
+    Ok(tab.set_sort_condition(sort_condition))
 }
 
 // =============================================================================================

@@ -1,9 +1,10 @@
-use std::{cmp::Ordering, ffi::OsStr, path::Path};
+use std::{cmp::Ordering, ffi::OsStr, path::Path, sync::MutexGuard};
 
 use icu::locale::locale;
 use icu_collator::{options::CollatorOptions, Collator, CollatorBorrowed};
 
 use crate::{
+    file_operations::sjis_cnv::SjisCache,
     state::app_state::AppState,
     types::{FileInfoOS, FilenameCmpType, SortCondition, SortType},
 };
@@ -15,6 +16,7 @@ pub fn cmp_file(
     f2: &FileInfoOS,
     sort: &SortCondition,
     filname_cmp: &Box<dyn FilenameCmp>,
+    supplement: &mut FilenameCmpSupplement,
 ) -> Ordering {
     // ディレクトリとファイルを比較する場合
     let cmp = match (f1.is_dir, f2.is_dir) {
@@ -29,7 +31,7 @@ pub fn cmp_file(
 
     // ファイル同士 or ディレクトリ同士
     let cmp = match sort.sort_type {
-        SortType::Name => filname_cmp.cmp(&f1.name, &f2.name),
+        SortType::Name => filname_cmp.cmp(&f1.name, &f2.name, supplement),
         SortType::Ext => {
             let ext1 = Path::new(&f1.name).extension().unwrap_or_default();
             let ext2 = Path::new(&f2.name).extension().unwrap_or_default();
@@ -56,7 +58,7 @@ pub fn cmp_file(
 // ---------------------------------------------------------------------------------------------------------------------
 
 pub trait FilenameCmp {
-    fn cmp(&self, f1: &OsStr, f2: &OsStr) -> Ordering;
+    fn cmp(&self, f1: &OsStr, f2: &OsStr, supplement: &mut FilenameCmpSupplement) -> Ordering;
 }
 
 pub fn mk_filename_cmp(state: &AppState) -> Box<dyn FilenameCmp> {
@@ -67,11 +69,19 @@ pub fn mk_filename_cmp(state: &AppState) -> Box<dyn FilenameCmp> {
         FilenameCmpType::Icu => Box::new(IcuFilenameCmp::new(state)),
     }
 }
+pub struct FilenameCmpSupplement<'a> {
+    pub cache: MutexGuard<'a, SjisCache>,
+}
+impl<'a> FilenameCmpSupplement<'a> {
+    pub fn new(cache: MutexGuard<'a, SjisCache>) -> Self {
+        FilenameCmpSupplement { cache }
+    }
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 struct UnicodeFilenameCmp {}
 impl FilenameCmp for UnicodeFilenameCmp {
-    fn cmp(&self, f1: &OsStr, f2: &OsStr) -> Ordering {
+    fn cmp(&self, f1: &OsStr, f2: &OsStr, _: &mut FilenameCmpSupplement) -> Ordering {
         f1.cmp(f2)
     }
 }
@@ -79,9 +89,39 @@ impl FilenameCmp for UnicodeFilenameCmp {
 // ---------------------------------------------------------------------------------------------------------------------
 struct SjisFilenameCmp {}
 impl FilenameCmp for SjisFilenameCmp {
-    fn cmp(&self, f1: &OsStr, f2: &OsStr) -> Ordering {
-        // TODO
-        f1.cmp(f2)
+    fn cmp(&self, f1: &OsStr, f2: &OsStr, supplement: &mut FilenameCmpSupplement) -> Ordering {
+        let s1 = f1.to_string_lossy();
+        let s2 = f2.to_string_lossy();
+
+        let mut chars1 = s1.chars();
+        let mut chars2 = s2.chars();
+
+        loop {
+            // ファイル名の先頭から１文字ずつ順番に比較する
+            match (chars1.next(), chars2.next()) {
+                // to_string_lossy() が最後まで同じ文字列になったら OsStr で比較
+                (None, None) => return f1.cmp(f2),
+                // f1 が短い
+                (None, Some(_)) => return Ordering::Less,
+                // f1 が長い
+                (Some(_), None) => return Ordering::Greater,
+                // 1文字をSJISに変換して比較
+                (Some(c1), Some(c2)) => {
+                    let ord = match (supplement.cache.get(c1), supplement.cache.get(c1)) {
+                        // 両方SJISに変換可能な場合
+                        (Some(c1), Some(c2)) => c1.cmp(&c2),
+                        // SJIS文字 < 非SJIS文字 にする
+                        (Some(_), None) => Ordering::Less,
+                        (None, Some(_)) => Ordering::Greater,
+                        // 両方SJISにできないなら、Unicode比較
+                        (None, None) => c1.cmp(&c2),
+                    };
+                    if ord != Ordering::Equal {
+                        return ord;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -98,7 +138,7 @@ impl IcuFilenameCmp {
     }
 }
 impl FilenameCmp for IcuFilenameCmp {
-    fn cmp(&self, f1: &OsStr, f2: &OsStr) -> Ordering {
+    fn cmp(&self, f1: &OsStr, f2: &OsStr, _: &mut FilenameCmpSupplement) -> Ordering {
         match &self.collator {
             Some(c) => c.compare(&f1.to_string_lossy(), &f2.to_string_lossy()),
             None => f1.cmp(f2),

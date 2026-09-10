@@ -7,7 +7,6 @@ use crate::state::app_state::AppState;
 mod bindings;
 mod commands;
 mod file_operations;
-mod file_sort;
 mod state;
 mod text_search;
 mod types;

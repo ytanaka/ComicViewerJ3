@@ -10,8 +10,12 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
-    file_operations::{file_utils::read_metadata, file_watcher::FileWatcher},
-    file_sort::{cmp_file, mk_filename_cmp},
+    file_operations::{
+        file_sort::{cmp_file, mk_filename_cmp, FilenameCmpSupplement},
+        file_utils::read_metadata,
+        file_watcher::FileWatcher,
+        sjis_cnv::SJIS_CACHE,
+    },
     state::app_state::AppState,
     types::{
         DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId, TabInfoUI,
@@ -25,13 +29,16 @@ pub struct TabInfo {
     tab_id: TabId,
     path: PathBuf,
     files: HashMap<FileId, FileInfoOS>,
-    file_names: HashMap<Arc<OsStr>, FileId>, // ファイル更新検知からファイル名が渡されるので逆引きする
+    file_names: HashMap<Arc<OsStr>, FileId>, // ファイル更新検知からファイル名が渡されるので逆引きのために使用する
 
-    sort_condition: SortCondition,
-    sorted_list: Option<Vec<FileId>>, // files のキーを sort_type でソート。read_dir_entry(), get_dir_entry()が呼ばれたら files から生成する。ファイル監視通知で files が更新されたらNoneにする
+    // ↑↑↑ ここまでは構造体作成時に設定され、不変
+    //     ※ files の中の FileInfo は、ファイル監視から通知が来たときに変更されることがある
+    //
+    sort_condition: SortCondition, // デフォルトはNameなのでソート可能。Size,Timeに変更するには is_sortable() == true にならなければならない
+    sorted_list: Option<Vec<FileId>>, // files のキーを sort_condition でソート。必要な時に files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
-    metadata_loaded_count: usize, // filesのmetada未取得の項目数。Name,Ext 以外でソートするときは取得済みである必要がある (MetadataWorkerでセットされる)
-    generation: TabGeneration,    // sorted_list が更新された回数。ファイル名検索で比較して中断する
+    metadata_loaded_count: usize, // filesのmetada未取得の項目数。Size,Time でソートするときは全部取得済みである必要がある (MetadataWorkerから更新される)
+    generation: TabGeneration, // sorted_list が更新された回数。ファイル名検索中に参照して中断する
 
     file_watcher: FileWatcher,
 
@@ -81,11 +88,15 @@ impl TabInfo {
     pub fn add_metadata_loaded_count(&mut self, n: usize) {
         self.metadata_loaded_count += n;
     }
-    pub fn set_sort_condition(&mut self, sort_condition: SortCondition) {
+    pub fn set_sort_condition(&mut self, sort_condition: SortCondition) -> bool {
+        if !self.is_sortable(&sort_condition) {
+            return false;
+        }
         self.sort_condition = sort_condition;
         self.sorted_list = None;
+        true
     }
-    pub fn is_sortable(&self, sort_condition: &SortCondition) -> bool {
+    fn is_sortable(&self, sort_condition: &SortCondition) -> bool {
         match sort_condition.sort_type {
             crate::types::SortType::Name | crate::types::SortType::Ext => true,
             _ => self.metadata_loaded_count == self.files.len(),
@@ -93,13 +104,14 @@ impl TabInfo {
     }
 
     fn sort_items(&mut self) {
+        let mut supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
         let cmp = mk_filename_cmp(&self.state);
 
         let mut list: Vec<_> = self.files.keys().copied().collect();
         list.sort_by(|a, b| {
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(a, b, &self.sort_condition, &cmp)
+            cmp_file(a, b, &self.sort_condition, &cmp, &mut supp)
         });
         self.sorted_list = Some(list);
         self.generation += 1;
