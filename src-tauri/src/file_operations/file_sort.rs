@@ -15,7 +15,7 @@ pub fn cmp_file(
     f1: &FileInfoOS,
     f2: &FileInfoOS,
     sort: &SortCondition,
-    filname_cmp: &Box<dyn FilenameCmp>,
+    filname_cmp: &dyn FilenameCmp,
     supplement: &mut FilenameCmpSupplement,
 ) -> Ordering {
     // ディレクトリとファイルを比較する場合
@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn test_sjis() {
-        let cmp: Box<dyn FilenameCmp> = Box::new(SjisFilenameCmp {});
+        let cmp = SjisFilenameCmp {};
         let mut supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
         let cond = SortCondition {
             sort_type: SortType::Name,

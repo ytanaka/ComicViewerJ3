@@ -118,7 +118,7 @@ impl TabInfo {
             let _ = self.load_metadata(*b);
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(a, b, &self.sort_condition, &cmp, &mut supp)
+            cmp_file(a, b, &self.sort_condition, cmp.as_ref(), &mut supp)
         });
         self.sorted_list = Some(list);
         self.generation += 1;
