@@ -109,9 +109,14 @@ impl TabInfo {
 
         let mut list: Vec<_> = self.files.keys().copied().collect();
         list.sort_by(|a, b| {
+            // この関数が呼ばれているということは、MetadataWorkerでメタデータ取得済みである。
+            // しかし、ファイル監視からの通知でメタデータがクリアされているかもしれないので、未取得の場合は取得する。
+            let _ = self.load_metadata(*a);
+            let _ = self.load_metadata(*b);
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(a, b, &self.sort_condition, &cmp, &mut supp)
+            let ret = cmp_file(a, b, &self.sort_condition, &cmp, &mut supp);
+            ret
         });
         self.sorted_list = Some(list);
         self.generation += 1;

@@ -6,6 +6,7 @@ import {
   Either,
   FileInfoUI,
   FileMetadata,
+  FilenameCmpType,
   SortCondition,
   SortType,
   TabInfoUI,
@@ -91,9 +92,11 @@ function toFileInfo(from: FileInfoUI): FileInfo {
 }
 
 export function mkAppPreferencesDefault(): AppPreferences {
+  // この関数が呼ばれるのは rustcmds.loadPreferences() がエラーを返した時なので、実際には呼ばれないはず
   return {
     debug_filename_search_sleep_ms: 0,
     filename_sort_strength: 'Identical',
+    filename_cmp: { type: 'Icu' }
   };
 }
 
@@ -111,6 +114,7 @@ function cnvOk<F, T>(
 }
 
 export type SortType_type = SortType['type'];
+export type FilenameCmpType_type = FilenameCmpType['type'];
 
 export function handleRustCmdResult<T>(
   result: RustCmdResult<T>,
