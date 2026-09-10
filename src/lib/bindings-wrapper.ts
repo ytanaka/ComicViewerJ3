@@ -96,7 +96,7 @@ export function mkAppPreferencesDefault(): AppPreferences {
   return {
     debug_filename_search_sleep_ms: 0,
     filename_sort_strength: 'Identical',
-    filename_cmp: { type: 'Icu' }
+    filename_cmp: { type: 'Icu' },
   };
 }
 

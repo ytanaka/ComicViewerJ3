@@ -6,9 +6,7 @@ import { usePreferences, useSavePreferences } from '@/hooks/preferences';
 import { FilenameCmpType_type } from '@/lib/bindings-wrapper';
 import { useTabStore } from '@/store/tab/store';
 
-const filenameCmpItems: FilenameCmpType_type[] = [
-  'Icu', 'Sjis', 'Unicode'
-];
+const filenameCmpItems: FilenameCmpType_type[] = ['Icu', 'Sjis', 'Unicode'];
 
 export function FileListPanel() {
   const { data: pref } = usePreferences();
@@ -38,10 +36,7 @@ export function FileListPanel() {
 
         <Field>
           <FieldLabel>ファイル名のソート方法</FieldLabel>
-          <Select
-            value={pref?.filename_cmp.type ?? 'Icu'}
-            onValueChange={handleChange_filename_cmp}
-          >
+          <Select value={pref?.filename_cmp.type ?? 'Icu'} onValueChange={handleChange_filename_cmp}>
             <SelectTrigger className="w-full max-w-48">
               <SelectValue>{pref?.filename_cmp.type}</SelectValue>
             </SelectTrigger>
@@ -55,7 +50,13 @@ export function FileListPanel() {
               </SelectGroup>
             </SelectContent>
           </Select>
-          <FieldDescription>Icu: 自然な並び<br />Sjis: シフトJISで比較<br />Unicode: ユニコードの文字コードで比較</FieldDescription>
+          <FieldDescription>
+            Icu: 自然な並び
+            <br />
+            Sjis: シフトJISで比較
+            <br />
+            Unicode: ユニコードの文字コードで比較
+          </FieldDescription>
         </Field>
       </FieldGroup>
     </FieldSet>

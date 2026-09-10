@@ -90,7 +90,6 @@ export function DebugPane() {
           </Select>
           <FieldDescription>日本語ファイル名のひらがな、カタカナ、全角半角などの比較方法</FieldDescription>
         </Field>
-
       </FieldGroup>
     </FieldSet>
   );

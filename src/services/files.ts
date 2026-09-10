@@ -19,10 +19,12 @@ export function removeQueries_tab(tabId: TabId) {
   console.debug(`TanStack Query tab cache = [${cachedTabIds}]`);
 
   // 負数のタブIDは消すタイミングがないので、ここで消しておく
-  cachedTabIds.filter(tabId => tabId < 0).forEach(tabId => {
-    console.debug(`queryClient.removeQueries(${tabId})`);
-    myQueryClient.removeQueries({ queryKey: mkTabQueryKey(tabId) });
-  });
+  cachedTabIds
+    .filter(tabId => tabId < 0)
+    .forEach(tabId => {
+      console.debug(`queryClient.removeQueries(${tabId})`);
+      myQueryClient.removeQueries({ queryKey: mkTabQueryKey(tabId) });
+    });
 }
 
 function getQueryData_tabIds() {
