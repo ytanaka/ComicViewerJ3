@@ -145,3 +145,73 @@ impl FilenameCmp for IcuFilenameCmp {
         }
     }
 }
+
+// =============================================================================================
+//
+// #####################   #####################      ###############      #####################
+// #####################   #####################      ###############      #####################
+//          ###            ###                     ###               ###            ###
+//          ###            ###                     ###               ###            ###
+//          ###            ###                     ###                              ###
+//          ###            ###                     ###                              ###
+//          ###            ###############            ###############               ###
+//          ###            ###############            ###############               ###
+//          ###            ###                                       ###            ###
+//          ###            ###                                       ###            ###
+//          ###            ###                     ###               ###            ###
+//          ###            ###                     ###               ###            ###
+//          ###            #####################      ###############               ###
+//          ###            #####################      ###############               ###
+//
+// =============================================================================================
+
+#[cfg(test)]
+mod tests {
+
+    use std::{
+        cmp::Ordering::{Equal, Greater, Less},
+        sync::Arc,
+    };
+
+    use crate::file_operations::sjis_cnv::SJIS_CACHE;
+
+    use super::*;
+
+    #[test]
+    fn test_sjis() {
+        let cmp: Box<dyn FilenameCmp> = Box::new(SjisFilenameCmp {});
+        let mut supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
+        let cond = SortCondition {
+            sort_type: SortType::Name,
+            asc: true,
+        };
+        let mut test = |f1: &str, f2: &str, expect: Ordering| {
+            let f1 = FileInfoOS {
+                name: Arc::from(OsStr::new(f1)),
+                is_dir: false,
+                metadata: None,
+            };
+            let f2 = FileInfoOS {
+                name: Arc::from(OsStr::new(f2)),
+                is_dir: false,
+                metadata: None,
+            };
+            let ret = cmp_file(&f1, &f2, &cond, &cmp, &mut supp);
+            assert_eq!(
+                ret,
+                expect,
+                "{}",
+                format!("{:?} cmp {:?}", f1.name, f2.name)
+            );
+        };
+
+        assert_eq!("a".cmp("b"), Less);
+        assert_eq!("123".cmp("1234"), Less);
+
+        test("a", "a", Equal);
+        test("a", "b", Less);
+        test("b", "a", Greater);
+
+        test("12345", "123456", Less);
+    }
+}
