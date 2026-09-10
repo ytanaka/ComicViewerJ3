@@ -172,7 +172,7 @@ export default function FileList() {
 
 // <FileList> 内にスクロールした結果を useState<ListRange>() すると、スクロールするたびに <FileList> がレンダーされるので、
 // このコンポーネントを <FileList> の子にする
-export function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
+function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
   const fileIds = useScrollFileIdsStore(state => state.fileIds);
   const tabId = useScrollFileIdsStore(state => state.tabId);
   const fileIds2 = fileIds.filter(fileId => {
@@ -183,13 +183,13 @@ export function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
   return <></>;
 }
 
-export interface ScrollFileIdsStore {
+interface ScrollFileIdsStore {
   tabId: TabId;
   fileIds: FileId[];
   setFileIds: (tabId: TabId, fileIds: FileId[]) => void;
 }
 
-export const useScrollFileIdsStore = create<ScrollFileIdsStore>()(set => ({
+const useScrollFileIdsStore = create<ScrollFileIdsStore>()(set => ({
   tabId: 0 as TabId,
   fileIds: [],
   setFileIds: (tabId: TabId, fileIds: FileId[]) => {

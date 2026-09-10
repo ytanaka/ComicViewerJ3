@@ -102,6 +102,9 @@ impl TabInfo {
             _ => self.metadata_loaded_count == self.files.len(),
         }
     }
+    pub fn invalidate_sort_list(&mut self) {
+        self.sorted_list = None;
+    }
 
     fn sort_items(&mut self) {
         let mut supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());

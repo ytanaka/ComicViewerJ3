@@ -81,7 +81,18 @@ pub fn save_preferences_impl(
 
     // メモリ中の設定を更新
     let mut pref = state.preferences.write().unwrap();
+    let old_pref = pref.clone();
+    let new_pref = preferences.clone();
     *pref = preferences;
+    std::mem::drop(pref);
+
+    // ソート設定が変更されたら、全タブのソート状態を無効化する
+    if old_pref.is_change_sort_config(&new_pref) {
+        for tab_info in state.tabs.iter() {
+            let mut tab = tab_info.write().unwrap();
+            tab.invalidate_sort_list();
+        }
+    }
 
     Ok(())
 }

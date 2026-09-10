@@ -3,6 +3,7 @@ import { TabStore } from './store';
 import { TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
 import { StateCreator } from 'zustand';
+import { removeQueries_getDirEntries } from '@/services/files';
 
 export interface UiTabActions {
   updateTab: (tabId: TabId, newTab: TabInfo) => void;
@@ -32,6 +33,7 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
           tab.refreshCount += 1;
         });
       });
+      removeQueries_getDirEntries(tabId);
     },
 
     incRefreshCount: (tabId: TabId) => {
@@ -40,6 +42,7 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
           tab.refreshCount += 1;
         });
       });
+      removeQueries_getDirEntries(tabId);
     },
 
     // 同じパスで再読み込みさせる

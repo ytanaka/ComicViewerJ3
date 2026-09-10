@@ -1,7 +1,6 @@
 import { useTabStore } from '@/store/tab/store';
 import { handleRustCmdResult, rustcmds, SortType_type } from '../bindings-wrapper';
 import { toast } from 'sonner';
-import { removeQueries_getDirEntries } from '@/services/files';
 import { DelayedToast } from '../delayed-toast';
 
 export const sortCommands = {
@@ -23,7 +22,6 @@ export const sortCommands = {
         if (!data) {
           toast.error('このディレクトリではまだソートの準備ができていません', { id: 'sort-not-yet-ready' });
         } else {
-          removeQueries_getDirEntries(tab.info.id);
           useTabStore.getState().setSortCondition(tab.info.id, cond);
         }
       });

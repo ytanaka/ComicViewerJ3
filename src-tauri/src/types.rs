@@ -224,6 +224,10 @@ impl AppPreferences {
             _ => icu_collator::options::Strength::Identical,
         }
     }
+    pub fn is_change_sort_config(&self, other: &AppPreferences) -> bool {
+        self.filename_cmp != other.filename_cmp
+            || self.filename_sort_strength != other.filename_sort_strength
+    }
 }
 
 /// ファイル名ソート時の文字比較方法
