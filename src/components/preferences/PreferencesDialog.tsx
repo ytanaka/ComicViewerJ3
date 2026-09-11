@@ -5,12 +5,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 import { useUiStore } from '@/store/ui-store';
 import { GeneralPanel } from './panels/GeneralPanel';
-import { DebugPane as DebugPanel } from './panels/DebugPanel';
-import { AboutPane as AboutPanel } from './panels/AboutPanel';
+import { DebugPanel } from './panels/DebugPanel';
+import { AboutPanel } from './panels/AboutPanel';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { AdvancedPane as AdvancedPanel } from './panels/AdvancedPanel';
-import { DebugCmdPane as DebugCmdPanel } from './panels/DebugCmdPanel';
+import { AdvancedPanel } from './panels/AdvancedPanel';
+import { DebugCmdPanel } from './panels/DebugCmdPanel';
 import { FileListPanel } from './panels/FileListPanel';
+import { DebugPanel2 } from './panels/DebugPanel2';
 
 const allPanelList = [
   {
@@ -38,6 +39,12 @@ const allPanelList = [
     node: DebugPanel,
   },
   {
+    id: 'debug2',
+    label: 'デバッグ用設定2',
+    icon: Zap,
+    node: DebugPanel2,
+  },
+  {
     id: 'debugCmd',
     label: 'デバッグ用コマンド',
     icon: Zap,
@@ -56,17 +63,15 @@ export type PreferenceDialogTabId = PanelProp['id'];
 
 export function PreferencesDialog() {
   const showPreferencesDialog = useUiVolatileStore(state => state.showPreferencesDialog);
-  const setShowPreferencesDialog = useUiVolatileStore(state => state.setShowPreferencesDialog);
-
   const preferenceDialogTabId = useUiVolatileStore(state => state.preferenceDialogTabId);
-  const setPreferenceDialogTabId = useUiVolatileStore(state => state.setPreferenceDialogTabId);
+  const setField = useUiVolatileStore(state => state.setField);
 
   const debugPreferenceOn = useUiStore(state => state.debugPreferenceOn);
 
   const panelList = allPanelList.filter(p => !p.id.startsWith('debug') || debugPreferenceOn);
 
   return (
-    <Dialog open={showPreferencesDialog} onOpenChange={setShowPreferencesDialog}>
+    <Dialog open={showPreferencesDialog} onOpenChange={(b) => setField('showPreferencesDialog', b)}>
       <DialogContent className="w-[90vw] h-[90vh] max-w-none max-h-none sm:max-w-none">
         <div>
           <DialogHeader>
@@ -74,7 +79,7 @@ export function PreferencesDialog() {
           </DialogHeader>
           <Tabs
             value={preferenceDialogTabId}
-            onValueChange={setPreferenceDialogTabId}
+            onValueChange={(v) => setField('preferenceDialogTabId', v)}
             className="pt-3"
             orientation="vertical"
           >

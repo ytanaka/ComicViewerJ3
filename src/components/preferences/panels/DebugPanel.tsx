@@ -14,7 +14,7 @@ const sortStrengthItems = [
   { label: '厳密', value: 'Identical' },
 ];
 
-export function DebugPane() {
+export function DebugPanel() {
   const { data: pref } = usePreferences();
   const savePref = useSavePreferences();
 

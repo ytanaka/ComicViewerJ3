@@ -5,7 +5,7 @@ import { appCacheDir, appConfigDir, appDataDir, appLogDir } from '@tauri-apps/ap
 import { Button } from '@/components/ui/button';
 import { useUiStore } from '@/store/ui-store';
 
-export function AboutPane() {
+export function AboutPanel() {
   const debugPreferenceOn = useUiStore(state => state.debugPreferenceOn);
   const setField = useUiStore(state => state.setField);
   const [clickCount, setClickCount] = useState(0);

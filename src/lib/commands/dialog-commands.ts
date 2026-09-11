@@ -8,6 +8,6 @@ export const dialogCommands = {
 
   // 設定画面を開く
   openPreference() {
-    useUiVolatileStore.getState().setShowPreferencesDialog(true);
+    useUiVolatileStore.getState().setField('showPreferencesDialog', true);
   },
 };
