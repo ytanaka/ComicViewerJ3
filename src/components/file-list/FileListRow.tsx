@@ -9,6 +9,11 @@ import { SearchResult } from './SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/files';
 
+import icon_foider from '@/assets/icons/file_folder_flat.svg';
+import icon_file from '@/assets/icons/page_facing_up_flat.svg';
+import icon_error from '@/assets/icons/red_exclamation_mark_flat.svg';
+import icon_undefined from '@/assets/icons/white_medium_square_flat.svg';
+
 function Icon({
   dirEntry,
   fileInfo,
@@ -20,17 +25,17 @@ function Icon({
 }) {
   let icon: string;
   if (hasError) {
-    icon = '❌';
+    icon = icon_error;
   } else if (fileInfo === undefined) {
-    icon = ' ';
+    icon = icon_undefined;
   } else if (dirEntry.is_dir) {
-    icon = '📁';
+    icon = icon_foider;
   } else {
-    icon = '📄';
+    icon = icon_file;
   }
   return (
     <td style={{}} className="box-border w-[3%] pl-1 pr-1">
-      {icon}
+      <img src={icon} className='h-4'></img>
     </td>
   );
 }

@@ -29,7 +29,7 @@ export function FileListHeader() {
     e.preventDefault();
 
     const startX = e.clientX;
-    const startWidth = fileListHeaderSizes[index];
+    const startWidth = fileListHeaderSizes[index == 1 ? 0 : index];
 
     const onMouseMove = (e: MouseEvent) => {
       const moveRight = e.clientX - startX;
@@ -57,6 +57,7 @@ export function FileListHeader() {
     sortCommands.sortFiles(type);
   };
 
+  // ↑ ↓ ソート順アイコン
   function getIcon(type: SortType_type | null) {
     if (type === null || sortCondition.sort_type.type !== type) return <></>;
 
