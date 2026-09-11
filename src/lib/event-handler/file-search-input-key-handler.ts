@@ -33,7 +33,7 @@ function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent, virtuoso: Virtuoso
   // 文字入力は１文字になるはず
   if (e.key.length !== 1) return false;
 
-  const delay = e.timeStamp - useSearchTextStore.getState().prevTypeTime;
+  const delay = performance.now() - useSearchTextStore.getState().prevTypeTime;
   const timeout = useUiStore.getState().fileSearchInputTimeoutMs;
 
   // console.debug(`delay:${delay} timeout:${timeout}`, JSON.stringify(useSearchTextStore.getState()))
