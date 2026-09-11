@@ -57,6 +57,7 @@ export type AppPreferences = {
 export type DirEntryUI = {
 	file_id: number,
 	is_dir: boolean,
+	is_symlink: boolean,
 	name: string,
 };
 

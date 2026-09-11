@@ -70,12 +70,14 @@ function toTabInfo(from: TabInfoUI): TabInfo {
 export type DirEntry = {
   file_id: FileId;
   is_dir: boolean;
+  is_symlink: boolean;
   name: string;
 };
 function toDirEntry(from: DirEntryUI): DirEntry {
   return {
     file_id: from.file_id as FileId,
     is_dir: from.is_dir,
+    is_symlink: from.is_symlink,
     name: from.name,
   };
 }

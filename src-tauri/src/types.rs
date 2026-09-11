@@ -68,6 +68,7 @@ pub struct DirEntryUI {
     pub file_id: FileId,
 
     pub is_dir: bool,
+    pub is_symlink: bool,
     pub name: Arc<str>,
 }
 
@@ -113,6 +114,7 @@ pub struct FileInfoUI {
 pub struct FileInfoOS {
     pub name: Arc<OsStr>,
     pub is_dir: bool,
+    pub is_symlink: bool,
     /// メタデータか、メタデータ取得時のエラーメッセージが入る
     pub metadata: Option<Arc<Either<String, FileMetadata>>>,
 }

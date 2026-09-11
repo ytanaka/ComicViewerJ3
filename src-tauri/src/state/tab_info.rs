@@ -150,6 +150,7 @@ impl TabInfo {
                 ret.push(DirEntryUI {
                     file_id: i,
                     is_dir: info.is_dir,
+                    is_symlink: info.is_symlink,
                     name: Arc::from(info.name.to_string_lossy()),
                 });
             }
@@ -258,6 +259,7 @@ mod tests {
                 FileInfoOS {
                     name: Arc::from(OsStr::new(fname)),
                     is_dir: false,
+                    is_symlink: false,
                     metadata: None,
                 },
             );

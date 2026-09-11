@@ -10,6 +10,7 @@ import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/files';
 
 import icon_foider from '@/assets/icons/file_folder_flat.svg';
+import icon_symlink from '@/assets/icons/prohibited_flat.svg';
 import icon_file from '@/assets/icons/page_facing_up_flat.svg';
 import icon_error from '@/assets/icons/red_exclamation_mark_flat.svg';
 import icon_undefined from '@/assets/icons/white_medium_square_flat.svg';
@@ -30,6 +31,8 @@ function Icon({
     icon = icon_undefined;
   } else if (dirEntry.is_dir) {
     icon = icon_foider;
+  } else if (dirEntry.is_symlink) {
+    icon = icon_symlink;
   } else {
     icon = icon_file;
   }

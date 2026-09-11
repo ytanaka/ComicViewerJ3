@@ -9,11 +9,19 @@ pub fn read_dir(path: impl AsRef<Path>) -> anyhow::Result<Vec<FileInfoOS>> {
     let mut ret = Vec::new();
     for entry in fs::read_dir(path)? {
         let entry = entry?;
+        let is_symlink = entry.file_type()?.is_symlink();
+
         let info = FileInfoOS {
             name: Arc::from(entry.file_name()),
-            is_dir: entry.file_type()?.is_dir(),
+            is_symlink: is_symlink,
+            is_dir: if is_symlink {
+                entry.path().is_dir() // シンボリックリンクの先を調べる
+            } else {
+                entry.file_type()?.is_dir()
+            },
             metadata: None,
         };
+
         ret.push(info);
     }
     Ok(ret)
