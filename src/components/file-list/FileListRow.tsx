@@ -12,8 +12,8 @@ import { useFileInfo1Query } from '@/services/files';
 import FileFolderIcon from '@iconify-react/fluent-emoji-flat/file-folder';
 import WhiteMediumSquareIcon from '@iconify-react/fluent-emoji-flat/white-medium-square';
 import PageFacingUpIcon from '@iconify-react/fluent-emoji-flat/page-facing-up';
-import ProhibitedIcon from '@iconify-react/fluent-emoji-flat/prohibited';
 import RedExclamationMarkIcon from '@iconify-react/fluent-emoji-flat/red-exclamation-mark';
+import UpRightArrowIcon from '@iconify-react/fluent-emoji-flat/up-right-arrow';
 
 function Icon({
   dirEntry,
@@ -29,10 +29,26 @@ function Icon({
     icon = <RedExclamationMarkIcon></RedExclamationMarkIcon>
   } else if (fileInfo === undefined) {
     icon = <WhiteMediumSquareIcon></WhiteMediumSquareIcon>
+  } else if (dirEntry.is_symlink && dirEntry.is_dir) {
+    icon = (
+      <div className="relative h-4">
+        <FileFolderIcon></FileFolderIcon>
+        <div className="absolute right-0 bottom-0 w-2.5">
+          <UpRightArrowIcon></UpRightArrowIcon>
+        </div>
+      </div>
+    );
+  } else if (dirEntry.is_symlink) {
+    icon = (
+      <div className="relative h-4">
+        <PageFacingUpIcon></PageFacingUpIcon>
+        <div className="absolute right-0 bottom-0 w-2.5">
+          <UpRightArrowIcon></UpRightArrowIcon>
+        </div>
+      </div>
+    );
   } else if (dirEntry.is_dir) {
     icon = <FileFolderIcon></FileFolderIcon>
-  } else if (dirEntry.is_symlink) {
-    icon = <ProhibitedIcon></ProhibitedIcon>
   } else {
     icon = <PageFacingUpIcon></PageFacingUpIcon>
   }
