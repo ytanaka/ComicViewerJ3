@@ -1,4 +1,4 @@
-import { _useTabStore_setExistTabFields, mkDefaultSortCondition, TabId } from './types';
+import { _useTabStore_setExistTabFields, getNextDummyTabId, mkDefaultSortCondition, TabId } from './types';
 import { TabStore } from './store';
 import { TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
@@ -50,7 +50,7 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
     invalidateTabForRefresh: (tabId: TabId) => {
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
-          if (0 < tab.info.id) tab.info.id = (tab.info.id * -1) as TabId;
+          if (0 < tab.info.id) tab.info.id = getNextDummyTabId();
         });
       });
     },

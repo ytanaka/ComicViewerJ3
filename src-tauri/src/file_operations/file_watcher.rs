@@ -3,7 +3,10 @@ use std::{
     sync::Arc,
 };
 
-use notify::{recommended_watcher, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{
+    event::ModifyKind, recommended_watcher, Event, EventKind, RecommendedWatcher, RecursiveMode,
+    Watcher,
+};
 
 use crate::{
     state::{
@@ -81,7 +84,8 @@ impl<E: EventEmitter> FileWatcherHandler<E> {
         match ev.kind {
             EventKind::Create(_) => self.ui_all_refresh()?,
             EventKind::Remove(_) => self.ui_all_refresh()?,
-            EventKind::Modify(_) => {
+            EventKind::Modify(ModifyKind::Any) => {
+                // Windowsではファイル編集したときに通知された
                 let paths: Vec<_> = ev.paths.iter().collect();
                 if paths.len() != 1 {
                     self.ui_all_refresh()?
@@ -102,6 +106,10 @@ impl<E: EventEmitter> FileWatcherHandler<E> {
                         }
                     }
                 }
+            }
+            EventKind::Modify(_) => {
+                // Windowsでは、リネームされたときに Name(From), Name(To) が通知された
+                self.ui_all_refresh()?;
             }
             EventKind::Access(_) => { /* 無視する */ }
             ev => {

@@ -37,6 +37,8 @@ export interface FileFocus {
 
 let nextDummyTabId = -1;
 
+// TabInfo.id に負数を入れてファイル一覧を取得させるためのタブID
+// 過去に使ったTabIdと重複するとバグになるので、ここで生成したものを使うこと
 export function getNextDummyTabId(): TabId {
   const tabId = nextDummyTabId;
   nextDummyTabId -= 1;
