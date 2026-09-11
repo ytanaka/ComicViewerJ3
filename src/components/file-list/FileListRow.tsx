@@ -26,31 +26,31 @@ function Icon({
 }) {
   let icon: ReactNode;
   if (hasError) {
-    icon = <RedExclamationMarkIcon></RedExclamationMarkIcon>
+    icon = <RedExclamationMarkIcon />
   } else if (fileInfo === undefined) {
-    icon = <WhiteMediumSquareIcon></WhiteMediumSquareIcon>
+    icon = <WhiteMediumSquareIcon />
   } else if (dirEntry.is_symlink && dirEntry.is_dir) {
     icon = (
-      <div className="relative h-4">
-        <FileFolderIcon></FileFolderIcon>
-        <div className="absolute right-0 bottom-0 w-2.5">
-          <UpRightArrowIcon></UpRightArrowIcon>
+      <div className="relative">
+        <FileFolderIcon />
+        <div className="absolute right-0 bottom-0 w-[60%]">
+          <UpRightArrowIcon />
         </div>
       </div>
     );
   } else if (dirEntry.is_symlink) {
     icon = (
-      <div className="relative h-4">
-        <PageFacingUpIcon></PageFacingUpIcon>
-        <div className="absolute right-0 bottom-0 w-2.5">
-          <UpRightArrowIcon></UpRightArrowIcon>
+      <div className="relative">
+        <PageFacingUpIcon />
+        <div className="absolute right-0 bottom-0 w-[60%]">
+          <UpRightArrowIcon />
         </div>
       </div>
     );
   } else if (dirEntry.is_dir) {
-    icon = <FileFolderIcon></FileFolderIcon>
+    icon = <FileFolderIcon />
   } else {
-    icon = <PageFacingUpIcon></PageFacingUpIcon>
+    icon = <PageFacingUpIcon />
   }
   return (
     <td style={{}} className="box-border w-[3%] pl-1 pr-1">
