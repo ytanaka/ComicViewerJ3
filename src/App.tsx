@@ -1,7 +1,9 @@
 import './App.css';
 import { Toaster, ToasterProps } from 'sonner';
 import { useTheme } from 'next-themes';
+import { ErrorBoundary } from 'react-error-boundary';
 
+import { ErrorFallback } from './components/util/ErrorFallback';
 import { Menu } from './components/misc/Menu';
 import { Toolbar } from './components/misc/Toolbar';
 import { TabContent } from './components/misc/TabContent';
@@ -17,20 +19,22 @@ function App() {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm">
-      <HotKeys />
-      <Menu />
-      <Toolbar />
-      <TabBar />
-      <TabContent />
-      <StatusBar />
-      <PreferencesDialog />
-      <Toaster
-        position="bottom-right"
-        expand={false}
-        duration={2000}
-        visibleToasts={5}
-        theme={resolvedTheme as ToasterProps['theme']}
-      />
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <HotKeys />
+        <Menu />
+        <Toolbar />
+        <TabBar />
+        <TabContent />
+        <StatusBar />
+        <PreferencesDialog />
+        <Toaster
+          position="bottom-right"
+          expand={false}
+          duration={2000}
+          visibleToasts={5}
+          theme={resolvedTheme as ToasterProps['theme']}
+        />
+      </ErrorBoundary>
     </div>
   );
 }
