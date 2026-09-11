@@ -9,11 +9,11 @@ import { SearchResult } from './SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/files';
 
-import icon_foider from '@/assets/icons/file_folder_flat.svg';
-import icon_symlink from '@/assets/icons/prohibited_flat.svg';
-import icon_file from '@/assets/icons/page_facing_up_flat.svg';
-import icon_error from '@/assets/icons/red_exclamation_mark_flat.svg';
-import icon_undefined from '@/assets/icons/white_medium_square_flat.svg';
+import FileFolderIcon from '@iconify-react/fluent-emoji-flat/file-folder';
+import WhiteMediumSquareIcon from '@iconify-react/fluent-emoji-flat/white-medium-square';
+import PageFacingUpIcon from '@iconify-react/fluent-emoji-flat/page-facing-up';
+import ProhibitedIcon from '@iconify-react/fluent-emoji-flat/prohibited';
+import RedExclamationMarkIcon from '@iconify-react/fluent-emoji-flat/red-exclamation-mark';
 
 function Icon({
   dirEntry,
@@ -24,21 +24,21 @@ function Icon({
   fileInfo: FileInfo | undefined;
   hasError: boolean;
 }) {
-  let icon: string;
+  let icon: ReactNode;
   if (hasError) {
-    icon = icon_error;
+    icon = <RedExclamationMarkIcon></RedExclamationMarkIcon>
   } else if (fileInfo === undefined) {
-    icon = icon_undefined;
+    icon = <WhiteMediumSquareIcon></WhiteMediumSquareIcon>
   } else if (dirEntry.is_dir) {
-    icon = icon_foider;
+    icon = <FileFolderIcon></FileFolderIcon>
   } else if (dirEntry.is_symlink) {
-    icon = icon_symlink;
+    icon = <ProhibitedIcon></ProhibitedIcon>
   } else {
-    icon = icon_file;
+    icon = <PageFacingUpIcon></PageFacingUpIcon>
   }
   return (
     <td style={{}} className="box-border w-[3%] pl-1 pr-1">
-      <img src={icon} className='h-4'></img>
+      {icon}
     </td>
   );
 }
