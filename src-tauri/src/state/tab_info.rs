@@ -203,6 +203,7 @@ impl TabInfo {
         }
     }
 
+    // ファイル変更通知で1つのファイル内容が変更されたときに呼ばれる
     pub fn handle_modify_file(&mut self, filename: &OsStr) -> Option<FileId> {
         let ret = self.file_names.get(filename);
         if let Some(file_id) = ret {

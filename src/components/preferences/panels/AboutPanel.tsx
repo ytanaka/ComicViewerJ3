@@ -22,6 +22,7 @@ export function AboutPanel() {
   function openExplorer(fn: () => Promise<string>) {
     return async () => {
       const dir = await fn();
+      console.debug(`revealItemInDir(${dir})`);
       revealItemInDir(dir);
     };
   }
