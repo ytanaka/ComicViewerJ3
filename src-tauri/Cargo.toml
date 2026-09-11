@@ -37,7 +37,6 @@ dashmap = "6.2.1"
 maplit = "1.0.2"
 regex = "1.13.1"
 notify = "8.2.0"
-notify-debouncer-full = "0.7.0"
 
 vibrato = "0.5.2"
 wana_kana = "5.0.0"

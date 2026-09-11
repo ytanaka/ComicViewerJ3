@@ -117,7 +117,7 @@ impl AppState {
         let ret = self
             .tabs
             .get_mut(&tab_id)
-            .ok_or_else(|| anyhow!("invalid tab_id: {tab_id}"))?;
+            .ok_or_else(|| anyhow!("no tab id:{tab_id}"))?;
         Ok(ret.clone())
     }
 

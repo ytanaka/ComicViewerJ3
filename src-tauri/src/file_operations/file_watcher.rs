@@ -1,11 +1,9 @@
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
-    time::Duration,
 };
 
-use notify::{EventKind, RecommendedWatcher, RecursiveMode};
-use notify_debouncer_full::{new_debouncer, DebouncedEvent, Debouncer, RecommendedCache};
+use notify::{recommended_watcher, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 
 use crate::{
     state::{
@@ -17,7 +15,7 @@ use crate::{
 
 // ---------------------------------------------------------------------------------------------------------------------
 pub struct FileWatcher {
-    debouncer: Option<Debouncer<RecommendedWatcher, RecommendedCache>>,
+    watcher: Option<RecommendedWatcher>,
 }
 impl FileWatcher {
     pub fn new<E: EventEmitter>(
@@ -27,7 +25,7 @@ impl FileWatcher {
         path: impl AsRef<Path>,
     ) -> anyhow::Result<Self> {
         if app.is_dummy() {
-            return Ok(FileWatcher { debouncer: None });
+            return Ok(FileWatcher { watcher: None });
         }
 
         let handler = FileWatcherHandler {
@@ -35,19 +33,19 @@ impl FileWatcher {
             state: state.clone(),
             tab_id,
         };
-        let mut debouncer = new_debouncer(Duration::from_secs(1), None, move |ev| {
+        let mut watcher = recommended_watcher(move |ev| {
             handler.handle_events(ev);
         })?;
-
-        debouncer.watch(path.as_ref(), RecursiveMode::NonRecursive)?;
+        // notify-debouncer-full を使うと、大量にファイルのあるディレクトリで watch() すると時間がかかるので notify を使う
+        watcher.watch(path.as_ref(), RecursiveMode::NonRecursive)?;
         Ok(FileWatcher {
-            debouncer: Some(debouncer),
+            watcher: Some(watcher),
         })
     }
 
     pub fn stop(&mut self) {
-        if let Some(d) = self.debouncer.take() {
-            d.stop_nonblocking();
+        if let Some(d) = self.watcher.take() {
+            std::mem::drop(d);
         }
     }
 }
@@ -59,22 +57,20 @@ struct FileWatcherHandler<E: EventEmitter> {
     tab_id: TabId,
 }
 impl<E: EventEmitter> FileWatcherHandler<E> {
-    fn handle_events(&self, ev: Result<Vec<DebouncedEvent>, Vec<notify::Error>>) {
+    fn handle_events(&self, ev: notify::Result<Event>) {
         match ev {
-            Ok(events) => {
-                events.into_iter().for_each(|e| {
-                    if let Err(e) = self.handle_event(e) {
-                        log::error!("FileWatcher error: {}", e);
-                    }
-                });
+            Ok(event) => {
+                if let Err(e) = self.handle_event(event) {
+                    log::error!("FileWatcher error: {}", e);
+                };
             }
-            Err(errors) => {
+            Err(error) => {
                 // 何をしていいのかわからないので、ログを出しておく
-                errors.iter().for_each(|e| log::error!("{}", e));
+                log::error!("{}", error);
             }
         }
     }
-    fn handle_event(&self, ev: DebouncedEvent) -> anyhow::Result<()> {
+    fn handle_event(&self, ev: Event) -> anyhow::Result<()> {
         log::trace!(
             "FileWatcher {:?}: (tab:{}) {:?}",
             ev.kind,
@@ -92,16 +88,17 @@ impl<E: EventEmitter> FileWatcherHandler<E> {
                 } else {
                     // 1ファイルが変更されたときのみ、1ファイルのメタデータ再取得をする
                     // ※ それ以外はディレクトリ再読み込み
-                    let filenames = &&paths
+                    let filenames = paths
                         .first()
                         .iter()
                         .flat_map(|p| p.file_name())
                         .collect::<Vec<_>>();
-                    for filename in *filenames {
-                        let tab = self.state.get_tab(self.tab_id).unwrap();
-                        let mut tab = tab.write().unwrap();
-                        if let Some(file_id) = tab.handle_modify_file(filename) {
-                            self.ui_1file_refresh(file_id)?
+                    for filename in filenames {
+                        if let Ok(tab) = self.state.get_tab(self.tab_id) {
+                            let mut tab = tab.write().unwrap();
+                            if let Some(file_id) = tab.handle_modify_file(filename) {
+                                self.ui_1file_refresh(file_id)?
+                            }
                         }
                     }
                 }
