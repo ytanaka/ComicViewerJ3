@@ -124,6 +124,9 @@ importers:
       '@iconify-react/fluent-emoji-flat':
         specifier: ^1.0.3
         version: 1.0.3(react@19.2.8)
+      '@iconify-react/vscode-icons':
+        specifier: ^1.0.35
+        version: 1.0.35(react@19.2.8)
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0))
@@ -699,6 +702,9 @@ packages:
 
   '@iconify-react/fluent-emoji-flat@1.0.3':
     resolution: {integrity: sha512-5DQRwoA7EPdWLWQg1LCETL/GnVv5cAgbTVyvEEqdM9a+7RRkqq+p5UZhoBrq5DflfWAA0jBBk3lg5xx1oyp4sQ==}
+
+  '@iconify-react/vscode-icons@1.0.35':
+    resolution: {integrity: sha512-pIYpCRS823gt/POjKze6+VLeHn5fYGt+X8Y16pH1Qry/SoR3lEfcY7uoQcaOAucRQeRiyfT8Lg5vQ2Myxs2SRQ==}
 
   '@iconify/css-react@1.0.2':
     resolution: {integrity: sha512-k33FKG4jGgd8odos+1HdSwCKZOQ5F1heQxwl/zDrA53tLg5IseDPMqsmQbcCEZ6E0Zgcrmfo4ceFSBmbuEvGtw==}
@@ -3716,6 +3722,12 @@ snapshots:
   '@humanwhocodes/retry@0.4.3': {}
 
   '@iconify-react/fluent-emoji-flat@1.0.3(react@19.2.8)':
+    dependencies:
+      '@iconify/css-react': 1.0.2(react@19.2.8)
+    transitivePeerDependencies:
+      - react
+
+  '@iconify-react/vscode-icons@1.0.35(react@19.2.8)':
     dependencies:
       '@iconify/css-react': 1.0.2(react@19.2.8)
     transitivePeerDependencies:

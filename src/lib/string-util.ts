@@ -34,3 +34,11 @@ export function errToStr(e: unknown) {
     return String(e);
   }
 }
+
+export function getFileExtension(filename: string) {
+  const index = filename.lastIndexOf('.');
+  if (index === -1 || index === 0 || index === filename.length - 1) {
+    return null;
+  }
+  return filename.substring(index + 1);
+}

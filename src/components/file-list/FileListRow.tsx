@@ -1,17 +1,15 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode } from 'react';
 
-import { path } from '@tauri-apps/api';
-
-import { unixTime2str } from '@/lib/string-util';
+import { getFileExtension, unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/files';
+import { FileExtIcon } from './FileExtIcon';
 
 import FileFolderIcon from '@iconify-react/fluent-emoji-flat/file-folder';
 import WhiteMediumSquareIcon from '@iconify-react/fluent-emoji-flat/white-medium-square';
-import PageFacingUpIcon from '@iconify-react/fluent-emoji-flat/page-facing-up';
 import RedExclamationMarkIcon from '@iconify-react/fluent-emoji-flat/red-exclamation-mark';
 import UpRightArrowIcon from '@iconify-react/fluent-emoji-flat/up-right-arrow';
 
@@ -41,7 +39,7 @@ function Icon({
   } else if (dirEntry.is_symlink) {
     icon = (
       <div className="relative">
-        <PageFacingUpIcon />
+        <FileExtIcon dirEntry={dirEntry} />
         <div className="absolute right-0 bottom-0 w-[60%]">
           <UpRightArrowIcon />
         </div>
@@ -50,7 +48,7 @@ function Icon({
   } else if (dirEntry.is_dir) {
     icon = <FileFolderIcon />
   } else {
-    icon = <PageFacingUpIcon />
+    icon = <FileExtIcon dirEntry={dirEntry} />
   }
   return (
     <td style={{}} className="box-border w-[3%] pl-1 pr-1">
@@ -63,30 +61,12 @@ function Name({ dirEntry }: { dirEntry: DirEntry }) {
 }
 function FileExt({
   dirEntry,
-  fileInfo,
   children,
 }: {
   dirEntry: DirEntry;
-  fileInfo: FileInfo | undefined;
   children: ReactNode;
 }) {
-  const [ext, setExt] = useState('');
-
-  useEffect(() => {
-    async function getExt() {
-      setExt('');
-      if (!fileInfo) return;
-      const isDir = dirEntry.is_dir;
-      if (!isDir) {
-        const ext = await path.extname(dirEntry.name).catch(() => {
-          return '';
-        });
-        if (ext !== '') setExt(ext);
-      }
-    }
-    getExt();
-  }, [dirEntry.is_dir, dirEntry.name, fileInfo]);
-
+  const ext = dirEntry.is_dir ? null : getFileExtension(dirEntry.name);
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1'}>
       {ext}
@@ -142,7 +122,7 @@ export function FileListRow({
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
       <Icon dirEntry={dirEntry} fileInfo={fileInfo} hasError={!!errorMsg} />
       <Name dirEntry={dirEntry} />
-      <FileExt dirEntry={dirEntry} fileInfo={fileInfo}>
+      <FileExt dirEntry={dirEntry}>
         {isFocused && <SearchResult tabInfo={tabInfo} />}
       </FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />

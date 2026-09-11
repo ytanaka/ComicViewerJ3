@@ -191,11 +191,13 @@ mod tests {
             let f1 = FileInfoOS {
                 name: Arc::from(OsStr::new(f1)),
                 is_dir: false,
+                is_symlink: false,
                 metadata: None,
             };
             let f2 = FileInfoOS {
                 name: Arc::from(OsStr::new(f2)),
                 is_dir: false,
+                is_symlink: false,
                 metadata: None,
             };
             let ret = cmp_file(&f1, &f2, &cond, &cmp, &mut supp);
