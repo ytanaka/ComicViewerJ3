@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useRef } from 'react';
 
 export function RustLibInitializer({ children }: { children: ReactNode }) {
   const appInitialized = useUiVolatileStore(state => state.appInitialized);
-  const setAppInitialized = useUiVolatileStore(state => state.setAppInitialized);
+  const setField = useUiVolatileStore(state => state.setField);
 
   const initializing = useRef(false);
   useEffect(() => {
@@ -14,14 +14,14 @@ export function RustLibInitializer({ children }: { children: ReactNode }) {
       // 起動時に存在するRustタブはすべて削除
       await removeOldRustTabs();
 
-      setAppInitialized();
+      setField('appInitialized', true);
       initializing.current = false;
     };
     if (!appInitialized && !initializing.current) {
       initializing.current = true;
       init();
     }
-  }, [appInitialized, setAppInitialized]);
+  }, [appInitialized]);
 
   if (!appInitialized) {
     return (

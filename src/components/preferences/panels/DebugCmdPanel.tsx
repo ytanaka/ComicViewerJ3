@@ -10,7 +10,7 @@ import { useTabStore } from '@/store/tab/store';
 import { mkUiTab } from '@/store/tab/types';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
-export function DebugCmdPane() {
+export function DebugCmdPanel() {
   const [newTabPath, setNewTabPath] = useState('');
 
   async function handleClickCreateTab() {
@@ -18,7 +18,7 @@ export function DebugCmdPane() {
     handleRustCmdResult(result, `rustcmds.createTab for DEBUG`, 'タブ作成失敗', data => {
       toast(`OK: id=${data.id}, path=${data.path}`, { duration: 5000 });
       useTabStore.getState().addTab(mkUiTab(data));
-      useUiVolatileStore.getState().setShowPreferencesDialog(false);
+      useUiVolatileStore.getState().setField('showPreferencesDialog', false);
     });
   }
 

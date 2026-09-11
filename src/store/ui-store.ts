@@ -22,6 +22,9 @@ export interface UiState {
   fileSearchInputTimeoutMs: number;
   // ファイル検索結果を表示するタイムアウト
   fileSearchResultDisplayTimeoutMs: number;
+  // イベントハンドラーが古いイベント (e.timeStamp) を受け取ったら無視する閾値 (0チェックしない)
+  // WSLで実行するときに timeStamp がおかしいことの対処
+  timeoutMsEventTimeStamp: number;
 }
 
 type UiState_and_Action = UiState & {
@@ -36,6 +39,7 @@ export const useUiStore = create<UiState_and_Action>()(
       fileListHeaderSizes: [35, 500, 100, 120, 180],
       fileSearchInputTimeoutMs: 2000,
       fileSearchResultDisplayTimeoutMs: 2000,
+      timeoutMsEventTimeStamp: 100,
 
       setField: (key, value) => set({ [key]: value }),
     }),

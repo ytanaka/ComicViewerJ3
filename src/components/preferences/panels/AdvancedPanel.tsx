@@ -3,7 +3,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { Separator } from '@/components/ui/separator';
 import { useUiStore } from '@/store/ui-store';
 
-export function AdvancedPane() {
+export function AdvancedPanel() {
   const fileSearchInputTimeoutMs = useUiStore(state => state.fileSearchInputTimeoutMs);
   const fileSearchResultDisplayTimeoutMs = useUiStore(state => state.fileSearchResultDisplayTimeoutMs);
   const setField = useUiStore(state => state.setField);

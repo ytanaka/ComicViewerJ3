@@ -8,31 +8,18 @@ export interface UiVolatileStore {
 
   // 設定ダイアログ表示フラグ
   showPreferencesDialog: boolean;
+  // 設定ダイアログを開いたときの選択タブ
   preferenceDialogTabId: PreferenceDialogTabId;
-
-  setAppInitialized: () => void;
-  setShowPreferencesDialog: (b: boolean) => void;
-  setPreferenceDialogTabId: (id: PreferenceDialogTabId) => void;
 }
 
-export const useUiVolatileStore = create<UiVolatileStore>()(set => ({
+type UiVolatileStore_and_Action = UiVolatileStore & {
+  setField: <K extends keyof UiVolatileStore>(key: K, value: UiVolatileStore[K]) => void;
+};
+
+export const useUiVolatileStore = create<UiVolatileStore_and_Action>()(set => ({
   appInitialized: false,
   showPreferencesDialog: false,
   preferenceDialogTabId: 'general',
 
-  setAppInitialized: () => {
-    set(() => {
-      return { appInitialized: true };
-    });
-  },
-  setShowPreferencesDialog: (b: boolean) => {
-    set(() => {
-      return { showPreferencesDialog: b };
-    });
-  },
-  setPreferenceDialogTabId: (id: PreferenceDialogTabId) => {
-    set(() => {
-      return { preferenceDialogTabId: id };
-    });
-  },
+  setField: (key, value) => set({ [key]: value }),
 }));
