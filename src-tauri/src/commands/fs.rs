@@ -104,7 +104,7 @@ async fn create_tab_imp<E: EventEmitter>(
 
     let tab_id = state.next_tab_id.fetch_add(1, SeqCst);
     // ファイル監視
-    let watcher = FileWatcher::new(app, state, tab_id, &path).context("FileWatcher error")?;
+    let watcher = FileWatcher::new(app, state, tab_id, &path).context("cant open directory")?;
 
     // ファイル一覧取得
     let mut files_map = HashMap::new();
