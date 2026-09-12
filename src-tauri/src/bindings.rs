@@ -5,6 +5,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::fs;
     use crate::commands::preferences;
     use crate::commands::search;
+    use crate::commands::thumbnail;
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         app::init,
@@ -20,6 +21,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::get_file_infos,
         fs::sort_files,
         search::search_next_filename,
+        thumbnail::get_thumbnail,
         preferences::load_preferences,
         preferences::save_preferences,
     ])

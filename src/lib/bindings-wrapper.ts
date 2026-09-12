@@ -54,6 +54,9 @@ export const rustcmds = {
   searchNextFilename: (tabId: TabId, startIndex: number, romaji: string, reverse: boolean) => {
     return commands.searchNextFilename(tabId, startIndex, romaji, reverse);
   },
+  getThumbnail: (tabId: number, fileId: FileId, size: number) => {
+    return commands.getThumbnail(tabId, fileId.toString(), size);
+  },
   loadPreferences: commands.loadPreferences,
   savePreferences: commands.savePreferences,
 };

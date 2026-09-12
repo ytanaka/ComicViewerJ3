@@ -6,6 +6,7 @@ use specta::Type;
 
 pub type TabId = u32;
 pub type FileId = u64;
+pub type ImageSize = u32;
 
 // =====================================================================================================================
 
@@ -24,6 +25,12 @@ pub enum Either<A, B> {
 }
 impl<A, B> Either<A, B> {
     pub fn right(&self) -> Option<&B> {
+        match self {
+            Either::Right(b) => Some(b),
+            Either::Left(_) => None,
+        }
+    }
+    pub fn into_right(self) -> Option<B> {
         match self {
             Either::Right(b) => Some(b),
             Either::Left(_) => None,

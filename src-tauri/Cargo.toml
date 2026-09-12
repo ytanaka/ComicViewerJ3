@@ -49,9 +49,14 @@ kanaria = "0.2.0"
 
 #[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-window-state = "2"
+
 icu_collator = "2.3.1"
 icu = "2.3.1"
 rand = "0.10.2"
+sha2 = "0.11.0"
+hex = "0.4.3"
+image = "0.25.10"
+uuid = { version = "1.26.1", features = ["v4"] }
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

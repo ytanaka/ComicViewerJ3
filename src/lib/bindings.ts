@@ -34,6 +34,8 @@ export const commands = {
 	sortFiles: (tabId: number, sortCondition: SortCondition) => typedError<boolean, string>(__TAURI_INVOKE("sort_files", { tabId, sortCondition })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
+	/**  画像ファイルのサムネイルを取得 */
+	getThumbnail: (tabId: number, fileId: string, size: number) => typedError<string, string>(__TAURI_INVOKE("get_thumbnail", { tabId, fileId, size })),
 	/**  設定取得 */
 	loadPreferences: () => typedError<AppPreferences, string>(__TAURI_INVOKE("load_preferences")),
 	/**  設定保存 */

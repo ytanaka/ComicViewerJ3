@@ -1,4 +1,10 @@
-use std::{ffi::OsStr, fs, path::Path, sync::Arc};
+use std::{
+    ffi::OsStr,
+    fs::{self, File},
+    path::Path,
+    sync::Arc,
+    time::SystemTime,
+};
 
 use crate::{
     types::{Either, FileInfoOS, FileMetadata},
@@ -41,4 +47,10 @@ pub fn read_metadata(dir: impl AsRef<Path>, filename: &OsStr) -> Either<String, 
             accessed: to_unix_time(metadata.accessed()),
         }),
     }
+}
+
+pub fn touch_file(file: impl AsRef<Path>) -> anyhow::Result<()> {
+    let f = File::options().write(true).open(file)?;
+    f.set_modified(SystemTime::now())?;
+    Ok(())
 }
