@@ -3,10 +3,10 @@ import { getFileExtension } from '@/lib/string-util';
 
 import OpticalDiskIcon from '@iconify-react/fluent-emoji-flat/optical-disk';
 import PageFacingUpIcon from '@iconify-react/fluent-emoji-flat/page-facing-up';
+import FramedPictureIcon from '@iconify-react/fluent-emoji-flat/framed-picture';
 
 import FolderTypeWindowsIcon from '@iconify-react/vscode-icons/folder-type-windows';
 import DefaultFileIcon from '@iconify-react/vscode-icons/default-file';
-import FileTypeImageIcon from '@iconify-react/vscode-icons/file-type-image';
 import FileTypeConfigIcon from '@iconify-react/vscode-icons/file-type-config';
 import FileTypeVideoIcon from '@iconify-react/vscode-icons/file-type-video';
 import FileTypeSvgIcon from '@iconify-react/vscode-icons/file-type-svg';
@@ -35,14 +35,14 @@ import FileTypeLibreofficeWriterIcon from '@iconify-react/vscode-icons/file-type
 import FileTypeZip2Icon from '@iconify-react/vscode-icons/file-type-zip2';
 
 const extIconList = [
-  { ext: 'tiff', icon: FileTypeImageIcon },
-  { ext: 'webp', icon: FileTypeImageIcon },
-  { ext: 'jpeg', icon: FileTypeImageIcon },
-  { ext: 'jpg', icon: FileTypeImageIcon },
-  { ext: 'bmp', icon: FileTypeImageIcon },
-  { ext: 'gif', icon: FileTypeImageIcon },
-  { ext: 'ico', icon: FileTypeImageIcon },
-  { ext: 'png', icon: FileTypeImageIcon },
+  { ext: 'tiff', icon: FramedPictureIcon },
+  { ext: 'webp', icon: FramedPictureIcon },
+  { ext: 'jpeg', icon: FramedPictureIcon },
+  { ext: 'jpg', icon: FramedPictureIcon },
+  { ext: 'bmp', icon: FramedPictureIcon },
+  { ext: 'gif', icon: FramedPictureIcon },
+  { ext: 'ico', icon: FramedPictureIcon },
+  { ext: 'png', icon: FramedPictureIcon },
 
   { ext: 'mpeg', icon: FileTypeVideoIcon },
   { ext: 'mpg', icon: FileTypeVideoIcon },
