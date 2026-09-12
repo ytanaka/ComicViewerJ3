@@ -46,7 +46,7 @@ export const useTabStore = create<TabStore>()(
         } catch (e) {
           console.error(e);
         }
-        console.info('TabState: onRehydrateStorage !!!!!', state);
+        console.info('useTabStore: onRehydrateStorage !!!!!', state);
       },
     }
   )

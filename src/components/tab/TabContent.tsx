@@ -47,6 +47,9 @@ export function TabContentWrapper() {
 // タブが１つ以上ある場合にここに来る
 function TabContent() {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
+  const currentTabIndex = useTabStore(state => state.currentTabIndex);
+
+  console.debug(`<TabContent> tab[${currentTabIndex}](id:${tab.id}), ${tab.path}`);
 
   // タブ情報作成
   useCmdCreateTab(tab);
@@ -81,7 +84,7 @@ function TabContent() {
 
   return (
     fileViewMode === FileViewMode.Thumbnail ? (
-      <Thumbnails />
+      <Thumbnails dirEntries={dirEntries} />
     ) : (
       <FileList dirEntries={dirEntries} />
     )

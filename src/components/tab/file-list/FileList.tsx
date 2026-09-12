@@ -9,18 +9,14 @@ import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handle
 import { useUiStore } from '@/store/ui-store';
 import { getQueryData_getFileInfo1, useCmdFileInfosQuery, } from '@/services/files';
 import { FileId, TabId } from '@/store/tab/types';
-import { getObjId } from '@/lib/utils';
 import { create } from 'zustand';
 import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 
 export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
-  const currentTabIndex = useTabStore(state => state.currentTabIndex);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
   useTabStore(state => state.getCurrentTab()?.refreshCount); // ソート状態が変わったら再レンダーする
-
-  console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} `);
 
   // 画面に表示されている行数
   const visibleListRows = useRef(1);

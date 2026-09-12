@@ -18,7 +18,7 @@ function NormalStatusBar() {
   const { data: dirEntries } = useCmdGetDirEntries(tab);
   const fileNum = dirEntries?.length;
 
-  console.log(`<NormalStatusBar> tab(${tab.id}) sel=${selSize} fileNum=${fileNum}`);
+  console.debug(`<NormalStatusBar> tab(${tab.id}) sel=${selSize} fileNum=${fileNum}`);
 
   let msg: string | undefined;
   if (fileNum !== undefined) {
