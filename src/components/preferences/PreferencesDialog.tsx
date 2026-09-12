@@ -71,7 +71,7 @@ export function PreferencesDialog() {
   const panelList = allPanelList.filter(p => !p.id.startsWith('debug') || debugPreferenceOn);
 
   return (
-    <Dialog open={showPreferencesDialog} onOpenChange={(b) => setField('showPreferencesDialog', b)}>
+    <Dialog open={showPreferencesDialog} onOpenChange={b => setField('showPreferencesDialog', b)}>
       <DialogContent className="w-[90vw] h-[90vh] max-w-none max-h-none sm:max-w-none">
         <div>
           <DialogHeader>
@@ -79,7 +79,7 @@ export function PreferencesDialog() {
           </DialogHeader>
           <Tabs
             value={preferenceDialogTabId}
-            onValueChange={(v) => setField('preferenceDialogTabId', v)}
+            onValueChange={v => setField('preferenceDialogTabId', v)}
             className="pt-3"
             orientation="vertical"
           >

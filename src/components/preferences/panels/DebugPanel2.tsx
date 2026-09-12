@@ -24,13 +24,7 @@ export function DebugPanel2() {
         <Field>
           <FieldLabel>イベントハンドラーが古いイベント (e.timeStamp) を受け取ったら無視する閾値</FieldLabel>
           <InputGroup className="max-w-40">
-            <InputGroupInput
-              type="number"
-              min={0}
-              step={0}
-              onChange={handleChange}
-              value={timeoutMsEventTimeStamp}
-            />
+            <InputGroupInput type="number" min={0} step={0} onChange={handleChange} value={timeoutMsEventTimeStamp} />
             <InputGroupAddon align="inline-end">(ms)</InputGroupAddon>
           </InputGroup>
           <FieldDescription>0: 時間をチェックしない</FieldDescription>

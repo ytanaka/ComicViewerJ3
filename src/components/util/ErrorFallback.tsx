@@ -1,5 +1,5 @@
-import { FallbackProps, getErrorMessage } from "react-error-boundary";
-import { Button } from "../ui/button";
+import { FallbackProps, getErrorMessage } from 'react-error-boundary';
+import { Button } from '../ui/button';
 
 export function ErrorFallback(props: FallbackProps) {
   function handleClick() {

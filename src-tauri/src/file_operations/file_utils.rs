@@ -13,7 +13,7 @@ pub fn read_dir(path: impl AsRef<Path>) -> anyhow::Result<Vec<FileInfoOS>> {
 
         let info = FileInfoOS {
             name: Arc::from(entry.file_name()),
-            is_symlink: is_symlink,
+            is_symlink,
             is_dir: if is_symlink {
                 entry.path().is_dir() // シンボリックリンクの先を調べる
             } else {

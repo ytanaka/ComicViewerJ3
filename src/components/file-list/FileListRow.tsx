@@ -24,9 +24,9 @@ function Icon({
 }) {
   let icon: ReactNode;
   if (hasError) {
-    icon = <RedExclamationMarkIcon />
+    icon = <RedExclamationMarkIcon />;
   } else if (fileInfo === undefined) {
-    icon = <WhiteMediumSquareIcon />
+    icon = <WhiteMediumSquareIcon />;
   } else if (dirEntry.is_symlink && dirEntry.is_dir) {
     icon = (
       <div className="relative">
@@ -46,9 +46,9 @@ function Icon({
       </div>
     );
   } else if (dirEntry.is_dir) {
-    icon = <FileFolderIcon />
+    icon = <FileFolderIcon />;
   } else {
-    icon = <FileExtIcon dirEntry={dirEntry} />
+    icon = <FileExtIcon dirEntry={dirEntry} />;
   }
   return (
     <td style={{}} className="box-border w-[3%] pl-1 pr-1">
@@ -59,13 +59,7 @@ function Icon({
 function Name({ dirEntry }: { dirEntry: DirEntry }) {
   return <td className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>{dirEntry.name}</td>;
 }
-function FileExt({
-  dirEntry,
-  children,
-}: {
-  dirEntry: DirEntry;
-  children: ReactNode;
-}) {
+function FileExt({ dirEntry, children }: { dirEntry: DirEntry; children: ReactNode }) {
   const ext = dirEntry.is_dir ? null : getFileExtension(dirEntry.name);
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1'}>
@@ -122,9 +116,7 @@ export function FileListRow({
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
       <Icon dirEntry={dirEntry} fileInfo={fileInfo} hasError={!!errorMsg} />
       <Name dirEntry={dirEntry} />
-      <FileExt dirEntry={dirEntry}>
-        {isFocused && <SearchResult tabInfo={tabInfo} />}
-      </FileExt>
+      <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tabInfo} />}</FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </tr>
