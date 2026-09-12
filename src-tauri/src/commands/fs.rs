@@ -495,7 +495,7 @@ mod tests {
                 .map(|v| v.into_iter().next().unwrap())
         };
         // タブを作る前はエラー
-        assert_eq!(call(0, "").await, Err("invalid tab_id: 0".to_string()));
+        assert_eq!(call(0, "").await, Err("no tab id:0".to_string()));
 
         let tab_id = create_tab_imp(app(), &state, get_test_dir().join("d3"))
             .await
