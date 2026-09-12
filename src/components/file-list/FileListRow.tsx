@@ -24,13 +24,13 @@ function Icon({
 }) {
   let icon: ReactNode;
   if (hasError) {
-    icon = <RedExclamationMarkIcon />;
+    icon = <RedExclamationMarkIcon height='100%' />;
   } else if (fileInfo === undefined) {
-    icon = <WhiteMediumSquareIcon />;
+    icon = <WhiteMediumSquareIcon height='100%' />;
   } else if (dirEntry.is_symlink && dirEntry.is_dir) {
     icon = (
       <div className="relative">
-        <FileFolderIcon />
+        <FileFolderIcon height='100%' />
         <div className="absolute right-0 bottom-0 w-[60%]">
           <UpRightArrowIcon />
         </div>
@@ -46,12 +46,12 @@ function Icon({
       </div>
     );
   } else if (dirEntry.is_dir) {
-    icon = <FileFolderIcon />;
+    icon = <FileFolderIcon height='100%' />;
   } else {
     icon = <FileExtIcon dirEntry={dirEntry} />;
   }
   return (
-    <td style={{}} className="box-border w-[3%] pl-1 pr-1">
+    <td style={{ height: "1lh" }} className="box-border pl-1 pr-1">
       {icon}
     </td>
   );
