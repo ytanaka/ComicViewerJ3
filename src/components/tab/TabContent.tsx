@@ -2,11 +2,11 @@ import { useEffect, useRef } from 'react';
 
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 
-import FileList from '../file-list/FileList';
+import FileList from '@/components/tab/file-list/FileList';
 import { useFocusStore } from '@/store/focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { FileViewMode } from '@/store/tab/types';
-import { Thumbnails } from '../thumbnails/Thumbnails';
+import { Thumbnails } from './thumbnails/Thumbnails';
 import { useCmdCreateTab, useCmdGetDirEntries } from '@/services/files';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 

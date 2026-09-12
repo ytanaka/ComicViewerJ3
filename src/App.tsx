@@ -6,9 +6,9 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback } from './components/util/ErrorFallback';
 import { Menu } from './components/misc/Menu';
 import { Toolbar } from './components/misc/Toolbar';
-import { TabContentWrapper } from './components/misc/TabContent';
+import { TabContentWrapper } from './components/tab/TabContent';
 import { HotKeys } from './components/util/HotKeys';
-import { TabBar } from './components/misc/TabBar';
+import { TabBar } from './components/tab/TabBar';
 import { StatusBar } from './components/misc/StatusBar';
 import { PreferencesDialog } from './components/preferences/PreferencesDialog';
 
