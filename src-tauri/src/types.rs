@@ -23,13 +23,6 @@ pub enum Either<A, B> {
     Right(B),
 }
 impl<A, B> Either<A, B> {
-    // pub fn left(&self) -> Option<&A> {
-    //     match self {
-    //         Either::Left(a) => Some(a),
-    //         Either::Right(_) => None,
-    //     }
-    // }
-
     pub fn right(&self) -> Option<&B> {
         match self {
             Either::Right(b) => Some(b),
@@ -37,12 +30,12 @@ impl<A, B> Either<A, B> {
         }
     }
 
-    // pub fn is_left(&self) -> bool {
-    //     matches!(self, Either::Left(_))
-    // }
-    // pub fn is_right(&self) -> bool {
-    //     !&self.is_left()
-    // }
+    pub fn map_right<BB, F: Fn(B) -> BB>(self, f: F) -> Either<A, BB> {
+        match self {
+            Either::Left(l) => Either::Left(l),
+            Either::Right(r) => Either::Right(f(r)),
+        }
+    }
 }
 
 // =====================================================================================================================
@@ -59,6 +52,12 @@ pub struct TabInfoUI {
     pub id: TabId,
 
     pub path: String,
+}
+
+/// create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合)
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub struct CreateTabError {
+    pub msg: String,
 }
 
 /// UIへ返すファイル一覧の要素

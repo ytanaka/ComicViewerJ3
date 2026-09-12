@@ -3,18 +3,25 @@ import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabStore } from '@/store/tab/store';
 import { mkUiTab, TabId } from '@/store/tab/types';
-import { handleRustCmdResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
+import {
+  handleRustCmdCreateTabResult,
+  handleRustCmdResult,
+  RustCmdResult,
+  rustcmds,
+  TabInfo,
+} from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/files';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useUiStore } from '@/store/ui-store';
 import { toast } from 'sonner';
+import { CreateTabError, Either } from '../bindings';
 
 function st() {
   return useTabStore.getState();
 }
 
-async function _addTab(result: RustCmdResult<TabInfo>) {
-  handleRustCmdResult(result, 'rustcmds.create_clene_Tab(...)', 'タブ追加失敗', data => {
+async function _addTab(result: RustCmdResult<Either<CreateTabError, TabInfo>>) {
+  handleRustCmdCreateTabResult(result, 'rustcmds.create_clene_Tab(...)', 'タブ追加失敗', data => {
     st().addTab(mkUiTab(data));
   });
 }

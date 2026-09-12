@@ -2,6 +2,7 @@ import { FileId, TabId } from '@/store/tab/types';
 import {
   AppPreferences,
   commands,
+  CreateTabError,
   DirEntryUI,
   Either,
   FileInfoUI,
@@ -12,22 +13,23 @@ import {
   TabInfoUI,
 } from './bindings';
 import { logErr } from './log';
+import { toast } from 'sonner';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
   exitApp: commands.exitApp,
   init: commands.init,
   createTab: (path: string) => {
-    return commands.createTab(path).then(result => cnvOk(result, toTabInfo));
+    return commands.createTab(path).then(result => cnvOk(result, toCreateTabResult));
   },
   cloneTab: (tabId: TabId) => {
-    return commands.cloneTab(tabId).then(result => cnvOk(result, toTabInfo));
+    return commands.cloneTab(tabId).then(result => cnvOk(result, toCreateTabResult));
   },
   cloneTabChildDir: (tabId: TabId, fileId: FileId) => {
-    return commands.cloneTabChildDir(tabId, fileId.toString()).then(result => cnvOk(result, toTabInfo));
+    return commands.cloneTabChildDir(tabId, fileId.toString()).then(result => cnvOk(result, toCreateTabResult));
   },
   cloneTabParentDir: (tabId: TabId) => {
-    return commands.cloneTabParentDir(tabId).then(result => cnvOk(result, toTabInfo));
+    return commands.cloneTabParentDir(tabId).then(result => cnvOk(result, toCreateTabResult));
   },
   removeTab: (tabId: TabId) => {
     return commands.removeTab(tabId);
@@ -60,6 +62,15 @@ export type TabInfo = {
   id: TabId;
   path: string;
 };
+function toCreateTabResult(from: Either<CreateTabError, TabInfoUI>): Either<CreateTabError, TabInfo> {
+  if (from.Left) {
+    return { Left: from.Left };
+  } else {
+    return {
+      Right: toTabInfo(from.Right),
+    };
+  }
+}
 function toTabInfo(from: TabInfoUI): TabInfo {
   return {
     id: from.id as TabId,
@@ -133,4 +144,26 @@ export function handleRustCmdResult<T>(
     if (okFn) okFn(result.data);
     return true;
   }
+}
+
+export function handleRustCmdCreateTabResult(
+  result: RustCmdResult<Either<CreateTabError, TabInfo>>,
+  logComment: string,
+  userMsg: string,
+  okFn?: (data: TabInfo) => void
+): boolean {
+  return handleRustCmdResult(result, logComment, userMsg, either => {
+    if (either.Left) {
+      // ディレクトリ移動ができないのはシステムエラー出ないので、Toastを出すだけ
+      toast.info(userMsg, {
+        id: 'handleRustCmdCreateTabResult',
+        duration: 3000,
+        description: either.Left.msg,
+      });
+      return false;
+    } else {
+      if (okFn) okFn(either.Right);
+      return true;
+    }
+  });
 }

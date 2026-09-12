@@ -1,6 +1,14 @@
 import { useTabStore } from '@/store/tab/store';
-import { DirEntry, handleRustCmdResult, RustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
+import {
+  DirEntry,
+  handleRustCmdCreateTabResult,
+  handleRustCmdResult,
+  RustCmdResult,
+  rustcmds,
+  TabInfo,
+} from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/files';
+import { CreateTabError, Either } from '../bindings';
 
 function st() {
   return useTabStore.getState();
@@ -28,9 +36,13 @@ export const fileCommands = {
   },
 };
 
-async function _moveDir(tab: TabInfo, comment: string, createNewTabFn: () => Promise<RustCmdResult<TabInfo>>) {
+async function _moveDir(
+  tab: TabInfo,
+  comment: string,
+  createNewTabFn: () => Promise<RustCmdResult<Either<CreateTabError, TabInfo>>>
+) {
   const result = await createNewTabFn();
-  handleRustCmdResult(result, comment, 'ディレクトリ移動できません', async data => {
+  handleRustCmdCreateTabResult(result, comment, 'ディレクトリ移動できません', async data => {
     st().updateTab(tab.id, data);
     removeQueries_tab(tab.id);
     const result = await rustcmds.removeTab(tab.id);

@@ -15,13 +15,13 @@ export const commands = {
 	/**  ダミー */
 	dummy: (fileNotify: FileNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify }),
 	/**  タブ作成 (絶対パス) */
-	createTab: (path: string) => typedError<TabInfoUI, string>(__TAURI_INVOKE("create_tab", { path })),
+	createTab: (path: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("create_tab", { path })),
 	/**  タブ作成 (指定タブと同じパス) */
-	cloneTab: (tabId: number) => typedError<TabInfoUI, string>(__TAURI_INVOKE("clone_tab", { tabId })),
+	cloneTab: (tabId: number) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("clone_tab", { tabId })),
 	/**  タブ作成 (指定タブの子ディレクトリ) */
-	cloneTabChildDir: (tabId: number, fileId: string) => typedError<TabInfoUI, string>(__TAURI_INVOKE("clone_tab_child_dir", { tabId, fileId })),
+	cloneTabChildDir: (tabId: number, fileId: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("clone_tab_child_dir", { tabId, fileId })),
 	/**  タブ作成 (指定タブの親ディレクトリ) */
-	cloneTabParentDir: (tabId: number) => typedError<TabInfoUI, string>(__TAURI_INVOKE("clone_tab_parent_dir", { tabId })),
+	cloneTabParentDir: (tabId: number) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("clone_tab_parent_dir", { tabId })),
 	/**  タブ削除 */
 	removeTab: (tabId: number) => typedError<null, string>(__TAURI_INVOKE("remove_tab", { tabId })),
 	/**  タブ一覧 */
@@ -51,6 +51,11 @@ export type AppPreferences = {
 	 *  'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'
 	 */
 	filename_sort_strength: string,
+};
+
+/**  create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合) */
+export type CreateTabError = {
+	msg: string,
 };
 
 /**  UIへ返すファイル一覧の要素 */

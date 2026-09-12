@@ -1,6 +1,14 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { DirEntry, FileInfo, handleRustCmdResult, RustCmdResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
+import {
+  DirEntry,
+  FileInfo,
+  handleRustCmdCreateTabResult,
+  handleRustCmdResult,
+  RustCmdResult,
+  rustcmds,
+  TabInfo,
+} from '@/lib/bindings-wrapper';
 import { myQueryClient } from '@/lib/query-client';
 import { useTabStore } from '@/store/tab/store';
 import { FileId, TabId } from '@/store/tab/types';
@@ -50,7 +58,7 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
     queryKey: queryKey_useCmdCreateTab(tabInfo),
     queryFn: async () => {
       const result = await rustcmds.createTab(tabInfo.path);
-      handleRustCmdResult(result, `rustcmds.createTab(${tabInfo.path})`, 'タブ初期化失敗', data => {
+      handleRustCmdCreateTabResult(result, `rustcmds.createTab(${tabInfo.path})`, 'タブ初期化失敗', data => {
         useTabStore.getState().updateTab(tabInfo.id, data);
       });
       return null;

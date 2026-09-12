@@ -17,51 +17,66 @@ use crate::{
         tab_info::TabInfo,
         util::{AppContext, EventEmitter},
     },
-    types::{DirEntryUI, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI},
+    types::{
+        CreateTabError, DirEntryUI, Either, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI,
+    },
     LOG_RESULT,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
 #[derive(Debug)]
 struct CreateTabResult {
-    tab: TabInfoUI,
-    min_file_id: Option<FileId>,
-    max_file_id: Option<FileId>,
+    // Left(エラー情報), Right(0: タブ情報, 1: min FileId, 2: max FileId)
+    data: Either<CreateTabError, (TabInfoUI, Option<FileId>, Option<FileId>)>,
 }
 impl CreateTabResult {
-    fn new(tab: TabInfoUI, min_file_id: Option<FileId>, max_file_id: Option<FileId>) -> Self {
+    fn new_success(
+        tab: TabInfoUI,
+        min_file_id: Option<FileId>,
+        max_file_id: Option<FileId>,
+    ) -> Self {
         CreateTabResult {
-            tab,
-            min_file_id,
-            max_file_id,
+            data: Either::Right((tab, min_file_id, max_file_id)),
         }
+    }
+
+    #[cfg(test)]
+    fn tab_info(&self) -> &TabInfoUI {
+        &self.data.right().unwrap().0
     }
 }
 async fn log_create_tab_result(
     state: &AppState,
     comment: String,
     result: impl Future<Output = anyhow::Result<CreateTabResult>>,
-) -> Result<TabInfoUI, String> {
+) -> Result<Either<CreateTabError, TabInfoUI>, String> {
     let t0 = Instant::now();
     let result = result.await;
     match &result {
-        Ok(r) => {
-            let msg = match (r.min_file_id, r.max_file_id) {
-                (Some(min), Some(max)) => format!("[{min}-{max}]"),
-                _ => "[]".to_string(),
-            };
-            log::trace!(
-                "{comment}: Ok({}, {msg}) total tabs = {}, {}ms",
-                r.tab.id,
-                state.tabs.len(),
-                t0.elapsed().as_millis(),
-            );
-        }
         Err(e) => {
             log::trace!("{comment}: Err({e})");
         }
+        Ok(r) => match &r.data {
+            Either::Left(err) => {
+                log::debug!("{comment}: Ok(err:{})", err.msg);
+            }
+            Either::Right(result) => {
+                let msg = match (result.1, result.2) {
+                    (Some(min), Some(max)) => format!("[{min}-{max}]"),
+                    _ => "[]".to_string(),
+                };
+                log::trace!(
+                    "{comment}: Ok({}, {msg}) total tabs = {}, {}ms",
+                    result.0.id,
+                    state.tabs.len(),
+                    t0.elapsed().as_millis(),
+                );
+            }
+        },
     }
-    result.map(|r| r.tab).map_err(|e| e.to_string())
+    result
+        .map(|r| r.data.map_right(|data| data.0))
+        .map_err(|e| e.to_string())
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -72,7 +87,7 @@ pub async fn create_tab(
     app: AppHandle,
     state: State<'_, Arc<AppState>>,
     path: String,
-) -> Result<TabInfoUI, String> {
+) -> Result<Either<CreateTabError, TabInfoUI>, String> {
     log_create_tab_result(
         &state,
         format!("create_tab({path})"),
@@ -133,7 +148,7 @@ async fn create_tab_imp<E: EventEmitter>(
             .send_to_worker(tab_id, &path, file_ids);
     }
 
-    Ok(CreateTabResult::new(tab_ui, min, max))
+    Ok(CreateTabResult::new_success(tab_ui, min, max))
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -144,7 +159,7 @@ pub async fn clone_tab(
     app: AppHandle,
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
-) -> Result<TabInfoUI, String> {
+) -> Result<Either<CreateTabError, TabInfoUI>, String> {
     log_create_tab_result(
         &state,
         format!("clone_tab({tab_id})"),
@@ -170,7 +185,7 @@ pub async fn clone_tab_child_dir(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_id: String,
-) -> Result<TabInfoUI, String> {
+) -> Result<Either<CreateTabError, TabInfoUI>, String> {
     log_create_tab_result(
         &state,
         format!("clone_tab_child_dir({tab_id}, {file_id})"),
@@ -201,7 +216,7 @@ pub async fn clone_tab_parent_dir(
     app: AppHandle,
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
-) -> Result<TabInfoUI, String> {
+) -> Result<Either<CreateTabError, TabInfoUI>, String> {
     log_create_tab_result(
         &state,
         format!("clone_tab_parent_dir({tab_id})"),
@@ -387,7 +402,7 @@ mod tests {
             create_tab_imp(app(), &state, get_test_dir())
                 .await
                 .unwrap()
-                .tab
+                .tab_info()
                 .id
         );
         assert_eq!(state.tabs.len(), 1);
@@ -398,7 +413,7 @@ mod tests {
             create_tab_imp(app(), &state, get_test_dir())
                 .await
                 .unwrap()
-                .tab
+                .tab_info()
                 .id
         );
         assert_eq!(state.tabs.len(), 2);
@@ -420,7 +435,7 @@ mod tests {
             create_tab_imp(app(), &state, abs_path_dummy)
                 .await
                 .unwrap()
-                .tab
+                .tab_info()
                 .path
         );
 
@@ -456,7 +471,7 @@ mod tests {
         let tab_id = create_tab_imp(app(), &state, get_test_dir())
             .await
             .unwrap()
-            .tab
+            .tab_info()
             .id;
         let ret = get_dir_entries_impl(&state, tab_id).unwrap();
 
@@ -476,7 +491,7 @@ mod tests {
         let tab_id = create_tab_imp(app(), &state, test_dir)
             .await
             .unwrap()
-            .tab
+            .tab_info()
             .id;
         let ret = get_dir_entries_impl(&state, tab_id).unwrap();
 
@@ -500,7 +515,7 @@ mod tests {
         let tab_id = create_tab_imp(app(), &state, get_test_dir().join("d3"))
             .await
             .unwrap()
-            .tab
+            .tab_info()
             .id;
 
         // 不正なファイルIDを渡すとエラー
