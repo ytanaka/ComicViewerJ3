@@ -29,7 +29,7 @@ fn get_thumbnail_dir(app: &tauri::AppHandle) -> anyhow::Result<PathBuf> {
     let p = p.join("thumbnails");
 
     if !p.is_dir() {
-        log::info!("mkdir thumbnail dir: {}", &p.to_string_lossy());
+        log::info!("mkdir thumbnail dir: {}", p.to_string_lossy());
         fs::create_dir_all(&p).context("fail create thumbnail cache dir")?;
     }
     Ok(p)
@@ -93,7 +93,7 @@ pub fn get_thumbnail_impl(
         .map_err(|_| anyhow!("invalid file_id as u64"))?;
 
     // 元画像ファイル情報取得
-    let (dir, file) = get_tab_file(&state, tab_id, file_id)?;
+    let (dir, file) = get_tab_file(state, tab_id, file_id)?;
     let meta = match read_metadata(&dir, &file.name).into_right() {
         None => return Ok("".to_string()),
         Some(m) => m,

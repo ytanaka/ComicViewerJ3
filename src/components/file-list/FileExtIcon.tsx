@@ -121,5 +121,5 @@ export function FileExtIcon({ dirEntry }: { dirEntry: DirEntry }) {
   const find = extIconList.find(elm => elm.ext === ext);
   if (!ext || !find) return <DefaultFileIcon />;
 
-  return <find.icon height='100%' />;
+  return <find.icon height="100%" />;
 }

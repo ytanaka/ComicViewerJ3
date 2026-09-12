@@ -18,6 +18,8 @@ export interface UiTab {
   //     負数になるのは、zustand がLocalStrageから復元したときと、Rustからファイル一覧更新イベントが届いたとき
   info: TabInfo;
 
+  fileViewMode: FileViewMode;
+
   sortCondition: SortCondition;
   selection: FileSelection;
   focusHistories: FileFocus[]; // 先頭が古いデータ
@@ -31,6 +33,10 @@ export interface FileSelection {
 export interface FileFocus {
   path: string;
   filename: string;
+}
+enum FileViewMode {
+  List,
+  Thumbnail,
 }
 
 // =====================================================================================================================
@@ -47,6 +53,7 @@ export function getNextDummyTabId(): TabId {
 export function mkUiTab(tab: TabInfo): UiTab {
   return {
     info: tab,
+    fileViewMode: FileViewMode.List,
     sortCondition: mkDefaultSortCondition(),
     selection: mkFileSelection(),
     focusHistories: [],
