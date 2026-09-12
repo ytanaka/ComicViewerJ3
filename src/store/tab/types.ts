@@ -34,7 +34,7 @@ export interface FileFocus {
   path: string;
   filename: string;
 }
-enum FileViewMode {
+export enum FileViewMode {
   List,
   Thumbnail,
 }

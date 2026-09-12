@@ -1,6 +1,7 @@
 import { dialogCommands } from './commands/dialog-commands';
 import { sortCommands } from './commands/sort-commands';
 import { tabCommands } from './commands/tab-commands';
+import { fileViewModeCommands } from './commands/view-mode-commands';
 import { windowCommands } from './commands/window-commands';
 
 type MenuExec = () => Promise<void> | void;
@@ -76,6 +77,8 @@ export const menuItems = {
   sortByExt: M('種類でソート', () => sortCommands.sortFiles('Ext'), 'Alt+2'),
   sortBySize: M('サイズでソート', () => sortCommands.sortFiles('Size'), 'Alt+3'),
   sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt+4'),
+
+  toggleFileViewMode: M('リストモード、サムネイルモード切替', () => fileViewModeCommands.toggleViewMode(), 'Ctrl+L'),
 };
 
 export function getAllMenuItems() {

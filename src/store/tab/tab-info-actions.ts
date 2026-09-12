@@ -1,4 +1,4 @@
-import { _useTabStore_setExistTabFields, getNextDummyTabId, mkDefaultSortCondition, TabId } from './types';
+import { _useTabStore_setExistTabFields, FileViewMode, getNextDummyTabId, mkDefaultSortCondition, TabId } from './types';
 import { TabStore } from './store';
 import { TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
@@ -10,6 +10,7 @@ export interface UiTabActions {
   setSortCondition: (tabId: TabId, sortCondition: SortCondition) => void;
   incRefreshCount: (tabId: TabId) => void;
   invalidateTabForRefresh: (tabId: TabId) => void;
+  setViewMode: (tabId: TabId, mode: FileViewMode) => void;
 }
 
 export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never]], [], UiTabActions> = (set, get) => {
@@ -53,6 +54,14 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
           if (0 < tab.info.id) tab.info.id = getNextDummyTabId();
         });
       });
+    },
+
+    setViewMode: (tabId: TabId, mode: FileViewMode) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
+          tab.fileViewMode = mode;
+        });
+      })
     },
   };
 };
