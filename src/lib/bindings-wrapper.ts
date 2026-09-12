@@ -155,10 +155,9 @@ export function handleRustCmdCreateTabResult(
   return handleRustCmdResult(result, logComment, userMsg, either => {
     if (either.Left) {
       // ディレクトリ移動ができないのはシステムエラー出ないので、Toastを出すだけ
-      toast.info(userMsg, {
+      toast.info(either.Left.msg, {
         id: 'handleRustCmdCreateTabResult',
         duration: 3000,
-        description: either.Left.msg,
       });
       return false;
     } else {

@@ -6,7 +6,7 @@ use std::{
     time::Instant,
 };
 
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 use tauri::{AppHandle, State};
 
 use crate::{
@@ -39,6 +39,13 @@ impl CreateTabResult {
             data: Either::Right((tab, min_file_id, max_file_id)),
         }
     }
+    fn new_error(msg: &str) -> Self {
+        CreateTabResult {
+            data: Either::Left(CreateTabError {
+                msg: msg.to_string(),
+            }),
+        }
+    }
 
     #[cfg(test)]
     fn tab_info(&self) -> &TabInfoUI {
@@ -58,7 +65,7 @@ async fn log_create_tab_result(
         }
         Ok(r) => match &r.data {
             Either::Left(err) => {
-                log::debug!("{comment}: Ok(err:{})", err.msg);
+                log::debug!("{comment}: Ok(msg:{})", err.msg);
             }
             Either::Right(result) => {
                 let msg = match (result.1, result.2) {
@@ -77,6 +84,10 @@ async fn log_create_tab_result(
     result
         .map(|r| r.data.map_right(|data| data.0))
         .map_err(|e| e.to_string())
+}
+
+fn mk_create_tab_error(msg: &str) -> anyhow::Result<CreateTabResult> {
+    Ok(CreateTabResult::new_error(msg))
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -111,19 +122,27 @@ async fn create_tab_imp<E: EventEmitter>(
         if path.is_dir() {
             break;
         }
-        path = path
-            .parent()
-            .ok_or_else(|| anyhow!("not directory. path:{arg_path:?}"))?
-            .to_path_buf();
+        path = match path.parent() {
+            Some(parent) => parent.to_path_buf(),
+            None => return mk_create_tab_error("親ディレクトリへ移動できません"),
+        }
     }
 
     let tab_id = state.next_tab_id.fetch_add(1, SeqCst);
+
     // ファイル監視
-    let watcher = FileWatcher::new(app, state, tab_id, &path).context("cant open directory")?;
+    let watcher = match FileWatcher::new(app, state, tab_id, &path) {
+        Ok(data) => data,
+        Err(_) => return mk_create_tab_error("このディレクトリは開けません"),
+    };
 
     // ファイル一覧取得
+    let files = match file_utils::read_dir(&path) {
+        Ok(data) => data,
+        Err(_) => return mk_create_tab_error("このディレクトリは開けません"),
+    };
     let mut files_map = HashMap::new();
-    for f in file_utils::read_dir(&path)? {
+    for f in files {
         let id = state.next_file_id.fetch_add(1, SeqCst);
         files_map.insert(id, f);
     }
@@ -204,6 +223,9 @@ async fn clone_tab_child_dir_impl<E: EventEmitter>(
         .parse()
         .map_err(|_| anyhow!("invalid file_id as u64"))?;
     let (path, file) = fs_util::get_tab_file(state, tab_id, file_id)?;
+    if !file.is_dir {
+        return Err(anyhow!("not a dir"));
+    }
     let child = path.join(file.name.as_ref());
     create_tab_imp(app, state, child).await
 }
@@ -230,7 +252,10 @@ async fn clone_tab_parent_dir_impl<E: EventEmitter>(
     tab_id: TabId,
 ) -> anyhow::Result<CreateTabResult> {
     let path = fs_util::get_tab_path(state, tab_id)?;
-    let parent = path.parent().ok_or_else(|| anyhow!("no parent dir"))?;
+    let parent = match path.parent() {
+        Some(parent) => parent,
+        None => return mk_create_tab_error("親ディレクトリへ移動できません"),
+    };
     create_tab_imp(app, state, parent).await
 }
 
