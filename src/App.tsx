@@ -6,7 +6,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback } from './components/util/ErrorFallback';
 import { Menu } from './components/misc/Menu';
 import { Toolbar } from './components/misc/Toolbar';
-import { TabContent } from './components/misc/TabContent';
+import { TabContentWrapper } from './components/misc/TabContent';
 import { HotKeys } from './components/util/HotKeys';
 import { TabBar } from './components/misc/TabBar';
 import { StatusBar } from './components/misc/StatusBar';
@@ -24,7 +24,7 @@ function App() {
         <Menu />
         <Toolbar />
         <TabBar />
-        <TabContent />
+        <TabContentWrapper />
         <StatusBar />
         <PreferencesDialog />
         <Toaster

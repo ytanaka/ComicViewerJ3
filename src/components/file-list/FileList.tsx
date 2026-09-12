@@ -1,32 +1,20 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { ItemProps, ListRange, TableProps, TableVirtuoso, VirtuosoHandle } from 'react-virtuoso';
 
-import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
-import { getCurrentWindow } from '@tauri-apps/api/window';
-
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { useTabStore } from '@/store/tab/store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
-import {
-  getQueryData_getFileInfo1,
-  useCmdCreateTab,
-  useCmdFileInfosQuery,
-  useCmdGetDirEntries,
-} from '@/services/files';
+import { getQueryData_getFileInfo1, useCmdFileInfosQuery, } from '@/services/files';
 import { FileId, TabId } from '@/store/tab/types';
 import { getObjId } from '@/lib/utils';
 import { create } from 'zustand';
-import { TabInfo } from '@/lib/bindings-wrapper';
+import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 
-function st() {
-  return useTabStore.getState();
-}
-
-export default function FileList() {
+export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -34,36 +22,7 @@ export default function FileList() {
 
   console.debug(`<FileList> tab[${currentTabIndex}](id:${tab.id}), ${tab.path} tab:${getObjId(tab)} `);
 
-  // タブ情報作成
-  useCmdCreateTab(tab);
-  // ファイル一覧取得
-  const { data: dirEntries } = useCmdGetDirEntries(tab);
-
-  // 親ディレクトリに移動したときに現在ディレクトリが選択されてほしいので、履歴に追加しておく
-  useEffect(() => {
-    const setHist = async () => {
-      try {
-        const parent = await tauri_dirname(tab.path);
-        if (!st().findHistory(tab.id, parent)) {
-          const base = await tauri_basename(tab.path);
-          st().pushHistory(tab.id, parent, base);
-        }
-      } catch {
-        // 現ディレクトリに親ディレクトリがない場合は例外が発生するので無視する
-      }
-    };
-    setHist();
-  }, [tab.id, tab.path]); // 初回表示時だけ実行する
-
-  // タイトルバー更新
-  useEffect(() => {
-    const setTitle = async () => {
-      await getCurrentWindow().setTitle(tab.path);
-    };
-    setTitle();
-  }, [tab.path]);
-
-  // スクロール位置検知
+  // 画面に表示されている行数
   const visibleListRows = useRef(1);
   const handleRangeChanged = (range: ListRange) => {
     // スクロール位置が変化したら、表示する範囲のファイル情報を取得する
@@ -115,7 +74,7 @@ export default function FileList() {
   useEffect(() => {
     if (!doScroll) return;
     function scr() {
-      const focusIndex = st().getCurrentTab()?.selection.focusIndex;
+      const focusIndex = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
       if (focusIndex !== undefined) {
         virtuoso.current?.scrollIntoView({
           index: focusIndex,

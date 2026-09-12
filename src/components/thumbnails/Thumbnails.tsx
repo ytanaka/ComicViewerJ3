@@ -1,3 +1,3 @@
-export function ThumbnailList() {
+export function Thumbnails() {
   return <div>thumb list</div>;
 }
