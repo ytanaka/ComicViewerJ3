@@ -13,6 +13,7 @@ use anyhow::{anyhow, Context};
 
 use crate::file_operations::file_utils::touch_file;
 use crate::types::{FileMetadata, ImageSize};
+use crate::LOG_RESULT;
 use crate::{
     commands::fs_util::get_tab_file, file_operations::file_utils::read_metadata,
     state::app_state::AppState, types::TabId,
@@ -60,6 +61,11 @@ fn get_thumbnail_fullpath(
         .join(format!("{size}"))
         .join(hex::encode(&name[0..2]));
 
+    if !path.exists() {
+        fs::create_dir_all(&path)
+            .context(format!("fail create thumbnail cache dir: {:?}", &path))?;
+    }
+
     let tmp = format!("_tmp_{}.jpg", uuid::Uuid::new_v4());
     Ok((path.join(&name), path.join(tmp)))
 }
@@ -75,11 +81,15 @@ pub async fn get_thumbnail(
     file_id: String,
     size: ImageSize,
 ) -> Result<String, String> {
+    let comment = format!("get_thumbnail({}, {}, {})", tab_id, file_id, size);
+
     let state2 = state.inner().clone();
     let result = tauri::async_runtime::spawn_blocking(move || {
         get_thumbnail_impl(&app, &state2, tab_id, file_id, size)
     });
-    result.await.unwrap().map_err(|e| e.to_string())
+    LOG_RESULT!(comment, {
+        result.await.unwrap().map_err(|e| e.to_string())
+    })
 }
 pub fn get_thumbnail_impl(
     app: &AppHandle,

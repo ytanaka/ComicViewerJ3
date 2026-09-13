@@ -1,7 +1,11 @@
-import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
-import { useTabStore } from '@/store/tab/store';
 import { useRef } from 'react';
 import { GridComponents, GridItemProps, GridListProps, VirtuosoGrid, VirtuosoGridHandle } from 'react-virtuoso';
+
+import { DirEntry } from '@/lib/bindings-wrapper';
+import { useTabStore } from '@/store/tab/store';
+import { ThumbnailCell } from './ThumbnailCell';
+
+const THUMBNAIL_CELL_CLASSNAME = "thumbnail_cell";
 
 export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoGridHandle>(null);
@@ -43,12 +47,12 @@ const gridComponents: GridComponents = {
   },
   Item: ({ children, ...props }: GridItemProps) => {
     return (
-      <div style={{ padding: 4 }}>
+      <div className={`${THUMBNAIL_CELL_CLASSNAME}`} style={{ padding: 4 }}>
         <div
           {...props}
           style={{
             width: 128,
-            height: 128 + 15,
+            height: 'calc(128 + 1lh)',
           }}
         >
           {children}
@@ -57,9 +61,3 @@ const gridComponents: GridComponents = {
     );
   },
 };
-
-function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
-  if (fileIndex === 0) console.debug(`<ThumbnailCell>[${fileIndex}] tabId:${tab.id}`);
-
-  return <div>{dirEntry.name}</div>;
-}
