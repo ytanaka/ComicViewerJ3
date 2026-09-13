@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { getFileExtension, unixTime2str } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
-import { SearchResult } from './SearchResult';
+import { SearchResult } from '../SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/tab-file-info';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';

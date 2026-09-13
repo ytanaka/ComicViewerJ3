@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { basename as tauri_basename, dirname as tauri_dirname } from '@tauri-apps/api/path';
 
-import FileList from '@/components/tab/file-view/FileList';
+import FileList from '@/components/tab/list-view/FileList';
 import { useFocusStore } from '@/store/focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { FileViewMode } from '@/store/tab/types';
