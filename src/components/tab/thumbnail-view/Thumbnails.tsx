@@ -20,6 +20,9 @@ import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 // サムネイル<div>を取得し、列数を計算するためにこの文字列を className に設定する
 export const THUMBNAIL_CELL_CLASSNAME = 'thumbnail_cells';
 
+export const THUMBNAIL_SIZE = 128;
+export const THUMBNAIL_PADDING = 4;
+
 // VirtuosoGrid のリスト全体と個別項目のスタイル設定
 const gridComponents: GridComponents = {
   List: ({ style, children, ...props }: GridListProps) => {
@@ -42,9 +45,11 @@ const gridComponents: GridComponents = {
       <div
         {...props}
         style={{
-          padding: 4,
-          width: 128, // VirtuosoGrid のItemサイズは全Item同じpxで指定する
-          height: 150, // そうしないと、スクロールしたときに項目が左右にずれる
+          padding: THUMBNAIL_PADDING,
+          // VirtuosoGrid のItemサイズは全Item同じpxで指定する
+          // そうしないと、スクロールしたときに項目が左右にずれる
+          width: THUMBNAIL_SIZE + 2 * THUMBNAIL_PADDING,
+          // height: 150,// height は指定しなくてもいい？
         }}
       >
         {children}
