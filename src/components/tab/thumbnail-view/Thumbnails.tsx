@@ -16,9 +16,9 @@ const gridComponents: GridComponents = {
       <div
         {...props}
         style={{
+          overflowX: 'hidden', // ※ これを入れないと、画面幅を変えたときに一瞬横スクロールバーが出る
           display: 'flex',
           flexWrap: 'wrap',
-          flex: 1,
           ...style,
         }}
       >
@@ -28,16 +28,15 @@ const gridComponents: GridComponents = {
   },
   Item: ({ children, ...props }: GridItemProps) => {
     return (
-      <div style={{ padding: 4 }}>
-        <div
-          {...props}
-          style={{
-            width: 128,
-            height: 'calc(128 + 1lh)',
-          }}
-        >
-          {children}
-        </div>
+      <div
+        {...props}
+        style={{
+          margin: 4,
+          width: 128,
+          height: 'calc(128 + 1lh)',
+        }}
+      >
+        {children}
       </div>
     );
   },
@@ -109,16 +108,16 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
     return <div>更新中</div>;
   } else {
     return (
-      <div ref={containerRef} className='flex flex-1'>
+      <div ref={containerRef} className='h-full w-full'>
         <CmdFileInfosQueryWrapper tab={tab} />
         <VirtuosoGrid
-          className="flex-1"
           ref={virtuoso}
           totalCount={dirEntries.length}
           itemContent={index => <ThumbnailCell tab={tab} fileIndex={index} dirEntry={dirEntries[index]} />}
           components={gridComponents}
           rangeChanged={handleRangeChanged}
         />
+        <style>{`html, body, #root { margin: 0; padding: 0 }`}</style>
       </div>
     );
   }

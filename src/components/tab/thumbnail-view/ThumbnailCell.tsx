@@ -2,6 +2,7 @@ import { DirEntry, TabInfo } from "@/lib/bindings-wrapper";
 import { useThumbnailPath } from "@/services/tab-thumbnail";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { THUMBNAIL_CELL_CLASSNAME } from "./Thumbnails";
+import { cn } from "@/lib/utils";
 
 const THUMBNAIL_SIZE = 128;
 
@@ -11,7 +12,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   if (fileIndex === 0) console.debug(`<ThumbnailCell>[${fileIndex}] tabId:${tab.id}`);
 
   return (
-    <div className={THUMBNAIL_CELL_CLASSNAME}>
+    <div className={cn(THUMBNAIL_CELL_CLASSNAME, 'border')}>
       <figure>
         <img
           src={!thumbPath ? undefined : convertFileSrc(thumbPath)}
