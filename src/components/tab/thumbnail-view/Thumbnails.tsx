@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { GridComponents, GridItemProps, GridListProps, ListRange, VirtuosoGrid, VirtuosoGridHandle } from 'react-virtuoso';
+import {
+  GridComponents,
+  GridItemProps,
+  GridListProps,
+  ListRange,
+  VirtuosoGrid,
+  VirtuosoGridHandle,
+} from 'react-virtuoso';
 
 import { DirEntry } from '@/lib/bindings-wrapper';
 import { useTabStore } from '@/store/tab/store';
@@ -7,7 +14,7 @@ import { ThumbnailCell } from './ThumbnailCell';
 import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
 
 // サムネイル<div>を取得し、列数を計算するためにこの文字列を className に設定する
-export const THUMBNAIL_CELL_CLASSNAME = "thumbnail_cells";
+export const THUMBNAIL_CELL_CLASSNAME = 'thumbnail_cells';
 
 // VirtuosoGrid のリスト全体と個別項目のスタイル設定
 const gridComponents: GridComponents = {
@@ -63,27 +70,25 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
     // 上辺、左辺の座標を集める
     const topSet = new Set<number>();
     const leftSet = new Set<number>();
-    items.forEach((item) => {
+    items.forEach(item => {
       const rect = item.getBoundingClientRect();
 
       // 左辺座標
       leftSet.add(rect.left);
 
       // 上辺座標
-      const isFullyVisible =
-        rect.top >= containerRect.top &&
-        rect.bottom <= containerRect.bottom;
+      const isFullyVisible = rect.top >= containerRect.top && rect.bottom <= containerRect.bottom;
       if (isFullyVisible) topSet.add(rect.top);
     });
     const newColumns = Math.max(1, leftSet.size);
     const newRows = Math.max(1, topSet.size);
 
     if (newColumns !== columns) {
-      console.log("Thumbnails: columns changed(", columns, "=>", newColumns, ")");
+      console.log('Thumbnails: columns changed(', columns, '=>', newColumns, ')');
       setColumns(newColumns);
     }
     if (newRows !== rows) {
-      console.log("Thumbnails: rows changed(", rows, "=>", newRows, ")");
+      console.log('Thumbnails: rows changed(', rows, '=>', newRows, ')');
       setRows(newRows);
     }
   };
@@ -108,7 +113,7 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
     return <div>更新中</div>;
   } else {
     return (
-      <div ref={containerRef} className='h-full w-full'>
+      <div ref={containerRef} className="h-full w-full">
         <CmdFileInfosQueryWrapper tab={tab} />
         <VirtuosoGrid
           ref={virtuoso}

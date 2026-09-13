@@ -1,9 +1,9 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-import { DirEntry, TabInfo } from "@/lib/bindings-wrapper";
-import { getQueryData_getFileInfo1, useCmdFileInfosQuery } from "@/services/tab-file-info";
-import { FileId, TabId } from "@/store/tab/types";
-import { ListRange } from "react-virtuoso";
+import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { getQueryData_getFileInfo1, useCmdFileInfosQuery } from '@/services/tab-file-info';
+import { FileId, TabId } from '@/store/tab/types';
+import { ListRange } from 'react-virtuoso';
 
 // <FileList> 内でスクロールした結果を useState<ListRange>() するとスクロールするたびに <FileList> がレンダーされる。
 // このコンポーネントを <FileList> の子にして useVisibleFileIdsStore にデータを格納すれば <FileList> は影響を受けない
