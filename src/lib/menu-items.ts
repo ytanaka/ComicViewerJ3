@@ -27,7 +27,7 @@ export class AppHotkey {
   key: string;
 
   constructor(s: string) {
-    const spl = s.split('+');
+    const spl = s.split('//'); // '+' を区切りにすると Ctrl++ で困るので '//' にする
     const [key] = spl.splice(spl.length - 1, 1);
     this.key = key.toLowerCase();
     spl.forEach(mod => {
@@ -50,35 +50,37 @@ export class AppHotkey {
 
 export const menuItems = {
   // -------------------- File --------------------
-  openDir: M('ディレクトリを開く', () => windowCommands.openDirectory(), 'Ctrl+O'),
-  createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl+F'),
-  createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl+K'),
-  openFileProperty: M('プロパティ', () => console.log('CREATE DIR!!!'), 'Alt+Enter'),
+  openDir: M('ディレクトリを開く', () => windowCommands.openDirectory(), 'Ctrl//O'),
+  createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl//F'),
+  createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl//K'),
+  openFileProperty: M('プロパティ', () => console.log('CREATE DIR!!!'), 'Alt//Enter'),
 
-  exitApp: M('終了', () => windowCommands.exitApp(), 'Ctrl+Q'),
+  exitApp: M('終了', () => windowCommands.exitApp(), 'Ctrl//Q'),
 
   // -------------------- Edit --------------------
-  copyFile: M('コピー', () => console.log('COPY!!!'), 'Ctrl+C'),
-  cutFile: M('切り取り', () => console.log('CUT!!!'), 'Ctrl+X'),
-  pasteFile: M('貼り付け', () => console.log('PASTE!!!'), 'Ctrl+V'),
+  copyFile: M('コピー', () => console.log('COPY!!!'), 'Ctrl//C'),
+  cutFile: M('切り取り', () => console.log('CUT!!!'), 'Ctrl//X'),
+  pasteFile: M('貼り付け', () => console.log('PASTE!!!'), 'Ctrl//V'),
 
   deleteFile: M('削除', () => console.log('DEL!!!'), 'Delete'),
   renameFile: M('名前変更', () => console.log('RENAME!!!'), 'F2'),
 
-  preference: M('設定', () => dialogCommands.openPreference(), 'Ctrl+,'),
+  preference: M('設定', () => dialogCommands.openPreference(), 'Ctrl//,'),
 
   // -------------------- Tab --------------------
-  cloneTab: M('タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl+T'),
-  closeCurrentTab: M('タブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl+W'),
-  nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl+PageDown'),
-  prevTab: M('前のタブ', () => tabCommands.setCurrentTabNextPrev(-1), 'Ctrl+PageUp'),
+  cloneTab: M('タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T'),
+  closeCurrentTab: M('タブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl//W'),
+  nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl//PageDown'),
+  prevTab: M('前のタブ', () => tabCommands.setCurrentTabNextPrev(-1), 'Ctrl//PageUp'),
 
-  sortByName: M('名前でソート', () => sortCommands.sortFiles('Name'), 'Alt+1'),
-  sortByExt: M('種類でソート', () => sortCommands.sortFiles('Ext'), 'Alt+2'),
-  sortBySize: M('サイズでソート', () => sortCommands.sortFiles('Size'), 'Alt+3'),
-  sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt+4'),
+  sortByName: M('名前でソート', () => sortCommands.sortFiles('Name'), 'Alt//1'),
+  sortByExt: M('種類でソート', () => sortCommands.sortFiles('Ext'), 'Alt//2'),
+  sortBySize: M('サイズでソート', () => sortCommands.sortFiles('Size'), 'Alt//3'),
+  sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt//4'),
 
-  toggleFileViewMode: M('リストモード、サムネイルモード切替', () => fileViewModeCommands.toggleViewMode(), 'Ctrl+L'),
+  toggleFileViewMode: M('リストモード、サムネイルモード切替', () => fileViewModeCommands.toggleViewMode(), 'Ctrl//L'),
+  thumbnailSizeUp: M('サムネイルサイズを大きくする', () => fileViewModeCommands.thumbnailSizeUp(), 'Ctrl//+'),
+  thumbnailSizeDown: M('サムネイルサイズを小さくする', () => fileViewModeCommands.thumbnailSizeDown(), 'Ctrl//-'),
 };
 
 export function getAllMenuItems() {
