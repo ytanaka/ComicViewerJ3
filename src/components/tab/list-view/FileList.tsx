@@ -36,7 +36,7 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
       }
 
       const scroll = {
-        scroll: (i: number) => virtuoso.current?.scrollIntoView({ index: i })
+        scroll: (i: number) => virtuoso.current?.scrollIntoView({ index: i }),
       };
 
       // ファイル検索テキスト入力

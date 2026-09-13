@@ -1,7 +1,7 @@
 import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
 import { useThumbnailPath } from '@/services/tab-thumbnail';
 import { convertFileSrc } from '@tauri-apps/api/core';
-import { THUMBNAIL_CELL_CLASSNAME, THUMBNAIL_SIZE } from './Thumbnails';
+import { THUMBNAIL_CELL_CLASSNAME, THUMBNAIL_SIZE_DEFAULT } from './Thumbnails';
 import { cn } from '@/lib/utils';
 import { useTabStore } from '@/store/tab/store';
 import { useFileInfo1Query } from '@/services/tab-file-info';
@@ -16,6 +16,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   const isFocused = useTabStore(state => state.getTab(tab.id)?.selection.focusIndex === fileIndex);
   const { data: fileInfo } = useFileInfo1Query(tab, dirEntry.file_id);
   const errorMsg = fileInfo?.metadata.Left;
+  const thumbSize = useTabStore(state => state.getCurrentTab()?.thumbnailSize) ?? THUMBNAIL_SIZE_DEFAULT;
 
   let toolTipMsg = dirEntry.name;
   if (errorMsg) toolTipMsg += '\nERROR: ' + errorMsg;
@@ -26,7 +27,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   }
 
   // サムネイル画像ファイル作成
-  const { data: thumbPath } = useThumbnailPath(tab.id, dirEntry.file_id, THUMBNAIL_SIZE, dirEntry.name);
+  const { data: thumbPath } = useThumbnailPath(tab.id, dirEntry.file_id, thumbSize, dirEntry.name);
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
@@ -40,22 +41,18 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
 
   return (
-    <div
-      className={cn(THUMBNAIL_CELL_CLASSNAME, border, bg, 'overflow-clip')}
-      onClick={handleClick}
-      title={toolTipMsg}
-    >
+    <div className={cn(THUMBNAIL_CELL_CLASSNAME, border, bg, 'overflow-clip')} onClick={handleClick} title={toolTipMsg}>
       <div>
         {!thumbPath ? (
           <div
-            className='border-2'
+            className="border-2"
             style={{
               display: 'block',
-              width: THUMBNAIL_SIZE,
-              height: THUMBNAIL_SIZE,
+              width: thumbSize,
+              height: thumbSize,
             }}
           >
-            <div className='min-w-[1lh] w-[3lh]'>
+            <div className="min-w-[1lh] w-[3lh]">
               <FileIconByFileInfo dirEntry={dirEntry} fileInfo={fileInfo} />
             </div>
           </div>
@@ -63,16 +60,18 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
           <img
             src={!thumbPath ? undefined : convertFileSrc(thumbPath)}
             loading="lazy"
-            className='border-2'
+            className="border-2"
             style={{
               display: 'block',
-              width: THUMBNAIL_SIZE,
-              height: THUMBNAIL_SIZE,
+              width: thumbSize,
+              height: thumbSize,
               objectFit: 'contain',
             }}
           />
         )}
-        <div className='truncate'>{dirEntry.name}</div>
+        <div className="truncate" style={{ width: thumbSize }}>
+          {dirEntry.name}
+        </div>
         {isSelected && <SearchResult tabInfo={tab} />}
       </div>
     </div>

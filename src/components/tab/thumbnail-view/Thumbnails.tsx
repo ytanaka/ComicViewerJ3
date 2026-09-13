@@ -20,7 +20,8 @@ import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 // サムネイル<div>を取得し、列数を計算するためにこの文字列を className に設定する
 export const THUMBNAIL_CELL_CLASSNAME = 'thumbnail_cells';
 
-export const THUMBNAIL_SIZE = 128;
+export const THUMBNAIL_SIZE_LIST = [64, 96, 128, 192, 256, 384, 512];
+export const THUMBNAIL_SIZE_DEFAULT = 128;
 export const THUMBNAIL_PADDING = 4;
 
 // VirtuosoGrid のリスト全体と個別項目のスタイル設定
@@ -48,7 +49,7 @@ const gridComponents: GridComponents = {
           padding: THUMBNAIL_PADDING,
           // VirtuosoGrid のItemサイズは全Item同じpxで指定する
           // そうしないと、スクロールしたときに項目が左右にずれる
-          width: THUMBNAIL_SIZE + 2 * THUMBNAIL_PADDING,
+          // width: THUMBNAIL_SIZE + 2 * THUMBNAIL_PADDING,
           // height: 150,// height は指定しなくてもいい？
         }}
       >
@@ -125,8 +126,8 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
 
       const scroll = {
         scroll: (i: number) => {
-          virtuoso.current?.scrollToIndex({ index: i, align: 'center' })
-        }
+          virtuoso.current?.scrollToIndex({ index: i, align: 'center' });
+        },
       };
 
       // ファイル検索テキスト入力

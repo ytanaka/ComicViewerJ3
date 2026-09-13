@@ -1,4 +1,4 @@
-import { FileViewMode, mkDefaultSortCondition, mkFileSelection, TabId, UiTab } from '@/store/tab/types';
+import { mkDefaultSortCondition, mkFileSelection, TabId, UiTab } from '@/store/tab/types';
 import { FileSearchResult } from '../bindings';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';
@@ -11,7 +11,8 @@ let queuedRevese: boolean = false;
 
 const emptyTab: Readonly<UiTab> = {
   info: { id: -1 as TabId, path: '' },
-  fileViewMode: FileViewMode.List,
+  fileViewMode: 0,  // FileViewMode.List にすると、Listが参照できなくてエラーになる（循環参照している？）
+  thumbnailSize: 0,
   sortCondition: mkDefaultSortCondition(),
   selection: mkFileSelection(),
   focusHistories: [],

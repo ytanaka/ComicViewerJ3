@@ -33,5 +33,5 @@ export function FileIconByFileInfo({ dirEntry, fileInfo }: { dirEntry: DirEntry;
   } else {
     icon = <FileIconByFilenameExt filename={dirEntry.name} />;
   }
-  return (<>{icon}</>);
+  return <>{icon}</>;
 }

@@ -63,7 +63,7 @@ fn get_thumbnail_fullpath(
 
     if !path.exists() {
         fs::create_dir_all(&path)
-            .context(format!("fail create thumbnail cache dir: {:?}", &path))?;
+            .context(format!("fail create thumbnail cache dir: {:?}", path))?;
     }
 
     let tmp = format!("_tmp_{}.jpg", uuid::Uuid::new_v4());
