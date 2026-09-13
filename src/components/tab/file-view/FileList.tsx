@@ -72,9 +72,9 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="w-full h-full">
       <CmdFileInfosQueryWrapper tab={tab} />
-      <div className="flex-1">
+      <div className="w-full h-full">
         {dirEntries === undefined ? (
           <div>更新中</div>
         ) : (

@@ -16,14 +16,12 @@ import { useFileInfo1Query } from '@/services/tab-file-info';
 function Icon({
   dirEntry,
   fileInfo,
-  hasError,
 }: {
   dirEntry: DirEntry;
   fileInfo: FileInfo | undefined;
-  hasError: boolean;
 }) {
   let icon: ReactNode;
-  if (hasError) {
+  if (fileInfo?.metadata.Left) {
     icon = <RedExclamationMarkIcon height="100%" />;
   } else if (fileInfo === undefined) {
     icon = <WhiteMediumSquareIcon height="100%" />;
@@ -114,7 +112,7 @@ export function FileListRow({
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
   return (
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
-      <Icon dirEntry={dirEntry} fileInfo={fileInfo} hasError={!!errorMsg} />
+      <Icon dirEntry={dirEntry} fileInfo={fileInfo} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tabInfo} />}</FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />
