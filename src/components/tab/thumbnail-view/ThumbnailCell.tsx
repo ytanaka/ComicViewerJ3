@@ -8,6 +8,7 @@ import { useFileInfo1Query } from '@/services/tab-file-info';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import React from 'react';
 import { unixTime2str } from '@/lib/string-util';
+import { FileIconByFileInfo } from '../FileIconByFileInfo';
 
 const THUMBNAIL_SIZE = 128;
 
@@ -26,7 +27,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   }
 
   // サムネイル画像ファイル作成
-  const { data: thumbPath } = useThumbnailPath(tab.id, dirEntry.file_id, THUMBNAIL_SIZE);
+  const { data: thumbPath } = useThumbnailPath(tab.id, dirEntry.file_id, THUMBNAIL_SIZE, dirEntry.name);
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
@@ -46,16 +47,31 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
       title={toolTipMsg}
     >
       <figure>
-        <img
-          src={!thumbPath ? undefined : convertFileSrc(thumbPath)}
-          loading="lazy"
-          style={{
-            display: 'block',
-            width: THUMBNAIL_SIZE,
-            height: THUMBNAIL_SIZE,
-            objectFit: 'none',
-          }}
-        />
+        {!thumbPath ? (
+          <div
+            style={{
+              display: 'block',
+              width: THUMBNAIL_SIZE,
+              height: THUMBNAIL_SIZE,
+              objectFit: 'none',
+            }}
+          >
+            <div className='min-w-[1lh] w-[3lh]'>
+              <FileIconByFileInfo dirEntry={dirEntry} fileInfo={fileInfo} />
+            </div>
+          </div>
+        ) : (
+          <img
+            src={!thumbPath ? undefined : convertFileSrc(thumbPath)}
+            loading="lazy"
+            style={{
+              display: 'block',
+              width: THUMBNAIL_SIZE,
+              height: THUMBNAIL_SIZE,
+              objectFit: 'none',
+            }}
+          />
+        )}
         <figcaption>{dirEntry.name}</figcaption>
       </figure>
     </div>

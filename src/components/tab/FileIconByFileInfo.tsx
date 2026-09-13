@@ -15,7 +15,7 @@ export function FileIconByFileInfo({ dirEntry, fileInfo }: { dirEntry: DirEntry;
     icon = <WhiteMediumSquareIcon height="100%" />;
   } else if (dirEntry.is_symlink && dirEntry.is_dir) {
     icon = (
-      <div style={{ height: '1lh' }} className="relative">
+      <div className="relative">
         <FileFolderIcon height="100%" />
         <div className="absolute right-0 bottom-0 w-[50%]">
           <UpRightArrowIcon />
@@ -24,7 +24,7 @@ export function FileIconByFileInfo({ dirEntry, fileInfo }: { dirEntry: DirEntry;
     );
   } else if (dirEntry.is_symlink) {
     icon = (
-      <div style={{ height: '1lh' }} className="relative">
+      <div className="relative">
         <FileIconByFilenameExt filename={dirEntry.name} />
         <div className="absolute right-0 bottom-0 w-[50%]">
           <UpRightArrowIcon />
@@ -36,9 +36,5 @@ export function FileIconByFileInfo({ dirEntry, fileInfo }: { dirEntry: DirEntry;
   } else {
     icon = <FileIconByFilenameExt filename={dirEntry.name} />;
   }
-  return (
-    <td style={{ height: '1lh' }} className="box-border pl-1 pr-1">
-      {icon}
-    </td>
-  );
+  return (<>{icon}</>);
 }

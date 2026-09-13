@@ -42,3 +42,25 @@ export function getFileExtension(filename: string) {
   }
   return filename.substring(index + 1);
 }
+
+const pictExts = new Set([
+  'AVIF',
+  'BMP',
+  'DDS',
+  'EXR',
+  'GIF',
+  'HDR',
+  'ICO',
+  'JPEG', 'JPG',
+  'PNG',
+  'PNM', 'pbm', 'pgm', 'ppm',
+  'QOI',
+  'TGA',
+  'TIFF', 'TIF',
+  'WebP',
+].map(s => s.toLowerCase()));
+
+export function isPictureFileExtension(filename: string) {
+  const ext = getFileExtension(filename);
+  return !ext ? false : pictExts.has(ext.toLowerCase());
+}
