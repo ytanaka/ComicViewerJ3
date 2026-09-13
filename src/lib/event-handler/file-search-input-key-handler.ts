@@ -1,20 +1,20 @@
 import { useSearchTextStore } from '@/store/file-search-text-store';
 import { useTabStore } from '@/store/tab/store';
 import { useUiStore } from '@/store/ui-store';
-import { VirtuosoHandle } from 'react-virtuoso';
 import { searchCommands } from '../commands/search-commands';
 import { dialogCommands } from '../commands/dialog-commands';
+import { ScrollHandler } from '../scroll-handler';
 
 function st() {
   return useTabStore.getState();
 }
 
 // ファイル検索のための、ローマ字入力検知
-export function fileSearchInput_handleKeyDown(e: KeyboardEvent, virtuoso: VirtuosoHandle): boolean {
+export function fileSearchInput_handleKeyDown(e: KeyboardEvent, scroll: ScrollHandler): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
   // console.debug(`ev: [${e.key}]`);
 
-  if (fileSearchInput_handleKeyDown_impl(e, virtuoso)) {
+  if (fileSearchInput_handleKeyDown_impl(e, scroll)) {
     return true;
   }
 
@@ -23,7 +23,7 @@ export function fileSearchInput_handleKeyDown(e: KeyboardEvent, virtuoso: Virtuo
   return false;
 }
 
-function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent, virtuoso: VirtuosoHandle): boolean {
+function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent, scroll: ScrollHandler): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
 
   // Shift以外のキーは無効
@@ -53,7 +53,7 @@ function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent, virtuoso: Virtuoso
   if (!tab) return false;
   const focusIndex = tab.selection.focusIndex;
   const reverse = false;
-  searchCommands.searchNextFilename(tab, focusIndex, romaji, reverse, virtuoso);
+  searchCommands.searchNextFilename(tab, focusIndex, romaji, reverse, scroll);
 
   return true;
 }

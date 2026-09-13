@@ -1,5 +1,4 @@
 import React from 'react';
-import { VirtuosoHandle } from 'react-virtuoso';
 
 import { useTabStore } from '@/store/tab/store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
@@ -8,6 +7,7 @@ import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
 import { TabInfo } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
+import { ScrollHandler } from '../scroll-handler';
 
 function st() {
   return useTabStore.getState();
@@ -16,8 +16,9 @@ function st() {
 export function tabFiles_handleKeyDown(
   e: KeyboardEvent,
   tabInfo: TabInfo,
-  pageNum: number,
-  virtuoso: VirtuosoHandle
+  rowNum: number,
+  colNum: number,
+  scroll: ScrollHandler
 ): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
   const tab = st().getTab(tabInfo.id);
@@ -50,7 +51,7 @@ export function tabFiles_handleKeyDown(
     let startIndex = reverse ? focusIndex - 1 : focusIndex + 1;
     if (dirEntries.length <= startIndex) startIndex = 0;
     if (startIndex < 0) startIndex = dirEntries.length - 1;
-    searchCommands.searchNextFilename(tab, startIndex, romaji, reverse, virtuoso);
+    searchCommands.searchNextFilename(tab, startIndex, romaji, reverse, scroll);
     e.preventDefault();
     return true;
   }
@@ -65,13 +66,17 @@ export function tabFiles_handleKeyDown(
   // フォーカス移動
   // -------------------------------------------------------------------------------------------------------------------
   if (e.key === 'ArrowDown') {
-    newIndex = focusIndex + 1;
+    newIndex = focusIndex + colNum;
   } else if (e.key === 'ArrowUp') {
-    newIndex = focusIndex - 1;
+    newIndex = focusIndex - colNum;
   } else if (e.key === 'PageDown') {
-    newIndex = focusIndex + pageNum;
+    newIndex = focusIndex + rowNum * colNum;
   } else if (e.key === 'PageUp') {
-    newIndex = focusIndex - pageNum;
+    newIndex = focusIndex - rowNum * colNum;
+  } else if (e.key === 'ArrowRight' && colNum !== 1) {
+    newIndex = focusIndex + 1;
+  } else if (e.key === 'ArrowLeft' && colNum !== 1) {
+    newIndex = focusIndex - 1;
   } else if (e.key === 'Home') {
     newIndex = 0;
   } else if (e.key === 'End') {
@@ -91,7 +96,7 @@ export function tabFiles_handleKeyDown(
       return false;
     }
     e.preventDefault();
-    virtuoso.scrollIntoView({ index });
+    scroll.scroll(index);
 
     return true;
   }

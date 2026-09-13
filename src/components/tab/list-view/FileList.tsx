@@ -36,12 +36,16 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
         return;
       }
 
+      const scroll = {
+        scroll: (i: number) => virtuoso.current?.scrollIntoView({ index: i })
+      };
+
       // ファイル検索テキスト入力
-      if (fileSearchInput_handleKeyDown(e, virtuoso.current)) {
+      if (fileSearchInput_handleKeyDown(e, scroll)) {
         return;
       }
 
-      if (tabFiles_handleKeyDown(e, tab, visibleListRows.current, virtuoso.current)) {
+      if (tabFiles_handleKeyDown(e, tab, visibleListRows.current, 1, scroll)) {
         return;
       }
     };

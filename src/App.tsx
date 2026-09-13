@@ -42,4 +42,4 @@ function App() {
 export default App;
 
 // Tauriイベントリスナー初期化
-import './lib/event-listener';
+import './lib/tauri-event-listener';

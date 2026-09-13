@@ -1,9 +1,9 @@
-import { mkDefaultSortCondition, mkFileSelection, TabId, UiTab } from '@/store/tab/types';
+import { FileViewMode, mkDefaultSortCondition, mkFileSelection, TabId, UiTab } from '@/store/tab/types';
 import { FileSearchResult } from '../bindings';
-import { VirtuosoHandle } from 'react-virtuoso';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';
 import { handleRustCmdResult, rustcmds } from '../bindings-wrapper';
+import { ScrollHandler } from '../scroll-handler';
 
 let debounceTimer: number | undefined;
 let queuedInput: string | null = null; // 検索実行に入力された内容
@@ -11,6 +11,7 @@ let queuedRevese: boolean = false;
 
 const emptyTab: Readonly<UiTab> = {
   info: { id: -1 as TabId, path: '' },
+  fileViewMode: FileViewMode.List,
   sortCondition: mkDefaultSortCondition(),
   selection: mkFileSelection(),
   focusHistories: [],
@@ -18,13 +19,13 @@ const emptyTab: Readonly<UiTab> = {
 } as const;
 
 let searchTab: UiTab = emptyTab;
-let searchVirtuoso: VirtuosoHandle | null;
+let searchScroll: ScrollHandler | null;
 
 export const searchCommands = {
   // ファイル検索
-  async searchNextFilename(tab: UiTab, startIndex: number, romaji: string, reverse: boolean, virtuoso: VirtuosoHandle) {
+  async searchNextFilename(tab: UiTab, startIndex: number, romaji: string, reverse: boolean, scroll: ScrollHandler) {
     searchTab = tab;
-    searchVirtuoso = virtuoso;
+    searchScroll = scroll;
 
     // デバウンス：0.3秒入力が止まるまで検索しない
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -42,7 +43,7 @@ export const searchCommands = {
     }
     queuedInput = null;
     searchTab = emptyTab;
-    searchVirtuoso = null;
+    searchScroll = null;
     useSearchResultStore.getState().clear();
   },
 };
@@ -111,8 +112,8 @@ async function search(text: string, startIndex: number, reverse: boolean): Promi
 }
 
 function virtuoso_scrollIntoView(fileIndex: number) {
-  if (searchVirtuoso === null) return;
-  searchVirtuoso.scrollIntoView({ index: fileIndex });
+  if (searchScroll === null) return;
+  searchScroll.scroll(fileIndex);
 }
 
 function checkCommandReturn<T, E>(

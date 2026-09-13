@@ -12,6 +12,10 @@ import { DirEntry } from '@/lib/bindings-wrapper';
 import { useTabStore } from '@/store/tab/store';
 import { ThumbnailCell } from './ThumbnailCell';
 import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
+import { useUiStore } from '@/store/ui-store';
+import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
+import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 
 // サムネイル<div>を取得し、列数を計算するためにこの文字列を className に設定する
 export const THUMBNAIL_CELL_CLASSNAME = 'thumbnail_cells';
@@ -101,6 +105,55 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
 
     return () => ro.disconnect();
   });
+
+  // キー操作
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (virtuoso.current === null) return;
+      // 遅延が発生していたらイベントを無視
+      const delay = performance.now() - e.timeStamp;
+      const timeout = useUiStore.getState().timeoutMsEventTimeStamp;
+      if (0 < timeout && timeout < delay) {
+        console.info('ignore keyboard event');
+        return;
+      }
+
+      const scroll = {
+        scroll: (i: number) => virtuoso.current?.scrollToIndex({ index: i })
+      };
+
+      // ファイル検索テキスト入力
+      if (fileSearchInput_handleKeyDown(e, scroll)) {
+        return;
+      }
+
+      if (tabFiles_handleKeyDown(e, tab, rows, columns, scroll)) {
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }); // 初回だけ実行する
+
+  // スクロール位置調整
+  const doScroll = useScrollToFocusStore(state => state.doScroll);
+  const setScroll = useScrollToFocusStore(state => state.setScroll);
+  useEffect(() => {
+    if (!doScroll) return;
+    function scr() {
+      const focusIndex = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
+      if (focusIndex !== undefined) {
+        virtuoso.current?.scrollToIndex({
+          index: focusIndex,
+        });
+      }
+    }
+
+    // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
+    setTimeout(() => scr(), 100);
+    setScroll(false);
+  }, [doScroll, setScroll]); // スクロールが指示されたら実行する
 
   const handleRangeChanged = (range: ListRange) => {
     // ResizeObserver が画面初期表示時に呼ばれないので、ここでも呼んでおく
