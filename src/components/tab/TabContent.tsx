@@ -7,8 +7,9 @@ import { useFocusStore } from '@/store/focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { FileViewMode } from '@/store/tab/types';
 import { Thumbnails } from './thumbnail-view/Thumbnails';
-import { useCmdCreateTab, useCmdGetDirEntries } from '@/services/tab-files';
+import { useCmdCreateTab } from '@/services/tab';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { useCmdGetDirEntries } from '@/services/tab-dir-entry';
 
 function st() {
   return useTabStore.getState();

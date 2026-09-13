@@ -10,7 +10,7 @@ import {
   rustcmds,
   TabInfo,
 } from '../bindings-wrapper';
-import { removeQueries_tab } from '@/services/tab-files';
+import { removeQueries_tab } from '@/services/tab';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useUiStore } from '@/store/ui-store';
 import { toast } from 'sonner';

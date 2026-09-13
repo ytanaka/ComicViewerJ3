@@ -9,7 +9,7 @@ import { TabStore } from './store';
 import { TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
 import { StateCreator } from 'zustand';
-import { removeQueries_getDirEntries } from '@/services/tab-files';
+import { removeQueries_getDirEntries } from '@/services/tab-dir-entry';
 
 export interface UiTabActions {
   updateTab: (tabId: TabId, newTab: TabInfo) => void;

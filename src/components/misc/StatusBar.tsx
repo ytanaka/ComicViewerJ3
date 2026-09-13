@@ -1,4 +1,4 @@
-import { useCmdGetDirEntries } from '@/services/tab-files';
+import { useCmdGetDirEntries } from '@/services/tab-dir-entry';
 import { useTabStore } from '@/store/tab/store';
 
 export function StatusBar() {

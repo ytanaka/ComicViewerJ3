@@ -5,13 +5,13 @@ import { useTabStore } from '@/store/tab/store';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
-import { useFileInfo1Query } from '@/services/tab-files';
 import { FileExtIcon } from './FileExtIcon';
 
 import FileFolderIcon from '@iconify-react/fluent-emoji-flat/file-folder';
 import WhiteMediumSquareIcon from '@iconify-react/fluent-emoji-flat/white-medium-square';
 import RedExclamationMarkIcon from '@iconify-react/fluent-emoji-flat/red-exclamation-mark';
 import UpRightArrowIcon from '@iconify-react/fluent-emoji-flat/up-right-arrow';
+import { useFileInfo1Query } from '@/services/tab-file-info';
 
 function Icon({
   dirEntry,

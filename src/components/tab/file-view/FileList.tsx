@@ -7,11 +7,11 @@ import { useTabStore } from '@/store/tab/store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
-import { getQueryData_getFileInfo1, useCmdFileInfosQuery } from '@/services/tab-files';
 import { FileId, TabId } from '@/store/tab/types';
 import { create } from 'zustand';
 import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
+import { getQueryData_getFileInfo1, useCmdFileInfosQuery } from '@/services/tab-file-info';
 
 export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
