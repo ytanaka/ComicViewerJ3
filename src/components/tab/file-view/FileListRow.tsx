@@ -5,7 +5,7 @@ import { useTabStore } from '@/store/tab/store';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
-import { FileExtIcon } from './FileExtIcon';
+import { FileIconByFilenameExt } from '../FileIconByExt';
 
 import FileFolderIcon from '@iconify-react/fluent-emoji-flat/file-folder';
 import WhiteMediumSquareIcon from '@iconify-react/fluent-emoji-flat/white-medium-square';
@@ -13,7 +13,7 @@ import RedExclamationMarkIcon from '@iconify-react/fluent-emoji-flat/red-exclama
 import UpRightArrowIcon from '@iconify-react/fluent-emoji-flat/up-right-arrow';
 import { useFileInfo1Query } from '@/services/tab-file-info';
 
-function Icon({
+function FileIconByFileInfo({
   dirEntry,
   fileInfo,
 }: {
@@ -37,7 +37,7 @@ function Icon({
   } else if (dirEntry.is_symlink) {
     icon = (
       <div style={{ height: '1lh' }} className="relative">
-        <FileExtIcon dirEntry={dirEntry} />
+        <FileIconByFilenameExt filename={dirEntry.name} />
         <div className="absolute right-0 bottom-0 w-[50%]">
           <UpRightArrowIcon />
         </div>
@@ -46,7 +46,7 @@ function Icon({
   } else if (dirEntry.is_dir) {
     icon = <FileFolderIcon height="100%" />;
   } else {
-    icon = <FileExtIcon dirEntry={dirEntry} />;
+    icon = <FileIconByFilenameExt filename={dirEntry.name} />;
   }
   return (
     <td style={{ height: '1lh' }} className="box-border pl-1 pr-1">
@@ -112,7 +112,7 @@ export function FileListRow({
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
   return (
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
-      <Icon dirEntry={dirEntry} fileInfo={fileInfo} />
+      <FileIconByFileInfo dirEntry={dirEntry} fileInfo={fileInfo} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tabInfo} />}</FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />

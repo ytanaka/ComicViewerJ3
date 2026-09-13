@@ -1,4 +1,3 @@
-import { DirEntry } from '@/lib/bindings-wrapper';
 import { getFileExtension } from '@/lib/string-util';
 
 import OpticalDiskIcon from '@iconify-react/fluent-emoji-flat/optical-disk';
@@ -116,8 +115,8 @@ const extIconList = [
   { ext: 'ods', icon: FileTypeLibreofficeCalcIcon },
 ] as const;
 
-export function FileExtIcon({ dirEntry }: { dirEntry: DirEntry }) {
-  const ext = getFileExtension(dirEntry.name)?.toLowerCase();
+export function FileIconByFilenameExt({ filename }: { filename: string }) {
+  const ext = getFileExtension(filename)?.toLowerCase();
   const find = extIconList.find(elm => elm.ext === ext);
   if (!ext || !find) return <DefaultFileIcon />;
 
