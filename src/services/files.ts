@@ -17,12 +17,12 @@ import { FileId, TabId } from '@/store/tab/types';
 // タブを消すときはまとめて消す
 const HEAD_QUERY_KEY_FOR_TAB_ID = 'tabId=';
 
-function mkTabQueryKey(tabId: TabId) {
+function queryKey_tabId(tabId: TabId) {
   return [HEAD_QUERY_KEY_FOR_TAB_ID, tabId];
 }
 
 export function removeQueries_tab(tabId: TabId) {
-  myQueryClient.removeQueries({ queryKey: mkTabQueryKey(tabId) });
+  myQueryClient.removeQueries({ queryKey: queryKey_tabId(tabId) });
   const cachedTabIds = getQueryData_tabIds();
   console.debug(`TanStack Query tab cache = [${cachedTabIds}]`);
 
@@ -31,7 +31,7 @@ export function removeQueries_tab(tabId: TabId) {
     .filter(tabId => tabId < 0)
     .forEach(tabId => {
       console.debug(`queryClient.removeQueries(${tabId})`);
-      myQueryClient.removeQueries({ queryKey: mkTabQueryKey(tabId) });
+      myQueryClient.removeQueries({ queryKey: queryKey_tabId(tabId) });
     });
 }
 
@@ -50,7 +50,7 @@ function getQueryData_tabIds() {
 // ※ 普通のタブ作成は、タブ作成時に TabInfo.id が設定されているのでここでは処理しない
 // useQuery() -> useMutate() に変えようとしたら、useTabStore.getState().updateTab() の中で再レンダーされて無限ループになってしまった
 function queryKey_useCmdCreateTab(tabInfo: TabInfo) {
-  return [...mkTabQueryKey(tabInfo.id), 'createTab'];
+  return [...queryKey_tabId(tabInfo.id), 'createTab'];
 }
 
 export function useCmdCreateTab(tabInfo: TabInfo) {
@@ -72,7 +72,7 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
 // タブのファイル一覧を表示するため、DirEntry[] 取得
 
 function queryKey_useCmdGetDirEntries(tabId: TabId) {
-  return [...mkTabQueryKey(tabId), 'getDirEntries'];
+  return [...queryKey_tabId(tabId), 'getDirEntries'];
 }
 async function queryFn_getDirEntries(tabId: TabId) {
   const result = await rustcmds.getDirEntries(tabId);
@@ -139,10 +139,10 @@ export function removeQueries_getDirEntries(tabId: TabId) {
 // タブ内の個々のファイルを表示するための情報取得
 
 function queryKey_useFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
-  return [...mkTabQueryKey(tabInfo.id), 'getFileInfos', fileIds];
+  return [...queryKey_tabId(tabInfo.id), 'getFileInfos', fileIds];
 }
 function queryKey_useFileInfo1Query(tabId: TabId, fileId: FileId) {
-  return [...mkTabQueryKey(tabId), 'getFileInfo1', fileId];
+  return [...queryKey_tabId(tabId), 'getFileInfo1', fileId];
 }
 export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
   const queryClient = useQueryClient();

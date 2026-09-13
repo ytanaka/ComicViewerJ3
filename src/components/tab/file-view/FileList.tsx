@@ -126,15 +126,18 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
   );
 }
 
-// <FileList> 内にスクロールした結果を useState<ListRange>() すると、スクロールするたびに <FileList> がレンダーされるので、
-// このコンポーネントを <FileList> の子にする
+// <FileList> 内でスクロールした結果を useState<ListRange>() するとスクロールするたびに <FileList> がレンダーされる。
+// このコンポーネントを <FileList> の子にすれば <FileList> は影響を受けない
 function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
   const fileIds = useScrollFileIdsStore(state => state.fileIds);
   const tabId = useScrollFileIdsStore(state => state.tabId);
+
+  // まだデータ未取得のファイルだけ抽出
   const fileIds2 = fileIds.filter(fileId => {
     const fileInfo = getQueryData_getFileInfo1(tab.id, fileId);
     return fileInfo === undefined;
   });
+  // スクロール範囲が設定されたときのTabIdと現在レンダーされているタブIDを確認する
   useCmdFileInfosQuery(tab, tabId == tab.id ? fileIds2 : []);
   return <></>;
 }
