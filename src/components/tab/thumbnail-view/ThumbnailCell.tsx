@@ -9,6 +9,7 @@ import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-han
 import React from 'react';
 import { unixTime2str } from '@/lib/string-util';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';
+import { SearchResult } from '../SearchResult';
 
 export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
   const isSelected = useTabStore(state => state.getTab(tab.id)?.selection.selectionIndexes.has(fileIndex));
@@ -72,6 +73,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
           />
         )}
         <div className='truncate'>{dirEntry.name}</div>
+        {isSelected && <SearchResult tabInfo={tab} />}
       </div>
     </div>
   );
