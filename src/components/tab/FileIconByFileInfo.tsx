@@ -15,18 +15,18 @@ export function FileIconByFileInfo({ dirEntry, fileInfo }: { dirEntry: DirEntry;
     icon = <WhiteMediumSquareIcon height="100%" />;
   } else if (dirEntry.is_symlink && dirEntry.is_dir) {
     icon = (
-      <div className="relative">
+      <div className="relative h-full">
         <FileFolderIcon height="100%" />
-        <div className="absolute right-0 bottom-0 w-[50%]">
+        <div className="absolute right-0 bottom-0 w-[50%] h-[50%]">
           <UpRightArrowIcon />
         </div>
       </div>
     );
   } else if (dirEntry.is_symlink) {
     icon = (
-      <div className="relative">
+      <div className="relative h-full">
         <FileIconByFilenameExt filename={dirEntry.name} />
-        <div className="absolute right-0 bottom-0 w-[50%]">
+        <div className="absolute right-0 bottom-0 w-[50%] h-[50%]">
           <UpRightArrowIcon />
         </div>
       </div>

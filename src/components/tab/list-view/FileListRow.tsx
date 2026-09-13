@@ -10,7 +10,7 @@ import { FileIconByFileInfo } from '../FileIconByFileInfo';
 
 function Icon({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
   return (
-    <td style={{ height: '1lh' }} className="box-border pl-1 pr-1">
+    <td style={{ height: '1lh' }} className="block box-border pl-1 pr-1">
       <FileIconByFileInfo dirEntry={dirEntry} fileInfo={fileInfo} />
     </td>
   );
