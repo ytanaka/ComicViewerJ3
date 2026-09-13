@@ -119,7 +119,9 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
       }
 
       const scroll = {
-        scroll: (i: number) => virtuoso.current?.scrollToIndex({ index: i })
+        scroll: (i: number) => {
+          virtuoso.current?.scrollToIndex({ index: i, align: 'center' })
+        }
       };
 
       // ファイル検索テキスト入力
