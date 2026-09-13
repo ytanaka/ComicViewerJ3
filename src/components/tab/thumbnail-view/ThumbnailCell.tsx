@@ -7,6 +7,7 @@ import { useTabStore } from '@/store/tab/store';
 import { useFileInfo1Query } from '@/services/tab-file-info';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import React from 'react';
+import { unixTime2str } from '@/lib/string-util';
 
 const THUMBNAIL_SIZE = 128;
 
@@ -15,6 +16,14 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   const isFocused = useTabStore(state => state.getTab(tab.id)?.selection.focusIndex === fileIndex);
   const { data: fileInfo } = useFileInfo1Query(tab, dirEntry.file_id);
   const errorMsg = fileInfo?.metadata.Left;
+
+  let toolTipMsg = dirEntry.name;
+  if (errorMsg) toolTipMsg += '\nERROR: ' + errorMsg;
+  if (fileInfo?.metadata.Right) {
+    const meta = fileInfo.metadata.Right;
+    if (meta.size) toolTipMsg += `\nサイズ: ${meta.size.toLocaleString()}`;
+    if (meta.modified) toolTipMsg += `\n更新日時: ${unixTime2str(meta.modified)}`;
+  }
 
   // サムネイル画像ファイル作成
   const { data: thumbPath } = useThumbnailPath(tab.id, dirEntry.file_id, THUMBNAIL_SIZE);
@@ -32,9 +41,9 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
 
   return (
     <div
-      className={cn(THUMBNAIL_CELL_CLASSNAME, border, bg)}
+      className={cn(THUMBNAIL_CELL_CLASSNAME, border, bg, 'overflow-clip')}
       onClick={handleClick}
-      title={`${dirEntry.name}${errorMsg ?? <br />}${errorMsg}`}
+      title={toolTipMsg}
     >
       <figure>
         <img
