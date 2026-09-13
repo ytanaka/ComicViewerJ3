@@ -7,7 +7,7 @@ import {
   rustcmds,
   TabInfo,
 } from '../bindings-wrapper';
-import { removeQueries_tab } from '@/services/files';
+import { removeQueries_tab } from '@/services/tab-files';
 import { CreateTabError, Either } from '../bindings';
 
 function st() {

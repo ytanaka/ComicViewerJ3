@@ -2,7 +2,7 @@ import { StateCreator } from 'zustand';
 import { TabStore } from './store';
 import { _useTabStore_setExistTabFields, mkFileSelection, TabId } from './types';
 import { _useTabStore_pushHistoryCurrentFile_toImmer } from './file-focus-history-actions';
-import { getQueryData_getDirEntries, getQueryData_getDirEntry } from '@/services/files';
+import { getQueryData_getDirEntries, getQueryData_getDirEntry } from '@/services/tab-files';
 import { useScrollToFocusStore } from '../scroll-to-focus-store';
 import { DirEntry } from '@/lib/bindings-wrapper';
 

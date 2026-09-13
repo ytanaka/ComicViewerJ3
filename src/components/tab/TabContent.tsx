@@ -7,7 +7,7 @@ import { useFocusStore } from '@/store/focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { FileViewMode } from '@/store/tab/types';
 import { Thumbnails } from './thumbnail-view/Thumbnails';
-import { useCmdCreateTab, useCmdGetDirEntries } from '@/services/files';
+import { useCmdCreateTab, useCmdGetDirEntries } from '@/services/tab-files';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 function st() {
@@ -82,11 +82,9 @@ function TabContent() {
 
   const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
 
-  return (
-    fileViewMode === FileViewMode.Thumbnail ? (
-      <Thumbnails dirEntries={dirEntries} />
-    ) : (
-      <FileList dirEntries={dirEntries} />
-    )
-  )
+  return fileViewMode === FileViewMode.Thumbnail ? (
+    <Thumbnails dirEntries={dirEntries} />
+  ) : (
+    <FileList dirEntries={dirEntries} />
+  );
 }

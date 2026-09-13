@@ -5,7 +5,7 @@ import { useTabStore } from '@/store/tab/store';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from './SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
-import { useFileInfo1Query } from '@/services/files';
+import { useFileInfo1Query } from '@/services/tab-files';
 import { FileExtIcon } from './FileExtIcon';
 
 import FileFolderIcon from '@iconify-react/fluent-emoji-flat/file-folder';
@@ -29,7 +29,7 @@ function Icon({
     icon = <WhiteMediumSquareIcon height="100%" />;
   } else if (dirEntry.is_symlink && dirEntry.is_dir) {
     icon = (
-      <div style={{ height: "1lh" }} className="relative">
+      <div style={{ height: '1lh' }} className="relative">
         <FileFolderIcon height="100%" />
         <div className="absolute right-0 bottom-0 w-[50%]">
           <UpRightArrowIcon />
@@ -38,7 +38,7 @@ function Icon({
     );
   } else if (dirEntry.is_symlink) {
     icon = (
-      <div style={{ height: "1lh" }} className="relative">
+      <div style={{ height: '1lh' }} className="relative">
         <FileExtIcon dirEntry={dirEntry} />
         <div className="absolute right-0 bottom-0 w-[50%]">
           <UpRightArrowIcon />

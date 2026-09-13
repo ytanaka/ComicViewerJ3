@@ -1,7 +1,7 @@
-import { DirEntry, TabInfo } from "@/lib/bindings-wrapper";
-import { useTabStore } from "@/store/tab/store";
-import { useRef } from "react";
-import { GridComponents, GridItemProps, GridListProps, VirtuosoGrid, VirtuosoGridHandle } from "react-virtuoso";
+import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { useTabStore } from '@/store/tab/store';
+import { useRef } from 'react';
+import { GridComponents, GridItemProps, GridListProps, VirtuosoGrid, VirtuosoGridHandle } from 'react-virtuoso';
 
 export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoGridHandle>(null);
@@ -17,16 +17,10 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
         className="flex-1"
         ref={virtuoso}
         totalCount={dirEntries.length}
-        itemContent={(index) => (
-          <ThumbnailCell
-            tab={tab}
-            fileIndex={index}
-            dirEntry={dirEntries[index]}
-          />
-        )}
+        itemContent={index => <ThumbnailCell tab={tab} fileIndex={index} dirEntry={dirEntries[index]} />}
         components={gridComponents}
       />
-    )
+    );
   }
 }
 
@@ -45,7 +39,7 @@ const gridComponents: GridComponents = {
       >
         {children}
       </div>
-    )
+    );
   },
   Item: ({ children, ...props }: GridItemProps) => {
     return (
@@ -60,11 +54,11 @@ const gridComponents: GridComponents = {
           {children}
         </div>
       </div>
-    )
+    );
   },
 };
 
-function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry; }) {
+function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
   if (fileIndex === 0) console.debug(`<ThumbnailCell>[${fileIndex}] tabId:${tab.id}`);
 
   return <div>{dirEntry.name}</div>;

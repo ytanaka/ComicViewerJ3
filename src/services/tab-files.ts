@@ -74,31 +74,20 @@ export function useCmdCreateTab(tabInfo: TabInfo) {
 function queryKey_useCmdGetDirEntries(tabId: TabId) {
   return [...queryKey_tabId(tabId), 'getDirEntries'];
 }
-async function queryFn_getDirEntries(tabId: TabId) {
-  const result = await rustcmds.getDirEntries(tabId);
-  handleRustCmdResult(result, `rustcmds.getDirEntries(${tabId})`, 'ファイル名一覧取得失敗', data => {
-    // ファイル一覧が取得出来たら、以前のディレクトリでのファイルフォーカス位置を復元する
-    useTabStore.getState().restoreDirFocus(tabId, data);
-  });
-  return result;
-}
 export function useCmdGetDirEntries(tabInfo: TabInfo) {
   return useQuery({
     queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
-    queryFn: async () => queryFn_getDirEntries(tabInfo.id),
+    queryFn: async () => {
+      const result = await rustcmds.getDirEntries(tabInfo.id);
+      handleRustCmdResult(result, `rustcmds.getDirEntries(${tabInfo.id})`, 'ファイル名一覧取得失敗', data => {
+        // ファイル一覧が取得出来たら、以前のディレクトリでのファイルフォーカス位置を復元する
+        useTabStore.getState().restoreDirFocus(tabInfo.id, data);
+      });
+      return result;
+    },
     enabled: 0 < tabInfo.id,
     select: data => {
       return select_getDirEntries(data);
-    },
-  });
-}
-export function useCmdGetDirEntries_error(tabInfo: TabInfo) {
-  return useQuery({
-    queryKey: queryKey_useCmdGetDirEntries(tabInfo.id),
-    queryFn: async () => queryFn_getDirEntries(tabInfo.id),
-    enabled: 0 < tabInfo.id,
-    select: data => {
-      return select_getDirEntries_error(data);
     },
   });
 }
@@ -109,22 +98,10 @@ function select_getDirEntries(data: RustCmdResult<DirEntry[]>) {
     return data.data;
   }
 }
-function select_getDirEntries_error(data: RustCmdResult<DirEntry[]>) {
-  if (data.status === 'error') {
-    return data.error;
-  } else {
-    return undefined;
-  }
-}
 export function getQueryData_getDirEntries(tabId: TabId): DirEntry[] | undefined {
   const data = myQueryClient.getQueryData<RustCmdResult<DirEntry[]>>(queryKey_useCmdGetDirEntries(tabId));
   if (!data) return undefined;
   return select_getDirEntries(data);
-}
-export function getQueryData_getDirEntries_error(tabId: TabId): string | undefined {
-  const data = myQueryClient.getQueryData<RustCmdResult<DirEntry[]>>(queryKey_useCmdGetDirEntries(tabId));
-  if (!data) return undefined;
-  return select_getDirEntries_error(data);
 }
 export function getQueryData_getDirEntry(tabId: TabId, fileIndex: number): DirEntry | undefined {
   const dirEntries = getQueryData_getDirEntries(tabId);
@@ -153,18 +130,18 @@ export function useCmdFileInfosQuery(tabInfo: TabInfo, fileIds: FileId[]) {
       handleRustCmdResult(
         result,
         `rustcmds.getFileInfos(${tabInfo.id},[${fileIds.length}:${Math.min(...fileIds)}-${Math.max(...fileIds)}])`,
-        'ファイル情報取得失敗'
+        'ファイル情報取得失敗',
+        list => {
+          // ここで取得したデータは個別に取得するので、キャッシュに格納しておく
+          list.forEach(fileInfo => {
+            queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo.id, fileInfo.file_id), fileInfo);
+          });
+        }
       );
       return result;
     },
     enabled: 0 < tabInfo.id && 0 < fileIds.length,
-    select: data => {
-      if (data.status === 'ok') {
-        // ここで取得したデータは個別に取得するので、キャッシュに格納しておく
-        data.data.forEach(fileInfo => {
-          queryClient.setQueryData(queryKey_useFileInfo1Query(tabInfo.id, fileInfo.file_id), fileInfo);
-        });
-      }
+    select: () => {
       return undefined; // このhookの戻り値を使用することはないのでデータを返す必要はない
     },
   });

@@ -1,4 +1,4 @@
-import { useCmdGetDirEntries, useCmdGetDirEntries_error } from '@/services/files';
+import { useCmdGetDirEntries } from '@/services/tab-files';
 import { useTabStore } from '@/store/tab/store';
 
 export function StatusBar() {
@@ -14,7 +14,6 @@ export function StatusBar() {
 function NormalStatusBar() {
   const tab = useTabStore(state => state.getCurrentTab()!.info);
   const selSize = useTabStore(state => state.getCurrentTab()!.selection.selectionIndexes.size);
-  const { data: errMsg } = useCmdGetDirEntries_error(tab);
   const { data: dirEntries } = useCmdGetDirEntries(tab);
   const fileNum = dirEntries?.length;
 
@@ -27,7 +26,6 @@ function NormalStatusBar() {
 
   return (
     <div className="border select-none">
-      <div>{errMsg}</div>
       <div>{msg}</div>
     </div>
   );

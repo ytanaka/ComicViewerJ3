@@ -1,6 +1,6 @@
 import { listen as tauri_listen } from '@tauri-apps/api/event';
 import { FileNotifyEvent } from './bindings';
-import { getQueryData_getDirEntries, removeQueries_tab, setQueryData_getFileInfo1 } from '@/services/files';
+import { getQueryData_getDirEntries, removeQueries_tab, setQueryData_getFileInfo1 } from '@/services/tab-files';
 import { FileId, TabId } from '@/store/tab/types';
 import { useTabStore } from '@/store/tab/store';
 import { handleRustCmdResult, rustcmds } from './bindings-wrapper';

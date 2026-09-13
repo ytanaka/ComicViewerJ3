@@ -6,7 +6,7 @@ import { useSearchTextStore } from '@/store/file-search-text-store';
 import { searchCommands } from '../commands/search-commands';
 import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
-import { getQueryData_getDirEntries } from '@/services/files';
+import { getQueryData_getDirEntries } from '@/services/tab-files';
 import { TabInfo } from '../bindings-wrapper';
 
 function st() {
