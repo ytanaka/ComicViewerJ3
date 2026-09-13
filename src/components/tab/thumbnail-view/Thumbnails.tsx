@@ -27,7 +27,7 @@ const gridComponents: GridComponents = {
       <div
         {...props}
         style={{
-          overflowX: 'hidden', // ※ これを入れないと、画面幅を変えたときに一瞬横スクロールバーが出る
+          overflow: 'hidden', // ※ これを入れないと、画面幅を変えたときに一瞬横スクロールバーが出る
           display: 'flex',
           flexWrap: 'wrap',
           ...style,
@@ -42,9 +42,9 @@ const gridComponents: GridComponents = {
       <div
         {...props}
         style={{
-          margin: 4,
-          width: 128,
-          height: 'calc(128 + 1lh)',
+          padding: 4,
+          width: 128, // VirtuosoGrid のItemサイズは全Item同じpxで指定する
+          height: 150, // そうしないと、スクロールしたときに項目が左右にずれる
         }}
       >
         {children}
