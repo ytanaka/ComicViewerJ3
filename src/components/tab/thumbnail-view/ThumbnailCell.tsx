@@ -46,9 +46,10 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
       onClick={handleClick}
       title={toolTipMsg}
     >
-      <figure>
+      <div>
         {!thumbPath ? (
           <div
+            className='border-2'
             style={{
               display: 'block',
               width: THUMBNAIL_SIZE,
@@ -72,8 +73,8 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
             }}
           />
         )}
-        <figcaption>{dirEntry.name}</figcaption>
-      </figure>
+        <div className='truncate'>{dirEntry.name}</div>
+      </div>
     </div>
   );
 }
