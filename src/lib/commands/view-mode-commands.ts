@@ -1,3 +1,4 @@
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { FileViewMode } from '@/store/tab/types';
 
@@ -17,5 +18,6 @@ export const fileViewModeCommands = {
       newMode = FileViewMode.List;
     }
     st().setViewMode(tab.info.id, newMode);
+    useScrollToFocusStore.getState().setScroll(true);
   },
 };

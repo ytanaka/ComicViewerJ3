@@ -14,7 +14,6 @@ import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfo
 export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
-  useTabStore(state => state.getCurrentTab()?.refreshCount); // ソート状態が変わったら再レンダーする
 
   // 画面に表示されている行数
   const visibleListRows = useRef(1);

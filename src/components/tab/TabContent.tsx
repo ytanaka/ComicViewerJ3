@@ -49,6 +49,7 @@ export function TabContentWrapper() {
 function TabContent() {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
+  useTabStore(state => state.getCurrentTab()?.refreshCount); // ソート状態が変わったら再レンダーする
 
   console.debug(`<TabContent> tab[${currentTabIndex}](id:${tab.id}), ${tab.path}`);
 
