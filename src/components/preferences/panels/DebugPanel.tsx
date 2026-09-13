@@ -2,7 +2,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Separator } from '@/components/ui/separator';
-import { usePreferences, useSavePreferences } from '@/hooks/preferences';
+import { usePreferences, useSavePreferences } from '@/services/preferences';
 import { ChangeEvent } from 'react';
 import { useTabStore } from '@/store/tab/store';
 

@@ -2,7 +2,7 @@ import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet 
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { usePreferences, useSavePreferences } from '@/hooks/preferences';
+import { usePreferences, useSavePreferences } from '@/services/preferences';
 import { FilenameCmpType_type } from '@/lib/bindings-wrapper';
 import { useTabStore } from '@/store/tab/store';
 
