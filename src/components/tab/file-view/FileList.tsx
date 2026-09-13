@@ -7,11 +7,9 @@ import { useTabStore } from '@/store/tab/store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
-import { FileId, TabId } from '@/store/tab/types';
-import { create } from 'zustand';
-import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { DirEntry } from '@/lib/bindings-wrapper';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
-import { getQueryData_getFileInfo1, useCmdFileInfosQuery } from '@/services/tab-file-info';
+import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
 
 export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -21,21 +19,9 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
   // 画面に表示されている行数
   const visibleListRows = useRef(1);
   const handleRangeChanged = (range: ListRange) => {
-    // スクロール位置が変化したら、表示する範囲のファイル情報を取得する
     visibleListRows.current = Math.max(1, range.endIndex - range.startIndex);
-
     // ファイル情報読み込み
-    if (dirEntries) {
-      const OVER_SCAN = visibleListRows.current + 1;
-      const fileIds: FileId[] = [];
-      const s = Math.max(0, range.startIndex - OVER_SCAN);
-      const e = Math.min(dirEntries.length - 1, range.endIndex + OVER_SCAN);
-      for (let i = s; i <= e; i++) {
-        const ent = dirEntries[i];
-        if (ent) fileIds.push(ent.file_id);
-      }
-      if (fileIds.length !== 0) useScrollFileIdsStore.getState().setFileIds(tab.id, fileIds);
-    }
+    useVisibleFileIdsStore.getState().setFileIndexes(tab.id, dirEntries, range);
   };
 
   // キー操作
@@ -125,33 +111,3 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
     </div>
   );
 }
-
-// <FileList> 内でスクロールした結果を useState<ListRange>() するとスクロールするたびに <FileList> がレンダーされる。
-// このコンポーネントを <FileList> の子にすれば <FileList> は影響を受けない
-function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
-  const fileIds = useScrollFileIdsStore(state => state.fileIds);
-  const tabId = useScrollFileIdsStore(state => state.tabId);
-
-  // まだデータ未取得のファイルだけ抽出
-  const fileIds2 = fileIds.filter(fileId => {
-    const fileInfo = getQueryData_getFileInfo1(tab.id, fileId);
-    return fileInfo === undefined;
-  });
-  // スクロール範囲が設定されたときのTabIdと現在レンダーされているタブIDを確認する
-  useCmdFileInfosQuery(tab, tabId == tab.id ? fileIds2 : []);
-  return <></>;
-}
-
-interface ScrollFileIdsStore {
-  tabId: TabId;
-  fileIds: FileId[];
-  setFileIds: (tabId: TabId, fileIds: FileId[]) => void;
-}
-
-const useScrollFileIdsStore = create<ScrollFileIdsStore>()(set => ({
-  tabId: 0 as TabId,
-  fileIds: [],
-  setFileIds: (tabId: TabId, fileIds: FileId[]) => {
-    set(() => ({ tabId, fileIds }));
-  },
-}));

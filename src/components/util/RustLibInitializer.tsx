@@ -21,7 +21,7 @@ export function RustLibInitializer({ children }: { children: ReactNode }) {
       initializing.current = true;
       init();
     }
-  }, [appInitialized]);
+  }, [appInitialized, setField]);
 
   if (!appInitialized) {
     return (
