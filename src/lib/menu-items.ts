@@ -114,6 +114,9 @@ export const menuItems = {
   sortBySize: M('サイズでソート', () => sortCommands.sortFiles('Size'), 'Alt//3', hasTab),
   sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt//4', hasTab),
 
+  toggleTheme: M('テーマ切り替え', () => console.log("THEME CHANGE!!!")),
+  changeFullscreen: M('フルスクリーンモード', () => console.log("FULL SCREEN!!!")),
+
   // -------------------- Tab --------------------
   cloneTab: M('タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T'),
   closeCurrentTab: M('タブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl//W', hasTab),

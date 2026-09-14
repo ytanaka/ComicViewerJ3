@@ -17,48 +17,49 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-import { windowCommands } from '@/lib/commands/window-commands';
-import { dialogCommands } from '@/lib/commands/dialog-commands';
+import { AppMenuItem, menuItems } from '@/lib/menu-items';
+import { useTabStore } from '@/store/tab/store';
 
-function B({ icon, onClick, toolTip }: { icon: ReactNode; onClick?: () => void; toolTip?: string }) {
+function B({ icon, m }: { icon: ReactNode; m: AppMenuItem }) {
+  const enabled = m.checkEnabledFn === undefined || m.checkEnabledFn();
   const baseComponent = (
-    <Button variant="outline" size="sm" onClick={onClick}>
+    <Button disabled={!enabled} variant="outline" size="sm" onClick={m.exec}>
       {icon}
     </Button>
   );
 
-  if (toolTip) {
-    return (
-      <Tooltip>
-        <TooltipTrigger render={baseComponent} />
-        <TooltipContent side="top">
-          <p>{toolTip}</p>
-        </TooltipContent>
-      </Tooltip>
-    );
-  } else {
-    return baseComponent;
-  }
+  return (
+    <Tooltip>
+      <TooltipTrigger render={baseComponent} />
+      <TooltipContent side="top">
+        <p>{m.value}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 export function Toolbar() {
+  // タブ状態やファイル選択状態が変わったら再描画させる
+  useTabStore(state => state.getCurrentTab());
+  useTabStore(state => state.getCurrentTab()?.selection);
+
   return (
     <div className="flex items-center gap-0.5 border rounded-md p-0.5">
-      <B icon={<FolderOpen />} toolTip="ディレクトリを開く" onClick={windowCommands.openDirectory} />
-      <B icon={<Settings />} toolTip="設定" onClick={dialogCommands.openPreference} />
+      <B icon={<FolderOpen />} m={menuItems.openDir} />
+      <B icon={<Settings />} m={menuItems.preference} />
       <Separator orientation="vertical" className="m-1" />
 
-      <B icon={<Scissors />} />
-      <B icon={<Copy />} />
-      <B icon={<ClipboardPaste />} />
+      <B icon={<Scissors />} m={menuItems.cutFile} />
+      <B icon={<Copy />} m={menuItems.copyFile} />
+      <B icon={<ClipboardPaste />} m={menuItems.pasteFile} />
       <Separator orientation="vertical" className="m-1" />
 
-      <B icon={<Trash2 />} />
-      <B icon={<TextCursorInput />} />
+      <B icon={<Trash2 />} m={menuItems.deleteFile} />
+      <B icon={<TextCursorInput />} m={menuItems.renameFile} />
       <Separator orientation="vertical" className="m-1" />
 
-      <B icon={<Rows3 />} />
-      <B icon={<Grid2x2 />} />
+      <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
+      <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
       <Separator orientation="vertical" className="m-1" />
 
       <B
@@ -68,8 +69,9 @@ export function Toolbar() {
             <Moon />
           </>
         }
+        m={menuItems.toggleTheme}
       />
-      <B icon={<Fullscreen />} />
+      <B icon={<Fullscreen />} m={menuItems.changeFullscreen} />
     </div>
   );
 }
