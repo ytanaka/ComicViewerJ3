@@ -60,7 +60,9 @@ export class AppHotkey {
   }
 }
 
-function st() { return useTabStore.getState(); }
+function st() {
+  return useTabStore.getState();
+}
 function hasTab() {
   return !!st().getCurrentTab();
 }
@@ -102,20 +104,45 @@ export const menuItems = {
 
   // -------------------- View --------------------
 
-  toggleFileViewMode: M('リストモード、サムネイルモード切替', () => fileViewModeCommands.toggleViewMode(), 'Ctrl//L', hasTab),
-  changeToListViewMode: M('リストモードに切替', () => fileViewModeCommands.changeToListViewMode(), 'Ctrl//L', isThumbnailView),
-  changeToThumbnailViewMode: M('サムネイルモードに切替', () => fileViewModeCommands.changeToThumbnailViewMode(), 'Ctrl//L', isListView),
+  toggleFileViewMode: M(
+    'リストモード、サムネイルモード切替',
+    () => fileViewModeCommands.toggleViewMode(),
+    'Ctrl//L',
+    hasTab
+  ),
+  changeToListViewMode: M(
+    'リストモードに切替',
+    () => fileViewModeCommands.changeToListViewMode(),
+    'Ctrl//L',
+    isThumbnailView
+  ),
+  changeToThumbnailViewMode: M(
+    'サムネイルモードに切替',
+    () => fileViewModeCommands.changeToThumbnailViewMode(),
+    'Ctrl//L',
+    isListView
+  ),
 
-  thumbnailSizeUp: M('サムネイルサイズを大きくする', () => fileViewModeCommands.thumbnailSizeUp(), 'Ctrl//+', isThumbnailView),
-  thumbnailSizeDown: M('サムネイルサイズを小さくする', () => fileViewModeCommands.thumbnailSizeDown(), 'Ctrl//-', isThumbnailView),
+  thumbnailSizeUp: M(
+    'サムネイルサイズを大きくする',
+    () => fileViewModeCommands.thumbnailSizeUp(),
+    'Ctrl//+',
+    isThumbnailView
+  ),
+  thumbnailSizeDown: M(
+    'サムネイルサイズを小さくする',
+    () => fileViewModeCommands.thumbnailSizeDown(),
+    'Ctrl//-',
+    isThumbnailView
+  ),
 
   sortByName: M('名前でソート', () => sortCommands.sortFiles('Name'), 'Alt//1', hasTab),
   sortByExt: M('種類でソート', () => sortCommands.sortFiles('Ext'), 'Alt//2', hasTab),
   sortBySize: M('サイズでソート', () => sortCommands.sortFiles('Size'), 'Alt//3', hasTab),
   sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt//4', hasTab),
 
-  toggleTheme: M('テーマ切り替え', () => console.log("THEME CHANGE!!!")),
-  changeFullscreen: M('フルスクリーンモード', () => console.log("FULL SCREEN!!!")),
+  toggleTheme: M('テーマ切り替え', () => console.log('THEME CHANGE!!!')),
+  changeFullscreen: M('フルスクリーンモード', () => console.log('FULL SCREEN!!!')),
 
   // -------------------- Tab --------------------
   cloneTab: M('タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T'),

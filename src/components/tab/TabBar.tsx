@@ -8,6 +8,7 @@ import { tabCommands } from '@/lib/commands/tab-commands';
 import { getPathBasename } from '@/lib/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { UiTab } from '@/store/tab/types';
+import { useFocusStore } from '@/store/focus-store';
 
 export function TabBar() {
   const tabs = useTabStore(state => state.tabs);
@@ -41,8 +42,16 @@ export function TabBar() {
 }
 
 function NewTabButton({ noTabs }: { noTabs: boolean }) {
+  const setFoucs = useFocusStore(state => state.setFocus);
   return (
-    <Button variant={noTabs ? 'default' : 'outline'} onClick={() => tabCommands.addTab_homeDir()}>
+    <Button
+      variant={noTabs ? 'default' : 'outline'}
+      onClick={() => {
+        tabCommands.addTab_homeDir();
+        setFoucs();
+      }}
+      tabIndex={-1}
+    >
       <Plus />
       {noTabs ? 'Add Tab' : ''}
     </Button>
@@ -61,6 +70,7 @@ function TabButton({ tab, index, isSelected }: { tab: UiTab; index: number; isSe
         variant={`${isSelected ? 'secondary' : 'outline'}`}
         className={`block truncate text-left w-full max-w-full rounded-b-none ${isSelected ? '' : 'font-light'}`}
         style={isSelected ? { direction: 'rtl' } : {}} // カレントタブの場合だけ先頭を ・・・ で省略する
+        tabIndex={-1}
       >
         {isSelected ? tab.info.path : getPathBasename(tab.info.path)}
       </Button>

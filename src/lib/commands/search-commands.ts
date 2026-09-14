@@ -11,7 +11,7 @@ let queuedRevese: boolean = false;
 
 const emptyTab: Readonly<UiTab> = {
   info: { id: -1 as TabId, path: '' },
-  fileViewMode: 0,  // FileViewMode.List にすると、Listが参照できなくてエラーになる（循環参照している？）
+  fileViewMode: 0, // FileViewMode.List にすると、Listが参照できなくてエラーになる（循環参照している？）
   thumbnailSize: 0,
   sortCondition: mkDefaultSortCondition(),
   selection: mkFileSelection(),

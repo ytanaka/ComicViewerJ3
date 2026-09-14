@@ -28,12 +28,9 @@ pub async fn load_preferences(
         load_preferences_impl(&app, &state).map_err(|e| e.to_string())
     })
 }
-pub fn load_preferences_impl(
-    app: &AppHandle,
-    state: &AppState,
-) -> anyhow::Result<AppPreferences> {
+pub fn load_preferences_impl(app: &AppHandle, state: &AppState) -> anyhow::Result<AppPreferences> {
     let default = Ok(AppPreferences::default());
-    let prefs_path = get_preferences_path(&app)?;
+    let prefs_path = get_preferences_path(app)?;
 
     // ファイル存在チェック (存在しない場合はデフォルトを返す)
     if !prefs_path.exists() {

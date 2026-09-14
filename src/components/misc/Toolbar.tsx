@@ -19,11 +19,23 @@ import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { AppMenuItem, menuItems } from '@/lib/menu-items';
 import { useTabStore } from '@/store/tab/store';
+import { useFocusStore } from '@/store/focus-store';
 
 function B({ icon, m }: { icon: ReactNode; m: AppMenuItem }) {
+  const setFocus = useFocusStore(state => state.setFocus);
   const enabled = m.checkEnabledFn === undefined || m.checkEnabledFn();
+
   const baseComponent = (
-    <Button disabled={!enabled} variant="outline" size="sm" onClick={m.exec}>
+    <Button
+      disabled={!enabled}
+      variant="outline"
+      size="sm"
+      onClick={() => {
+        m.exec();
+        setFocus();
+      }}
+      tabIndex={-1}
+    >
       {icon}
     </Button>
   );

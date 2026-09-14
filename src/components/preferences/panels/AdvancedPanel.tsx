@@ -12,7 +12,7 @@ export function AdvancedPanel() {
 
   const { data: pref } = usePreferences();
   const savePref = useSavePreferences();
-  const thumbnail_expiration_hour = pref?.thumbnail_expiration_hours ?? (24 * 7);
+  const thumbnail_expiration_hour = pref?.thumbnail_expiration_hours ?? 24 * 7;
 
   function handleChange_thumbnail_expiration_hour(e: ChangeEvent<HTMLInputElement>) {
     const v = Number(e.target.value);
@@ -70,7 +70,11 @@ export function AdvancedPanel() {
             />
             <InputGroupAddon align="inline-end">(時間)</InputGroupAddon>
           </InputGroup>
-          <FieldDescription>3時間おきに各サムネイルファイルを消すかどうかチェックします<br />0にすると、起動時に全てのサムネイルキャッシュを削除します</FieldDescription>
+          <FieldDescription>
+            3時間おきに各サムネイルファイルを消すかどうかチェックします
+            <br />
+            0にすると、起動時に全てのサムネイルキャッシュを削除します
+          </FieldDescription>
         </Field>
       </FieldGroup>
     </FieldSet>

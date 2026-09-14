@@ -67,7 +67,7 @@ fn exec(app: tauri::AppHandle, state: Arc<AppState>) -> anyhow::Result<()> {
             total_file += 1;
         };
         total += 1;
-        if total % THUMBNAIL_CLEANER_BATCH_FILE_NUM == 0 {
+        if total.is_multiple_of(THUMBNAIL_CLEANER_BATCH_FILE_NUM) {
             thread::sleep(Duration::from_millis(THUMBNAIL_CLEANER_BATCH_SLEEP_MS));
         }
     }
