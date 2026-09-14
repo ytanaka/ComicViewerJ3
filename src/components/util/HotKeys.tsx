@@ -14,10 +14,7 @@ export function HotKeys() {
       for (let i = 0; i < menus.length; i++) {
         const m = menus[i];
         if (m.hotkey === undefined) continue;
-        if (m.hotkey.alt && !e.altKey) continue;
-        if (m.hotkey.ctrl && !e.ctrlKey) continue;
-        if (m.hotkey.shift && !e.shiftKey) continue;
-        if (m.hotkey.key !== e.key.toLowerCase()) continue;
+        if (!m.hotkey.check(e)) continue;
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();

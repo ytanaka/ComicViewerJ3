@@ -18,8 +18,14 @@ export const fileViewModeCommands = {
     } else {
       newMode = FileViewMode.List;
     }
-    st().setViewMode(tab.info.id, newMode);
-    useScrollToFocusStore.getState().setScroll(true);
+    changeViewMode(newMode);
+  },
+
+  changeToListViewMode() {
+    changeViewMode(FileViewMode.List);
+  },
+  changeToThumbnailViewMode() {
+    changeViewMode(FileViewMode.Thumbnail);
   },
 
   thumbnailSizeUp() {
@@ -29,6 +35,14 @@ export const fileViewModeCommands = {
     thumbnailSizeUpDown(-1);
   },
 };
+
+function changeViewMode(mode: FileViewMode) {
+  const tab = st().getCurrentTab();
+  if (!tab) return;
+
+  st().setViewMode(tab.info.id, mode);
+  useScrollToFocusStore.getState().setScroll(true);
+}
 
 function thumbnailSizeUpDown(n: number) {
   const tab = st().getCurrentTab();

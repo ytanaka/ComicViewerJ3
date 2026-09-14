@@ -45,8 +45,9 @@ function MyHotkey({ k }: { k: AppHotkey }) {
 }
 
 function MyMenuItem({ m }: { m: AppMenuItem }) {
+  const enabled = m.checkEnabledFn == undefined || m.checkEnabledFn();
   return (
-    <MenubarItem onClick={m.exec}>
+    <MenubarItem disabled={!enabled} onClick={m.exec}>
       {m.value}
       {m.hotkey && <MyHotkey k={m.hotkey} />}
     </MenubarItem>
@@ -95,6 +96,20 @@ export function Menu() {
           <MenubarSeparator />
           <MenubarGroup>
             <MyMenuItem m={menuItems.preference} />
+          </MenubarGroup>
+        </MenubarContent>
+      </MenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
+      <MenubarMenu onOpenChange={handleOpenChange}>
+        <MenubarTrigger>View</MenubarTrigger>
+        <MenubarContent className="w-auto min-w-max">
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.toggleFileViewMode} />
+          </MenubarGroup>
+          <MenubarSeparator />
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.thumbnailSizeDown} />
+            <MyMenuItem m={menuItems.thumbnailSizeUp} />
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
