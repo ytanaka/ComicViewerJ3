@@ -8,9 +8,10 @@ use std::{
 
 use anyhow::anyhow;
 use dashmap::DashMap;
+use tauri::AppHandle;
 
 use crate::{
-    file_operations::metadata_worker::MetadataWorker,
+    file_operations::{metadata_worker::MetadataWorker, thumbnail_worker::ThumbnailCleanupWorker},
     state::tab_info::TabInfo,
     text_search::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
@@ -65,6 +66,7 @@ pub struct AppState {
     pub text_matcher: AppStateField<TextMatcher>,
 
     pub metadata_worker: AppStateField<MetadataWorker>,
+    pub thumbnail_worker: AppStateField<ThumbnailCleanupWorker>,
 
     // 設定
     pub preferences: AppStateField<RwLock<AppPreferences>>,
@@ -84,12 +86,13 @@ impl AppState {
             text_matcher: AppStateField::new(),
 
             metadata_worker: AppStateField::new(),
+            thumbnail_worker: AppStateField::new(),
 
             preferences: AppStateField::new(),
         }
     }
 
-    pub fn init(&self, state: Arc<AppState>) {
+    pub fn init(&self, app: &AppHandle, state: Arc<AppState>) {
         state.reverse_migemo.get_or_init(ReverseMigemo::new);
         state.vibrato.get_or_init(Vibrato::new);
         state.migemo.get_or_init(Migemo::new);
@@ -101,9 +104,14 @@ impl AppState {
             .metadata_worker
             .get_or_init(|| MetadataWorker::new(state.clone()));
         state
+            .thumbnail_worker
+            .get_or_init(|| ThumbnailCleanupWorker::new(app.clone(), state.clone()));
+        state
             .preferences
             .get_or_init(|| Arc::new(RwLock::new(AppPreferences::default())));
     }
+    pub fn stop(&self) {}
+
     #[cfg(test)]
     pub fn init_for_test(&self) {
         self.preferences

@@ -6,12 +6,12 @@ use std::{path::PathBuf, sync::Arc};
 
 use sha2::Digest;
 use sha2::Sha256;
-use tauri::Manager;
 use tauri::{AppHandle, State};
 
 use anyhow::{anyhow, Context};
 
 use crate::file_operations::file_utils::touch_file;
+use crate::file_operations::thumbnail_worker::get_thumbnail_dir;
 use crate::types::{FileMetadata, ImageSize};
 use crate::LOG_RESULT;
 use crate::{
@@ -20,21 +20,6 @@ use crate::{
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
-
-/// サムネイル保存用ディレクトリ取得
-fn get_thumbnail_dir(app: &tauri::AppHandle) -> anyhow::Result<PathBuf> {
-    let resolver = app.path();
-    let p = resolver
-        .app_cache_dir()
-        .context("fail get thumbnail cache dir: error")?;
-    let p = p.join("thumbnails");
-
-    if !p.is_dir() {
-        log::info!("mkdir thumbnail dir: {}", p.to_string_lossy());
-        fs::create_dir_all(&p).context("fail create thumbnail cache dir")?;
-    }
-    Ok(p)
-}
 
 // return (サムネイルファイル名、セーブ時の一時ファイル名)
 fn get_thumbnail_fullpath(

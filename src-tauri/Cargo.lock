@@ -855,6 +855,7 @@ dependencies = [
  "unicode-normalization",
  "uuid",
  "vibrato",
+ "walkdir",
  "wana_kana",
  "xz2",
  "zip",

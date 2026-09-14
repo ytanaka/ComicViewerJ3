@@ -210,7 +210,7 @@ impl std::fmt::Debug for FileSearchResult {
 // preferences.rs
 // =====================================================================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct AppPreferences {
     /// ファイル名検索するとき
     pub debug_filename_search_sleep_ms: i32,
@@ -221,6 +221,19 @@ pub struct AppPreferences {
     /// ファイル名ソート時のCollator設定 (icu_collator::options::Strength)
     /// 'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'
     pub filename_sort_strength: String,
+
+    /// サムネイルファイル削除期限
+    pub thumbnail_expiration_seconds: i32,
+}
+impl Default for AppPreferences {
+    fn default() -> Self {
+        Self {
+            debug_filename_search_sleep_ms: 0,
+            filename_cmp: FilenameCmpType::Icu,
+            filename_sort_strength: "Identical".to_string(),
+            thumbnail_expiration_seconds: 3600 * 24 * 7,
+        }
+    }
 }
 impl AppPreferences {
     pub fn get_collator_options(&self) -> icu_collator::options::Strength {

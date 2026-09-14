@@ -53,6 +53,8 @@ export type AppPreferences = {
 	 *  'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'
 	 */
 	filename_sort_strength: string,
+	/**  サムネイルファイル削除期限 */
+	thumbnail_expiration_seconds: number,
 };
 
 /**  create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合) */

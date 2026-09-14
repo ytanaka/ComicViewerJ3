@@ -145,7 +145,6 @@ impl MetadataWorker {
     pub fn new(state: Arc<AppState>) -> Arc<Self> {
         let (tx, rx) = mpsc::channel::<WorkerPacket>();
         let ret = Arc::new(MetadataWorker { tx });
-        let ret2 = ret.clone();
 
         // ワーカースレッド起動
         thread::spawn(move || loop {
@@ -177,7 +176,7 @@ impl MetadataWorker {
                 }
             }
         });
-        ret2
+        ret
     }
 
     pub fn send_to_worker(&self, tab_id: TabId, path: impl AsRef<Path>, list: Vec<FileId>) {
