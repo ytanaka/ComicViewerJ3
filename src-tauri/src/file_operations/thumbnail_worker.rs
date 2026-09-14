@@ -50,6 +50,7 @@ impl ThumbnailCleanupWorker {
 fn exec(app: tauri::AppHandle, state: Arc<AppState>) -> anyhow::Result<()> {
     log::info!("spawn_thumbnail_cleanup_worker: start");
     let limit_sec = state.preferences.read().unwrap().thumbnail_expiration_hours as u64 * 3600;
+    let mut total_file: u64 = 0;
     let mut total: u64 = 0;
     let mut removed: u64 = 0;
 
@@ -63,16 +64,18 @@ fn exec(app: tauri::AppHandle, state: Arc<AppState>) -> anyhow::Result<()> {
                 removed += 1;
                 log::trace!("spawn_thumbnail_cleanup_worker: remove file {:?}", f.path());
             }
-            total += 1;
+            total_file += 1;
         };
+        total += 1;
         if total % THUMBNAIL_CLEANER_BATCH_FILE_NUM == 0 {
             thread::sleep(Duration::from_millis(THUMBNAIL_CLEANER_BATCH_SLEEP_MS));
         }
     }
 
     log::info!(
-        "spawn_thumbnail_cleanup_worker: end. removed = {}, total = {}",
+        "spawn_thumbnail_cleanup_worker: end. removed files = {}, checked files = {}, total (file + dir) = {}",
         removed,
+        total_file,
         total
     );
     Ok(())
