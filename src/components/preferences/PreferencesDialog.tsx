@@ -70,34 +70,39 @@ export function PreferencesDialog() {
 
   const panelList = allPanelList.filter(p => !p.id.startsWith('debug') || debugPreferenceOn);
 
+  // このダイアログのスタイル設定はAIが決めたのでよくわからない。変更するときは以下をコピペしてAIに聞く。
+  // 手動で変更しようとすると、ダイアログのサイズが変になったり、コンテンツがやたら小さくなったりしてどうにもならない。
   return (
     <Dialog open={showPreferencesDialog} onOpenChange={b => setField('showPreferencesDialog', b)}>
-      <DialogContent className="w-[90vw] h-[90vh] max-w-none max-h-none sm:max-w-none">
-        <div>
-          <DialogHeader>
-            <DialogTitle>設定</DialogTitle>
-          </DialogHeader>
-          <Tabs
-            value={preferenceDialogTabId}
-            onValueChange={v => setField('preferenceDialogTabId', v)}
-            className="pt-3"
-            orientation="vertical"
-          >
-            <TabsList>
-              {panelList.map(item => (
-                <TabsTrigger key={item.id} value={item.id}>
-                  <item.icon />
-                  {item.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+      <DialogContent className="w-[90vw]! max-w-[90vw]! h-[90vh] max-h-none flex flex-col overflow-hidden">
+        <DialogHeader>
+          <DialogTitle>設定</DialogTitle>
+        </DialogHeader>
+        <Tabs
+          value={preferenceDialogTabId}
+          onValueChange={v => setField('preferenceDialogTabId', v)}
+          orientation="vertical"
+          className="flex flex-1 overflow-hidden"
+        >
+          <TabsList className="w-48 shrink-0">
             {panelList.map(item => (
-              <TabsContent key={item.id} value={item.id} className="flex-1 pl-2">
-                <item.node />
-              </TabsContent>
+              <TabsTrigger key={item.id} value={item.id}>
+                <item.icon />
+                {item.label}
+              </TabsTrigger>
             ))}
-          </Tabs>
-        </div>
+          </TabsList>
+
+          {panelList.map(item => (
+            <TabsContent
+              key={item.id}
+              value={item.id}
+              className="overflow-auto h-full pl-2"
+            >
+              <item.node />
+            </TabsContent>
+          ))}
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

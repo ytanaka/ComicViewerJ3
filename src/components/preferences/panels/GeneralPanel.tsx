@@ -13,7 +13,7 @@ export function GeneralPanel() {
       <FieldGroup>
         <Separator />
         <Field>
-          <FieldLabel>最大タブ数</FieldLabel>
+          <FieldLabel>タブ数制限</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
               type="number"
