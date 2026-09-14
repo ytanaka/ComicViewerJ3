@@ -223,7 +223,7 @@ pub struct AppPreferences {
     pub filename_sort_strength: String,
 
     /// サムネイルファイル削除期限
-    pub thumbnail_expiration_seconds: i32,
+    pub thumbnail_expiration_hours: i32,
 }
 impl Default for AppPreferences {
     fn default() -> Self {
@@ -231,7 +231,7 @@ impl Default for AppPreferences {
             debug_filename_search_sleep_ms: 0,
             filename_cmp: FilenameCmpType::Icu,
             filename_sort_strength: "Identical".to_string(),
-            thumbnail_expiration_seconds: 3600 * 24 * 7,
+            thumbnail_expiration_hours: 24 * 7,
         }
     }
 }

@@ -11,6 +11,7 @@ use dashmap::DashMap;
 use tauri::AppHandle;
 
 use crate::{
+    commands::preferences::load_preferences_impl,
     file_operations::{metadata_worker::MetadataWorker, thumbnail_worker::ThumbnailCleanupWorker},
     state::tab_info::TabInfo,
     text_search::{
@@ -93,10 +94,19 @@ impl AppState {
     }
 
     pub fn init(&self, app: &AppHandle, state: Arc<AppState>) {
+        // アプリ中で使用するので読み込んでおく
+        state
+            .preferences
+            .get_or_init(|| Arc::new(RwLock::new(AppPreferences::default())));
+        if let Err(e) = load_preferences_impl(app, &state) {
+            log::error!("AppState::init() error: load_preferences_impl => {}", e);
+        }
+
         state.reverse_migemo.get_or_init(ReverseMigemo::new);
         state.vibrato.get_or_init(Vibrato::new);
         state.migemo.get_or_init(Migemo::new);
         state.romaji_cnv.get_or_init(RomajiCnv::new);
+
         state
             .text_matcher
             .get_or_init(|| TextMatcher::new(state.clone()));
@@ -106,9 +116,6 @@ impl AppState {
         state
             .thumbnail_worker
             .get_or_init(|| ThumbnailCleanupWorker::new(app.clone(), state.clone()));
-        state
-            .preferences
-            .get_or_init(|| Arc::new(RwLock::new(AppPreferences::default())));
     }
     pub fn stop(&self) {}
 

@@ -20,12 +20,18 @@ fn get_preferences_path(app: &AppHandle) -> anyhow::Result<PathBuf> {
 #[tauri::command]
 #[specta::specta]
 /// 設定取得
-pub async fn load_preferences(app: AppHandle) -> Result<AppPreferences, String> {
+pub async fn load_preferences(
+    app: AppHandle,
+    state: State<'_, Arc<AppState>>,
+) -> Result<AppPreferences, String> {
     LOG_RESULT!("load_preferences()", {
-        load_preferences_impl(app).map_err(|e| e.to_string())
+        load_preferences_impl(&app, &state).map_err(|e| e.to_string())
     })
 }
-pub fn load_preferences_impl(app: AppHandle) -> anyhow::Result<AppPreferences> {
+pub fn load_preferences_impl(
+    app: &AppHandle,
+    state: &AppState,
+) -> anyhow::Result<AppPreferences> {
     let default = Ok(AppPreferences::default());
     let prefs_path = get_preferences_path(&app)?;
 
@@ -43,6 +49,10 @@ pub fn load_preferences_impl(app: AppHandle) -> anyhow::Result<AppPreferences> {
         },
     };
 
+    // メモリ中の設定を更新
+    let mut pref_mut = state.preferences.write().unwrap();
+    *pref_mut = pref.clone();
+
     Ok(pref)
 }
 
@@ -56,12 +66,12 @@ pub async fn save_preferences(
     preferences: AppPreferences,
 ) -> Result<(), String> {
     LOG_RESULT!("save_preferences()", {
-        save_preferences_impl(app, state, preferences).map_err(|e| e.to_string())
+        save_preferences_impl(app, &state, preferences).map_err(|e| e.to_string())
     })
 }
 pub fn save_preferences_impl(
     app: AppHandle,
-    state: State<'_, Arc<AppState>>,
+    state: &Arc<AppState>,
     preferences: AppPreferences,
 ) -> anyhow::Result<()> {
     let prefs_path = get_preferences_path(&app)?;

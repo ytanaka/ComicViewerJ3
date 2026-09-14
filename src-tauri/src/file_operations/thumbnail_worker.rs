@@ -1,11 +1,5 @@
 use anyhow::Context;
-use std::{
-    fs,
-    path::PathBuf,
-    sync::Arc,
-    thread,
-    time::{Duration, SystemTime},
-};
+use std::{fs, path::PathBuf, sync::Arc, thread, time::Duration};
 use tauri::Manager;
 use walkdir::WalkDir;
 
@@ -55,32 +49,31 @@ impl ThumbnailCleanupWorker {
 
 fn exec(app: tauri::AppHandle, state: Arc<AppState>) -> anyhow::Result<()> {
     log::info!("spawn_thumbnail_cleanup_worker: start");
-    let mut n: u64 = 0;
+    let limit_sec = state.preferences.read().unwrap().thumbnail_expiration_hours as u64 * 3600;
+    let mut total: u64 = 0;
+    let mut removed: u64 = 0;
+
     for walk in WalkDir::new(get_thumbnail_dir(&app)?) {
         let f = walk?;
         let meta = f.metadata()?;
         if meta.is_file() {
-            let file_time = meta.created()?;
-            let now = SystemTime::now();
-            let diff = now
-                .duration_since(file_time)
-                .map(|t| t.as_secs())
-                .unwrap_or(0);
-            let limit = state
-                .preferences
-                .read()
-                .unwrap()
-                .thumbnail_expiration_seconds;
-            if limit < diff as i32 {
+            let elapsed_sec = meta.modified()?.elapsed()?.as_secs();
+            if limit_sec < elapsed_sec {
                 fs::remove_file(f.path())?;
+                removed += 1;
                 log::trace!("spawn_thumbnail_cleanup_worker: remove file {:?}", f.path());
             }
+            total += 1;
         };
-        n += 1;
-        if THUMBNAIL_CLEANER_BATCH_FILE_NUM % n == 0 {
+        if total % THUMBNAIL_CLEANER_BATCH_FILE_NUM == 0 {
             thread::sleep(Duration::from_millis(THUMBNAIL_CLEANER_BATCH_SLEEP_MS));
         }
     }
-    log::info!("spawn_thumbnail_cleanup_worker: end. file num = {}", n);
+
+    log::info!(
+        "spawn_thumbnail_cleanup_worker: end. removed = {}, total = {}",
+        removed,
+        total
+    );
     Ok(())
 }

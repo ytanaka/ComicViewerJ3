@@ -54,7 +54,7 @@ export type AppPreferences = {
 	 */
 	filename_sort_strength: string,
 	/**  サムネイルファイル削除期限 */
-	thumbnail_expiration_seconds: number,
+	thumbnail_expiration_hours: number,
 };
 
 /**  create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合) */
