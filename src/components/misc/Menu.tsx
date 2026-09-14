@@ -62,7 +62,7 @@ export function Menu() {
   }
 
   return (
-    <Menubar tabIndex={-1}>
+    <Menubar>
       {/* -------------------------------------------------------------------------------------------------------- */}
       <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>File</MenubarTrigger>

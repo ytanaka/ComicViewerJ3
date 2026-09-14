@@ -50,7 +50,6 @@ function NewTabButton({ noTabs }: { noTabs: boolean }) {
         tabCommands.addTab_homeDir();
         setFoucs();
       }}
-      tabIndex={-1}
     >
       <Plus />
       {noTabs ? 'Add Tab' : ''}
@@ -59,6 +58,7 @@ function NewTabButton({ noTabs }: { noTabs: boolean }) {
 }
 
 function TabButton({ tab, index, isSelected }: { tab: UiTab; index: number; isSelected: boolean }) {
+  const setFoucs = useFocusStore(state => state.setFocus);
   const { ref, handleRef } = useSortable({
     id: tab.info.id,
     index: index,
@@ -70,13 +70,12 @@ function TabButton({ tab, index, isSelected }: { tab: UiTab; index: number; isSe
         variant={`${isSelected ? 'secondary' : 'outline'}`}
         className={`block truncate text-left w-full max-w-full rounded-b-none ${isSelected ? '' : 'font-light'}`}
         style={isSelected ? { direction: 'rtl' } : {}} // カレントタブの場合だけ先頭を ・・・ で省略する
-        tabIndex={-1}
       >
         {isSelected ? tab.info.path : getPathBasename(tab.info.path)}
       </Button>
       <div className="flex justify-end">
         <div
-          onClick={() => tabCommands.removeTab(tab.info.id)}
+          onClick={() => { tabCommands.removeTab(tab.info.id); setFoucs(); }}
           className="absolute right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-gray-500 rounded-md "
         >
           <X size="15" />

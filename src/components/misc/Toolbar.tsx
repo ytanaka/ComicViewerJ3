@@ -34,7 +34,6 @@ function B({ icon, m }: { icon: ReactNode; m: AppMenuItem }) {
         m.exec();
         setFocus();
       }}
-      tabIndex={-1}
     >
       {icon}
     </Button>
