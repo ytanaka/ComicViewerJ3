@@ -121,12 +121,15 @@ importers:
       '@fontsource-variable/geist':
         specifier: ^5.3.0
         version: 5.3.0
-      '@iconify-react/fluent-emoji-flat':
-        specifier: ^1.0.3
-        version: 1.0.3(react@19.2.8)
-      '@iconify-react/vscode-icons':
-        specifier: ^1.0.35
-        version: 1.0.35(react@19.2.8)
+      '@iconify-icons/fluent-emoji-flat':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@iconify-icons/vscode-icons':
+        specifier: ^2.0.4
+        version: 2.0.4
+      '@iconify/react':
+        specifier: ^6.0.2
+        version: 6.0.2(react@19.2.8)
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0))
@@ -700,16 +703,16 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@iconify-react/fluent-emoji-flat@1.0.3':
-    resolution: {integrity: sha512-5DQRwoA7EPdWLWQg1LCETL/GnVv5cAgbTVyvEEqdM9a+7RRkqq+p5UZhoBrq5DflfWAA0jBBk3lg5xx1oyp4sQ==}
+  '@iconify-icons/fluent-emoji-flat@2.0.0':
+    resolution: {integrity: sha512-CRq91zpmX/SDFPSHI/QujDEi+CDULwG+v8ghm3cv0bDSSiSP6cVWIBdPuqp3jUUXckNwlQ1tbW1ZC1BWiyKqbA==}
 
-  '@iconify-react/vscode-icons@1.0.35':
-    resolution: {integrity: sha512-pIYpCRS823gt/POjKze6+VLeHn5fYGt+X8Y16pH1Qry/SoR3lEfcY7uoQcaOAucRQeRiyfT8Lg5vQ2Myxs2SRQ==}
+  '@iconify-icons/vscode-icons@2.0.4':
+    resolution: {integrity: sha512-B5LxcCGRKScbGC8+3S2ehdiPJJv9c7xCUzjvobrMcLpPn+CXo8h25wS3ivajNQKYpwp8G/mh/gZBk2BEJmrSOw==}
 
-  '@iconify/css-react@1.0.2':
-    resolution: {integrity: sha512-k33FKG4jGgd8odos+1HdSwCKZOQ5F1heQxwl/zDrA53tLg5IseDPMqsmQbcCEZ6E0Zgcrmfo4ceFSBmbuEvGtw==}
+  '@iconify/react@6.0.2':
+    resolution: {integrity: sha512-SMmC2sactfpJD427WJEDN6PMyznTFMhByK9yLW0gOTtnjzzbsi/Ke/XqsumsavFPwNiXs8jSiYeZTmLCLwO+Fg==}
     peerDependencies:
-      react: '>=18.0.0'
+      react: '>=16'
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -3721,19 +3724,15 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@iconify-react/fluent-emoji-flat@1.0.3(react@19.2.8)':
+  '@iconify-icons/fluent-emoji-flat@2.0.0':
     dependencies:
-      '@iconify/css-react': 1.0.2(react@19.2.8)
-    transitivePeerDependencies:
-      - react
+      '@iconify/types': 2.0.0
 
-  '@iconify-react/vscode-icons@1.0.35(react@19.2.8)':
+  '@iconify-icons/vscode-icons@2.0.4':
     dependencies:
-      '@iconify/css-react': 1.0.2(react@19.2.8)
-    transitivePeerDependencies:
-      - react
+      '@iconify/types': 2.0.0
 
-  '@iconify/css-react@1.0.2(react@19.2.8)':
+  '@iconify/react@6.0.2(react@19.2.8)':
     dependencies:
       '@iconify/types': 2.0.0
       react: 19.2.8

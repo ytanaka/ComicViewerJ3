@@ -1,21 +1,23 @@
-import { FileIconByFilenameExt } from './FileIconByExt';
+import { Icon } from '@iconify/react';
 
-import FileFolderIcon from '@iconify-react/fluent-emoji-flat/file-folder';
-import RedExclamationMarkIcon from '@iconify-react/fluent-emoji-flat/red-exclamation-mark';
-import UpRightArrowIcon from '@iconify-react/fluent-emoji-flat/up-right-arrow';
+import fileFolder from '@iconify-icons/fluent-emoji-flat/file-folder';
+import redExclamationMark from '@iconify-icons/fluent-emoji-flat/red-exclamation-mark';
+import upRightArrow from '@iconify-icons/fluent-emoji-flat/up-right-arrow';
+
 import { DirEntry, FileInfo } from '@/lib/bindings-wrapper';
 import { ReactNode } from 'react';
+import { FileIconByFilenameExt } from './FileIconByExt';
 
 export function FileIconByFileInfo({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
   let icon: ReactNode;
   if (fileInfo?.metadata.Left) {
-    icon = <RedExclamationMarkIcon height="100%" />;
+    icon = <Icon icon={redExclamationMark} height="100%" />;
   } else if (dirEntry.is_symlink && dirEntry.is_dir) {
     icon = (
       <div className="relative h-full">
-        <FileFolderIcon height="100%" />
+        <Icon icon={fileFolder} height="100%" />
         <div className="absolute right-0 bottom-0 w-[50%] h-[50%]">
-          <UpRightArrowIcon />
+          <Icon icon={upRightArrow} />
         </div>
       </div>
     );
@@ -24,12 +26,12 @@ export function FileIconByFileInfo({ dirEntry, fileInfo }: { dirEntry: DirEntry;
       <div className="relative h-full">
         <FileIconByFilenameExt filename={dirEntry.name} />
         <div className="absolute right-0 bottom-0 w-[50%] h-[50%]">
-          <UpRightArrowIcon />
+          <Icon icon={upRightArrow} />
         </div>
       </div>
     );
   } else if (dirEntry.is_dir) {
-    icon = <FileFolderIcon height="100%" />;
+    icon = <Icon icon={fileFolder} height="100%" />;
   } else {
     icon = <FileIconByFilenameExt filename={dirEntry.name} />;
   }
