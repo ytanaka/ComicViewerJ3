@@ -3,14 +3,21 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { Separator } from '@/components/ui/separator';
 import { useUiStore } from '@/store/ui-store';
 
-export function AdvancedPanel() {
+export function FileSearchPanel() {
   const fileSearchInputTimeoutMs = useUiStore(state => state.fileSearchInputTimeoutMs);
   const fileSearchResultDisplayTimeoutMs = useUiStore(state => state.fileSearchResultDisplayTimeoutMs);
   const setField = useUiStore(state => state.setField);
 
   return (
     <FieldSet className="flex-1">
-      <FieldLegend>高度な設定</FieldLegend>
+      <FieldLegend>ファイル検索設定</FieldLegend>
+      <FieldDescription>
+        ファイル一覧が表示されている画面でローマ字入力すると、ファイル名検索をすることができます。
+        <br />
+        (IMEをOFFにしてアルファベットや数字を入力してください)
+        <br />
+        検索に成功した後、続けて次のファイルを検索するときは&quot;Ctrl+N&quot;を押してください。(前のファイルを検索するときは&quot;Ctrl+P&quot;)
+      </FieldDescription>
       <FieldGroup>
         <Separator />
         <Field>
@@ -26,7 +33,13 @@ export function AdvancedPanel() {
             />
             <InputGroupAddon align="inline-end">(ミリ秒)</InputGroupAddon>
           </InputGroup>
-          <FieldDescription>この時間キーボード入力が途絶えると、次の入力は別の単語として認識されます</FieldDescription>
+          <FieldDescription>
+            この時間キーボード入力が途絶えると、次の入力は別の単語として認識されます
+            <br />
+            ゆっくり入力したいときは長くしてください
+            <br />
+            入力途中で中断して次の検索をしたいときは&quot;ESC&quot;キーを押してください
+          </FieldDescription>
         </Field>
         <Separator />
         <Field>
@@ -42,6 +55,11 @@ export function AdvancedPanel() {
             />
             <InputGroupAddon align="inline-end">(ミリ秒)</InputGroupAddon>
           </InputGroup>
+          <FieldDescription>
+            ローマ字入力してファイルが見つかると、結果をツールチップで表示します。
+            <br />
+            ゆっくり確認したいときは長くしてください。
+          </FieldDescription>
         </Field>
       </FieldGroup>
     </FieldSet>

@@ -35,7 +35,7 @@ export function FileListPanel() {
         <Separator />
 
         <Field>
-          <FieldLabel>ファイル名のソート方法</FieldLabel>
+          <FieldLabel>ファイル名の並び順</FieldLabel>
           <Select value={pref?.filename_cmp.type ?? 'Icu'} onValueChange={handleChange_filename_cmp}>
             <SelectTrigger className="w-full max-w-48">
               <SelectValue>{pref?.filename_cmp.type}</SelectValue>

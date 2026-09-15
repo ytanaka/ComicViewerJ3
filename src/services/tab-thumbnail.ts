@@ -42,7 +42,7 @@ export function useThumbnailPath(tabId: TabId, dirEntry: DirEntry, size: number)
     select: data => {
       if (data.status === 'error') {
         return undefined; // queryFn で toast 表示済み
-      } 
+      }
       return data.data;
     },
   });

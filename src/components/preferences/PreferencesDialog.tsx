@@ -8,16 +8,16 @@ import { GeneralPanel } from './panels/GeneralPanel';
 import { DebugPanel } from './panels/DebugPanel';
 import { AboutPanel } from './panels/AboutPanel';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { AdvancedPanel } from './panels/AdvancedPanel';
 import { DebugCmdPanel } from './panels/DebugCmdPanel';
 import { FileListPanel } from './panels/FileListPanel';
 import { DebugPanel2 } from './panels/DebugPanel2';
 import { ThumbnailPanel } from './panels/ThumbnailPanel';
+import { FileSearchPanel } from './panels/FileSearchPanel';
 
 const allPanelList = [
   {
     id: 'general',
-    label: '基本設定',
+    label: '基本',
     icon: Settings2,
     node: GeneralPanel,
   },
@@ -28,16 +28,16 @@ const allPanelList = [
     node: FileListPanel,
   },
   {
-    id: 'thumbnail',
-    label: 'サムネイル設定',
+    id: 'fileSearch',
+    label: 'ファイル検索',
     icon: Settings,
-    node: ThumbnailPanel,
+    node: FileSearchPanel,
   },
   {
-    id: 'advanced',
-    label: '高度な設定',
+    id: 'thumbnail',
+    label: 'サムネイル',
     icon: Settings,
-    node: AdvancedPanel,
+    node: ThumbnailPanel,
   },
   {
     id: 'debug',
