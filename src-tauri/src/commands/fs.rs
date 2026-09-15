@@ -11,12 +11,7 @@ use tauri::{AppHandle, State};
 
 use crate::{
     commands::fs_util,
-    file_operations::{
-        file_sort::{cmp_file, mk_filename_cmp, FilenameCmpSupplement},
-        file_utils::{self, read_dir},
-        file_watcher::FileWatcher,
-        sjis_cnv::SJIS_CACHE,
-    },
+    file_operations::{file_utils, file_watcher::FileWatcher},
     state::{
         app_state::AppState,
         tab_info::TabInfo,
@@ -304,29 +299,14 @@ async fn clone_tab_sibling_dir_impl<E: EventEmitter>(
         Some(parent) => parent,
         None => return mk_create_tab_error("この階層には移動可能はディレクトリがありません"),
     };
-    let list = read_dir(parent)?;
-    let mut list: Vec<_> = list.iter().filter(|f| f.is_dir).collect();
+    let list = file_utils::read_dir(parent)?;
+    let mut list: Vec<_> = list.into_iter().filter(|f| f.is_dir).collect();
     if list.is_empty() {
         return Err(anyhow!("このディレクトリはすでに存在しません"));
     }
 
     // 名前でソート
-    //
-    // 以下のエラーになるので、ブロックにして回避する
-    // error: future cannot be sent between threads safely
-    // let cmp = mk_filename_cmp(state);
-    //     --- has type `Box<dyn FilenameCmp>` which is not `Send`
-    // create_tab_imp(app, state, next_dir).await
-    //                                      ^^^^^ await occurs here, with `cmp` maybe used later
-    {
-        let cmp = mk_filename_cmp(state);
-        let mut cmp_supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
-        let sort = SortCondition {
-            sort_type: crate::types::SortType::Name,
-            asc: true,
-        };
-        list.sort_by(|a, b| cmp_file(a, b, &sort, cmp.as_ref(), &mut cmp_supp));
-    }
+    file_utils::sort_files(&state, &mut list);
 
     // 現在ディレクトリの位置から移動先のディレクトリを見つける
     let current = path.file_name().unwrap_or_default();

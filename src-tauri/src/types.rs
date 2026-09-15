@@ -30,12 +30,12 @@ impl<A, B> Either<A, B> {
             Either::Left(_) => None,
         }
     }
-    pub fn into_right(self) -> Option<B> {
-        match self {
-            Either::Right(b) => Some(b),
-            Either::Left(_) => None,
-        }
-    }
+    // pub fn into_right(self) -> Option<B> {
+    //     match self {
+    //         Either::Right(b) => Some(b),
+    //         Either::Left(_) => None,
+    //     }
+    // }
 
     pub fn map_right<BB, F: Fn(B) -> BB>(self, f: F) -> Either<A, BB> {
         match self {
@@ -173,6 +173,8 @@ pub enum GetThumbnailResult {
     Ok { filename: String },
     /// 現在処理が集中しているので、リトライしてほしい
     Busy,
+    /// サムネイル画像はない (ディレクトリの中に画像ファイルが見つからない)
+    NoImage,
 }
 
 // =====================================================================================================================

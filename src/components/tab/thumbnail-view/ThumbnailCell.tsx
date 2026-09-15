@@ -27,7 +27,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   }
 
   // サムネイル画像ファイル作成
-  const { data: thumbPath } = useThumbnailPath(tab.id, dirEntry.file_id, thumbSize, dirEntry.name);
+  const { data: thumbPath } = useThumbnailPath(tab.id, dirEntry, thumbSize);
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
@@ -60,7 +60,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
           <img
             src={!thumbPath ? undefined : convertFileSrc(thumbPath)}
             loading="lazy"
-            className="border-2"
+            className={cn(dirEntry.is_dir ? "bg-yellow-500 rounded" : "border-2")}
             style={{
               display: 'block',
               width: thumbSize,

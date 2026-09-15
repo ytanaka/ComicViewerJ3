@@ -122,7 +122,9 @@ export type GetThumbnailResult =
 /**  サムネイルファイル名 */
 { type: "Ok"; filename: string } | 
 /**  現在処理が集中しているので、リトライしてほしい */
-{ type: "Busy" };
+{ type: "Busy" } | 
+/**  サムネイル画像はない (ディレクトリの中に画像ファイルが見つからない) */
+{ type: "NoImage" };
 
 export type SortCondition = {
 	sort_type: SortType,

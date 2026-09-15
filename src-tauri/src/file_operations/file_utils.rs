@@ -7,7 +7,12 @@ use std::{
 };
 
 use crate::{
-    types::{Either, FileInfoOS, FileMetadata},
+    file_operations::{
+        file_sort::{cmp_file, mk_filename_cmp, FilenameCmpSupplement},
+        sjis_cnv::SJIS_CACHE,
+    },
+    state::app_state::AppState,
+    types::{Either, FileInfoOS, FileMetadata, SortCondition},
     util::to_unix_time,
 };
 
@@ -53,4 +58,14 @@ pub fn touch_file(file: impl AsRef<Path>) -> anyhow::Result<()> {
     let f = File::options().write(true).open(file)?;
     f.set_modified(SystemTime::now())?;
     Ok(())
+}
+
+pub fn sort_files(state: &AppState, list: &mut Vec<FileInfoOS>) {
+    let cmp = mk_filename_cmp(state);
+    let mut cmp_supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
+    let sort = SortCondition {
+        sort_type: crate::types::SortType::Name,
+        asc: true,
+    };
+    list.sort_by(|a, b| cmp_file(a, b, &sort, cmp.as_ref(), &mut cmp_supp));
 }

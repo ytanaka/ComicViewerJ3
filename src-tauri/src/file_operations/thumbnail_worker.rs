@@ -1,9 +1,8 @@
-use anyhow::Context;
-use std::{fs, path::PathBuf, sync::Arc, thread, time::Duration};
-use tauri::Manager;
+use std::{fs, sync::Arc, thread, time::Duration};
+
 use walkdir::WalkDir;
 
-use crate::state::app_state::AppState;
+use crate::{commands::thumbnail_util::get_thumbnail_dir, state::app_state::AppState};
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -13,23 +12,6 @@ const THUMBNAIL_CLEANER_INTERVAL_HOURS: u64 = 3;
 const THUMBNAIL_CLEANER_BATCH_FILE_NUM: u64 = 100;
 // １回のループするごとのスリープ時間
 const THUMBNAIL_CLEANER_BATCH_SLEEP_MS: u64 = 100;
-
-// ---------------------------------------------------------------------------------------------------------------------
-
-/// サムネイル保存用ディレクトリ取得
-pub fn get_thumbnail_dir(app: &tauri::AppHandle) -> anyhow::Result<PathBuf> {
-    let resolver = app.path();
-    let p = resolver
-        .app_cache_dir()
-        .context("fail get thumbnail cache dir: error")?;
-    let p = p.join("thumbnails");
-
-    if !p.is_dir() {
-        log::info!("mkdir thumbnail dir: {}", p.to_string_lossy());
-        fs::create_dir_all(&p).context("fail create thumbnail cache dir")?;
-    }
-    Ok(p)
-}
 
 // ---------------------------------------------------------------------------------------------------------------------
 
