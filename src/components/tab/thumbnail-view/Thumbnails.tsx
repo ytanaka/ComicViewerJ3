@@ -16,6 +16,7 @@ import { useUiStore } from '@/store/ui-store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
+import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
 // サムネイル<div>を取得し、列数を計算するためにこの文字列を className に設定する
 export const THUMBNAIL_CELL_CLASSNAME = 'thumbnail_cells';
@@ -64,10 +65,18 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
   const containerRef = useRef<HTMLDivElement>(null);
   const [columns, setColumns] = useState<number>(1);
   const [rows, setRows] = useState<number>(1);
+  const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
 
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
 
   console.debug(`<Thumbnails> dirEntries=[${dirEntries?.length}]`);
+
+  // スクロール機能登録
+  useEffect(() => {
+    setScrollHandler((fileIndex: number) => {
+      virtuoso.current?.scrollToIndex({ index: fileIndex, align: 'center' });
+    });
+  }, [setScrollHandler]);
 
   // 行数、列数の計算
   const updateRowsColumns = () => {
@@ -124,18 +133,12 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
         return;
       }
 
-      const scroll = {
-        scroll: (i: number) => {
-          virtuoso.current?.scrollToIndex({ index: i, align: 'center' });
-        },
-      };
-
       // ファイル検索テキスト入力
-      if (fileSearchInput_handleKeyDown(e, scroll)) {
+      if (fileSearchInput_handleKeyDown(e)) {
         return;
       }
 
-      if (tabFiles_handleKeyDown(e, tab, rows, columns, scroll)) {
+      if (tabFiles_handleKeyDown(e, tab, rows, columns)) {
         return;
       }
     };

@@ -114,6 +114,18 @@ export function Menu() {
       </MenubarMenu>
       {/* -------------------------------------------------------------------------------------------------------- */}
       <MenubarMenu onOpenChange={handleOpenChange}>
+        <MenubarTrigger>Search</MenubarTrigger>
+        {/* TODO */}
+        <MenubarContent className="w-auto min-w-max">
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.cutFile} />
+            <MyMenuItem m={menuItems.copyFile} />
+            <MyMenuItem m={menuItems.pasteFile} />
+          </MenubarGroup>
+        </MenubarContent>
+      </MenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
+      <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>View</MenubarTrigger>
         <MenubarContent className="w-auto min-w-max">
           <MenubarGroup>

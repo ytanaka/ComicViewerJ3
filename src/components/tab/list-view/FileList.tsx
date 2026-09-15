@@ -10,10 +10,19 @@ import { useUiStore } from '@/store/ui-store';
 import { DirEntry } from '@/lib/bindings-wrapper';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
+import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
 export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
+
+  // スクロール機能登録
+  useEffect(() => {
+    setScrollHandler((fileIndex: number) => {
+      virtuoso.current?.scrollIntoView({ index: fileIndex });
+    });
+  }, [setScrollHandler]);
 
   // 画面に表示されている行数
   const visibleListRows = useRef(1);
@@ -23,7 +32,7 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
     useVisibleFileIdsStore.getState().setFileIndexes(tab.id, dirEntries, range);
   };
 
-  // キー操作
+  // キー操作 TODO 共通化
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (virtuoso.current === null) return;
@@ -35,16 +44,12 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
         return;
       }
 
-      const scroll = {
-        scroll: (i: number) => virtuoso.current?.scrollIntoView({ index: i }),
-      };
-
       // ファイル検索テキスト入力
-      if (fileSearchInput_handleKeyDown(e, scroll)) {
+      if (fileSearchInput_handleKeyDown(e)) {
         return;
       }
 
-      if (tabFiles_handleKeyDown(e, tab, visibleListRows.current, 1, scroll)) {
+      if (tabFiles_handleKeyDown(e, tab, visibleListRows.current, 1)) {
         return;
       }
     };

@@ -3,7 +3,7 @@ import { FileSearchResult } from '../bindings';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';
 import { handleRustCmdResult, rustcmds } from '../bindings-wrapper';
-import { ScrollHandler } from '../scroll-handler';
+import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
 let debounceTimer: number | undefined;
 let queuedInput: string | null = null; // 検索実行に入力された内容
@@ -20,13 +20,11 @@ const emptyTab: Readonly<UiTab> = {
 } as const;
 
 let searchTab: UiTab = emptyTab;
-let searchScroll: ScrollHandler | null;
 
 export const searchCommands = {
   // ファイル検索
-  async searchNextFilename(tab: UiTab, startIndex: number, romaji: string, reverse: boolean, scroll: ScrollHandler) {
+  async searchNextFilename(tab: UiTab, startIndex: number, romaji: string, reverse: boolean) {
     searchTab = tab;
-    searchScroll = scroll;
 
     // デバウンス：0.3秒入力が止まるまで検索しない
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -44,7 +42,6 @@ export const searchCommands = {
     }
     queuedInput = null;
     searchTab = emptyTab;
-    searchScroll = null;
     useSearchResultStore.getState().clear();
   },
 };
@@ -82,7 +79,8 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
   // 検索で見つかった
   console.debug(`search success: ${text} =>`, result);
   useTabStore.getState().moveFocusNormal(searchTab.info.id, result.index);
-  virtuoso_scrollIntoView(result.index);
+  const doScroll = useListScrollHandlerStore.getState().doScroll;
+  if (doScroll) doScroll(result.index);
 
   // 検索完了後に新しい入力があれば再検索
   if (queuedInput !== null && queuedInput !== text) {
@@ -110,11 +108,6 @@ async function search(text: string, startIndex: number, reverse: boolean): Promi
   if (useTabStore.getState().getCurrentTab()?.info.id !== searchTab.info.id) return null;
 
   return resultData;
-}
-
-function virtuoso_scrollIntoView(fileIndex: number) {
-  if (searchScroll === null) return;
-  searchScroll.scroll(fileIndex);
 }
 
 function checkCommandReturn<T, E>(

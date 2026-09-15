@@ -103,6 +103,10 @@ export const menuItems = {
 
   preference: M('設定', () => dialogCommands.openPreference(), 'Ctrl//,'),
 
+  // -------------------- Search --------------------
+  // TODO
+  searchFile: M('設定', () => dialogCommands.openPreference(), 'Ctrl//,'),
+
   // -------------------- View --------------------
 
   toggleFileViewMode: M(

@@ -7,19 +7,13 @@ import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
 import { TabInfo } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
-import { ScrollHandler } from '../scroll-handler';
+import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
 function st() {
   return useTabStore.getState();
 }
 
-export function tabFiles_handleKeyDown(
-  e: KeyboardEvent,
-  tabInfo: TabInfo,
-  rowNum: number,
-  colNum: number,
-  scroll: ScrollHandler
-): boolean {
+export function tabFiles_handleKeyDown(e: KeyboardEvent, tabInfo: TabInfo, rowNum: number, colNum: number): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
   const tab = st().getTab(tabInfo.id);
   if (!tab) return false;
@@ -51,7 +45,7 @@ export function tabFiles_handleKeyDown(
     let startIndex = reverse ? focusIndex - 1 : focusIndex + 1;
     if (dirEntries.length <= startIndex) startIndex = 0;
     if (startIndex < 0) startIndex = dirEntries.length - 1;
-    searchCommands.searchNextFilename(tab, startIndex, romaji, reverse, scroll);
+    searchCommands.searchNextFilename(tab, startIndex, romaji, reverse);
     e.preventDefault();
     return true;
   }
@@ -96,7 +90,8 @@ export function tabFiles_handleKeyDown(
       return false;
     }
     e.preventDefault();
-    scroll.scroll(index);
+    const doScroll = useListScrollHandlerStore.getState().doScroll;
+    if (doScroll) doScroll(index);
 
     return true;
   }

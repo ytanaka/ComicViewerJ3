@@ -17,7 +17,8 @@ export function FileSearchPanel() {
         <br />
         (IMEをOFFにしてアルファベットや数字を入力してください)
         <br />
-        検索に成功した後、続けて次のファイルを検索するときは<Kbd>Ctrl+N</Kbd>を押してください。(前のファイルを検索するときは<Kbd>Ctrl+P</Kbd>)
+        検索に成功した後、続けて次のファイルを検索するときは<Kbd>Ctrl+N</Kbd>
+        を押してください。(前のファイルを検索するときは<Kbd>Ctrl+P</Kbd>)
       </FieldDescription>
       <FieldGroup>
         <Separator />
