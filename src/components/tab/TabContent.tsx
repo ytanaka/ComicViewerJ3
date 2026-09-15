@@ -71,10 +71,8 @@ function TabContent() {
     const setHist = async () => {
       try {
         const parent = await tauri_dirname(tab.path);
-        if (!st().findHistory(tab.id, parent)) {
-          const base = await tauri_basename(tab.path);
-          st().pushHistory(tab.id, parent, base);
-        }
+        const base = await tauri_basename(tab.path);
+        st().pushHistory(tab.id, parent, base);
       } catch {
         // 現ディレクトリに親ディレクトリがない場合は例外が発生するので無視する
       }

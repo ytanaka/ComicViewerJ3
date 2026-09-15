@@ -11,7 +11,12 @@ use tauri::{AppHandle, State};
 
 use crate::{
     commands::fs_util,
-    file_operations::{file_utils, file_watcher::FileWatcher},
+    file_operations::{
+        file_sort::{cmp_file, mk_filename_cmp, FilenameCmpSupplement},
+        file_utils::{self, read_dir},
+        file_watcher::FileWatcher,
+        sjis_cnv::SJIS_CACHE,
+    },
     state::{
         app_state::AppState,
         tab_info::TabInfo,
@@ -44,6 +49,17 @@ impl CreateTabResult {
             data: Either::Left(CreateTabError {
                 msg: msg.to_string(),
             }),
+        }
+    }
+    fn map_left_error<F>(self, f: F) -> Self
+    where
+        F: Fn(&CreateTabError) -> CreateTabError,
+    {
+        match self.data {
+            Either::Right(_) => self,
+            Either::Left(e) => CreateTabResult {
+                data: Either::Left(f(&e)),
+            },
         }
     }
 
@@ -257,6 +273,92 @@ async fn clone_tab_parent_dir_impl<E: EventEmitter>(
         None => return mk_create_tab_error("親ディレクトリへ移動できません"),
     };
     create_tab_imp(app, state, parent).await
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+/// タブ作成 (指定タブの隣のディレクトリ)
+#[tauri::command]
+#[specta::specta]
+pub async fn clone_tab_sibling_dir(
+    app: AppHandle,
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    move_next: bool,
+) -> Result<Either<CreateTabError, TabInfoUI>, String> {
+    log_create_tab_result(
+        &state,
+        format!("clone_tab_sibling_dir({tab_id}, {move_next})"),
+        clone_tab_sibling_dir_impl(AppContext::new(app), &state, tab_id, move_next),
+    )
+    .await
+}
+async fn clone_tab_sibling_dir_impl<E: EventEmitter>(
+    app: AppContext<E>,
+    state: &Arc<AppState>,
+    tab_id: TabId,
+    move_next: bool,
+) -> anyhow::Result<CreateTabResult> {
+    // 兄弟ディレクトリ一覧
+    let path = fs_util::get_tab_path(state, tab_id)?;
+    let parent = match path.parent() {
+        Some(parent) => parent,
+        None => return mk_create_tab_error("この階層には移動可能はディレクトリがありません"),
+    };
+    let list = read_dir(parent)?;
+    let mut list: Vec<_> = list.iter().filter(|f| f.is_dir).collect();
+    if list.is_empty() {
+        return Err(anyhow!("このディレクトリはすでに存在しません"));
+    }
+
+    // 名前でソート
+    //
+    // 以下のエラーになるので、ブロックにして回避する
+    // error: future cannot be sent between threads safely
+    // let cmp = mk_filename_cmp(state);
+    //     --- has type `Box<dyn FilenameCmp>` which is not `Send`
+    // create_tab_imp(app, state, next_dir).await
+    //                                      ^^^^^ await occurs here, with `cmp` maybe used later
+    {
+        let cmp = mk_filename_cmp(state);
+        let mut cmp_supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
+        let sort = SortCondition {
+            sort_type: crate::types::SortType::Name,
+            asc: true,
+        };
+        list.sort_by(|a, b| cmp_file(a, b, &sort, cmp.as_ref(), &mut cmp_supp));
+    }
+
+    // 現在ディレクトリの位置から移動先のディレクトリを見つける
+    let current = path.file_name().unwrap_or_default();
+    let next_dir = match list.iter().position(|f| f.name.as_ref() == current) {
+        None => return Err(anyhow!("このディレクトリはすでに存在しません")),
+        Some(idx) => {
+            let next_idx = if move_next {
+                if list.len() - 1 <= idx {
+                    return mk_create_tab_error("これより先のディレクトリは存在しません");
+                }
+                idx + 1
+            } else {
+                if idx == 0 {
+                    return mk_create_tab_error("これより前のディレクトリは存在しません");
+                }
+                idx - 1
+            };
+            parent.join(list.get(next_idx).unwrap().name.as_ref())
+        }
+    };
+
+    let ret = create_tab_imp(app, state, next_dir).await;
+    ret.map(|r| {
+        let msg = if move_next {
+            "次のディレクトリは移動できません"
+        } else {
+            "前のディレクトリは移動できません"
+        };
+        r.map_left_error(|_| CreateTabError {
+            msg: msg.to_string(),
+        })
+    })
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

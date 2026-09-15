@@ -75,7 +75,10 @@ function TabButton({ tab, index, isSelected }: { tab: UiTab; index: number; isSe
       </Button>
       <div className="flex justify-end">
         <div
-          onClick={() => { tabCommands.removeTab(tab.info.id); setFoucs(); }}
+          onClick={() => {
+            tabCommands.removeTab(tab.info.id);
+            setFoucs();
+          }}
           className="absolute right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-gray-500 rounded-md "
         >
           <X size="15" />

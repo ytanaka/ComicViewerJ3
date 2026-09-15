@@ -5,6 +5,7 @@ import { tabCommands } from './commands/tab-commands';
 import { fileViewModeCommands } from './commands/view-mode-commands';
 import { windowCommands } from './commands/window-commands';
 import { FileViewMode } from '@/store/tab/types';
+import { fileCommands } from './commands/file-commands';
 
 type MenuExec = () => Promise<void> | void;
 
@@ -147,10 +148,14 @@ export const menuItems = {
   // -------------------- Tab --------------------
   cloneTab: M('タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T'),
   closeCurrentTab: M('タブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl//W', hasTab),
+
   nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl//PageDown', hasTab),
   prevTab: M('前のタブ', () => tabCommands.setCurrentTabNextPrev(-1), 'Ctrl//PageUp', hasTab),
   nextTab2: M('次のタブ2', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl//Tab', hasTab),
-  prevTab2: M('前のタブ', () => tabCommands.setCurrentTabNextPrev(-1), 'Ctrl//Shift//Tab', hasTab),
+  prevTab2: M('前のタブ2', () => tabCommands.setCurrentTabNextPrev(-1), 'Ctrl//Shift//Tab', hasTab),
+
+  siblingDirPrev: M('前のディレクトリ', () => fileCommands.moveToPrevNextDirectory(-1), 'Alt//ArrowLeft', hasTab),
+  siblingDirNext: M('次のディレクトリ', () => fileCommands.moveToPrevNextDirectory(1), 'Alt//ArrowRight', hasTab),
 };
 
 export function getAllMenuItems() {

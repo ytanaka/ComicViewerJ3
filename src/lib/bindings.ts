@@ -22,6 +22,8 @@ export const commands = {
 	cloneTabChildDir: (tabId: number, fileId: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("clone_tab_child_dir", { tabId, fileId })),
 	/**  タブ作成 (指定タブの親ディレクトリ) */
 	cloneTabParentDir: (tabId: number) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("clone_tab_parent_dir", { tabId })),
+	/**  タブ作成 (指定タブの隣のディレクトリ) */
+	cloneTabSiblingDir: (tabId: number, moveNext: boolean) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("clone_tab_sibling_dir", { tabId, moveNext })),
 	/**  タブ削除 */
 	removeTab: (tabId: number) => typedError<null, string>(__TAURI_INVOKE("remove_tab", { tabId })),
 	/**  タブ一覧 */

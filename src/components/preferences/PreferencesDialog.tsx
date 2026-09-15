@@ -94,11 +94,7 @@ export function PreferencesDialog() {
           </TabsList>
 
           {panelList.map(item => (
-            <TabsContent
-              key={item.id}
-              value={item.id}
-              className="overflow-auto h-full pl-2"
-            >
+            <TabsContent key={item.id} value={item.id} className="overflow-auto h-full pl-2">
               <item.node />
             </TabsContent>
           ))}

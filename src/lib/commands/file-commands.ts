@@ -34,6 +34,16 @@ export const fileCommands = {
       return rustcmds.cloneTabChildDir(tab.info.id, dirEntry.file_id);
     });
   },
+
+  // 次、前のディレクトリに移動
+  async moveToPrevNextDirectory(move: number) {
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+    const comment = `rustcmds.cloneTabSiblingDir(${tab.info.id},${move})`;
+    _moveDir(tab.info, comment, () => {
+      return rustcmds.cloneTabSiblingDir(tab.info.id, 0 < move);
+    });
+  },
 };
 
 async function _moveDir(

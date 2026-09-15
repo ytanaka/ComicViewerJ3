@@ -15,6 +15,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::clone_tab,
         fs::clone_tab_child_dir,
         fs::clone_tab_parent_dir,
+        fs::clone_tab_sibling_dir,
         fs::remove_tab,
         fs::get_tabs,
         fs::get_dir_entries,

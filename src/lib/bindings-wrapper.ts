@@ -31,6 +31,9 @@ export const rustcmds = {
   cloneTabParentDir: (tabId: TabId) => {
     return commands.cloneTabParentDir(tabId).then(result => cnvOk(result, toCreateTabResult));
   },
+  cloneTabSiblingDir: (tabId: number, moveNext: boolean) => {
+    return commands.cloneTabSiblingDir(tabId, moveNext).then(result => cnvOk(result, toCreateTabResult));
+  },
   removeTab: (tabId: TabId) => {
     return commands.removeTab(tabId);
   },

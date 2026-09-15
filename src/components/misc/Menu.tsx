@@ -38,10 +38,23 @@ function MyHotkey({ k }: { k: AppHotkey }) {
             <span>+</span>
           </>
         )}
-        <Kbd>{k.key}</Kbd>
+        <Kbd>{getDisplayKeyString(k.key)}</Kbd>
       </KbdGroup>
     </MenubarShortcut>
   );
+}
+function getDisplayKeyString(key: string) {
+  switch (key) {
+    case 'arrowright':
+      return '→';
+    case 'arrowleft':
+      return '←';
+    case 'arrowup':
+      return '↑';
+    case 'arrowdown':
+      return '↓';
+  }
+  return key.toUpperCase();
 }
 
 function MyMenuItem({ m }: { m: AppMenuItem }) {
@@ -110,6 +123,11 @@ export function Menu() {
           <MenubarGroup>
             <MyMenuItem m={menuItems.thumbnailSizeDown} />
             <MyMenuItem m={menuItems.thumbnailSizeUp} />
+          </MenubarGroup>
+          <MenubarSeparator />
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.siblingDirPrev} />
+            <MyMenuItem m={menuItems.siblingDirNext} />
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
