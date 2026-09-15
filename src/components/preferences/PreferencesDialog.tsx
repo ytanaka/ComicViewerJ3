@@ -12,6 +12,7 @@ import { AdvancedPanel } from './panels/AdvancedPanel';
 import { DebugCmdPanel } from './panels/DebugCmdPanel';
 import { FileListPanel } from './panels/FileListPanel';
 import { DebugPanel2 } from './panels/DebugPanel2';
+import { ThumbnailPanel } from './panels/ThumbnailPanel';
 
 const allPanelList = [
   {
@@ -25,6 +26,12 @@ const allPanelList = [
     label: 'ファイル一覧表示',
     icon: Settings2,
     node: FileListPanel,
+  },
+  {
+    id: 'thumbnail',
+    label: 'サムネイル設定',
+    icon: Settings,
+    node: ThumbnailPanel,
   },
   {
     id: 'advanced',
