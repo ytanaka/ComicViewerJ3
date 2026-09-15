@@ -105,7 +105,7 @@ export const menuItems = {
 
   // -------------------- Search --------------------
   // TODO
-  searchFile: M('設定', () => dialogCommands.openPreference(), 'Ctrl//,'),
+  searchFile: M('ファイル検索', () => dialogCommands.openPreference()),
 
   // -------------------- View --------------------
 
@@ -150,8 +150,8 @@ export const menuItems = {
   changeFullscreen: M('フルスクリーンモード', () => console.log('FULL SCREEN!!!')),
 
   // -------------------- Tab --------------------
-  cloneTab: M('タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T'),
-  closeCurrentTab: M('タブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl//W', hasTab),
+  cloneTab: M('新規タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T'),
+  closeCurrentTab: M('現在のタブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl//W', hasTab),
 
   nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl//PageDown', hasTab),
   prevTab: M('前のタブ', () => tabCommands.setCurrentTabNextPrev(-1), 'Ctrl//PageUp', hasTab),

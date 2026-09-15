@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { CircleCheckBig, CircleX, LoaderCircle } from 'lucide-react';
 
-import { searchCommands } from '@/lib/commands/search-commands';
+import { searchCommands } from '@/lib/commands/search-helper';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useSearchResultStore } from '@/store/file-search-result-store';
 import { useSearchTextStore } from '@/store/file-search-text-store';

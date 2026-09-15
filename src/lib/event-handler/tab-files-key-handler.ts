@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useTabStore } from '@/store/tab/store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
-import { searchCommands } from '../commands/search-commands';
+import { searchCommands } from '../commands/search-helper';
 import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
 import { TabInfo } from '../bindings-wrapper';

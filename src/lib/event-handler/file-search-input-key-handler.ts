@@ -1,7 +1,7 @@
 import { useSearchTextStore } from '@/store/file-search-text-store';
 import { useTabStore } from '@/store/tab/store';
 import { useUiStore } from '@/store/ui-store';
-import { searchCommands } from '../commands/search-commands';
+import { searchCommands } from '../commands/search-helper';
 import { dialogCommands } from '../commands/dialog-commands';
 
 function st() {
