@@ -1,5 +1,5 @@
 import { dialogCommands } from '@/lib/commands/dialog-commands';
-import { searchCommands } from '@/lib/commands/search-helper';
+import { searchHelper } from '@/lib/commands/search-helper';
 import { getAllMenuItems } from '@/lib/menu-items';
 import { useEffect } from 'react';
 
@@ -19,7 +19,7 @@ export function HotKeys() {
         e.stopPropagation();
         e.stopImmediatePropagation();
         m.exec();
-        searchCommands.cancel();
+        searchHelper.cancel();
         return;
       }
     };

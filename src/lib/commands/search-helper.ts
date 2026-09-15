@@ -21,7 +21,7 @@ const emptyTab: Readonly<UiTab> = {
 
 let searchTab: UiTab = emptyTab;
 
-export const searchCommands = {
+export const searchHelper = {
   // ファイル検索
   async searchNextFilename(tab: UiTab, startIndex: number, romaji: string, reverse: boolean) {
     searchTab = tab;
@@ -66,7 +66,7 @@ async function trySearch(text: string, startIndex: number, reverse: boolean) {
     isSearching = false;
   }
   if (result === null) {
-    searchCommands.cancel();
+    searchHelper.cancel();
     return;
   }
 

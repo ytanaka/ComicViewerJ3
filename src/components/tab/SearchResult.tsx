@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { CircleCheckBig, CircleX, LoaderCircle } from 'lucide-react';
 
-import { searchCommands } from '@/lib/commands/search-helper';
+import { searchHelper } from '@/lib/commands/search-helper';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useSearchResultStore } from '@/store/file-search-result-store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
@@ -27,7 +27,7 @@ export function SearchResult({ tabInfo }: { tabInfo: TabInfo }) {
   // Popover 表示中は Esc が Popover 内部で消費されてしまうので、ここで処理する
   function handleKeyDown(e: BaseUIEvent<React.KeyboardEvent<HTMLDivElement>>) {
     if (e.key === 'Escape') {
-      searchCommands.cancel();
+      searchHelper.cancel();
       useSearchTextStore.getState().cancelInput();
     }
   }

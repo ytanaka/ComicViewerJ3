@@ -1,7 +1,7 @@
 import { useSearchTextStore } from '@/store/file-search-text-store';
 import { useTabStore } from '@/store/tab/store';
 import { useUiStore } from '@/store/ui-store';
-import { searchCommands } from '../commands/search-helper';
+import { searchHelper } from '../commands/search-helper';
 import { dialogCommands } from '../commands/dialog-commands';
 
 function st() {
@@ -52,7 +52,7 @@ function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent): boolean {
   if (!tab) return false;
   const focusIndex = tab.selection.focusIndex;
   const reverse = false;
-  searchCommands.searchNextFilename(tab, focusIndex, romaji, reverse);
+  searchHelper.searchNextFilename(tab, focusIndex, romaji, reverse);
 
   return true;
 }

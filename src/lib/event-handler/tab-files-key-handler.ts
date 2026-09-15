@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useTabStore } from '@/store/tab/store';
 import { useSearchTextStore } from '@/store/file-search-text-store';
-import { searchCommands } from '../commands/search-helper';
+import { searchHelper } from '../commands/search-helper';
 import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
 import { TabInfo } from '../bindings-wrapper';
@@ -45,13 +45,13 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent, tabInfo: TabInfo, rowNu
     let startIndex = reverse ? focusIndex - 1 : focusIndex + 1;
     if (dirEntries.length <= startIndex) startIndex = 0;
     if (startIndex < 0) startIndex = dirEntries.length - 1;
-    searchCommands.searchNextFilename(tab, startIndex, romaji, reverse);
+    searchHelper.searchNextFilename(tab, startIndex, romaji, reverse);
     e.preventDefault();
     return true;
   }
   // ファイル検索する以外のキーが押されたら、検索キャンセル
   if (!MOD_ONLY) {
-    searchCommands.cancel();
+    searchHelper.cancel();
   }
 
   // console.debug(e);
@@ -142,7 +142,7 @@ export function tabFiles_handleMouseClick(e: React.MouseEvent, tabInfo: TabInfo,
   const NO_MOD = !C && !S && !A;
 
   // ファイル検索検索キャンセル
-  searchCommands.cancel();
+  searchHelper.cancel();
 
   if (NO_MOD) {
     st().moveFocusNormal(tabId, fileIndex);
