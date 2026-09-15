@@ -237,7 +237,7 @@ pub struct AppPreferences {
     pub filename_sort_strength: String,
 
     /// サムネイルファイル削除期限
-    pub thumbnail_expiration_hours: i32,
+    pub thumbnail_expiration_days: i32,
 
     /// サムネイル作成同時実行数
     pub thumbnail_command_limit: u32,
@@ -248,7 +248,7 @@ impl Default for AppPreferences {
             debug_filename_search_sleep_ms: 0,
             filename_cmp: FilenameCmpType::Icu,
             filename_sort_strength: "Identical".to_string(),
-            thumbnail_expiration_hours: 24 * 7,
+            thumbnail_expiration_days: 30,
             thumbnail_command_limit: std::thread::available_parallelism()
                 .unwrap_or(NonZero::new(4).unwrap())
                 .get() as u32,

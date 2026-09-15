@@ -49,7 +49,7 @@ impl ThumbnailCleanupWorker {
 
 fn exec(app: tauri::AppHandle, state: Arc<AppState>) -> anyhow::Result<()> {
     log::info!("spawn_thumbnail_cleanup_worker: start");
-    let limit_sec = state.preferences.read().unwrap().thumbnail_expiration_hours as u64 * 3600;
+    let limit_sec = state.preferences.read().unwrap().thumbnail_expiration_days as u64 * 24 * 3600;
     let mut total_file: u64 = 0;
     let mut total: u64 = 0;
     let mut removed: u64 = 0;

@@ -57,10 +57,10 @@ export function AdvancedPanel() {
               min={0}
               max={10000}
               step={1}
-              onChange={(e) => { if (pref) { savePref.mutate({ ...pref, thumbnail_expiration_hours: Number(e.target.value) }); } }}
-              value={pref?.thumbnail_expiration_hours ?? ""}
+              onChange={(e) => { if (pref) { savePref.mutate({ ...pref, thumbnail_expiration_days: Number(e.target.value) }); } }}
+              value={pref?.thumbnail_expiration_days ?? ""}
             />
-            <InputGroupAddon align="inline-end">(時間)</InputGroupAddon>
+            <InputGroupAddon align="inline-end">(日)</InputGroupAddon>
           </InputGroup>
           <FieldDescription>
             3時間おきに各サムネイルファイルを消すかどうかチェックします

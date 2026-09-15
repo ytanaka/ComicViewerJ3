@@ -56,7 +56,7 @@ export type AppPreferences = {
 	 */
 	filename_sort_strength: string,
 	/**  サムネイルファイル削除期限 */
-	thumbnail_expiration_hours: number,
+	thumbnail_expiration_days: number,
 	/**  サムネイル作成同時実行数 */
 	thumbnail_command_limit: number,
 };
