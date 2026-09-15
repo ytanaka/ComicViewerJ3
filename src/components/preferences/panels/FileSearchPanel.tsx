@@ -1,5 +1,6 @@
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { Kbd } from '@/components/ui/kbd';
 import { Separator } from '@/components/ui/separator';
 import { useUiStore } from '@/store/ui-store';
 
@@ -16,7 +17,7 @@ export function FileSearchPanel() {
         <br />
         (IMEをOFFにしてアルファベットや数字を入力してください)
         <br />
-        検索に成功した後、続けて次のファイルを検索するときは&quot;Ctrl+N&quot;を押してください。(前のファイルを検索するときは&quot;Ctrl+P&quot;)
+        検索に成功した後、続けて次のファイルを検索するときは<Kbd>Ctrl+N</Kbd>を押してください。(前のファイルを検索するときは<Kbd>Ctrl+P</Kbd>)
       </FieldDescription>
       <FieldGroup>
         <Separator />

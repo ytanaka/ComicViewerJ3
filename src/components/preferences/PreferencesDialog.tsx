@@ -22,16 +22,16 @@ const allPanelList = [
     node: GeneralPanel,
   },
   {
-    id: 'fileList',
-    label: 'ファイル一覧表示',
-    icon: Settings2,
-    node: FileListPanel,
-  },
-  {
     id: 'fileSearch',
     label: 'ファイル検索',
     icon: Settings,
     node: FileSearchPanel,
+  },
+  {
+    id: 'fileList',
+    label: 'ファイル一覧表示',
+    icon: Settings2,
+    node: FileListPanel,
   },
   {
     id: 'thumbnail',
