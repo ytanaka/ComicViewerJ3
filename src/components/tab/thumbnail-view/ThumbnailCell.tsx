@@ -27,7 +27,10 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   }
 
   // サムネイル画像ファイル作成
-  const { data: thumbPath } = useThumbnailPath(tab.id, dirEntry, thumbSize);
+  const { data: thumbData } = useThumbnailPath(tab.id, dirEntry, thumbSize);
+  if (!dirEntry.is_dir && thumbData?.type === 'NotImage') {
+    toolTipMsg += `\n\n画像読み込みエラー:\n${thumbData.error_msg}`;
+  }
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
@@ -46,7 +49,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
       title={toolTipMsg}
     >
       <div>
-        {!thumbPath ? (
+        {thumbData?.type !== 'Ok' ? (
           <div
             className="border-2"
             style={{
@@ -61,7 +64,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
           </div>
         ) : (
           <img
-            src={!thumbPath ? undefined : convertFileSrc(thumbPath)}
+            src={convertFileSrc(thumbData.filename)}
             loading="lazy"
             className={cn(!dirEntry.is_dir ? 'border-2' : isSelected ? select_style : 'bg-yellow-500 rounded')}
             style={{

@@ -124,7 +124,9 @@ export type GetThumbnailResult =
 /**  現在処理が集中しているので、リトライしてほしい */
 { type: "Busy" } | 
 /**  サムネイル画像はない (ディレクトリの中に画像ファイルが見つからない) */
-{ type: "NoImage" };
+{ type: "NoImage" } | 
+/**  画像ではない */
+{ type: "NotImage"; error_msg: string };
 
 export type SortCondition = {
 	sort_type: SortType,

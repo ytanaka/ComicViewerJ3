@@ -30,22 +30,20 @@ export function useThumbnailPath(tabId: TabId, dirEntry: DirEntry, size: number)
         const result = await rustcmds.getThumbnail(tabId, dirEntry.file_id, size);
         const comment = `rustcmds.getThumbnail(${tabId}, ${dirEntry.file_id}, ${size}) running[${running}]`;
         handleRustCmdResult(result, comment, 'サムネイル画像取得失敗');
-        if (result.status === 'error') {
-          return undefined;
-        } else if (result.data.type === 'Busy') {
+        if (result.status === 'ok' && result.data.type === 'Busy') {
           console.debug(comment, 'busy retry');
           throw new Error('Busy'); // リトライさせる
-        } else if (result.data.type === 'NoImage') {
-          return undefined; // 画像なし
-        } else {
-          return result.data;
         }
+        return result;
       } finally {
         running--;
       }
     },
     select: data => {
-      return data?.filename;
+      if (data.status === 'error') {
+        return undefined; // queryFn で toast 表示済み
+      } 
+      return data.data;
     },
   });
 }

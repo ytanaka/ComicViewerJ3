@@ -73,12 +73,21 @@ pub fn get_thumbnail_impl(
         });
     }
 
-    // サムネイルファイル作成
+    // サムネイル化対象ファイルを探す
     let src_file = match get_thumbnail_target_file(state, dir, &file)? {
         None => return Ok(GetThumbnailResult::NoImage),
         Some(path) => path,
     };
-    let img = image::open(&src_file).context(format!("error: image file open {:?}", src_file))?;
+
+    // サムネイルファイル作成
+    let img = match image::open(&src_file) {
+        Ok(i) => i,
+        Err(e) => {
+            return Ok(GetThumbnailResult::NotImage {
+                error_msg: e.to_string(),
+            })
+        }
+    };
     let thumbnail = img.thumbnail(size, size);
     thumbnail
         .save(&tmp_thumb_path)
