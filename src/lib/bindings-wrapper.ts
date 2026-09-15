@@ -117,6 +117,7 @@ export function mkAppPreferencesDefault(): AppPreferences {
     filename_sort_strength: 'Identical',
     filename_cmp: { type: 'Icu' },
     thumbnail_expiration_hours: 0,
+    thumbnail_command_limit: 5,
   };
 }
 

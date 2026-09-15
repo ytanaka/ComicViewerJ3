@@ -12,14 +12,27 @@ export function useThumbnailPath(tabId: TabId, fileId: FileId, size: number, fil
   return useQuery({
     queryKey: queryKey_useThumbnailPath(tabId, fileId, size),
     enabled: isPictureFileExtension(filename),
+    retry: true,
+    retryDelay: failureCount => {
+      const base = 10;          // 初回 10ms
+      const delay = base * 2 ** (failureCount - 1); // 10 → 20 → 40 → 80 → ...
+      return Math.min(delay, 1000); // 最大 1000ms に制限
+    },
     queryFn: async () => {
       const result = await rustcmds.getThumbnail(tabId, fileId, size);
-      handleRustCmdResult(result, `rustcmds.getThumbnail(${tabId}, ${fileId}, ${size})`, 'サムネイル画像取得失敗');
+      const comment = `rustcmds.getThumbnail(${tabId}, ${fileId}, ${size})`;
+      handleRustCmdResult(result, comment, 'サムネイル画像取得失敗');
       if (result.status === 'error') {
         return undefined;
+      } else if (result.data.type === 'Busy') {
+        console.debug(comment, 'busy retry');
+        throw new Error("Busy"); // リトライさせる
       } else {
         return result.data;
       }
     },
+    select: (data) => {
+      return data?.filename
+    }
   });
 }

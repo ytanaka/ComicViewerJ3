@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, sync::Arc};
+use std::{ffi::OsStr, num::NonZero, sync::Arc};
 
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
@@ -162,6 +162,20 @@ pub struct FileMetadata {
 }
 
 // =====================================================================================================================
+// thumbnail.rs
+// =====================================================================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[serde(tag = "type")]
+/// get_thumbnail() の結果
+pub enum GetThumbnailResult {
+    /// サムネイルファイル名
+    Ok { filename: String },
+    /// 現在処理が集中しているので、リトライしてほしい
+    Busy,
+}
+
+// =====================================================================================================================
 // migemo.rs
 // =====================================================================================================================
 
@@ -224,6 +238,9 @@ pub struct AppPreferences {
 
     /// サムネイルファイル削除期限
     pub thumbnail_expiration_hours: i32,
+
+    /// サムネイル作成同時実行数
+    pub thumbnail_command_limit: u32,
 }
 impl Default for AppPreferences {
     fn default() -> Self {
@@ -232,6 +249,9 @@ impl Default for AppPreferences {
             filename_cmp: FilenameCmpType::Icu,
             filename_sort_strength: "Identical".to_string(),
             thumbnail_expiration_hours: 24 * 7,
+            thumbnail_command_limit: std::thread::available_parallelism()
+                .unwrap_or(NonZero::new(4).unwrap())
+                .get() as u32,
         }
     }
 }

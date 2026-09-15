@@ -13,7 +13,7 @@ use tauri::AppHandle;
 use crate::{
     commands::preferences::load_preferences_impl,
     file_operations::{metadata_worker::MetadataWorker, thumbnail_worker::ThumbnailCleanupWorker},
-    state::tab_info::TabInfo,
+    state::{command_limitter::CommandLimitter, tab_info::TabInfo},
     text_search::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
         text_matcher::TextMatcher, vibrato::Vibrato,
@@ -59,6 +59,9 @@ pub struct AppState {
     // UIのタブ情報
     pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,
 
+    // 設定
+    pub preferences: AppStateField<RwLock<AppPreferences>>,
+
     // 形態素解析
     pub reverse_migemo: AppStateField<ReverseMigemo>,
     pub vibrato: AppStateField<Vibrato>,
@@ -69,8 +72,7 @@ pub struct AppState {
     pub metadata_worker: AppStateField<MetadataWorker>,
     pub thumbnail_worker: AppStateField<ThumbnailCleanupWorker>,
 
-    // 設定
-    pub preferences: AppStateField<RwLock<AppPreferences>>,
+    pub thumbnail_command_limitter: AppStateField<CommandLimitter>,
 }
 impl AppState {
     pub fn new() -> Self {
@@ -79,6 +81,8 @@ impl AppState {
             next_file_id: AtomicU64::new(START_FILE_ID),
 
             tabs: DashMap::new(),
+
+            preferences: AppStateField::new(),
 
             reverse_migemo: AppStateField::new(),
             vibrato: AppStateField::new(),
@@ -89,7 +93,7 @@ impl AppState {
             metadata_worker: AppStateField::new(),
             thumbnail_worker: AppStateField::new(),
 
-            preferences: AppStateField::new(),
+            thumbnail_command_limitter: AppStateField::new(),
         }
     }
 
@@ -101,6 +105,7 @@ impl AppState {
         if let Err(e) = load_preferences_impl(app, &state) {
             log::error!("AppState::init() error: load_preferences_impl => {}", e);
         }
+        let pref = self.preferences.read().unwrap().clone();
 
         state.reverse_migemo.get_or_init(ReverseMigemo::new);
         state.vibrato.get_or_init(Vibrato::new);
@@ -116,6 +121,10 @@ impl AppState {
         state
             .thumbnail_worker
             .get_or_init(|| ThumbnailCleanupWorker::new(app.clone(), state.clone()));
+
+        state
+            .thumbnail_command_limitter
+            .get_or_init(|| Arc::new(CommandLimitter::new(pref.thumbnail_command_limit)));
     }
     pub fn stop(&self) {}
 

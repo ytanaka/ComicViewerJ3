@@ -3,7 +3,6 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { Separator } from '@/components/ui/separator';
 import { usePreferences, useSavePreferences } from '@/services/preferences';
 import { useUiStore } from '@/store/ui-store';
-import { ChangeEvent } from 'react';
 
 export function AdvancedPanel() {
   const fileSearchInputTimeoutMs = useUiStore(state => state.fileSearchInputTimeoutMs);
@@ -12,14 +11,6 @@ export function AdvancedPanel() {
 
   const { data: pref } = usePreferences();
   const savePref = useSavePreferences();
-  const thumbnail_expiration_hour = pref?.thumbnail_expiration_hours ?? 24 * 7;
-
-  function handleChange_thumbnail_expiration_hour(e: ChangeEvent<HTMLInputElement>) {
-    const v = Number(e.target.value);
-    if (pref) {
-      savePref.mutate({ ...pref, thumbnail_expiration_hours: v });
-    }
-  }
 
   return (
     <FieldSet className="flex-1">
@@ -61,12 +52,13 @@ export function AdvancedPanel() {
           <FieldLabel>画像の古いサムネイルキャッシュを消す期限</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
+              disabled={!pref}
               type="number"
               min={0}
               max={10000}
               step={1}
-              onChange={handleChange_thumbnail_expiration_hour}
-              value={thumbnail_expiration_hour}
+              onChange={(e) => { if (pref) { savePref.mutate({ ...pref, thumbnail_expiration_hours: Number(e.target.value) }); } }}
+              value={pref?.thumbnail_expiration_hours ?? ""}
             />
             <InputGroupAddon align="inline-end">(時間)</InputGroupAddon>
           </InputGroup>
@@ -74,6 +66,24 @@ export function AdvancedPanel() {
             3時間おきに各サムネイルファイルを消すかどうかチェックします
             <br />
             0にすると、起動時に全てのサムネイルキャッシュを削除します
+          </FieldDescription>
+        </Field>
+        <Separator />
+        <Field>
+          <FieldLabel>サムネイルファイル同時処理数</FieldLabel>
+          <InputGroup className="max-w-40">
+            <InputGroupInput
+              disabled={!pref}
+              type="number"
+              min={1}
+              max={128}
+              step={1}
+              onChange={(e) => { if (pref) { savePref.mutate({ ...pref, thumbnail_command_limit: Number(e.target.value) }); } }}
+              value={pref?.thumbnail_command_limit ?? ""}
+            />
+          </InputGroup>
+          <FieldDescription>
+            デフォルトはCPUコア数
           </FieldDescription>
         </Field>
       </FieldGroup>

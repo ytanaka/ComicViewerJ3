@@ -100,6 +100,10 @@ pub fn save_preferences_impl(
             tab.invalidate_sort_list();
         }
     }
+    // コマンド同時実行数制限
+    state
+        .thumbnail_command_limitter
+        .set_limit(new_pref.thumbnail_command_limit);
 
     Ok(())
 }
