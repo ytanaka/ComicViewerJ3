@@ -60,7 +60,7 @@ pub fn touch_file(file: impl AsRef<Path>) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn sort_files(state: &AppState, list: &mut Vec<FileInfoOS>) {
+pub fn sort_files(state: &AppState, list: &mut [FileInfoOS]) {
     let cmp = mk_filename_cmp(state);
     let mut cmp_supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
     let sort = SortCondition {

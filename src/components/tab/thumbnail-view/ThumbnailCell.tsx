@@ -36,12 +36,15 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
 
   if (fileIndex === 0) console.debug(`<ThumbnailCell>[${fileIndex}] tabId:${tab.id}`);
 
-  let bg = '';
-  if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
+  const select_style = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
 
   return (
-    <div className={cn(THUMBNAIL_CELL_CLASSNAME, border, bg, 'overflow-clip')} onClick={handleClick} title={toolTipMsg}>
+    <div
+      className={cn(THUMBNAIL_CELL_CLASSNAME, border, 'overflow-clip', isSelected && select_style)}
+      onClick={handleClick}
+      title={toolTipMsg}
+    >
       <div>
         {!thumbPath ? (
           <div
@@ -60,7 +63,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
           <img
             src={!thumbPath ? undefined : convertFileSrc(thumbPath)}
             loading="lazy"
-            className={cn(dirEntry.is_dir ? "bg-yellow-500 rounded" : "border-2")}
+            className={cn(!dirEntry.is_dir ? 'border-2' : isSelected ? select_style : 'bg-yellow-500 rounded')}
             style={{
               display: 'block',
               width: thumbSize,

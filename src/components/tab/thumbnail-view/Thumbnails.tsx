@@ -153,7 +153,8 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
       const focusIndex = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
       if (focusIndex !== undefined) {
         virtuoso.current?.scrollToIndex({
-          index: focusIndex, align: 'center',
+          index: focusIndex,
+          align: 'center',
         });
       }
     }

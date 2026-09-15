@@ -57,8 +57,12 @@ export function AdvancedPanel() {
               min={0}
               max={10000}
               step={1}
-              onChange={(e) => { if (pref) { savePref.mutate({ ...pref, thumbnail_expiration_days: Number(e.target.value) }); } }}
-              value={pref?.thumbnail_expiration_days ?? ""}
+              onChange={e => {
+                if (pref) {
+                  savePref.mutate({ ...pref, thumbnail_expiration_days: Number(e.target.value) });
+                }
+              }}
+              value={pref?.thumbnail_expiration_days ?? ''}
             />
             <InputGroupAddon align="inline-end">(日)</InputGroupAddon>
           </InputGroup>
@@ -78,13 +82,15 @@ export function AdvancedPanel() {
               min={1}
               max={128}
               step={1}
-              onChange={(e) => { if (pref) { savePref.mutate({ ...pref, thumbnail_command_limit: Number(e.target.value) }); } }}
-              value={pref?.thumbnail_command_limit ?? ""}
+              onChange={e => {
+                if (pref) {
+                  savePref.mutate({ ...pref, thumbnail_command_limit: Number(e.target.value) });
+                }
+              }}
+              value={pref?.thumbnail_command_limit ?? ''}
             />
           </InputGroup>
-          <FieldDescription>
-            デフォルトはCPUコア数
-          </FieldDescription>
+          <FieldDescription>デフォルトはCPUコア数</FieldDescription>
         </Field>
       </FieldGroup>
     </FieldSet>

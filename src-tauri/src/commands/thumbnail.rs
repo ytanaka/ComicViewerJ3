@@ -120,12 +120,12 @@ fn get_thumbnail_target_file2(
     }
 
     // ディレクトリの場合
-    let mut list = file_utils::read_dir(&path)?;
+    let mut list = file_utils::read_dir(path)?;
     file_utils::sort_files(state, &mut list);
     if list.is_empty() {
         return Ok(None);
     }
 
-    let path = path.join(list.get(0).unwrap().name.as_ref());
+    let path = path.join(list.first().unwrap().name.as_ref());
     get_thumbnail_target_file2(state, &path, depth + 1)
 }

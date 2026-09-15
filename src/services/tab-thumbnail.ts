@@ -22,7 +22,7 @@ export function useThumbnailPath(tabId: TabId, dirEntry: DirEntry, size: number)
     retryDelay: 10,
     queryFn: async () => {
       if (LIMIT <= running) {
-        throw new Error("Too many concurrent queries");
+        throw new Error('Too many concurrent queries');
       }
       running++;
 
@@ -34,7 +34,7 @@ export function useThumbnailPath(tabId: TabId, dirEntry: DirEntry, size: number)
           return undefined;
         } else if (result.data.type === 'Busy') {
           console.debug(comment, 'busy retry');
-          throw new Error("Busy"); // リトライさせる
+          throw new Error('Busy'); // リトライさせる
         } else if (result.data.type === 'NoImage') {
           return undefined; // 画像なし
         } else {
@@ -44,8 +44,8 @@ export function useThumbnailPath(tabId: TabId, dirEntry: DirEntry, size: number)
         running--;
       }
     },
-    select: (data) => {
-      return data?.filename
-    }
+    select: data => {
+      return data?.filename;
+    },
   });
 }
