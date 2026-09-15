@@ -14,6 +14,7 @@ struct State {
 }
 
 pub struct Permit {
+    pub running: u32,
     state: Arc<Mutex<State>>,
     released: bool,
 }
@@ -40,6 +41,7 @@ impl CommandLimitter {
         } else {
             st.acquired += 1;
             Some(Permit {
+                running: st.acquired,
                 state: self.state.clone(),
                 released: false,
             })

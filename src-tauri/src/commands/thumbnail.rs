@@ -67,12 +67,14 @@ pub async fn get_thumbnail(
     size: ImageSize,
 ) -> Result<GetThumbnailResult, String> {
     let comment = format!("get_thumbnail({}, {}, {})", tab_id, file_id, size);
+    let mut running = 0;
     let result = match state.thumbnail_command_limitter.try_acquire() {
         None => Ok(GetThumbnailResult::Busy),
-        Some(_p) => {
+        Some(permit) => {
+            running = permit.running;
             let state2 = state.inner().clone();
             let result = tauri::async_runtime::spawn_blocking(move || {
-                get_thumbnail_impl(&app, &state2, tab_id, file_id, size)
+                get_thumbnail_impl(&app, &state2, tab_id, &file_id, size)
             });
             result
                 .await
@@ -80,13 +82,15 @@ pub async fn get_thumbnail(
                 .map(|s| GetThumbnailResult::Ok { filename: s })
         }
     };
-    LOG_RESULT!(comment, { result.map_err(|e| e.to_string()) })
+    LOG_RESULT!(format!("{comment}, running[{running}]"), {
+        result.map_err(|e| e.to_string())
+    })
 }
 pub fn get_thumbnail_impl(
     app: &AppHandle,
     state: &AppState,
     tab_id: TabId,
-    file_id: String,
+    file_id: &str,
     size: ImageSize,
 ) -> anyhow::Result<String> {
     let file_id: u64 = file_id

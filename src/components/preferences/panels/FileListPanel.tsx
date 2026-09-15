@@ -57,7 +57,7 @@ export function FileListPanel() {
             <br />
             Unicode: ユニコードの文字コードで比較
           </FieldDescription>
-          <FieldDescription>ソート時間: (遅い) Icu &gt; Sjis &gt; Unicode (速い)</FieldDescription>
+          <FieldDescription>ソート時間: (速い) Unicode &lt; Sjis &lt; Icu (遅い)</FieldDescription>
         </Field>
       </FieldGroup>
     </FieldSet>
