@@ -99,7 +99,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
         <div>ファイルがありません</div>
       ) : noImage || !imgs[0] ? (
         // 画像ファイルでない
-        <div className="flex flex-col overflow-hidden">
+        <div className="flex flex-col overflow-hidden p-3">
           <div className="min-w-[1lh] w-[3lh]">
             <FileIconByFileInfo dirEntry={dirEntries[focusIndex]} />
           </div>

@@ -2,6 +2,7 @@ import { useTabStore } from '@/store/tab/store';
 import { dialogCommands } from '../commands/dialog-commands';
 import { TabInfo } from '../bindings-wrapper';
 import { zoomLevelNormalize } from '../tools/image-zoom';
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 
 function st() {
   return useTabStore.getState();
@@ -52,6 +53,7 @@ export function imageView_handleKeyDown(e: KeyboardEvent): boolean {
   // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && (e.key === 'Escape' || e.key === 'Enter')) {
     st().setImageView(tabInfo.id, false);
+    useScrollToFocusStore.getState().setNeedScroll(true);
     e.preventDefault();
     return true;
   }
