@@ -39,21 +39,23 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   const colNum = useListScrollHandlerStore.getState().columns;
   const rowNum = useListScrollHandlerStore.getState().rows;
 
+  console.debug(e);
+
   // -------------------------------------------------------------------------------------------------------------------
   // ファイル検索
   // -------------------------------------------------------------------------------------------------------------------
-  if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
-    if (keyLow === 'n') searchCommands.searchNext();
-    if (keyLow === 'p') searchCommands.searchPrev();
-    e.preventDefault();
-    return true;
+  if (!tab.imageView) {
+    if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
+      if (keyLow === 'n') searchCommands.searchNext();
+      if (keyLow === 'p') searchCommands.searchPrev();
+      e.preventDefault();
+      return true;
+    }
   }
   // ファイル検索する以外のキーが押されたら、検索キャンセル
   if (!MOD_ONLY) {
     searchHelper.cancel();
   }
-
-  // console.debug(e);
 
   // -------------------------------------------------------------------------------------------------------------------
   // フォーカス移動

@@ -22,6 +22,7 @@ export interface UiTab {
   fileViewMode: FileViewMode;
   thumbnailSize: number;
   imageView: boolean;
+  dualImage: boolean;
 
   sortCondition: SortCondition;
   selection: FileSelection;
@@ -59,6 +60,7 @@ export function mkUiTab(tab: TabInfo): UiTab {
     fileViewMode: FileViewMode.List,
     thumbnailSize: THUMBNAIL_SIZE_DEFAULT,
     imageView: false,
+    dualImage: false,
     sortCondition: mkDefaultSortCondition(),
     selection: mkFileSelection(),
     focusHistories: [],

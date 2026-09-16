@@ -118,7 +118,7 @@ function TabContent() {
       }
 
       // ファイル検索テキスト入力
-      if (fileSearchInput_handleKeyDown(e)) {
+      if (!st().getCurrentTab()?.imageView && fileSearchInput_handleKeyDown(e)) {
         return;
       }
 

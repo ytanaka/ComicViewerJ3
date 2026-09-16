@@ -15,11 +15,13 @@ export function HotKeys() {
         const m = menus[i];
         if (m.hotkey === undefined) continue;
         if (!m.hotkey.check(e)) continue;
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        m.exec();
-        if (m.cancelFilenameSearch) searchHelper.cancel();
+        if (m.exec) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          m.exec();
+          searchHelper.cancel();
+        }
         return;
       }
     };

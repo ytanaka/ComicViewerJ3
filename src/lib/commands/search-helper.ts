@@ -14,6 +14,7 @@ const emptyTab: Readonly<UiTab> = {
   fileViewMode: 0, // FileViewMode.List にすると、Listが参照できなくてエラーになる（循環参照している？）
   thumbnailSize: 0,
   imageView: false,
+  dualImage: false,
   sortCondition: mkDefaultSortCondition(),
   selection: mkFileSelection(),
   focusHistories: [],

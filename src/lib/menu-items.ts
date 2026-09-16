@@ -12,25 +12,22 @@ type MenuExec = () => Promise<void> | void;
 
 export interface AppMenuItem {
   value: string;
-  exec: MenuExec;
+  exec?: MenuExec;
   hotkey?: AppHotkey;
   checkEnabledFn?: () => boolean;
-  cancelFilenameSearch: boolean;
 }
 
 function M(
   value: string,
-  exec: MenuExec,
+  exec?: MenuExec,
   hotkey?: string,
   checkEnabledFn?: () => boolean,
-  cancelFilenameSearch: boolean = true
 ): AppMenuItem {
   return {
     value,
     exec,
     hotkey: hotkey !== undefined ? new AppHotkey(hotkey) : undefined,
     checkEnabledFn,
-    cancelFilenameSearch: cancelFilenameSearch,
   };
 }
 
@@ -114,8 +111,8 @@ export const menuItems = {
 
   // -------------------- Search --------------------
   searchFile: M('ファイル検索', () => searchCommands.searchStart(), undefined, hasTab),
-  searchNext: M('次のファイルを検索', () => searchCommands.searchNext(), 'Ctrl//N', hasTab, false),
-  searchPrev: M('前のファイルを検索', () => searchCommands.searchPrev(), 'Ctrl//P', hasTab, false),
+  searchNext: M('次のファイルを検索', undefined, 'Ctrl//N', hasTab),
+  searchPrev: M('前のファイルを検索', undefined, 'Ctrl//P', hasTab),
 
   // -------------------- View --------------------
 

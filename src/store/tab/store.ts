@@ -43,6 +43,7 @@ export const useTabStore = create<TabStore>()(
             state.tabs[i].sortCondition = mkDefaultSortCondition();
             state.tabs[i].selection.selectionIndexes = new Set();
             state.tabs[i].imageView = false;
+            state.tabs[i].dualImage = false;
           }
         } catch (e) {
           console.error(e);

@@ -31,7 +31,7 @@ function B({ icon, m }: { icon: ReactNode; m: AppMenuItem }) {
       variant="outline"
       size="sm"
       onClick={() => {
-        m.exec();
+        if (m.exec) m.exec();
         setFocus();
       }}
     >
