@@ -128,9 +128,11 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
       return false;
     }
 
-    fileCommands.moveToChildDirectory(ent);
-    e.preventDefault();
-    return true;
+    if (!tab.imageViewMode.enable) {
+      fileCommands.moveToChildDirectory(ent);
+      e.preventDefault();
+      return true;
+    }
   }
   if (NO_MOD && e.key === 'Backspace') {
     fileCommands.moveToParentDir();
