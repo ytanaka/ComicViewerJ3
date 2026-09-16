@@ -1,9 +1,9 @@
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
-import { getQueryData_getDirEntries } from "@/services/tab-dir-entry";
-import { useSearchTextStore } from "@/store/file-search-text-store";
-import { useTabStore } from "@/store/tab/store";
-import { searchHelper } from "./search-helper";
+import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
+import { useSearchTextStore } from '@/store/file-search-text-store';
+import { useTabStore } from '@/store/tab/store';
+import { searchHelper } from './search-helper';
 
 export const searchCommands = {
   searchStart() {
@@ -16,7 +16,7 @@ export const searchCommands = {
   searchPrev() {
     searchNextPrev(false);
   },
-}
+};
 
 function searchNextPrev(next: boolean): boolean {
   const tab = useTabStore.getState().getCurrentTab();

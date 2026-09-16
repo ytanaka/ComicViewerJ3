@@ -38,7 +38,6 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   const colNum = useListScrollHandlerStore.getState().columns;
   const rowNum = useListScrollHandlerStore.getState().rows;
 
-
   // -------------------------------------------------------------------------------------------------------------------
   // ファイル検索
   // -------------------------------------------------------------------------------------------------------------------

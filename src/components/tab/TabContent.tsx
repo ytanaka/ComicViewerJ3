@@ -23,7 +23,7 @@ function st() {
 // タブ内のコンテンツ
 // (タブバーとステータスバーの間の領域)
 // (タブ数が０の場合もありうる)
-// 
+//
 // <FileList>, <Thumbnails> の共通機能をここで実装する
 export function TabContentWrapper() {
   const ref = useRef<HTMLDivElement>(null);

@@ -18,7 +18,13 @@ export interface AppMenuItem {
   cancelFilenameSearch: boolean;
 }
 
-function M(value: string, exec: MenuExec, hotkey?: string, checkEnabledFn?: () => boolean, cancelFilenameSearch: boolean = true): AppMenuItem {
+function M(
+  value: string,
+  exec: MenuExec,
+  hotkey?: string,
+  checkEnabledFn?: () => boolean,
+  cancelFilenameSearch: boolean = true
+): AppMenuItem {
   return {
     value,
     exec,

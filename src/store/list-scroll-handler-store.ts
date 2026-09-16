@@ -19,12 +19,12 @@ export const useListScrollHandlerStore = create<ListScrollHandlerStore>()((set, 
   setRows: (n: number) => {
     if (get().rows === n) return;
     console.log('useListScrollHandlerStore: rows changed(', get().rows, '=>', n, ')');
-    set((state) => ({ ...state, rows: n }));
+    set(state => ({ ...state, rows: n }));
   },
   setColumns: (n: number) => {
     if (get().columns === n) return;
     console.log('useListScrollHandlerStore: columns changed(', get().columns, '=>', n, ')');
-    set((state) => ({ ...state, columns: n }));
+    set(state => ({ ...state, columns: n }));
   },
 
   doScroll: null,

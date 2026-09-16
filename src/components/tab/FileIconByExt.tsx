@@ -36,7 +36,7 @@ import fileTypeZip2 from '@iconify-icons/vscode-icons/file-type-zip2';
 import { getFileExtension } from '@/lib/string-util';
 
 /*
-Tauriの　Linux　release ビルドでアイコンが表示されない問題について
+Tauriの Linux release ビルドでアイコンが表示されない問題について
 
 devtools のエラー出力
   [Error] Refused to connect to https://api.iconify.design/fluent-emoji-flat.json?icons=page-facing-up because it does not appear in the connect-src directive of the Content Security Policy.

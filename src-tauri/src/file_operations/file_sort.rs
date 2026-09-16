@@ -4,7 +4,7 @@ use icu::locale::locale;
 use icu_collator::{options::CollatorOptions, Collator, CollatorBorrowed};
 
 use crate::{
-    file_operations::sjis_cnv::get_sjis_u16,
+    file_operations::sjis_cnv::SJIS_CACHE,
     state::app_state::AppState,
     types::{FileInfoOS, FilenameCmpType, SortCondition, SortType},
 };
@@ -86,6 +86,7 @@ impl FilenameCmp for SjisFilenameCmp {
         let mut chars1 = s1.chars();
         let mut chars2 = s2.chars();
 
+        let mut sjis = SJIS_CACHE.lock().unwrap();
         loop {
             // ファイル名の先頭から１文字ずつ順番に比較する
             match (chars1.next(), chars2.next()) {
@@ -97,7 +98,7 @@ impl FilenameCmp for SjisFilenameCmp {
                 (Some(_), None) => return Ordering::Greater,
                 // 1文字をSJISに変換して比較
                 (Some(c1), Some(c2)) => {
-                    let ord = match (get_sjis_u16(c1), get_sjis_u16(c2)) {
+                    let ord = match (sjis.get(c1), sjis.get(c2)) {
                         // 両方SJISに変換可能な場合
                         (Some(c1), Some(c2)) => c1.cmp(&c2),
                         // SJIS文字 < 非SJIS文字

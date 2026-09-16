@@ -13,8 +13,8 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
   const virtuoso = useRef<VirtuosoHandle>(null);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
 
-  const setRows = useListScrollHandlerStore(state => state.setRows);  
-  const setColumns = useListScrollHandlerStore(state => state.setColumns);  
+  const setRows = useListScrollHandlerStore(state => state.setRows);
+  const setColumns = useListScrollHandlerStore(state => state.setColumns);
   const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
 
   // スクロール機能登録

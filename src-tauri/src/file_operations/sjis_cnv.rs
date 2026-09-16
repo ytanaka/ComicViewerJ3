@@ -1,7 +1,7 @@
 use encoding_rs::SHIFT_JIS;
 use std::{
     char,
-    sync::{LazyLock, RwLock},
+    sync::{LazyLock, Mutex},
 };
 
 const PAGE_COUNT: usize = 0x110000 / 0x100; // UTF32のうち使われている範囲を256づつにページ分割する
@@ -46,10 +46,15 @@ impl SjisCache {
     /// None: Shift_JIS に変換できない
     /// Some: Shift_JIS の1～2バイトを u16 に格納
     pub fn get(&mut self, c: char) -> Option<u16> {
-        let (page_index, char_index) = match self.check_ascii_or_get_page_char_index(c) {
-            Ok(c) => return Some(c),
-            Err(page_char) => page_char,
-        };
+        let cp = c as u32;
+
+        // ASCIIはSJISと同じ値なので直接返す
+        if cp <= 0x7F {
+            return Some(cp as u16);
+        }
+
+        let page_index = (cp >> 8) as usize;
+        let char_index = (cp & 0xFF) as usize;
 
         // このUnicodeページがまだ存在しなければ生成
         let page = self.pages[page_index].get_or_insert_with(|| Box::new([UNINITIALIZED; 256]));
@@ -85,59 +90,9 @@ impl SjisCache {
             Some(value)
         }
     }
-
-    pub fn try_get(&self, c: char) -> Option<u16> {
-        let (page_index, char_index) = match self.check_ascii_or_get_page_char_index(c) {
-            Ok(c) => return Some(c),
-            Err(page_char) => page_char,
-        };
-
-        // このUnicodeページを探す
-        let page = match &self.pages[page_index] {
-            None => return None,
-            Some(page) => page,
-        };
-
-        let value = page[char_index];
-
-        if value == UNINITIALIZED {
-            return None;
-        }
-        if value == NOT_SJIS {
-            return None;
-        }
-        Some(value)
-    }
-
-    /// ASCIIかどうか調べる。
-    /// return: ASCIIなら、c => Some(u16)
-    ///         ASCIIでないなら、self.pages[idx1][idx2] を (idx1,idx2) で返す
-    fn check_ascii_or_get_page_char_index(&self, c: char) -> Result<u16, (usize, usize)> {
-        let cp = c as u32;
-
-        // ASCIIはSJISと同じ値なので直接返す
-        if cp <= 0x7F {
-            return Ok(cp as u16);
-        }
-
-        let page_index = (cp >> 8) as usize;
-        let char_index = (cp & 0xFF) as usize;
-
-        Err((page_index, char_index))
-    }
 }
 
-static SJIS_CACHE: LazyLock<RwLock<SjisCache>> = LazyLock::new(|| RwLock::new(SjisCache::new()));
-
-pub fn get_sjis_u16(c: char) -> Option<u16> {
-    {
-        match SJIS_CACHE.read().unwrap().try_get(c) {
-            Some(c) => return Some(c),
-            None => (),
-        };
-    }
-    SJIS_CACHE.write().unwrap().get(c)
-}
+pub static SJIS_CACHE: LazyLock<Mutex<SjisCache>> = LazyLock::new(|| Mutex::new(SjisCache::new()));
 
 // =============================================================================================
 //
@@ -164,7 +119,7 @@ mod tests {
     use super::*;
 
     fn cmp(c: char, sjis: Option<u16>) {
-        let ret = get_sjis_u16(c);
+        let ret = SJIS_CACHE.lock().unwrap().get(c);
         assert_eq!(ret, sjis);
     }
 
