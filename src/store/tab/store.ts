@@ -9,8 +9,11 @@ import { createFileSelectionActions, FileSelectionActions } from './file-selecti
 import { createFileFocusHistoryActions, FileFocusHistoryActions } from './file-focus-history-actions';
 import { createImageViewModeActions, ImageViewModeActions } from './tab-info-image-action';
 
-
-export type TabActions = TabStoreActions & UiTabActions & ImageViewModeActions & FileSelectionActions & FileFocusHistoryActions;
+export type TabActions = TabStoreActions &
+  UiTabActions &
+  ImageViewModeActions &
+  FileSelectionActions &
+  FileFocusHistoryActions;
 
 export type TabStore = AllTabs & TabActions;
 

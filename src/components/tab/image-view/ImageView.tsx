@@ -1,15 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 
-import { DirEntry } from "@/lib/bindings-wrapper";
-import { isPictureFileExtension } from "@/lib/tools/string-util";
-import { useListScrollHandlerStore } from "@/store/list-scroll-handler-store";
-import { useTabStore } from "@/store/tab/store";
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { FileIconByFileInfo } from "../FileIconByFileInfo";
-import { getImageWH, ImageWidthHeight } from "./iamge-view-size-helper";
-import { useImageFullpath } from "../../../hooks/use-image-fullpath";
-import { useUiStore } from "@/store/ui-store";
-import { imageView_handleKeyDown } from "@/lib/event-handler/image-view-key-handler";
+import { DirEntry } from '@/lib/bindings-wrapper';
+import { isPictureFileExtension } from '@/lib/tools/string-util';
+import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
+import { useTabStore } from '@/store/tab/store';
+import { convertFileSrc } from '@tauri-apps/api/core';
+import { FileIconByFileInfo } from '../FileIconByFileInfo';
+import { getImageWH, ImageWidthHeight } from './iamge-view-size-helper';
+import { useImageFullpath } from '../../../hooks/use-image-fullpath';
+import { useUiStore } from '@/store/ui-store';
+import { imageView_handleKeyDown } from '@/lib/event-handler/image-view-key-handler';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -23,10 +23,10 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
       const rect = divRef.current?.getBoundingClientRect();
       if (rect) setDivSize({ width: rect.width, height: rect.height });
     };
-    window.addEventListener("resize", update);
+    window.addEventListener('resize', update);
     update();
 
-    return () => window.removeEventListener("resize", update);
+    return () => window.removeEventListener('resize', update);
   }, []);
 
   const setRows = useListScrollHandlerStore(state => state.setRows);
@@ -40,18 +40,18 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const { data: imagePaths } = useImageFullpath(tab.id);
   const getImagePaths = (i: number): string | undefined => {
     return imagePaths?.[i];
-  }
+  };
 
   // 画像のサイズ (<img> で読み込んだ後で設定される)
   const [imageInfos, setImageInfos] = useState<ImageWidthHeight[]>([]);
   const handleImageLoad = (index: number, e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    setImageInfos((prev) => {
+    setImageInfos(prev => {
       const copy = [...prev];
       copy[index] = { width: img.naturalWidth, height: img.naturalHeight };
       return copy;
     });
-  }
+  };
 
   // キー操作
   useEffect(() => {
@@ -73,7 +73,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     return () => window.removeEventListener('keydown', handler);
   }); // 初回だけ実行する
 
-  const noImage = !isPictureFileExtension(getImagePaths(focusIndex) ?? "");
+  const noImage = !isPictureFileExtension(getImagePaths(focusIndex) ?? '');
 
   const imgs = [
     getImagePaths(focusIndex),
@@ -86,7 +86,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const uiZoom = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 1;
   const [imgSize0, imgSize1] = getImageWH({ imageInfos, fileIndex: focusIndex, dualView, zoomLevel: uiZoom, divSize });
 
-  console.debug(`<ImageView> ${tab.path}`, "focusIndex=", focusIndex, "divSize=", divSize, "img0=", imgs[0], "size0=", imgSize0);
+  console.debug(`<ImageView> ${tab.path} focusIndex=${focusIndex} img0=${imgs[0]}`);
 
   // const rendering = 'crisp-edges';
   // const rendering = 'pixelated';
@@ -99,13 +99,11 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
         <div>ファイルがありません</div>
       ) : noImage || !imgs[0] ? (
         // 画像ファイルでない
-        <div className='flex flex-col overflow-hidden'>
+        <div className="flex flex-col overflow-hidden">
           <div className="min-w-[1lh] w-[3lh]">
             <FileIconByFileInfo dirEntry={dirEntries[focusIndex]} />
           </div>
-          <div className='flex-1'>
-            {dirEntries[focusIndex].name}
-          </div>
+          <div className="flex-1">{dirEntries[focusIndex].name}</div>
         </div>
       ) : (
         // 画像表示
@@ -117,9 +115,9 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
               ...imgSize0,
             }}
             draggable={false}
-            onLoad={(e) => handleImageLoad(focusIndex, e)}
+            onLoad={e => handleImageLoad(focusIndex, e)}
           />
-          {imgs[1] &&
+          {imgs[1] && (
             <img
               src={convertFileSrc(imgs[1])}
               style={{
@@ -127,9 +125,9 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
                 ...imgSize1,
               }}
               draggable={false}
-              onLoad={(e) => handleImageLoad(focusIndex + 1, e)}
+              onLoad={e => handleImageLoad(focusIndex + 1, e)}
             />
-          }
+          )}
         </>
       )}
     </div>

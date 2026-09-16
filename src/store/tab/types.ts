@@ -92,7 +92,7 @@ export function mkImageViewMode(): ImageViewMode {
     zoomLevel: 0,
     rotate: 0,
     useOriginalSize: false,
-  }
+  };
 }
 
 // =====================================================================================================================

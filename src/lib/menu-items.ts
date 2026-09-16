@@ -17,12 +17,7 @@ export interface AppMenuItem {
   checkEnabledFn?: () => boolean;
 }
 
-function M(
-  value: string,
-  exec?: MenuExec,
-  hotkey?: string,
-  checkEnabledFn?: () => boolean,
-): AppMenuItem {
+function M(value: string, exec?: MenuExec, hotkey?: string, checkEnabledFn?: () => boolean): AppMenuItem {
   return {
     value,
     exec,

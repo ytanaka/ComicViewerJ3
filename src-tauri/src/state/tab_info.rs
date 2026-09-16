@@ -11,8 +11,13 @@ use anyhow::anyhow;
 
 use crate::{
     file_operations::{
-        file_sort::{cmp_file, mk_filename_cmp}, file_utils::read_metadata, file_watcher::FileWatcher, sjis_cnv::SJIS_CACHE,
-    }, state::app_state::AppState, types::{
+        file_sort::{cmp_file, mk_filename_cmp},
+        file_utils::read_metadata,
+        file_watcher::FileWatcher,
+        sjis_cnv::SJIS_CACHE,
+    },
+    state::app_state::AppState,
+    types::{
         DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId, TabInfoUI,
     },
 };

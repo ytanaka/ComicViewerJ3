@@ -1,9 +1,9 @@
-import { zoomLevel2ZoomRatio } from "@/lib/tools/image-zoom";
+import { zoomLevel2ZoomRatio } from '@/lib/tools/image-zoom';
 
 export type ImageWidthHeight = {
   width: number;
   height: number;
-}
+};
 
 export type ImageViewHelperParam = {
   imageInfos: ImageWidthHeight[];
@@ -11,7 +11,7 @@ export type ImageViewHelperParam = {
   dualView: boolean;
   zoomLevel: number;
   divSize: ImageWidthHeight | null;
-}
+};
 
 const imageDefaultSize = [
   {
@@ -21,7 +21,7 @@ const imageDefaultSize = [
   {
     width: 0,
     height: 0,
-  }
+  },
 ];
 
 // <img> に指定する画像サイズを取得
@@ -68,7 +68,7 @@ function getImageWH1(param: ImageViewHelperParam) {
         width: 0,
         height: 0,
       },
-    ]
+    ];
   } else {
     // 画像のほうが横長なら、左右ぴったり、上下に余白 => その後 zoom
     const imageZoom = viewWidth / imgWidth;
@@ -81,7 +81,7 @@ function getImageWH1(param: ImageViewHelperParam) {
         width: 0,
         height: 0,
       },
-    ]
+    ];
   }
 }
 
@@ -109,10 +109,10 @@ function getImageWH2(param: ImageViewHelperParam) {
   if (imgRatio < viewRatio) {
     // 左右に余白
     height = viewHeight;
-    width = viewHeight / imgHeight * imgWidth;
+    width = (viewHeight / imgHeight) * imgWidth;
   } else {
     // 上下に余白
-    height = viewWidth / imgWidth * imgHeight;
+    height = (viewWidth / imgWidth) * imgHeight;
     width = viewWidth;
   }
 

@@ -1,7 +1,7 @@
-import { useTabStore } from "@/store/tab/store";
-import { dialogCommands } from "../commands/dialog-commands";
-import { TabInfo } from "../bindings-wrapper";
-import { zoomLevelNormalize } from "../tools/image-zoom";
+import { useTabStore } from '@/store/tab/store';
+import { dialogCommands } from '../commands/dialog-commands';
+import { TabInfo } from '../bindings-wrapper';
+import { zoomLevelNormalize } from '../tools/image-zoom';
 
 function st() {
   return useTabStore.getState();

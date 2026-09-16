@@ -1,7 +1,4 @@
-import {
-  _useTabStore_setExistTabFields,
-  TabId,
-} from './types';
+import { _useTabStore_setExistTabFields, TabId } from './types';
 import { TabStore } from './store';
 import { StateCreator } from 'zustand';
 import { zoomLevelNormalize } from '@/lib/tools/image-zoom';
@@ -12,7 +9,12 @@ export interface ImageViewModeActions {
   setZoomLevel: (tabId: TabId, n: number) => void;
 }
 
-export const createImageViewModeActions: StateCreator<TabStore, [['zustand/immer', never]], [], ImageViewModeActions> = (set) => {
+export const createImageViewModeActions: StateCreator<
+  TabStore,
+  [['zustand/immer', never]],
+  [],
+  ImageViewModeActions
+> = set => {
   return {
     setImageView: (tabId: TabId, b: boolean) => {
       set(state => {
@@ -36,6 +38,6 @@ export const createImageViewModeActions: StateCreator<TabStore, [['zustand/immer
           tab.imageViewMode.zoomLevel = zoomLevelNormalize(n);
         });
       });
-    }
+    },
   };
 };
