@@ -13,10 +13,11 @@ function st() {
   return useTabStore.getState();
 }
 
-export function tabFiles_handleKeyDown(e: KeyboardEvent, tabInfo: TabInfo, rowNum: number, colNum: number): boolean {
+export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
-  const tab = st().getTab(tabInfo.id);
+  const tab = st().getCurrentTab();
   if (!tab) return false;
+  const tabInfo = tab.info;
 
   // キーボードによるリストのフォーカス移動ハンドラー
   // フォーカスが移動したら、true
@@ -33,6 +34,10 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent, tabInfo: TabInfo, rowNu
   const NO_MOD = !C && !S && !A;
   const MOD_ONLY = e.key === 'Control' || e.key === 'Shift' || e.key === 'Alt';
   const keyLow = e.key.toLowerCase();
+
+  const colNum = useListScrollHandlerStore.getState().columns;
+  const rowNum = useListScrollHandlerStore.getState().rows;
+
 
   // -------------------------------------------------------------------------------------------------------------------
   // ファイル検索

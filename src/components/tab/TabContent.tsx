@@ -23,6 +23,8 @@ function st() {
 // タブ内のコンテンツ
 // (タブバーとステータスバーの間の領域)
 // (タブ数が０の場合もありうる)
+// 
+// <FileList>, <Thumbnails> の共通機能をここで実装する
 export function TabContentWrapper() {
   const ref = useRef<HTMLDivElement>(null);
   const getFocus = useFocusStore(state => state.getFocus);
@@ -106,9 +108,6 @@ function TabContent() {
   // キー操作
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      const columns = useListScrollHandlerStore.getState().columns;
-      const rows = useListScrollHandlerStore.getState().rows;
-
       // 遅延が発生していたらイベントを無視
       const delay = performance.now() - e.timeStamp;
       const timeout = useUiStore.getState().timeoutMsEventTimeStamp;
@@ -122,7 +121,7 @@ function TabContent() {
         return;
       }
 
-      if (tabFiles_handleKeyDown(e, tab, rows, columns)) {
+      if (tabFiles_handleKeyDown(e)) {
         return;
       }
     };
