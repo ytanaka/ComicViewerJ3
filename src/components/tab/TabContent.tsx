@@ -12,6 +12,9 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useCmdGetDirEntries } from '@/services/tab-dir-entry';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
+import { useUiStore } from '@/store/ui-store';
+import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
+import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 
 function st() {
   return useTabStore.getState();
@@ -100,6 +103,33 @@ function TabContent() {
     setNeedScroll(false);
   }, [needScroll, setNeedScroll]); // スクロールが指示されたら実行する
 
+  // キー操作
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const columns = useListScrollHandlerStore.getState().columns;
+      const rows = useListScrollHandlerStore.getState().rows;
+
+      // 遅延が発生していたらイベントを無視
+      const delay = performance.now() - e.timeStamp;
+      const timeout = useUiStore.getState().timeoutMsEventTimeStamp;
+      if (0 < timeout && timeout < delay) {
+        console.info('ignore keyboard event');
+        return;
+      }
+
+      // ファイル検索テキスト入力
+      if (fileSearchInput_handleKeyDown(e)) {
+        return;
+      }
+
+      if (tabFiles_handleKeyDown(e, tab, rows, columns)) {
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }); // 初回だけ実行する
 
   const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
 

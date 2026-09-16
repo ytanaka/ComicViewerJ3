@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   GridComponents,
   GridItemProps,
@@ -12,9 +12,6 @@ import { DirEntry } from '@/lib/bindings-wrapper';
 import { useTabStore } from '@/store/tab/store';
 import { ThumbnailCell } from './ThumbnailCell';
 import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
-import { useUiStore } from '@/store/ui-store';
-import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
-import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
 // サムネイル<div>を取得し、列数を計算するためにこの文字列を className に設定する
@@ -62,8 +59,9 @@ const gridComponents: GridComponents = {
 export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoGridHandle>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [columns, setColumns] = useState<number>(1);
-  const [rows, setRows] = useState<number>(1);
+
+  const setRows = useListScrollHandlerStore(state => state.setRows);
+  const setColumns = useListScrollHandlerStore(state => state.setColumns);
   const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
 
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -101,14 +99,8 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
     const newColumns = Math.max(1, leftSet.size);
     const newRows = Math.max(1, topSet.size);
 
-    if (newColumns !== columns) {
-      console.log('Thumbnails: columns changed(', columns, '=>', newColumns, ')');
-      setColumns(newColumns);
-    }
-    if (newRows !== rows) {
-      console.log('Thumbnails: rows changed(', rows, '=>', newRows, ')');
-      setRows(newRows);
-    }
+    setColumns(newColumns);
+    setRows(newRows);
   };
 
   // 画面リサイズ時に行数、列数を再計算
@@ -119,32 +111,6 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
 
     return () => ro.disconnect();
   });
-
-  // キー操作
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (virtuoso.current === null) return;
-      // 遅延が発生していたらイベントを無視
-      const delay = performance.now() - e.timeStamp;
-      const timeout = useUiStore.getState().timeoutMsEventTimeStamp;
-      if (0 < timeout && timeout < delay) {
-        console.info('ignore keyboard event');
-        return;
-      }
-
-      // ファイル検索テキスト入力
-      if (fileSearchInput_handleKeyDown(e)) {
-        return;
-      }
-
-      if (tabFiles_handleKeyDown(e, tab, rows, columns)) {
-        return;
-      }
-    };
-
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }); // 初回だけ実行する
 
   const handleRangeChanged = (range: ListRange) => {
     // ResizeObserver が画面初期表示時に呼ばれないので、ここでも呼んでおく

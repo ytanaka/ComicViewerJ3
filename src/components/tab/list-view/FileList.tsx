@@ -4,8 +4,6 @@ import { ItemProps, ListRange, TableProps, TableVirtuoso, VirtuosoHandle } from 
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
 import { useTabStore } from '@/store/tab/store';
-import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
-import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
 import { DirEntry } from '@/lib/bindings-wrapper';
 import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
@@ -13,8 +11,11 @@ import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
 export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
-  const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
+
+  const setRows = useListScrollHandlerStore(state => state.setRows);  
+  const setColumns = useListScrollHandlerStore(state => state.setColumns);  
+  const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
 
   // スクロール機能登録
   useEffect(() => {
@@ -23,39 +24,12 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
     });
   }, [setScrollHandler]);
 
-  // 画面に表示されている行数
-  const visibleListRows = useRef(1);
   const handleRangeChanged = (range: ListRange) => {
-    visibleListRows.current = Math.max(1, range.endIndex - range.startIndex);
+    setRows(Math.max(1, range.endIndex - range.startIndex));
+    setColumns(1);
     // ファイル情報読み込み
     useVisibleFileIdsStore.getState().setFileIndexes(tab.id, dirEntries, range);
   };
-
-  // キー操作 TODO 共通化
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (virtuoso.current === null) return;
-      // 遅延が発生していたらイベントを無視
-      const delay = performance.now() - e.timeStamp;
-      const timeout = useUiStore.getState().timeoutMsEventTimeStamp;
-      if (0 < timeout && timeout < delay) {
-        console.info('ignore keyboard event');
-        return;
-      }
-
-      // ファイル検索テキスト入力
-      if (fileSearchInput_handleKeyDown(e)) {
-        return;
-      }
-
-      if (tabFiles_handleKeyDown(e, tab, visibleListRows.current, 1)) {
-        return;
-      }
-    };
-
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }); // 初回だけ実行する
 
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
 
