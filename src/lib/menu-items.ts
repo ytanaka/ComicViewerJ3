@@ -6,6 +6,7 @@ import { fileViewModeCommands } from './commands/view-mode-commands';
 import { windowCommands } from './commands/window-commands';
 import { FileViewMode } from '@/store/tab/types';
 import { fileCommands } from './commands/file-commands';
+import { searchCommands } from './commands/search-commands';
 
 type MenuExec = () => Promise<void> | void;
 
@@ -14,14 +15,16 @@ export interface AppMenuItem {
   exec: MenuExec;
   hotkey?: AppHotkey;
   checkEnabledFn?: () => boolean;
+  cancelFilenameSearch: boolean;
 }
 
-function M(value: string, exec: MenuExec, hotkey?: string, checkEnabledFn?: () => boolean): AppMenuItem {
+function M(value: string, exec: MenuExec, hotkey?: string, checkEnabledFn?: () => boolean, cancelFilenameSearch: boolean = true): AppMenuItem {
   return {
     value,
     exec,
     hotkey: hotkey !== undefined ? new AppHotkey(hotkey) : undefined,
     checkEnabledFn,
+    cancelFilenameSearch: cancelFilenameSearch,
   };
 }
 
@@ -104,8 +107,9 @@ export const menuItems = {
   preference: M('設定', () => dialogCommands.openPreference(), 'Ctrl//,'),
 
   // -------------------- Search --------------------
-  // TODO
-  searchFile: M('ファイル検索', () => dialogCommands.openPreference()),
+  searchFile: M('ファイル検索', () => searchCommands.searchStart(), undefined, hasTab),
+  searchNext: M('次のファイルを検索', () => searchCommands.searchNext(), 'Ctrl//N', hasTab, false),
+  searchPrev: M('前のファイルを検索', () => searchCommands.searchPrev(), 'Ctrl//P', hasTab, false),
 
   // -------------------- View --------------------
 

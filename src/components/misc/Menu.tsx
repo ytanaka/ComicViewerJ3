@@ -115,12 +115,11 @@ export function Menu() {
       {/* -------------------------------------------------------------------------------------------------------- */}
       <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>Search</MenubarTrigger>
-        {/* TODO */}
         <MenubarContent className="w-auto min-w-max">
           <MenubarGroup>
-            <MyMenuItem m={menuItems.cutFile} />
-            <MyMenuItem m={menuItems.copyFile} />
-            <MyMenuItem m={menuItems.pasteFile} />
+            <MyMenuItem m={menuItems.searchFile} />
+            <MyMenuItem m={menuItems.searchNext} />
+            <MyMenuItem m={menuItems.searchPrev} />
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>

@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { useTabStore } from '@/store/tab/store';
-import { useSearchTextStore } from '@/store/file-search-text-store';
 import { searchHelper } from '../commands/search-helper';
 import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
 import { TabInfo } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
+import { searchCommands } from '../commands/search-commands';
 
 function st() {
   return useTabStore.getState();
@@ -38,14 +38,8 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent, tabInfo: TabInfo, rowNu
   // ファイル検索
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
-    const romaji = useSearchTextStore.getState().text;
-    if (romaji.length === 0) return false;
-
-    const reverse = keyLow === 'p';
-    let startIndex = reverse ? focusIndex - 1 : focusIndex + 1;
-    if (dirEntries.length <= startIndex) startIndex = 0;
-    if (startIndex < 0) startIndex = dirEntries.length - 1;
-    searchHelper.searchNextFilename(tab, startIndex, romaji, reverse);
+    if (keyLow === 'n') searchCommands.searchNext();
+    if (keyLow === 'p') searchCommands.searchPrev();
     e.preventDefault();
     return true;
   }

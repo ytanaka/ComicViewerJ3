@@ -19,7 +19,7 @@ export function HotKeys() {
         e.stopPropagation();
         e.stopImmediatePropagation();
         m.exec();
-        searchHelper.cancel();
+        if (m.cancelFilenameSearch) searchHelper.cancel();
         return;
       }
     };
