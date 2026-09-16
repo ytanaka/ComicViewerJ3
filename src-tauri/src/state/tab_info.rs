@@ -11,10 +11,9 @@ use anyhow::anyhow;
 
 use crate::{
     file_operations::{
-        file_sort::{cmp_file, mk_filename_cmp, FilenameCmpSupplement},
+        file_sort::{cmp_file, mk_filename_cmp},
         file_utils::read_metadata,
         file_watcher::FileWatcher,
-        sjis_cnv::SJIS_CACHE,
     },
     state::app_state::AppState,
     types::{
@@ -110,7 +109,6 @@ impl TabInfo {
 
     fn sort_items(&mut self) {
         let cmp = mk_filename_cmp(&self.state);
-        let mut cmp_supp = FilenameCmpSupplement::new(SJIS_CACHE.lock().unwrap());
         let need_metadata = !matches!(
             self.sort_condition.sort_type,
             crate::types::SortType::Name | crate::types::SortType::Ext
@@ -127,7 +125,7 @@ impl TabInfo {
             }
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(a, b, &self.sort_condition, cmp.as_ref(), &mut cmp_supp)
+            cmp_file(a, b, &self.sort_condition, cmp.as_ref())
         });
         self.sorted_list = Some(list);
         self.generation += 1;
