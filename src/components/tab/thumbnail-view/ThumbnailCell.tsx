@@ -28,7 +28,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
 
   // サムネイル画像ファイル作成
   const { data: thumbData } = useThumbnailPath(tab.id, dirEntry, thumbSize);
-  if (!dirEntry.is_dir && thumbData?.type === 'NotImage') {
+  if (!dirEntry.is_dir && thumbData?.type === 'Fail') {
     toolTipMsg += `\n\n画像読み込みエラー:\n${thumbData.error_msg}`;
   }
 

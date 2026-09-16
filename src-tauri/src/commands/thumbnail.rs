@@ -74,16 +74,17 @@ pub fn get_thumbnail_impl(
     }
 
     // サムネイル化対象ファイルを探す
-    let src_file = match get_thumbnail_target_file(state, dir, &file)? {
-        None => return Ok(GetThumbnailResult::NoImage),
-        Some(path) => path,
+    let src_file = match get_thumbnail_target_file(state, dir, &file) {
+        Err(msg) => return Ok(GetThumbnailResult::Fail { error_msg: msg }),
+        Ok(None) => return Ok(GetThumbnailResult::NoImage),
+        Ok(Some(path)) => path,
     };
 
     // サムネイルファイル作成
     let img = match image::open(&src_file) {
         Ok(i) => i,
         Err(e) => {
-            return Ok(GetThumbnailResult::NotImage {
+            return Ok(GetThumbnailResult::Fail {
                 error_msg: e.to_string(),
             })
         }
@@ -101,11 +102,14 @@ pub fn get_thumbnail_impl(
 
 /// サムネイル対象のファイルを探す。
 /// 必要なら、サブディレクトリを探す
+/// return OK(Some(filename)): 見つかった
+/// return OK(None): 見つからなかった
+/// return Err(msg): ファイル or ディレクトリが読めない
 fn get_thumbnail_target_file(
     state: &AppState,
     dir: impl AsRef<Path>,
     file: &FileInfoOS,
-) -> anyhow::Result<Option<PathBuf>> {
+) -> Result<Option<PathBuf>, String> {
     let path = dir.as_ref().join(&*file.name);
     get_thumbnail_target_file2(state, &path, 1)
 }
@@ -114,7 +118,7 @@ fn get_thumbnail_target_file2(
     state: &AppState,
     path: &PathBuf,
     depth: usize,
-) -> anyhow::Result<Option<PathBuf>> {
+) -> Result<Option<PathBuf>, String> {
     if 3 < depth {
         return Ok(None);
     };
@@ -129,7 +133,10 @@ fn get_thumbnail_target_file2(
     }
 
     // ディレクトリの場合
-    let mut list = file_utils::read_dir(path)?;
+    let mut list = match file_utils::read_dir(path) {
+        Err(e) => return Err(e.to_string()),
+        Ok(x) => x,
+    };
     file_utils::sort_files(state, &mut list);
     if list.is_empty() {
         return Ok(None);
