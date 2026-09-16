@@ -8,7 +8,7 @@ import { TabInfo } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 import { searchCommands } from '../commands/search-commands';
-import { isPictureFileExtension } from '../string-util';
+import { isPictureFileExtension } from '../tools/string-util';
 
 function st() {
   return useTabStore.getState();
@@ -20,8 +20,6 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   if (!tab) return false;
   const tabInfo = tab.info;
 
-  // キーボードによるリストのフォーカス移動ハンドラー
-  // フォーカスが移動したら、true
   const sel = tab.selection;
   const focusIndex = sel.focusIndex;
   const dirEntries = getQueryData_getDirEntries(tabInfo.id);
@@ -44,7 +42,7 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   // -------------------------------------------------------------------------------------------------------------------
   // ファイル検索
   // -------------------------------------------------------------------------------------------------------------------
-  if (!tab.imageView) {
+  if (!tab.imageViewMode.enable) {
     if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
       if (keyLow === 'n') searchCommands.searchNext();
       if (keyLow === 'p') searchCommands.searchPrev();
@@ -139,17 +137,6 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     st().setImageView(tabInfo.id, false);
     e.preventDefault();
     return true;
-  }
-
-  // -------------------------------------------------------------------------------------------------------------------
-  // Esc
-  // -------------------------------------------------------------------------------------------------------------------
-  if (NO_MOD && e.key === 'Escape') {
-    if (tab.imageView) {
-      st().setImageView(tabInfo.id, false);
-      e.preventDefault();
-      return true;
-    }
   }
 
   return false;

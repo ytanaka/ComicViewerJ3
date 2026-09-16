@@ -118,7 +118,7 @@ function TabContent() {
       }
 
       // ファイル検索テキスト入力
-      if (!st().getCurrentTab()?.imageView && fileSearchInput_handleKeyDown(e)) {
+      if (!st().getCurrentTab()?.imageViewMode.enable && fileSearchInput_handleKeyDown(e)) {
         return;
       }
 
@@ -132,7 +132,7 @@ function TabContent() {
   }); // 初回だけ実行する
 
   const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
-  const imageView = useTabStore(state => state.getCurrentTab()?.imageView) ?? false;
+  const imageView = useTabStore(state => state.getCurrentTab()?.imageViewMode.enable) ?? false;
 
   return imageView ? (
     <ImageView dirEntries={dirEntries} />

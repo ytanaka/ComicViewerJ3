@@ -21,10 +21,8 @@ export interface UiTab {
 
   fileViewMode: FileViewMode;
   thumbnailSize: number;
-  imageView: boolean;
-  dualImage: boolean;
-  imageZoom: number;
 
+  imageViewMode: ImageViewMode;
   sortCondition: SortCondition;
   selection: FileSelection;
   focusHistories: FileFocus[]; // 先頭が古いデータ
@@ -43,6 +41,13 @@ export enum FileViewMode {
   List,
   Thumbnail,
 }
+export interface ImageViewMode {
+  enable: boolean;
+  dualImage: boolean;
+  zoomLevel: number;
+  rotate: number;
+  useOriginalSize: boolean;
+}
 
 // =====================================================================================================================
 
@@ -60,9 +65,7 @@ export function mkUiTab(tab: TabInfo): UiTab {
     info: tab,
     fileViewMode: FileViewMode.List,
     thumbnailSize: THUMBNAIL_SIZE_DEFAULT,
-    imageView: false,
-    dualImage: false,
-    imageZoom: 1,
+    imageViewMode: mkImageViewMode(),
     sortCondition: mkDefaultSortCondition(),
     selection: mkFileSelection(),
     focusHistories: [],
@@ -80,6 +83,16 @@ export function mkFileSelection(): FileSelection {
     anchorIndex: 0,
     selectionIndexes: new Set(),
   };
+}
+
+export function mkImageViewMode(): ImageViewMode {
+  return {
+    enable: false,
+    dualImage: false,
+    zoomLevel: 0,
+    rotate: 0,
+    useOriginalSize: false,
+  }
 }
 
 // =====================================================================================================================

@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { DirEntry } from "@/lib/bindings-wrapper";
-import { isPictureFileExtension } from "@/lib/string-util";
+import { isPictureFileExtension } from "@/lib/tools/string-util";
 import { useListScrollHandlerStore } from "@/store/list-scroll-handler-store";
 import { useTabStore } from "@/store/tab/store";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { FileIconByFileInfo } from "../FileIconByFileInfo";
-import { getImageWH, ImageWidthHeight } from "./iamge-size-helper";
-import { useImageFullpath } from "./use-image-fullpath";
+import { getImageWH, ImageWidthHeight } from "./iamge-view-size-helper";
+import { useImageFullpath } from "../../../hooks/use-image-fullpath";
+import { useUiStore } from "@/store/ui-store";
+import { imageView_handleKeyDown } from "@/lib/event-handler/image-view-key-handler";
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -51,6 +53,26 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     });
   }
 
+  // キー操作
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // 遅延が発生していたらイベントを無視
+      const delay = performance.now() - e.timeStamp;
+      const timeout = useUiStore.getState().timeoutMsEventTimeStamp;
+      if (0 < timeout && timeout < delay) {
+        console.info('ignore keyboard event');
+        return;
+      }
+
+      if (imageView_handleKeyDown(e)) {
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }); // 初回だけ実行する
+
   const noImage = !isPictureFileExtension(getImagePaths(focusIndex) ?? "");
 
   const imgs = [
@@ -60,9 +82,9 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     getImagePaths(focusIndex + 3),
   ];
 
-  const dualView = useTabStore(state => state.getCurrentTab()?.dualImage) ?? false;
-  const uiZoom = useTabStore(state => state.getCurrentTab()?.imageZoom) ?? 1;
-  const [imgSize0, imgSize1] = getImageWH({ imageInfos, fileIndex: focusIndex, dualView, uiZoom, divSize });
+  const dualView = useTabStore(state => state.getCurrentTab()?.imageViewMode.dualImage) ?? false;
+  const uiZoom = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 1;
+  const [imgSize0, imgSize1] = getImageWH({ imageInfos, fileIndex: focusIndex, dualView, zoomLevel: uiZoom, divSize });
 
   console.debug(`<ImageView> ${tab.path}`, "focusIndex=", focusIndex, "divSize=", divSize, "img0=", imgs[0], "size0=", imgSize0);
 

@@ -1,3 +1,5 @@
+import { zoomLevel2ZoomRatio } from "@/lib/tools/image-zoom";
+
 export type ImageWidthHeight = {
   width: number;
   height: number;
@@ -7,7 +9,7 @@ export type ImageViewHelperParam = {
   imageInfos: ImageWidthHeight[];
   fileIndex: number;
   dualView: boolean;
-  uiZoom: number;
+  zoomLevel: number;
   divSize: ImageWidthHeight | null;
 }
 
@@ -40,7 +42,8 @@ export function getImageWH(param: ImageViewHelperParam): ImageWidthHeight[] {
   return getImageWH2(param);
 }
 function getImageWH1(param: ImageViewHelperParam) {
-  const { imageInfos, fileIndex, uiZoom, divSize } = param;
+  const { imageInfos, fileIndex, zoomLevel, divSize } = param;
+  const uiZoom = zoomLevel2ZoomRatio(zoomLevel);
 
   // 画像のサイズ
   const imgWidth = imageInfos[fileIndex].width;
@@ -83,7 +86,8 @@ function getImageWH1(param: ImageViewHelperParam) {
 }
 
 function getImageWH2(param: ImageViewHelperParam) {
-  const { imageInfos, fileIndex, uiZoom, divSize } = param;
+  const { imageInfos, fileIndex, zoomLevel, divSize } = param;
+  const uiZoom = zoomLevel2ZoomRatio(zoomLevel);
 
   // 画像のサイズ
   const w1 = imageInfos[fileIndex].width;

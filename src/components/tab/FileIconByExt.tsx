@@ -33,7 +33,7 @@ import fileTypeLibreofficeCalc from '@iconify-icons/vscode-icons/file-type-libre
 import fileTypeLibreofficeWriter from '@iconify-icons/vscode-icons/file-type-libreoffice-writer';
 import fileTypeZip2 from '@iconify-icons/vscode-icons/file-type-zip2';
 
-import { getFileExtension } from '@/lib/string-util';
+import { getFileExtension } from '@/lib/tools/string-util';
 
 /*
 Tauriの Linux release ビルドでアイコンが表示されない問題について

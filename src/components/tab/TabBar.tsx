@@ -5,7 +5,7 @@ import { Plus, X } from 'lucide-react';
 
 import { Button } from '../ui/button';
 import { tabCommands } from '@/lib/commands/tab-commands';
-import { getPathBasename } from '@/lib/string-util';
+import { getPathBasename } from '@/lib/tools/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { UiTab } from '@/store/tab/types';
 import { useFocusStore } from '@/store/focus-store';

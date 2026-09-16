@@ -5,6 +5,7 @@ import { useTabStore } from "@/store/tab/store";
 import { TabId } from "@/store/tab/types";
 import { useCmdGetDirEntries } from "@/services/tab-dir-entry";
 
+// ImageView の中で、DirEntry[] のファイル名をフルパスに変換する
 export function useImageFullpath(tabId: TabId) {
   const tab = useTabStore(state => state.getTab(tabId))!;
   const { data: dirEntries } = useCmdGetDirEntries(tab.info);

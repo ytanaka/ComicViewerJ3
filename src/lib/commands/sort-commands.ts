@@ -1,7 +1,7 @@
 import { useTabStore } from '@/store/tab/store';
 import { handleRustCmdResult, rustcmds, SortType_type } from '../bindings-wrapper';
 import { toast } from 'sonner';
-import { DelayedToast } from '../delayed-toast';
+import { DelayedToast } from '../tools/delayed-toast';
 
 export const sortCommands = {
   async sortFiles(type: SortType_type) {

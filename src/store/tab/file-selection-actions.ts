@@ -14,8 +14,6 @@ export interface FileSelectionActions {
   moveFocusWithSelectionArea: (tabId: TabId, index: number) => void;
   toggleSelection: (tabId: TabId, index: number) => void;
   toggleAllSelection: (tabId: TabId) => void;
-
-  isValidFileIndex: (tabId: TabId, index: number) => boolean;
 }
 
 export const createFileSelectionActions: StateCreator<
@@ -55,7 +53,7 @@ export const createFileSelectionActions: StateCreator<
   // ↑↓で普通にフォーカス移動、マウスクリックでファイル選択
   // Focus, Anchor, Select が変わる
   moveFocusNormal: (tabId: TabId, index: number) => {
-    if (!get().isValidFileIndex(tabId, index)) return;
+    if (!isValidFileIndex(tabId, index)) return;
     set(state => {
       _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
@@ -70,7 +68,7 @@ export const createFileSelectionActions: StateCreator<
   // Ctrl + ↑↓でフォーカスだけが移動する
   // Select が変化せずに Focus, Anchor が変わる
   moveFocusOnly: (tabId: TabId, index: number) => {
-    if (!get().isValidFileIndex(tabId, index)) return;
+    if (!isValidFileIndex(tabId, index)) return;
     set(state => {
       _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
@@ -84,7 +82,7 @@ export const createFileSelectionActions: StateCreator<
   // Shift + ↑↓で選択エリアを変更する
   // Anchor が変化せずに Focus, Select が変わる
   moveFocusWithSelectionArea: (tabId: TabId, index: number) => {
-    if (!get().isValidFileIndex(tabId, index)) return;
+    if (!isValidFileIndex(tabId, index)) return;
     set(state => {
       _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
@@ -108,7 +106,7 @@ export const createFileSelectionActions: StateCreator<
 
   // Ctrl + 'Space' でフォーカス一の選択をON/OFF
   toggleSelection: (tabId: TabId, index: number) => {
-    if (!get().isValidFileIndex(tabId, index)) return;
+    if (!isValidFileIndex(tabId, index)) return;
     set(state => {
       _useTabStore_setExistTabFields(state, tabId, tab => {
         const sel = tab.selection;
@@ -138,8 +136,8 @@ export const createFileSelectionActions: StateCreator<
       });
     });
   },
-
-  isValidFileIndex: (tabId: TabId, index: number) => {
-    return getQueryData_getDirEntry(tabId, index) !== undefined;
-  },
 });
+
+function isValidFileIndex(tabId: TabId, index: number) {
+  return getQueryData_getDirEntry(tabId, index) !== undefined;
+}

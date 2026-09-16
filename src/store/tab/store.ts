@@ -2,13 +2,15 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-import { AllTabs, getNextDummyTabId, mkDefaultSortCondition } from './types';
+import { AllTabs, getNextDummyTabId, mkDefaultSortCondition, mkImageViewMode } from './types';
 import { createUiTabActions, UiTabActions } from './tab-info-actions';
 import { TabStoreActions, createAllTabsActions } from './store-actions';
 import { createFileSelectionActions, FileSelectionActions } from './file-selection-actions';
 import { createFileFocusHistoryActions, FileFocusHistoryActions } from './file-focus-history-actions';
+import { createImageViewModeActions, ImageViewModeActions } from './tab-info-image-action';
 
-export type TabActions = TabStoreActions & UiTabActions & FileSelectionActions & FileFocusHistoryActions;
+
+export type TabActions = TabStoreActions & UiTabActions & ImageViewModeActions & FileSelectionActions & FileFocusHistoryActions;
 
 export type TabStore = AllTabs & TabActions;
 
@@ -20,6 +22,7 @@ export const useTabStore = create<TabStore>()(
 
       ...createAllTabsActions(set, get, store),
       ...createUiTabActions(set, get, store),
+      ...createImageViewModeActions(set, get, store),
       ...createFileSelectionActions(set, get, store),
       ...createFileFocusHistoryActions(set, get, store),
     })),
@@ -42,8 +45,7 @@ export const useTabStore = create<TabStore>()(
             state.tabs[i].info.id = getNextDummyTabId();
             state.tabs[i].sortCondition = mkDefaultSortCondition();
             state.tabs[i].selection.selectionIndexes = new Set();
-            state.tabs[i].imageView = false;
-            state.tabs[i].dualImage = false;
+            state.tabs[i].imageViewMode = mkImageViewMode();
           }
         } catch (e) {
           console.error(e);

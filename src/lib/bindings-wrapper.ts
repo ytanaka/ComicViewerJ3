@@ -12,7 +12,7 @@ import {
   SortType,
   TabInfoUI,
 } from './bindings';
-import { logErr } from './log';
+import { logErr } from './tools/log';
 import { toast } from 'sonner';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る

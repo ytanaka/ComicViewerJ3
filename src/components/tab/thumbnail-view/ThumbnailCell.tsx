@@ -7,7 +7,7 @@ import { useTabStore } from '@/store/tab/store';
 import { useFileInfo1Query } from '@/services/tab-file-info';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
 import React from 'react';
-import { unixTime2str } from '@/lib/string-util';
+import { unixTime2str } from '@/lib/tools/string-util';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';
 import { SearchResult } from '../SearchResult';
 

@@ -2,7 +2,7 @@ import { FileId, TabId } from '@/store/tab/types';
 import { useQuery } from '@tanstack/react-query';
 import { queryKey_tabId } from './tab';
 import { DirEntry, handleRustCmdResult, rustcmds } from '@/lib/bindings-wrapper';
-import { isPictureFileExtension } from '@/lib/string-util';
+import { isPictureFileExtension } from '@/lib/tools/string-util';
 import { usePreferences } from './preferences';
 
 function queryKey_useThumbnailPath(tabId: TabId, fileId: FileId, size: number) {
