@@ -23,6 +23,7 @@ export interface UiTab {
   thumbnailSize: number;
   imageView: boolean;
   dualImage: boolean;
+  imageZoom: number;
 
   sortCondition: SortCondition;
   selection: FileSelection;
@@ -61,6 +62,7 @@ export function mkUiTab(tab: TabInfo): UiTab {
     thumbnailSize: THUMBNAIL_SIZE_DEFAULT,
     imageView: false,
     dualImage: false,
+    imageZoom: 1,
     sortCondition: mkDefaultSortCondition(),
     selection: mkFileSelection(),
     focusHistories: [],

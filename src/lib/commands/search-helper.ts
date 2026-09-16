@@ -15,6 +15,7 @@ const emptyTab: Readonly<UiTab> = {
   thumbnailSize: 0,
   imageView: false,
   dualImage: false,
+  imageZoom: 1,
   sortCondition: mkDefaultSortCondition(),
   selection: mkFileSelection(),
   focusHistories: [],
