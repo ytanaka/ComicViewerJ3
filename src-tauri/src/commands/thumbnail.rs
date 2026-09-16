@@ -137,7 +137,7 @@ fn get_thumbnail_target_file2(
         Err(e) => return Err(e.to_string()),
         Ok(x) => x,
     };
-    file_utils::sort_files(state, &mut list);
+    file_utils::sort_by_name(state, &mut list);
     if list.is_empty() {
         return Ok(None);
     }

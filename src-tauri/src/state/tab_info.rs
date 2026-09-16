@@ -11,12 +11,8 @@ use anyhow::anyhow;
 
 use crate::{
     file_operations::{
-        file_sort::{cmp_file, mk_filename_cmp},
-        file_utils::read_metadata,
-        file_watcher::FileWatcher,
-    },
-    state::app_state::AppState,
-    types::{
+        file_sort::{cmp_file, mk_filename_cmp}, file_utils::read_metadata, file_watcher::FileWatcher, sjis_cnv::SJIS_CACHE,
+    }, state::app_state::AppState, types::{
         DirEntryUI, Either, FileId, FileInfoOS, FileMetadata, SortCondition, TabId, TabInfoUI,
     },
 };
@@ -115,6 +111,7 @@ impl TabInfo {
         );
 
         let mut list: Vec<_> = self.files.keys().copied().collect();
+        let mut sjis_cache = SJIS_CACHE.lock().unwrap();
         list.sort_by(|a, b| {
             // この関数は MetadataWorkerでメタデータ取得完了前にも呼ばれることがある。(タブ作成直後のget_dir_entries()で)
             // その場合はソートにメタデータは不要。
@@ -125,7 +122,7 @@ impl TabInfo {
             }
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(a, b, &self.sort_condition, cmp.as_ref())
+            cmp_file(a, b, &self.sort_condition, cmp.as_ref(), &mut sjis_cache)
         });
         self.sorted_list = Some(list);
         self.generation += 1;

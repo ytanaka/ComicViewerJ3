@@ -306,7 +306,7 @@ async fn clone_tab_sibling_dir_impl<E: EventEmitter>(
     }
 
     // 名前でソート
-    file_utils::sort_files(state, &mut list);
+    file_utils::sort_by_name(state, &mut list);
 
     // 現在ディレクトリの位置から移動先のディレクトリを見つける
     let current = path.file_name().unwrap_or_default();
