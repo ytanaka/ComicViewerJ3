@@ -3,13 +3,13 @@ import { create } from 'zustand';
 // ファイルリストのフォーカス位置の微調整
 // タブ内のファイル一覧が更新された直後に virtuoso の scrollIntoView を呼んでもスクロールできないので少し遅延させるためのフラグ
 export interface ScrollToFocusStore {
-  doScroll: boolean;
+  needScroll: boolean;
 
-  setScroll: (doScroll: boolean) => void;
+  setNeedScroll: (on: boolean) => void;
 }
 
 export const useScrollToFocusStore = create<ScrollToFocusStore>()(set => ({
-  doScroll: false,
+  needScroll: false,
 
-  setScroll: (doScroll: boolean) => set({ doScroll }),
+  setNeedScroll: (on: boolean) => set({ needScroll: on }),
 }));

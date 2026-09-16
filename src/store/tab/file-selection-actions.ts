@@ -49,7 +49,7 @@ export const createFileSelectionActions: StateCreator<
       });
     });
 
-    useScrollToFocusStore.getState().setScroll(true);
+    useScrollToFocusStore.getState().setNeedScroll(true);
   },
 
   // ↑↓で普通にフォーカス移動、マウスクリックでファイル選択

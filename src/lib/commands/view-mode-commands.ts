@@ -41,7 +41,7 @@ function changeViewMode(mode: FileViewMode) {
   if (!tab) return;
 
   st().setViewMode(tab.info.id, mode);
-  useScrollToFocusStore.getState().setScroll(true);
+  useScrollToFocusStore.getState().setNeedScroll(true);
 }
 
 function thumbnailSizeUpDown(n: number) {
@@ -58,5 +58,5 @@ function thumbnailSizeUpDown(n: number) {
   if (tab.thumbnailSize === newSize) return;
 
   st().setThumbnailSize(tab.info.id, newSize);
-  useScrollToFocusStore.getState().setScroll(true);
+  useScrollToFocusStore.getState().setNeedScroll(true);
 }

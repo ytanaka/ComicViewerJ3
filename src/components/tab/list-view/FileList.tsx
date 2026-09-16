@@ -8,7 +8,6 @@ import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-i
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { useUiStore } from '@/store/ui-store';
 import { DirEntry } from '@/lib/bindings-wrapper';
-import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
@@ -57,25 +56,6 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }); // 初回だけ実行する
-
-  // スクロール位置調整
-  const doScroll = useScrollToFocusStore(state => state.doScroll);
-  const setScroll = useScrollToFocusStore(state => state.setScroll);
-  useEffect(() => {
-    if (!doScroll) return;
-    function scr() {
-      const focusIndex = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
-      if (focusIndex !== undefined) {
-        virtuoso.current?.scrollIntoView({
-          index: focusIndex,
-        });
-      }
-    }
-
-    // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
-    setTimeout(() => scr(), 100);
-    setScroll(false);
-  }, [doScroll, setScroll]); // スクロールが指示されたら実行する
 
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
 

@@ -15,7 +15,6 @@ import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfo
 import { useUiStore } from '@/store/ui-store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
-import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
 // サムネイル<div>を取得し、列数を計算するためにこの文字列を className に設定する
@@ -146,26 +145,6 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }); // 初回だけ実行する
-
-  // スクロール位置調整
-  const doScroll = useScrollToFocusStore(state => state.doScroll);
-  const setScroll = useScrollToFocusStore(state => state.setScroll);
-  useEffect(() => {
-    if (!doScroll) return;
-    function scr() {
-      const focusIndex = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
-      if (focusIndex !== undefined) {
-        virtuoso.current?.scrollToIndex({
-          index: focusIndex,
-          align: 'center',
-        });
-      }
-    }
-
-    // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
-    setTimeout(() => scr(), 100);
-    setScroll(false);
-  }, [doScroll, setScroll]); // スクロールが指示されたら実行する
 
   const handleRangeChanged = (range: ListRange) => {
     // ResizeObserver が画面初期表示時に呼ばれないので、ここでも呼んでおく

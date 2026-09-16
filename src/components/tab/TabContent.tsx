@@ -10,6 +10,8 @@ import { Thumbnails } from './thumbnail-view/Thumbnails';
 import { useCmdCreateTab } from '@/services/tab';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useCmdGetDirEntries } from '@/services/tab-dir-entry';
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
+import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 
 function st() {
   return useTabStore.getState();
@@ -79,6 +81,25 @@ function TabContent() {
     };
     setHist();
   }, [tab.id, tab.path]); // 初回表示時だけ実行する
+
+  // スクロール位置調整
+  const needScroll = useScrollToFocusStore(state => state.needScroll);
+  const setNeedScroll = useScrollToFocusStore(state => state.setNeedScroll);
+  useEffect(() => {
+    if (!needScroll) return;
+    function scr() {
+      const focusIndex = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
+      if (focusIndex !== undefined) {
+        const doScroll = useListScrollHandlerStore.getState().doScroll;
+        doScroll?.(focusIndex);
+      }
+    }
+
+    // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
+    setTimeout(() => scr(), 100);
+    setNeedScroll(false);
+  }, [needScroll, setNeedScroll]); // スクロールが指示されたら実行する
+
 
   const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
 

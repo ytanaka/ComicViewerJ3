@@ -66,7 +66,7 @@ export const tabCommands = {
     handleRustCmdResult(result, `rustcmds.removeTab(${tabId})`, 'タブ削除失敗', () => {
       st().removeTab(tabId);
       removeQueries_tab(tabId);
-      useScrollToFocusStore.getState().setScroll(true);
+      useScrollToFocusStore.getState().setNeedScroll(true);
     });
   },
 
@@ -80,7 +80,7 @@ export const tabCommands = {
   // フォーカスするタブの指定
   setCurrentTabIndex(index: number) {
     st().setCurrentTabIndex(index);
-    useScrollToFocusStore.getState().setScroll(true);
+    useScrollToFocusStore.getState().setNeedScroll(true);
   },
 
   // フォーカスするタブを移動
