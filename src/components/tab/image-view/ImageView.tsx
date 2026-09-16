@@ -1,14 +1,19 @@
+import React, { useEffect, useRef, useState } from "react";
+
 import { DirEntry } from "@/lib/bindings-wrapper";
 import { isPictureFileExtension } from "@/lib/string-util";
 import { useListScrollHandlerStore } from "@/store/list-scroll-handler-store";
 import { useTabStore } from "@/store/tab/store";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { join as tauri_join } from "@tauri-apps/api/path";
-import React, { useEffect, useRef, useState } from "react";
 import { FileIconByFileInfo } from "../FileIconByFileInfo";
-import { getImageWH, ImageWidthHeight } from "./iamge-view-helper";
+import { getImageWH, ImageWidthHeight } from "./iamge-size-helper";
+import { useImageFullpath } from "./use-image-fullpath";
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
+  const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
+  const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
+
+  // 画面サイズ管理
   const divRef = useRef<HTMLDivElement>(null);
   const [divSize, setDivSize] = useState<ImageWidthHeight | null>(null);
   useEffect(() => {
@@ -22,9 +27,6 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
-  const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
-
   const setRows = useListScrollHandlerStore(state => state.setRows);
   const setColumns = useListScrollHandlerStore(state => state.setColumns);
   const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
@@ -32,10 +34,10 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   setColumns(1);
   setScrollHandler(null);
 
-  // 画像ファイルのフルパス (async関数で作成するので、useState に格納する)
-  const [imagePaths, setImagePaths] = useState<string[]>([]);
+  // 画像ファイルのフルパス
+  const { data: imagePaths } = useImageFullpath(tab.id);
   const getImagePaths = (i: number): string | undefined => {
-    return imagePaths[i];
+    return imagePaths?.[i];
   }
 
   // 画像のサイズ (<img> で読み込んだ後で設定される)
@@ -48,19 +50,6 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
       return copy;
     });
   }
-
-  useEffect(() => {
-    async function getFilenames() {
-      if (!dirEntries) return;
-      const paths: string[] = [];
-      for (let i = 0; i < dirEntries.length; i++) {
-        const p = await tauri_join(tab.path, dirEntries[i].name);
-        paths.push(p);
-      }
-      setImagePaths(paths);
-    }
-    getFilenames();
-  }, [dirEntries, tab.path]);
 
   const noImage = !isPictureFileExtension(getImagePaths(focusIndex) ?? "");
 
@@ -75,7 +64,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const uiZoom = useTabStore(state => state.getCurrentTab()?.imageZoom) ?? 1;
   const [imgSize0, imgSize1] = getImageWH({ imageInfos, fileIndex: focusIndex, dualView, uiZoom, divSize });
 
-  console.debug(`<ImageView> ${tab.path}`, "divSize=", divSize, "img0=", imgs[0], "size0=", imgSize0);
+  console.debug(`<ImageView> ${tab.path}`, "focusIndex=", focusIndex, "divSize=", divSize, "img0=", imgs[0], "size0=", imgSize0);
 
   // const rendering = 'crisp-edges';
   // const rendering = 'pixelated';
