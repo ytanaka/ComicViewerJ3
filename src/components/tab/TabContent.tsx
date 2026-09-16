@@ -15,6 +15,7 @@ import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 import { useUiStore } from '@/store/ui-store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
+import { ImageView } from './image-view/ImageView';
 
 function st() {
   return useTabStore.getState();
@@ -131,8 +132,11 @@ function TabContent() {
   }); // 初回だけ実行する
 
   const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
+  const imageView = useTabStore(state => state.getCurrentTab()?.imageView) ?? false;
 
-  return fileViewMode === FileViewMode.Thumbnail ? (
+  return imageView ? (
+    <ImageView dirEntries={dirEntries} />
+  ) : fileViewMode === FileViewMode.Thumbnail ? (
     <Thumbnails dirEntries={dirEntries} />
   ) : (
     <FileList dirEntries={dirEntries} />

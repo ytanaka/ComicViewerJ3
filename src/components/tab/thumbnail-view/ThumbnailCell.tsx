@@ -59,7 +59,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
             }}
           >
             <div className="min-w-[1lh] w-[3lh]">
-              <FileIconByFileInfo dirEntry={dirEntry} fileInfo={fileInfo} />
+              <FileIconByFileInfo dirEntry={dirEntry} />
             </div>
           </div>
         ) : (

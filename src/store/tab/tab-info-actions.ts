@@ -18,6 +18,7 @@ export interface UiTabActions {
   invalidateTabForRefresh: (tabId: TabId) => void;
   setViewMode: (tabId: TabId, mode: FileViewMode) => void;
   setThumbnailSize: (tabId: TabId, size: number) => void;
+  setImageView: (tabId: TabId, b: boolean) => void;
 }
 
 export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never]], [], UiTabActions> = (set, get) => {
@@ -78,5 +79,13 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
         });
       });
     },
+
+    setImageView: (tabId: TabId, b: boolean) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
+          tab.imageView = b;
+        });
+      });
+    }
   };
 };

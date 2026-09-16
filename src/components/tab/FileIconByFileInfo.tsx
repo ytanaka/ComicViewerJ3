@@ -1,18 +1,15 @@
 import { Icon } from '@iconify/react';
 
 import fileFolder from '@iconify-icons/fluent-emoji-flat/file-folder';
-import redExclamationMark from '@iconify-icons/fluent-emoji-flat/red-exclamation-mark';
 import upRightArrow from '@iconify-icons/fluent-emoji-flat/up-right-arrow';
 
-import { DirEntry, FileInfo } from '@/lib/bindings-wrapper';
+import { DirEntry } from '@/lib/bindings-wrapper';
 import { ReactNode } from 'react';
 import { FileIconByFilenameExt } from './FileIconByExt';
 
-export function FileIconByFileInfo({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
+export function FileIconByFileInfo({ dirEntry }: { dirEntry: DirEntry }) {
   let icon: ReactNode;
-  if (fileInfo?.metadata.Left) {
-    icon = <Icon icon={redExclamationMark} height="100%" />;
-  } else if (dirEntry.is_symlink && dirEntry.is_dir) {
+  if (dirEntry.is_symlink && dirEntry.is_dir) {
     icon = (
       <div className="relative h-full">
         <Icon icon={fileFolder} height="100%" />

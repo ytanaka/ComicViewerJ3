@@ -8,6 +8,7 @@ import { TabInfo } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 import { searchCommands } from '../commands/search-commands';
+import { isPictureFileExtension } from '../string-util';
 
 function st() {
   return useTabStore.getState();
@@ -65,9 +66,9 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     newIndex = focusIndex + rowNum * colNum;
   } else if (e.key === 'PageUp') {
     newIndex = focusIndex - rowNum * colNum;
-  } else if (e.key === 'ArrowRight' && colNum !== 1) {
+  } else if (e.key === 'ArrowRight') {
     newIndex = focusIndex + 1;
-  } else if (e.key === 'ArrowLeft' && colNum !== 1) {
+  } else if (e.key === 'ArrowLeft') {
     newIndex = focusIndex - 1;
   } else if (e.key === 'Home') {
     newIndex = 0;
@@ -117,7 +118,15 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && e.key === 'Enter') {
     const ent = dirEntries[sel.focusIndex];
-    if (!ent.is_dir) return false;
+    if (!ent.is_dir) {
+      // 画像表示
+      if (isPictureFileExtension(ent.name)) {
+        st().setImageView(tabInfo.id, true);
+        e.preventDefault();
+        return true;
+      }
+      return false;
+    }
 
     fileCommands.moveToChildDirectory(ent);
     e.preventDefault();
@@ -125,8 +134,20 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   }
   if (NO_MOD && e.key === 'Backspace') {
     fileCommands.moveToParentDir();
+    st().setImageView(tabInfo.id, false);
     e.preventDefault();
     return true;
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+  // Esc
+  // -------------------------------------------------------------------------------------------------------------------
+  if (NO_MOD && e.key === 'Escape') {
+    if (tab.imageView) {
+      st().setImageView(tabInfo.id, false);
+      e.preventDefault();
+      return true;
+    }
   }
 
   return false;

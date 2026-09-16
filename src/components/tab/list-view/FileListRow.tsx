@@ -8,10 +8,10 @@ import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/tab-file-info';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';
 
-function Icon({ dirEntry, fileInfo }: { dirEntry: DirEntry; fileInfo: FileInfo | undefined }) {
+function Icon({ dirEntry}: { dirEntry: DirEntry }) {
   return (
     <td style={{ height: '1lh' }} className="block box-border pl-1 pr-1">
-      <FileIconByFileInfo dirEntry={dirEntry} fileInfo={fileInfo} />
+      <FileIconByFileInfo dirEntry={dirEntry} />
     </td>
   );
 }
@@ -73,7 +73,7 @@ export function FileListRow({
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
   return (
     <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
-      <Icon dirEntry={dirEntry} fileInfo={fileInfo} />
+      <Icon dirEntry={dirEntry} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tabInfo} />}</FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />

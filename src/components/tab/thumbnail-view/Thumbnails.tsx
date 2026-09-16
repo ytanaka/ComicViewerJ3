@@ -121,6 +121,8 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
 
   if (dirEntries === undefined) {
     return <div>更新中</div>;
+  } else if (dirEntries.length === 0) {
+    return <div>ファイルがありません</div>;
   } else {
     return (
       <div ref={containerRef} className="h-full w-full">

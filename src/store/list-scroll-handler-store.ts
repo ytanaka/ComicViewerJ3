@@ -4,17 +4,17 @@ import { create } from 'zustand';
 export interface ListScrollHandlerStore {
   rows: number;
   columns: number;
+  doScroll: ((fileIndex: number) => void) | null;
 
   setRows: (n: number) => void;
   setColumns: (n: number) => void;
-
-  doScroll: ((fileIndex: number) => void) | null;
-  setScrollHandler: (fn: (fileIndex: number) => void) => void;
+  setScrollHandler: (fn: ((fileIndex: number) => void) | null) => void;
 }
 
 export const useListScrollHandlerStore = create<ListScrollHandlerStore>()((set, get) => ({
   rows: 1,
   columns: 1,
+  doScroll: null,
 
   setRows: (n: number) => {
     if (get().rows === n) return;
@@ -26,9 +26,7 @@ export const useListScrollHandlerStore = create<ListScrollHandlerStore>()((set, 
     console.log('useListScrollHandlerStore: columns changed(', get().columns, '=>', n, ')');
     set(state => ({ ...state, columns: n }));
   },
-
-  doScroll: null,
-  setScrollHandler: (fn: (fileIndex: number) => void) => {
+  setScrollHandler: (fn: ((fileIndex: number) => void) | null) => {
     set({ doScroll: fn });
   },
 }));
