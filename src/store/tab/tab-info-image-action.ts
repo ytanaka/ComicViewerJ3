@@ -2,6 +2,8 @@ import { _useTabStore_setExistTabFields, TabId } from './types';
 import { TabStore } from './store';
 import { StateCreator } from 'zustand';
 import { zoomLevelNormalize } from '@/lib/tools/image-zoom';
+import { useUiVolatileStore } from '../ui-volatile-store';
+import { windowCommands } from '@/lib/commands/window-commands';
 
 export interface ImageViewModeActions {
   setImageView: (tabId: TabId, b: boolean) => void;
@@ -17,6 +19,18 @@ export const createImageViewModeActions: StateCreator<
 > = set => {
   return {
     setImageView: (tabId: TabId, b: boolean) => {
+      const full = useUiVolatileStore.getState().isFullscreen;
+      const shouldFull = useUiVolatileStore.getState().shouldFullscreenWhenImageView;
+      if (full) {
+        if (!b) {
+          windowCommands.setFullscreen(false);
+        }
+      } else {
+        if (b && shouldFull) {
+          windowCommands.setFullscreen(true);
+        }
+      }
+
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
           tab.imageViewMode.enable = b;
