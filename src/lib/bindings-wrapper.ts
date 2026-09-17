@@ -17,8 +17,10 @@ import { toast } from 'sonner';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
-  exitApp: commands.exitApp,
   init: commands.init,
+  exitApp: commands.exitApp,
+  setFullscreen: commands.setFullscreen,
+
   createTab: (path: string) => {
     return commands.createTab(path).then(result => cnvOk(result, toCreateTabResult));
   },

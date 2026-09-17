@@ -16,6 +16,8 @@ import { useUiStore } from '@/store/ui-store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { ImageView } from './image-view/ImageView';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
+import { rustcmds } from '@/lib/bindings-wrapper';
 
 function st() {
   return useTabStore.getState();
@@ -59,7 +61,19 @@ function TabContent() {
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
   useTabStore(state => state.getCurrentTab()?.refreshCount); // ソート状態が変わったら再レンダーする
 
+  const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
+  const imageView = useTabStore(state => state.getCurrentTab()?.imageViewMode.enable) ?? false;
+  const full = useUiVolatileStore(state => state.isFullscreen);
+
   console.debug(`<TabContent> tab[${currentTabIndex}](id:${tab.id}), ${tab.path}`);
+
+  // フルスクリーン解除
+  useEffect(() => {
+    if (full && !imageView) {
+      rustcmds.setFullscreen(false);
+      useUiVolatileStore.getState().setField('isFullscreen', false);
+    }
+  }, [full, imageView]);
 
   // タブ情報作成
   useCmdCreateTab(tab);
@@ -130,9 +144,6 @@ function TabContent() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }); // 初回だけ実行する
-
-  const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
-  const imageView = useTabStore(state => state.getCurrentTab()?.imageViewMode.enable) ?? false;
 
   return imageView ? (
     <ImageView dirEntries={dirEntries} />

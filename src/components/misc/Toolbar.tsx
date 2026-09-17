@@ -20,6 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { AppMenuItem, menuItems } from '@/lib/menu-items';
 import { useTabStore } from '@/store/tab/store';
 import { useFocusStore } from '@/store/focus-store';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
 function B({ icon, m }: { icon: ReactNode; m: AppMenuItem }) {
   const setFocus = useFocusStore(state => state.setFocus);
@@ -53,9 +54,14 @@ export function Toolbar() {
   // タブ状態やファイル選択状態が変わったら再描画させる
   useTabStore(state => state.getCurrentTab());
   useTabStore(state => state.getCurrentTab()?.selection);
+  const full = useUiVolatileStore(state => state.isFullscreen);
 
   return (
-    <div className="flex items-center gap-0.5 border rounded-md p-0.5">
+    <div
+      className="flex items-center gap-0.5 border rounded-md p-0.5"
+      hidden={full}
+      style={{ display: full ? 'none' : undefined }}
+    >
       <B icon={<FolderOpen />} m={menuItems.openDir} />
       <B icon={<Settings />} m={menuItems.preference} />
       <Separator orientation="vertical" className="m-1" />

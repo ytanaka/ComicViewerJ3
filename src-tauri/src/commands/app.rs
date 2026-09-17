@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, State, Window};
 
 use crate::{state::app_state::AppState, types::FileNotifyEvent};
 
@@ -25,6 +25,13 @@ pub fn exit_app(app: AppHandle, state: State<'_, Arc<AppState>>) {
     log::info!("command::exit_app()");
     state.stop();
     app.exit(0);
+}
+
+#[tauri::command]
+#[specta::specta]
+/// フルスクリーン
+pub fn set_fullscreen(window: Window, fullscreen: bool) {
+    let _ = window.set_fullscreen(fullscreen);
 }
 
 #[tauri::command]

@@ -12,6 +12,8 @@ export const commands = {
 	init: () => typedError<null, string>(__TAURI_INVOKE("init")),
 	/**  アプリ終了 */
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
+	/**  フルスクリーン */
+	setFullscreen: (fullscreen: boolean) => __TAURI_INVOKE<void>("set_fullscreen", { fullscreen }),
 	/**  ダミー */
 	dummy: (fileNotify: FileNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify }),
 	/**  タブ作成 (絶対パス) */

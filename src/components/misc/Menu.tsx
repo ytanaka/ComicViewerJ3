@@ -15,6 +15,7 @@ import {
 
 import { AppHotkey, AppMenuItem, menuItems } from '@/lib/menu-items';
 import { useFocusStore } from '@/store/focus-store';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
 function MyHotkey({ k }: { k: AppHotkey }) {
   return (
@@ -69,13 +70,14 @@ function MyMenuItem({ m }: { m: AppMenuItem }) {
 
 export function Menu() {
   const setFocus = useFocusStore(state => state.setFocus);
+  const full = useUiVolatileStore(state => state.isFullscreen);
 
   function handleOpenChange(open: boolean) {
     if (!open) setFocus();
   }
 
   return (
-    <Menubar>
+    <Menubar hidden={full} style={{ display: full ? 'none' : undefined }}>
       {/* -------------------------------------------------------------------------------------------------------- */}
       <MenubarMenu onOpenChange={handleOpenChange}>
         <MenubarTrigger>File</MenubarTrigger>

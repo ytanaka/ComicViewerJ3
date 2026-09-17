@@ -5,6 +5,7 @@ import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { _checkMaxTabs, tabCommands } from './tab-commands';
 import { useTabStore } from '@/store/tab/store';
 import { rustcmds } from '../bindings-wrapper';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
 export const windowCommands = {
   // アプリ終了
@@ -31,5 +32,11 @@ export const windowCommands = {
     if (typeof dir !== 'string') return;
 
     tabCommands.cloneTab(dir);
+  },
+
+  async setFullscreen(b: boolean) {
+    if (b === useUiVolatileStore.getState().isFullscreen) return;
+    await rustcmds.setFullscreen(b);
+    useUiVolatileStore.getState().setField('isFullscreen', b);
   },
 };

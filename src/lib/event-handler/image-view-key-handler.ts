@@ -3,12 +3,19 @@ import { dialogCommands } from '../commands/dialog-commands';
 import { TabInfo } from '../bindings-wrapper';
 import { zoomLevelNormalize } from '../tools/image-zoom';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
+import { windowCommands } from '../commands/window-commands';
 
 function st() {
   return useTabStore.getState();
 }
 
 export function imageView_handleKeyDown(e: KeyboardEvent): boolean {
+  const ret = imageView_handleKeyDown_impl(e);
+  if (ret) e.preventDefault();
+  return ret;
+}
+function imageView_handleKeyDown_impl(e: KeyboardEvent): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
   const tab = st().getCurrentTab();
   if (!tab) return false;
@@ -34,6 +41,15 @@ export function imageView_handleKeyDown(e: KeyboardEvent): boolean {
   }
 
   // -------------------------------------------------------------------------------------------------------------------
+  // フルスクリーン
+  // -------------------------------------------------------------------------------------------------------------------
+  if (NO_MOD && e.key === 'F11') {
+    const full = useUiVolatileStore.getState().isFullscreen;
+    windowCommands.setFullscreen(!full);
+    return true;
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
   // 回転
   // -------------------------------------------------------------------------------------------------------------------
 
@@ -44,7 +60,6 @@ export function imageView_handleKeyDown(e: KeyboardEvent): boolean {
   // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && e.key === ' ') {
     st().setDualImage(tabInfo.id, !tab.imageViewMode.dualImage);
-    e.preventDefault();
     return true;
   }
 
@@ -54,7 +69,6 @@ export function imageView_handleKeyDown(e: KeyboardEvent): boolean {
   if (NO_MOD && (e.key === 'Escape' || e.key === 'Enter')) {
     st().setImageView(tabInfo.id, false);
     useScrollToFocusStore.getState().setNeedScroll(true);
-    e.preventDefault();
     return true;
   }
 

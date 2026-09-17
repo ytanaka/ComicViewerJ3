@@ -6,6 +6,9 @@ export interface UiVolatileStore {
   // アプリケーションが初期化済みフラグ
   appInitialized: boolean;
 
+  // フルスクリーン
+  isFullscreen: boolean;
+
   // 設定ダイアログ表示フラグ
   showPreferencesDialog: boolean;
   // 設定ダイアログを開いたときの選択タブ
@@ -19,6 +22,7 @@ type UiVolatileStore_and_Action = UiVolatileStore & {
 export const useUiVolatileStore = create<UiVolatileStore_and_Action>()(set => ({
   appInitialized: false,
   showPreferencesDialog: false,
+  isFullscreen: false,
   preferenceDialogTabId: 'general',
 
   setField: (key, value) => set({ [key]: value }),
