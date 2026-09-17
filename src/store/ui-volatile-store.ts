@@ -6,11 +6,11 @@ export interface UiVolatileStore {
   // アプリケーションが初期化済みフラグ
   appInitialized: boolean;
 
-  // 現在のフルスクリーン状態
+  // 現在のシステムのフルスクリーン状態
   isFullscreen: boolean;
   // 画像表示モード時にフルスクリーンにするかどうか
   shouldFullscreenWhenImageView: boolean;
-  // フルスクリーン警告表示したかどうか
+  // フルスクリーン初回表示時の警告表示したかどうか
   isFullscreenUsageShown: boolean;
 
   // 設定ダイアログ表示フラグ

@@ -19,16 +19,21 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const divRef = useRef<HTMLDivElement>(null);
   const [divSize, setDivSize] = useState<ImageWidthHeight | null>(null);
   useEffect(() => {
-    const update = () => {
-      const rect = divRef.current?.getBoundingClientRect();
-      if (rect) setDivSize({ width: rect.width, height: rect.height });
-    };
-    window.addEventListener('resize', update);
-    update();
+    if (!divRef.current) return;
 
-    return () => window.removeEventListener('resize', update);
+    // window.addEventListener('resize', xxx); ではフルスクリーン切り替え時のサイズ取得に失敗した
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const { width, height } = entry.contentRect;
+      setDivSize({ width, height });
+    });
+    observer.observe(divRef.current);
+
+    return () => observer.disconnect();
   }, []);
 
+  // 行数、列数の設定
+  // ※ TabContent で共通処理をしているイベントハンドラーが使っている
   const setRows = useListScrollHandlerStore(state => state.setRows);
   const setColumns = useListScrollHandlerStore(state => state.setColumns);
   const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
@@ -71,7 +76,28 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }); // 初回だけ実行する
+  });
+
+  // マウスカーソルを隠す
+  const [hideCursor, setHideCursor] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    const handleMove = () => {
+      setHideCursor(false);
+
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        setHideCursor(true);
+      }, 1000);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, []);
 
   const noImage = !isPictureFileExtension(getImagePaths(focusIndex) ?? '');
 
@@ -93,7 +119,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const rendering = 'smooth';
 
   return (
-    <div ref={divRef} className="w-full h-full">
+    <div ref={divRef} className="w-full h-full" style={{ cursor: hideCursor ? "none" : "default" }}>
       {!dirEntries || dirEntries.length === 0 ? (
         // 空ディレクトリ
         <div>ファイルがありません</div>
@@ -111,15 +137,6 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
           className="flex justify-center items-center min-w-full min-h-full"
           style={{ width: imgSize0.width + imgSize1.width, height: Math.max(imgSize0.height, imgSize1.height) }}
         >
-          <img
-            src={convertFileSrc(imgs[0])}
-            style={{
-              imageRendering: rendering,
-              ...imgSize0,
-            }}
-            draggable={false}
-            onLoad={e => handleImageLoad(focusIndex, e)}
-          />
           {imgs[1] && (
             <img
               src={convertFileSrc(imgs[1])}
@@ -129,6 +146,35 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
               }}
               draggable={false}
               onLoad={e => handleImageLoad(focusIndex + 1, e)}
+            />
+          )}
+          <img
+            src={convertFileSrc(imgs[0])}
+            style={{
+              imageRendering: rendering,
+              ...imgSize0,
+            }}
+            draggable={false}
+            onLoad={e => handleImageLoad(focusIndex, e)}
+          />
+          {imgs[2] && (
+            <img
+              src={convertFileSrc(imgs[2])}
+              style={{
+                display: "none",
+                visibility: "hidden",
+              }}
+              onLoad={e => handleImageLoad(focusIndex + 2, e)}
+            />
+          )}
+          {imgs[3] && (
+            <img
+              src={convertFileSrc(imgs[3])}
+              style={{
+                display: "none",
+                visibility: "hidden",
+              }}
+              onLoad={e => handleImageLoad(focusIndex + 3, e)}
             />
           )}
         </div>
