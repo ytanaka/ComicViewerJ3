@@ -15,6 +15,7 @@ export function HotKeys() {
         const m = menus[i];
         if (m.hotkey === undefined) continue;
         if (!m.hotkey.check(e)) continue;
+        if (m.checkEnabledFn && !m.checkEnabledFn()) continue;
         if (m.exec) {
           e.preventDefault();
           e.stopPropagation();

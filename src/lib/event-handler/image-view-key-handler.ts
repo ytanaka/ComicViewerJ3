@@ -23,6 +23,7 @@ function imageView_handleKeyDown_impl(e: KeyboardEvent): boolean {
 
   const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
   const NO_MOD = !C && !S && !A;
+  const ALT_ONLY = !C && !S && A;
 
   // -------------------------------------------------------------------------------------------------------------------
   // 拡大縮小
@@ -41,9 +42,10 @@ function imageView_handleKeyDown_impl(e: KeyboardEvent): boolean {
   }
 
   // -------------------------------------------------------------------------------------------------------------------
-  // フルスクリーン
+  // フルスクリーン ON/OFF
   // -------------------------------------------------------------------------------------------------------------------
-  if (NO_MOD && e.key === 'F11') {
+  console.debug(e);
+  if ((NO_MOD && e.key === 'F11') || (ALT_ONLY && e.key === 'Enter')) {
     const full = useUiVolatileStore.getState().isFullscreen;
     windowCommands.setFullscreen(!full);
     useUiVolatileStore.getState().setField('shouldFullscreenWhenImageView', !full);

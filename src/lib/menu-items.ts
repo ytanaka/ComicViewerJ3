@@ -84,13 +84,16 @@ function isSelectedAnyFile() {
   if (!sel) return false;
   return 0 < sel.selectionIndexes.size;
 }
+function isImageView() {
+  return st().getCurrentTab()?.imageViewMode.enable ?? false;
+}
 
 export const menuItems = {
   // -------------------- File --------------------
   openDir: M('ディレクトリを開く', () => windowCommands.openDirectory(), 'Ctrl//O'),
   createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl//F', hasTab),
   createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl//K', hasTab),
-  openFileProperty: M('プロパティ', () => console.log('CREATE DIR!!!'), 'Alt//Enter', isSelected1File),
+  openFileProperty: M('プロパティ', () => console.log('FILE PROPERTY!!!'), 'Alt//Enter', () => (isSelected1File() && !isImageView())),
 
   exitApp: M('終了', () => windowCommands.exitApp(), 'Ctrl//Q'),
 
