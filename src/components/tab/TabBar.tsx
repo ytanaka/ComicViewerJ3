@@ -9,13 +9,15 @@ import { getPathBasename } from '@/lib/tools/string-util';
 import { useTabStore } from '@/store/tab/store';
 import { UiTab } from '@/store/tab/types';
 import { useFocusStore } from '@/store/focus-store';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
 export function TabBar() {
   const tabs = useTabStore(state => state.tabs);
   const currentTabIndex = useTabStore(state => state.currentTabIndex);
+  const full = useUiVolatileStore(state => state.isFullscreen);
 
   return (
-    <div className="flex border">
+    <div className="flex border" hidden={full} style={{ display: full ? 'none' : undefined }}>
       <DragDropProvider
         onDragStart={e => {
           if (!isSortable(e.operation.source)) return;
