@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+import { getCurrentWindow } from '@tauri-apps/api/window';
+
 import { DirEntry } from '@/lib/bindings-wrapper';
 import { isPictureFileExtension } from '@/lib/tools/string-util';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
@@ -78,15 +80,18 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     return () => window.removeEventListener('keydown', handler);
   });
 
-  // マウスカーソルを隠す
-  const [hideCursor, setHideCursor] = useState(false);
+  // // マウスカーソルを隠す
+  const [hideCursor, setHideCursor] = useState(true);
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => {
     const handleMove = () => {
       setHideCursor(false);
+      getCurrentWindow().setCursorVisible(true);
 
       if (timer.current) clearTimeout(timer.current);
       timer.current = window.setTimeout(() => {
+        // CSSだけではマウスカーソルが消えないので、Tauriの機能を使う
+        getCurrentWindow().setCursorVisible(false);
         setHideCursor(true);
       }, 1000);
     };
@@ -94,6 +99,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     window.addEventListener("mousemove", handleMove);
 
     return () => {
+      getCurrentWindow().setCursorVisible(true);
       window.removeEventListener("mousemove", handleMove);
       if (timer.current) clearTimeout(timer.current);
     };
