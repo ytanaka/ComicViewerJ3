@@ -10,12 +10,12 @@ import { Thumbnails } from './thumbnail-view/Thumbnails';
 import { useCmdCreateTab } from '@/services/tab';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useCmdGetDirEntries } from '@/services/tab-dir-entry';
-import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
-import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 import { useUiStore } from '@/store/ui-store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { ImageView } from './image-view/ImageView';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
+import { windowCommands } from '@/lib/commands/window-commands';
 
 function st() {
   return useTabStore.getState();
@@ -61,8 +61,23 @@ function TabContent() {
 
   const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
   const imageView = useTabStore(state => state.getCurrentTab()?.imageViewMode.enable) ?? false;
+  const full = useUiVolatileStore(state => state.isFullscreen);
+  const shouldFull = useUiVolatileStore(state => state.shouldFullscreenWhenImageView);
 
   console.debug(`<TabContent> tab[${currentTabIndex}](id:${tab.id}), ${tab.path}`);
+
+  // フルスクリーン制御
+  useEffect(() => {
+    if (full) {
+      if (!imageView) {
+        windowCommands.setFullscreen(false);
+      }
+    } else {
+      if (imageView && shouldFull) {
+        windowCommands.setFullscreen(true);
+      }
+    }
+  }, [full, imageView, shouldFull]);
 
   // タブ情報作成
   useCmdCreateTab(tab);
@@ -90,24 +105,6 @@ function TabContent() {
     };
     setHist();
   }, [tab.id, tab.path]); // 初回表示時だけ実行する
-
-  // スクロール位置調整
-  const needScroll = useScrollToFocusStore(state => state.needScroll);
-  const setNeedScroll = useScrollToFocusStore(state => state.setNeedScroll);
-  useEffect(() => {
-    if (!needScroll) return;
-    function scr() {
-      const focusIndex = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
-      if (focusIndex !== undefined) {
-        const doScroll = useListScrollHandlerStore.getState().doScroll;
-        doScroll?.(focusIndex);
-      }
-    }
-
-    // 親ディレクトリに移動したときにうまくスクロールしないので遅延させる
-    setTimeout(() => scr(), 100);
-    setNeedScroll(false);
-  }, [needScroll, setNeedScroll]); // スクロールが指示されたら実行する
 
   // キー操作
   useEffect(() => {

@@ -12,6 +12,7 @@ import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
+  const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
 
   const setRows = useListScrollHandlerStore(state => state.setRows);
   const setColumns = useListScrollHandlerStore(state => state.setColumns);
@@ -32,6 +33,8 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
   };
 
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
+
+  console.debug(`<FileList> dirEntries=[${dirEntries?.length}] focus=${focusIndex}`);
 
   return (
     <div className="w-full h-full">
@@ -67,6 +70,7 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
             fixedHeaderContent={FileListHeader}
             totalCount={dirEntries.length}
             rangeChanged={handleRangeChanged}
+            initialTopMostItemIndex={{ index: focusIndex, align: 'center' }}
           />
         )}
       </div>

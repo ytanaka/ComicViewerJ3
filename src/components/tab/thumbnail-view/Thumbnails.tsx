@@ -65,8 +65,9 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
   const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
 
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
+  const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
 
-  console.debug(`<Thumbnails> dirEntries=[${dirEntries?.length}]`);
+  console.debug(`<Thumbnails> dirEntries=[${dirEntries?.length}] focus=${focusIndex}`);
 
   // スクロール機能登録
   useEffect(() => {
@@ -133,6 +134,7 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
           itemContent={index => <ThumbnailCell tab={tab} fileIndex={index} dirEntry={dirEntries[index]} />}
           components={gridComponents}
           rangeChanged={handleRangeChanged}
+          initialTopMostItemIndex={{ index: focusIndex, align: 'center' }}
         />
         <style>{`html, body, #root { margin: 0; padding: 0 }`}</style>
       </div>
