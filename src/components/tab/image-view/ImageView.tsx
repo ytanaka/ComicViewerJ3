@@ -107,7 +107,10 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
         </div>
       ) : (
         // 画像表示
-        <>
+        <div
+          className='flex justify-center items-center min-w-full min-h-full'
+          style={{ width: imgSize0.width + imgSize1.width, height: Math.max(imgSize0.height, imgSize1.height) }}
+        >
           <img
             src={convertFileSrc(imgs[0])}
             style={{
@@ -128,7 +131,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
               onLoad={e => handleImageLoad(focusIndex + 1, e)}
             />
           )}
-        </>
+        </div>
       )}
     </div>
   );
