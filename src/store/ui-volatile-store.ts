@@ -6,8 +6,12 @@ export interface UiVolatileStore {
   // アプリケーションが初期化済みフラグ
   appInitialized: boolean;
 
-  // フルスクリーン
+  // 現在のフルスクリーン状態
   isFullscreen: boolean;
+  // 画像表示モード時にフルスクリーンにするかどうか
+  shouldFullscreenWhenImageView: boolean;
+  // フルスクリーン警告表示したかどうか
+  isFullscreenUsageShown: boolean;
 
   // 設定ダイアログ表示フラグ
   showPreferencesDialog: boolean;
@@ -23,6 +27,8 @@ export const useUiVolatileStore = create<UiVolatileStore_and_Action>()(set => ({
   appInitialized: false,
   showPreferencesDialog: false,
   isFullscreen: false,
+  isFullscreenUsageShown: false,
+  shouldFullscreenWhenImageView: false,
   preferenceDialogTabId: 'general',
 
   setField: (key, value) => set({ [key]: value }),

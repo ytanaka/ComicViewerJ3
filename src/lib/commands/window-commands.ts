@@ -6,6 +6,7 @@ import { _checkMaxTabs, tabCommands } from './tab-commands';
 import { useTabStore } from '@/store/tab/store';
 import { rustcmds } from '../bindings-wrapper';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
+import { toast } from 'sonner';
 
 export const windowCommands = {
   // アプリ終了
@@ -38,5 +39,13 @@ export const windowCommands = {
     if (b === useUiVolatileStore.getState().isFullscreen) return;
     await rustcmds.setFullscreen(b);
     useUiVolatileStore.getState().setField('isFullscreen', b);
+
+    if (!useUiVolatileStore.getState().isFullscreenUsageShown) {
+      toast.info("全画面表示切替は [F11]", {
+        id: 'isFullscreenUsageShown',
+        duration: 5000,
+      });
+      useUiVolatileStore.getState().setField('isFullscreenUsageShown', true);
+    }
   },
 };

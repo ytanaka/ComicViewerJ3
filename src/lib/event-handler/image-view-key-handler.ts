@@ -46,6 +46,7 @@ function imageView_handleKeyDown_impl(e: KeyboardEvent): boolean {
   if (NO_MOD && e.key === 'F11') {
     const full = useUiVolatileStore.getState().isFullscreen;
     windowCommands.setFullscreen(!full);
+    useUiVolatileStore.getState().setField('shouldFullscreenWhenImageView', !full);
     return true;
   }
 

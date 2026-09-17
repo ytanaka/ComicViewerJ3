@@ -17,7 +17,7 @@ import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-i
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { ImageView } from './image-view/ImageView';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { rustcmds } from '@/lib/bindings-wrapper';
+import { windowCommands } from '@/lib/commands/window-commands';
 
 function st() {
   return useTabStore.getState();
@@ -64,16 +64,22 @@ function TabContent() {
   const fileViewMode = useTabStore(state => state.getCurrentTab()?.fileViewMode);
   const imageView = useTabStore(state => state.getCurrentTab()?.imageViewMode.enable) ?? false;
   const full = useUiVolatileStore(state => state.isFullscreen);
+  const shouldFull = useUiVolatileStore(state => state.shouldFullscreenWhenImageView);
 
   console.debug(`<TabContent> tab[${currentTabIndex}](id:${tab.id}), ${tab.path}`);
 
-  // フルスクリーン解除
+  // フルスクリーン制御
   useEffect(() => {
-    if (full && !imageView) {
-      rustcmds.setFullscreen(false);
-      useUiVolatileStore.getState().setField('isFullscreen', false);
+    if (full) {
+      if (!imageView) {
+        windowCommands.setFullscreen(false);
+      }
+    } else {
+      if (imageView && shouldFull) {
+        windowCommands.setFullscreen(true);
+      }
     }
-  }, [full, imageView]);
+  }, [full, imageView, shouldFull]);
 
   // タブ情報作成
   useCmdCreateTab(tab);
