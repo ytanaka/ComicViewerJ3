@@ -22,6 +22,7 @@ export const useTabStore = create<TabStore>()(
     immer((set, get, store) => ({
       currentTabIndex: 0,
       tabs: [],
+      generation: 1,
 
       ...createAllTabsActions(set, get, store),
       ...createUiTabActions(set, get, store),

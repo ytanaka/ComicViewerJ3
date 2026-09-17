@@ -131,11 +131,27 @@ function TabContent() {
     return () => window.removeEventListener('keydown', handler);
   }); // 初回だけ実行する
 
-  return imageView ? (
+  const ret = imageView ? (
     <ImageView dirEntries={dirEntries} />
   ) : fileViewMode === FileViewMode.Thumbnail ? (
     <Thumbnails dirEntries={dirEntries} />
   ) : (
     <FileList dirEntries={dirEntries} />
   );
+
+  // ↓ なんでこんな変なことをしているのか・・・
+  //
+  // タブに <ListView> を並べて Ctrl+PageUp でタブ切り替えをすると、切替後のタブでフォーカス位置までスクロールしてくれない。
+  // <ListView> と <Thumbnails> の間をタブ切り替えすると、スクロールしてくれる。
+  // <ListView> でも、親ディレクトリや子ディレクトリへの移動はスクロールしてくれる。(フォーカス履歴の位置復元機能)
+  // 
+  // DirEntries がすでに存在する <ListView> どうしでタブ切り替えすると以前の状態がうまくクリアされない？
+  // Virtuosoライブラリの使い方が悪いのか、ライブラリが悪いのかわからない。
+  // DOMの状態が変わるとうまくスクロールしてくれるみたいなので、タブの状態が変わるたびに <div> を挿入してみる。
+  const gen = useTabStore(state => state.generation) % 2;
+  if (gen == 0) {
+    return ret;
+  } else {
+    return <div className='h-full w-full' >{ret}</div>;
+  }
 }

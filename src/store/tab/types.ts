@@ -12,6 +12,7 @@ export const MAX_HIST = 10;
 export interface AllTabs {
   currentTabIndex: number; // tabs = [] の場合は 0
   tabs: UiTab[];
+  generation: number; // ※ TabContent.tsx 末尾のコメントを参照
 }
 export interface UiTab {
   // TabInfo.path: 必ず設定されている

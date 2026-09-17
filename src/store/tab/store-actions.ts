@@ -21,7 +21,10 @@ export const createAllTabsActions: StateCreator<TabStore, [['zustand/immer', nev
     set(state => {
       if (index < 0 || (index !== 0 && state.tabs.length <= index))
         throw Error(`setCurrentTabIndex(): invalid tab index: ${index}`);
-      return { currentTabIndex: index };
+      return {
+        currentTabIndex: index,
+        generation: state.generation + 1
+      };
     });
   },
 
@@ -42,6 +45,7 @@ export const createAllTabsActions: StateCreator<TabStore, [['zustand/immer', nev
       return {
         tabs: [...state.tabs, tab],
         currentTabIndex: state.tabs.length,
+        generation: state.generation + 1,
       };
     });
   },
@@ -70,7 +74,11 @@ export const createAllTabsActions: StateCreator<TabStore, [['zustand/immer', nev
       const newList = [...state.tabs];
       const [removed] = newList.splice(fromIndex, 1); // 1つ削除
       newList.splice(toIndex, 0, removed); // 1つ追加
-      return { tabs: newList, currentTabIndex: tIndex };
+      return {
+        tabs: newList,
+        currentTabIndex: tIndex,
+        generation: state.generation + 1,
+      };
     });
   },
 
@@ -82,6 +90,7 @@ export const createAllTabsActions: StateCreator<TabStore, [['zustand/immer', nev
       return {
         currentTabIndex: Math.max(0, Math.min(state.currentTabIndex, newList.length - 1)),
         tabs: newList,
+        generation: state.generation + 1,
       };
     });
   },

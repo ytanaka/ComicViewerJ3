@@ -28,6 +28,7 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
 
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
+          state.generation += 1;
           tab.info = newTab;
           tab.sortCondition = mkDefaultSortCondition();
         });
