@@ -5,6 +5,7 @@ import { TabId, UiTab } from './types';
 export interface TabStoreActions {
   setCurrentTabIndex: (index: number) => void;
 
+  incGeneration: () => void;
   getTab: (tabId: TabId) => UiTab | undefined;
   getCurrentTab: () => UiTab | undefined;
 
@@ -26,6 +27,12 @@ export const createAllTabsActions: StateCreator<TabStore, [['zustand/immer', nev
         generation: state.generation + 1
       };
     });
+  },
+
+  incGeneration: () => {
+    set(state => {
+      state.generation += 1;
+    })
   },
 
   getTab: (tabId: TabId) => {

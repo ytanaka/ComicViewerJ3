@@ -39,6 +39,7 @@ export const windowCommands = {
     if (b === useUiVolatileStore.getState().isFullscreen) return;
     await rustcmds.setFullscreen(b);
     useUiVolatileStore.getState().setField('isFullscreen', b);
+    useTabStore.getState().incGeneration();
 
     if (!useUiVolatileStore.getState().isFullscreenUsageShown) {
       toast.info("全画面表示切替は [F11]", {
