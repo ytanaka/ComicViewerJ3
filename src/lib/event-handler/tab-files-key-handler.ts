@@ -76,6 +76,15 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     newIndex = dirEntries.length - 1;
   }
   if (newIndex !== null) {
+    // 画像2枚表示時の特別処理
+    if (tab.imageViewMode.enable && tab.imageViewMode.dualImage) {
+      if (newIndex === focusIndex + 1) {
+        newIndex += 1;
+      } else if (newIndex === focusIndex - 1) {
+        newIndex -= 1;
+      }
+    }
+
     let index = newIndex;
     index = Math.min(index, dirEntries.length - 1);
     index = Math.max(index, 0);

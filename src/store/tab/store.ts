@@ -60,4 +60,7 @@ export const useTabStore = create<TabStore>()(
   )
 );
 
+// コンポーネントの中で useTabStore.getState() をすると
+// Hooks may not be referenced as normal values, they must be called. See https://react.dev/reference/rules/react-calls-components-and-hooks#never-pass-around-hooks-as-regular-values
+// エラーになるので、↓ を使う
 export const getTabStore = useTabStore;
