@@ -23,7 +23,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     if (!divRef.current) return;
 
     // window.addEventListener('resize', xxx); ではフルスクリーン切り替え時のサイズ取得に失敗した
-    const observer = new ResizeObserver((entries) => {
+    const observer = new ResizeObserver(entries => {
       const entry = entries[0];
       const { width, height } = entry.contentRect;
       setDivSize({ width, height });
@@ -83,7 +83,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const timer = useRef<number | undefined>(undefined);
   function showCursor(b: boolean) {
     if (useUiVolatileStore.getState().isFullscreen && useUiStore.getState().hideMouseCursorWhenFullscreen) {
-      document.body.style.cursor = b ? "default" : "none";
+      document.body.style.cursor = b ? 'default' : 'none';
     }
   }
   useEffect(() => {
@@ -97,11 +97,11 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     };
 
     showCursor(false);
-    window.addEventListener("mousemove", handleMove);
+    window.addEventListener('mousemove', handleMove);
 
     return () => {
-      window.removeEventListener("mousemove", handleMove);
-      document.body.style.cursor = "default";
+      window.removeEventListener('mousemove', handleMove);
+      document.body.style.cursor = 'default';
       if (timer.current) clearTimeout(timer.current);
     };
   }, []);
@@ -121,9 +121,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   console.debug(`<ImageView> ${tab.path} focusIndex=${focusIndex} img0=${imgs[0]}`);
 
-  // const rendering = 'crisp-edges';
-  // const rendering = 'pixelated';
-  const rendering = 'smooth';
+  const rendering = useUiStore(state => state.imageRendering);
 
   return (
     <div ref={divRef} className="w-full h-full">
@@ -168,8 +166,8 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             <img
               src={convertFileSrc(imgs[2])}
               style={{
-                display: "none",
-                visibility: "hidden",
+                display: 'none',
+                visibility: 'hidden',
               }}
               onLoad={e => handleImageLoad(focusIndex + 2, e)}
             />
@@ -178,8 +176,8 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             <img
               src={convertFileSrc(imgs[3])}
               style={{
-                display: "none",
-                visibility: "hidden",
+                display: 'none',
+                visibility: 'hidden',
               }}
               onLoad={e => handleImageLoad(focusIndex + 3, e)}
             />

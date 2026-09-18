@@ -24,7 +24,7 @@ export const createAllTabsActions: StateCreator<TabStore, [['zustand/immer', nev
         throw Error(`setCurrentTabIndex(): invalid tab index: ${index}`);
       return {
         currentTabIndex: index,
-        generation: state.generation + 1
+        generation: state.generation + 1,
       };
     });
   },
@@ -32,7 +32,7 @@ export const createAllTabsActions: StateCreator<TabStore, [['zustand/immer', nev
   incGeneration: () => {
     set(state => {
       state.generation += 1;
-    })
+    });
   },
 
   getTab: (tabId: TabId) => {

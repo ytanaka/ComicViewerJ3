@@ -42,7 +42,7 @@ export const windowCommands = {
     useTabStore.getState().incGeneration();
 
     if (!useUiVolatileStore.getState().isFullscreenUsageShown) {
-      toast.info("全画面表示切替は [F11]", {
+      toast.info('全画面表示切替は [F11]', {
         id: 'isFullscreenUsageShown',
         duration: 5000,
       });

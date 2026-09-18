@@ -39,7 +39,6 @@ export function ThumbnailPanel() {
               </SelectGroup>
             </SelectContent>
           </Select>
-
         </Field>
         <Separator />
         <Field>

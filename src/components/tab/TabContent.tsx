@@ -144,7 +144,7 @@ function TabContent() {
   // タブに <ListView> を並べて Ctrl+PageUp でタブ切り替えをすると、切替後のタブでフォーカス位置までスクロールしてくれない。
   // <ListView> と <Thumbnails> の間をタブ切り替えすると、スクロールしてくれる。
   // <ListView> でも、親ディレクトリや子ディレクトリへの移動はスクロールしてくれる。(フォーカス履歴の位置復元機能)
-  // 
+  //
   // DirEntries がすでに存在する <ListView> どうしでタブ切り替えすると以前の状態がうまくクリアされない？
   // Virtuosoライブラリの使い方が悪いのか、ライブラリが悪いのかわからない。
   // DOMの状態が変わるとうまくスクロールしてくれるみたいなので、タブの状態が変わるたびに <div> を挿入してみる。
@@ -152,6 +152,6 @@ function TabContent() {
   if (gen == 0) {
     return ret;
   } else {
-    return <div className='h-full w-full' >{ret}</div>;
+    return <div className="h-full w-full">{ret}</div>;
   }
 }

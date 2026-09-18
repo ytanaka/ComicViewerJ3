@@ -93,7 +93,12 @@ export const menuItems = {
   openDir: M('ディレクトリを開く', () => windowCommands.openDirectory(), 'Ctrl//O'),
   createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl//F', hasTab),
   createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl//K', hasTab),
-  openFileProperty: M('プロパティ', () => console.log('FILE PROPERTY!!!'), 'Alt//Enter', () => (isSelected1File() && !isImageView())),
+  openFileProperty: M(
+    'プロパティ',
+    () => console.log('FILE PROPERTY!!!'),
+    'Alt//Enter',
+    () => isSelected1File() && !isImageView()
+  ),
 
   exitApp: M('終了', () => windowCommands.exitApp(), 'Ctrl//Q'),
 
