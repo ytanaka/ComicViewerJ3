@@ -25,6 +25,10 @@ export interface UiState {
   // イベントハンドラーが古いイベント (e.timeStamp) を受け取ったら無視する閾値 (0チェックしない)
   // WSLで実行するときに timeStamp がおかしいことの対処
   timeoutMsEventTimeStamp: number;
+  // フルスクリーン時にマウスカーソルを消す
+  hideMouseCursorWhenFullscreen: boolean;
+  // デフォルトのサムネイルサイズ設定画面
+  defaultThumbnailSize: number;
 }
 
 type UiState_and_Action = UiState & {
@@ -40,6 +44,8 @@ export const useUiStore = create<UiState_and_Action>()(
       fileSearchInputTimeoutMs: 2000,
       fileSearchResultDisplayTimeoutMs: 2000,
       timeoutMsEventTimeStamp: 100,
+      hideMouseCursorWhenFullscreen: true,
+      defaultThumbnailSize: 128,// THUMBNAIL_SIZE_DEFAULT と書きたいが、初期化前参照エラーになる
 
       setField: (key, value) => set({ [key]: value }),
     }),

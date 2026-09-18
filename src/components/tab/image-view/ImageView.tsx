@@ -82,7 +82,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   // マウスカーソルを隠す
   const timer = useRef<number | undefined>(undefined);
   function showCursor(b: boolean) {
-    if (useUiVolatileStore.getState().isFullscreen) {
+    if (useUiVolatileStore.getState().isFullscreen && useUiStore.getState().hideMouseCursorWhenFullscreen) {
       document.body.style.cursor = b ? "default" : "none";
     }
   }

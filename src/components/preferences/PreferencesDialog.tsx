@@ -13,6 +13,7 @@ import { FileListPanel } from './panels/FileListPanel';
 import { DebugPanel2 } from './panels/DebugPanel2';
 import { ThumbnailPanel } from './panels/ThumbnailPanel';
 import { FileSearchPanel } from './panels/FileSearchPanel';
+import { ImageViewPanel } from './panels/ImageViewPanel';
 
 const allPanelList = [
   {
@@ -38,6 +39,12 @@ const allPanelList = [
     label: 'サムネイル',
     icon: Settings,
     node: ThumbnailPanel,
+  },
+  {
+    id: 'imageView',
+    label: '画像表示画面',
+    icon: Settings,
+    node: ImageViewPanel,
   },
   {
     id: 'debug',

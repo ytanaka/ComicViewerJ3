@@ -2,7 +2,7 @@ import { SortCondition } from '@/lib/bindings';
 import { TabInfo } from '@/lib/bindings-wrapper';
 import { TabStore } from './store';
 import type { Draft } from 'immer';
-import { THUMBNAIL_SIZE_DEFAULT } from '@/components/tab/thumbnail-view/Thumbnails';
+import { useUiStore } from '../ui-store';
 
 export type TabId = number & { readonly __brand: unique symbol };
 export type FileId = number & { readonly __brand: unique symbol };
@@ -65,7 +65,7 @@ export function mkUiTab(tab: TabInfo): UiTab {
   return {
     info: tab,
     fileViewMode: FileViewMode.List,
-    thumbnailSize: THUMBNAIL_SIZE_DEFAULT,
+    thumbnailSize: useUiStore.getState().defaultThumbnailSize,
     imageViewMode: mkImageViewMode(),
     sortCondition: mkDefaultSortCondition(),
     selection: mkFileSelection(),
