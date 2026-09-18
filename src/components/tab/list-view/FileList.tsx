@@ -3,7 +3,7 @@ import { ItemProps, ListRange, TableProps, TableVirtuoso, VirtuosoHandle } from 
 
 import { FileListHeader } from './FileListHeader';
 import { FileListRow } from './FileListRow';
-import { useTabStore } from '@/store/tab/store';
+import { getTabStore, useTabStore } from '@/store/tab/store';
 import { useUiStore } from '@/store/ui-store';
 import { DirEntry } from '@/lib/bindings-wrapper';
 import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
@@ -12,7 +12,7 @@ import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
-  const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
+  const focusIndex = getTabStore.getState().getCurrentTab()?.selection.focusIndex ?? 0;
 
   const setRows = useListScrollHandlerStore(state => state.setRows);
   const setColumns = useListScrollHandlerStore(state => state.setColumns);

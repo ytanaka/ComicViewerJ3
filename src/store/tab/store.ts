@@ -59,3 +59,5 @@ export const useTabStore = create<TabStore>()(
     }
   )
 );
+
+export const getTabStore = useTabStore;

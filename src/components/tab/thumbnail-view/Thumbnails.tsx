@@ -9,7 +9,7 @@ import {
 } from 'react-virtuoso';
 
 import { DirEntry } from '@/lib/bindings-wrapper';
-import { useTabStore } from '@/store/tab/store';
+import { getTabStore, useTabStore } from '@/store/tab/store';
 import { ThumbnailCell } from './ThumbnailCell';
 import { CmdFileInfosQueryWrapper, useVisibleFileIdsStore } from '../CmdFileInfosQueryWrapper';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
@@ -65,7 +65,7 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
   const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
 
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
-  const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
+  const focusIndex = getTabStore.getState().getCurrentTab()?.selection.focusIndex ?? 0;
 
   console.debug(`<Thumbnails> dirEntries=[${dirEntries?.length}] focus=${focusIndex}`);
 
