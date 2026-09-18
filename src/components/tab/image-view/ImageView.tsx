@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { getCurrentWindow } from '@tauri-apps/api/window';
-
 import { DirEntry } from '@/lib/bindings-wrapper';
 import { isPictureFileExtension } from '@/lib/tools/string-util';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
@@ -12,6 +10,7 @@ import { getImageWH, ImageWidthHeight } from './iamge-view-size-helper';
 import { useImageFullpath } from '../../../hooks/use-image-fullpath';
 import { useUiStore } from '@/store/ui-store';
 import { imageView_handleKeyDown } from '@/lib/event-handler/image-view-key-handler';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -80,27 +79,29 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     return () => window.removeEventListener('keydown', handler);
   });
 
-  // // マウスカーソルを隠す
-  const [hideCursor, setHideCursor] = useState(true);
+  // マウスカーソルを隠す
   const timer = useRef<number | undefined>(undefined);
+  function showCursor(b: boolean) {
+    if (useUiVolatileStore.getState().isFullscreen) {
+      document.body.style.cursor = b ? "default" : "none";
+    }
+  }
   useEffect(() => {
     const handleMove = () => {
-      setHideCursor(false);
-      getCurrentWindow().setCursorVisible(true);
+      showCursor(true);
 
       if (timer.current) clearTimeout(timer.current);
       timer.current = window.setTimeout(() => {
-        // CSSだけではマウスカーソルが消えないので、Tauriの機能を使う
-        getCurrentWindow().setCursorVisible(false);
-        setHideCursor(true);
+        showCursor(false);
       }, 1000);
     };
 
+    showCursor(false);
     window.addEventListener("mousemove", handleMove);
 
     return () => {
-      getCurrentWindow().setCursorVisible(true);
       window.removeEventListener("mousemove", handleMove);
+      document.body.style.cursor = "default";
       if (timer.current) clearTimeout(timer.current);
     };
   }, []);
@@ -125,7 +126,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const rendering = 'smooth';
 
   return (
-    <div ref={divRef} className="w-full h-full" style={{ cursor: hideCursor ? "none" : "default" }}>
+    <div ref={divRef} className="w-full h-full">
       {!dirEntries || dirEntries.length === 0 ? (
         // 空ディレクトリ
         <div>ファイルがありません</div>
