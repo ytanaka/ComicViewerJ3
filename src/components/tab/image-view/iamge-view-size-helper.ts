@@ -1,16 +1,12 @@
+import { ImageSize } from '@/lib/bindings';
 import { zoomLevel2ZoomRatio } from '@/lib/tools/image-zoom';
 
-export type ImageWidthHeight = {
-  width: number;
-  height: number;
-};
-
 export type ImageViewHelperParam = {
-  imageInfos: ImageWidthHeight[];
+  imageInfos: ImageSize[];
   fileIndex: number;
   dualView: boolean;
   zoomLevel: number;
-  divSize: ImageWidthHeight | null;
+  divSize: ImageSize | null;
 };
 
 const imageDefaultSize = [
@@ -27,7 +23,7 @@ const imageDefaultSize = [
 // <img> に指定する画像サイズを取得
 // return [メイン画像サイズ, dualView の時の２つ目の画像サイズ]
 //   表示対象画像がない場合は、width = height = 0
-export function getImageWH(param: ImageViewHelperParam): ImageWidthHeight[] {
+export function getImageWH(param: ImageViewHelperParam): ImageSize[] {
   const { imageInfos, fileIndex, dualView, divSize } = param;
 
   // 画像表示の準備が整っていない

@@ -63,7 +63,7 @@ export const rustcmds = {
   getThumbnail: (tabId: number, fileId: FileId, size: number) => {
     return commands.getThumbnail(tabId, fileId.toString(), size);
   },
-  getResizedImg: (tabId: number, fileId: string, size: ImageSize) => {
+  getResizedImg: (tabId: number, fileId: FileId, size: ImageSize) => {
     return commands.getResizedImg(tabId, fileId.toString(), size);
   },
   loadPreferences: commands.loadPreferences,

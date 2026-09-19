@@ -20,3 +20,19 @@ macro_rules! LOG_RESULT {
         result
     }};
 }
+
+pub trait ErrorExt {
+    fn to_full_string(&self) -> String;
+}
+impl<T: std::error::Error + ?Sized> ErrorExt for T {
+    fn to_full_string(&self) -> String {
+        let mut s = self.to_string();
+        let mut tmp = self.source();
+        while let Some(x) = tmp {
+            s.push_str(": ");
+            s.push_str(&x.to_string());
+            tmp = x.source()
+        }
+        s
+    }
+}

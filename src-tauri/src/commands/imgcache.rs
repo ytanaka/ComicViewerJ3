@@ -11,6 +11,7 @@ use crate::file_operations::image_utils::{
     calc_size, is_picture_ext, resize_lanczos3, unsharp_mask,
 };
 use crate::types::{Either, GetImgCachelResult, ImageSize};
+use crate::util::ErrorExt;
 use crate::LOG_RESULT;
 use crate::{
     commands::fs_util::get_tab_file, file_operations::file_utils::read_metadata,
@@ -49,7 +50,7 @@ pub async fn get_thumbnail(
         }
     };
     LOG_RESULT!(format!("{comment}, running[{running}]"), {
-        result.map_err(|e| e.to_string())
+        result.map_err(|e| e.to_full_string())
     })
 }
 
@@ -85,7 +86,7 @@ pub async fn get_resized_img(
         }
     };
     LOG_RESULT!(format!("{comment}, running[{running}]"), {
-        result.map_err(|e| e.to_string())
+        result.map_err(|e| e.to_full_string())
     })
 }
 

@@ -30,7 +30,7 @@ impl ImageCacheType {
     pub fn get_ext(&self) -> &str {
         match self {
             Self::ResizedImage => "bmp",
-            Self::Thumbnail => "jpg",
+            Self::Thumbnail => "png",
         }
     }
 }

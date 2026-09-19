@@ -6,11 +6,13 @@ import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 import { useTabStore } from '@/store/tab/store';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';
-import { getImageWH, ImageWidthHeight } from './iamge-view-size-helper';
+import { getImageWH } from './iamge-view-size-helper';
 import { useImageFullpath } from '../../../hooks/use-image-fullpath';
 import { useUiStore } from '@/store/ui-store';
 import { imageView_handleKeyDown } from '@/lib/event-handler/image-view-key-handler';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
+import { useResizedImagePath } from '@/services/tab-resized-image';
+import { ImageSize } from '@/lib/bindings';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -18,7 +20,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   // 画面サイズ管理
   const divRef = useRef<HTMLDivElement>(null);
-  const [divSize, setDivSize] = useState<ImageWidthHeight | null>(null);
+  const [divSize, setDivSize] = useState<ImageSize | null>(null);
   useEffect(() => {
     if (!divRef.current) return;
 
@@ -42,6 +44,9 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   setColumns(1);
   setScrollHandler(null);
 
+  // 画像ファイル
+  const { data: immmg } = useResizedImagePath(tab.id, dirEntries?.[focusIndex], divSize);
+
   // 画像ファイルのフルパス
   const { data: imagePaths } = useImageFullpath(tab.id);
   const getImagePaths = (i: number): string | undefined => {
@@ -49,7 +54,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   };
 
   // 画像のサイズ (<img> で読み込んだ後で設定される)
-  const [imageInfos, setImageInfos] = useState<ImageWidthHeight[]>([]);
+  const [imageInfos, setImageInfos] = useState<ImageSize[]>([]);
   const handleImageLoad = (index: number, e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
     setImageInfos(prev => {
