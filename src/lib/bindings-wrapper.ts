@@ -8,6 +8,7 @@ import {
   FileInfoUI,
   FileMetadata,
   FilenameCmpType,
+  ImageSize,
   SortCondition,
   SortType,
   TabInfoUI,
@@ -61,6 +62,9 @@ export const rustcmds = {
   },
   getThumbnail: (tabId: number, fileId: FileId, size: number) => {
     return commands.getThumbnail(tabId, fileId.toString(), size);
+  },
+  getResizedImg: (tabId: number, fileId: string, size: ImageSize) => {
+    return commands.getResizedImg(tabId, fileId.toString(), size);
   },
   loadPreferences: commands.loadPreferences,
   savePreferences: commands.savePreferences,
@@ -120,6 +124,7 @@ export function mkAppPreferencesDefault(): AppPreferences {
     filename_cmp: { type: 'Icu' },
     thumbnail_expiration_days: 0,
     thumbnail_command_limit: 5,
+    resize_img_command_limit: 5,
   };
 }
 

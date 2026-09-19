@@ -73,6 +73,7 @@ pub struct AppState {
     pub thumbnail_worker: AppStateField<ThumbnailCleanupWorker>,
 
     pub thumbnail_command_limitter: AppStateField<CommandLimitter>,
+    pub resize_img_command_limitter: AppStateField<CommandLimitter>,
 }
 impl AppState {
     pub fn new() -> Self {
@@ -94,6 +95,7 @@ impl AppState {
             thumbnail_worker: AppStateField::new(),
 
             thumbnail_command_limitter: AppStateField::new(),
+            resize_img_command_limitter: AppStateField::new(),
         }
     }
 
@@ -125,6 +127,9 @@ impl AppState {
         state
             .thumbnail_command_limitter
             .get_or_init(|| Arc::new(CommandLimitter::new(pref.thumbnail_command_limit)));
+        state
+            .resize_img_command_limitter
+            .get_or_init(|| Arc::new(CommandLimitter::new(pref.resize_img_command_limit)));
     }
     pub fn stop(&self) {}
 

@@ -3,5 +3,5 @@ pub mod fs;
 pub mod fs_util;
 pub mod preferences;
 pub mod search;
-pub mod thumbnail;
-pub mod thumbnail_util;
+pub mod imgcache;
+pub mod imgcache_util;

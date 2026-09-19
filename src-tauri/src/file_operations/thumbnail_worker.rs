@@ -2,7 +2,7 @@ use std::{fs, sync::Arc, thread, time::Duration};
 
 use walkdir::WalkDir;
 
-use crate::{commands::thumbnail_util::get_thumbnail_dir, state::app_state::AppState};
+use crate::{commands::imgcache_util::{ImageCacheType, get_imgcache_dir}, state::app_state::AppState};
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ fn exec(app: tauri::AppHandle, state: Arc<AppState>) -> anyhow::Result<()> {
     let mut total: u64 = 0;
     let mut removed: u64 = 0;
 
-    for walk in WalkDir::new(get_thumbnail_dir(&app)?) {
+    for walk in WalkDir::new(get_imgcache_dir(&app, &ImageCacheType::Thumbnail)?) {
         let f = walk?;
         let meta = f.metadata()?;
         if meta.is_file() {

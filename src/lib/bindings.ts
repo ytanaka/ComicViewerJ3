@@ -39,7 +39,9 @@ export const commands = {
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  画像ファイルのサムネイルを取得 */
-	getThumbnail: (tabId: number, fileId: string, size: number) => typedError<GetThumbnailResult, string>(__TAURI_INVOKE("get_thumbnail", { tabId, fileId, size })),
+	getThumbnail: (tabId: number, fileId: string, size: number) => typedError<GetImgCachelResult, string>(__TAURI_INVOKE("get_thumbnail", { tabId, fileId, size })),
+	/**  画像ファイルをリサイズする */
+	getResizedImg: (tabId: number, fileId: string, size: ImageSize) => typedError<GetImgCachelResult, string>(__TAURI_INVOKE("get_resized_img", { tabId, fileId, size })),
 	/**  設定取得 */
 	loadPreferences: () => typedError<AppPreferences, string>(__TAURI_INVOKE("load_preferences")),
 	/**  設定保存 */
@@ -61,6 +63,8 @@ export type AppPreferences = {
 	thumbnail_expiration_days: number,
 	/**  サムネイル作成同時実行数 */
 	thumbnail_command_limit: number,
+	/**  画像リサイズ同時実行数 */
+	resize_img_command_limit: number,
 };
 
 /**  create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合) */
@@ -119,16 +123,21 @@ export type FilenameCmpType =
 /**  自然 */
 { type: "Icu" };
 
-/**  get_thumbnail() の結果 */
-export type GetThumbnailResult = 
-/**  サムネイルファイル名 */
+/**  get_thumbnail(), get_resized_img() の結果 */
+export type GetImgCachelResult = 
+/**  処理済み画像ファイル名 */
 { type: "Ok"; filename: string } | 
 /**  現在処理が集中しているので、リトライしてほしい */
 { type: "Busy" } | 
-/**  サムネイル画像はない (ディレクトリの中に画像ファイルが見つからない) */
+/**  対象画像がない (サムネイル作成で、ディレクトリの中に画像ファイルが見つからない) */
 { type: "NoImage" } | 
 /**  その他 (画像ではない、ファイルが読めないなど) */
 { type: "Fail"; error_msg: string };
+
+export type ImageSize = {
+	width: number,
+	height: number,
+};
 
 export type SortCondition = {
 	sort_type: SortType,

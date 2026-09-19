@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, num::NonZero, sync::Arc};
+use std::{ffi::OsStr, fmt, num::NonZero, sync::Arc};
 
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
@@ -6,7 +6,6 @@ use specta::Type;
 
 pub type TabId = u32;
 pub type FileId = u64;
-pub type ImageSize = u32;
 
 // =====================================================================================================================
 
@@ -166,14 +165,30 @@ pub struct FileMetadata {
 // =====================================================================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub struct ImageSize {
+    pub width: u32,
+    pub height: u32,
+}
+impl fmt::Display for ImageSize {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}x{}", &self.width, &self.height)
+    }
+}
+impl ImageSize {
+    pub fn new(width: u32, height: u32) -> Self {
+        Self { width, height }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
-/// get_thumbnail() の結果
-pub enum GetThumbnailResult {
-    /// サムネイルファイル名
+/// get_thumbnail(), get_resized_img() の結果
+pub enum GetImgCachelResult {
+    /// 処理済み画像ファイル名
     Ok { filename: String },
     /// 現在処理が集中しているので、リトライしてほしい
     Busy,
-    /// サムネイル画像はない (ディレクトリの中に画像ファイルが見つからない)
+    /// 対象画像がない (サムネイル作成で、ディレクトリの中に画像ファイルが見つからない)
     NoImage,
     /// その他 (画像ではない、ファイルが読めないなど)
     Fail { error_msg: String },
@@ -242,9 +257,10 @@ pub struct AppPreferences {
 
     /// サムネイルファイル削除期限
     pub thumbnail_expiration_days: i32,
-
     /// サムネイル作成同時実行数
     pub thumbnail_command_limit: u32,
+    /// 画像リサイズ同時実行数
+    pub resize_img_command_limit: u32,
 }
 impl Default for AppPreferences {
     fn default() -> Self {
@@ -254,6 +270,9 @@ impl Default for AppPreferences {
             filename_sort_strength: "Identical".to_string(),
             thumbnail_expiration_days: 30,
             thumbnail_command_limit: std::thread::available_parallelism()
+                .unwrap_or(NonZero::new(4).unwrap())
+                .get() as u32,
+            resize_img_command_limit: std::thread::available_parallelism()
                 .unwrap_or(NonZero::new(4).unwrap())
                 .get() as u32,
         }
