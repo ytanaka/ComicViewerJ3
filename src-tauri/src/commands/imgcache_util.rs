@@ -76,10 +76,13 @@ pub fn get_imgcache_fullpath(
     let result = hasher.finalize();
     let name = format!("{}.{}", hex::encode(result), subdir.get_ext());
 
-    // "/略/app_cache_dir()/{subdir}/{size}/FF"
-    let path = get_imgcache_dir(app, &subdir)?
-        .join(format!("{size}"))
-        .join(&name[0..2]);
+    // "/略/app_cache_dir()/Thumbnail/{size}/FF"
+    // "/略/app_cache_dir()/ResizedImage/{size}"
+    let path = get_imgcache_dir(app, &subdir)?.join(format!("{}", size.max()));
+    let path = match subdir {
+        ImageCacheType::Thumbnail => path.join(&name[0..2]),
+        ImageCacheType::ResizedImage => path,
+    };
 
     if !path.exists() {
         fs::create_dir_all(&path)

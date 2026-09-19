@@ -1,7 +1,7 @@
 use std::{collections::HashSet, path::Path};
 
 use fast_image_resize as fir;
-use image::RgbaImage;
+use image::{ImageReader, RgbaImage};
 
 use crate::types::ImageSize;
 
@@ -29,24 +29,38 @@ pub fn is_picture_ext<P: AsRef<Path>>(p: P) -> bool {
         .unwrap_or(false)
 }
 
-// アスペクト比を考慮して画像のサイズを計算する
-pub fn calc_size(img: &RgbaImage, screen: &ImageSize) -> ImageSize {
-    let width = img.width() as f64;
-    let height = img.height() as f64;
-    let ratio = width / height;
-    let r = screen.width as f64 / screen.height as f64;
+// 画像のサイズ取得
+pub fn get_img_size(path: impl AsRef<Path>) -> anyhow::Result<ImageSize> {
+    let reader = ImageReader::open(path)?;
+    let dim = reader.into_dimensions()?;
+    Ok(ImageSize::new(dim.0, dim.1))
+}
 
-    if ratio < r {
+// アスペクト比を考慮して画像のサイズを計算する
+pub fn calc_resize(src: &ImageSize, target: &ImageSize, limit_ratio: u32) -> ImageSize {
+    let width = src.width as f64;
+    let height = src.height as f64;
+    let ratio = width / height;
+    let r = target.width as f64 / target.height as f64;
+
+    let mut ret = if ratio < r {
         // 左右に余白、ターゲットの縦に合わせる
-        ImageSize::new((screen.height as f64 * ratio) as u32, screen.height)
+        ImageSize::new((target.height as f64 * ratio) as u32, target.height)
     } else {
         // 上下に余白、ターゲットの幅に合わせる
-        ImageSize::new(screen.width, (screen.width as f64 / ratio) as u32)
+        ImageSize::new(target.width, (target.width as f64 / ratio) as u32)
+    };
+
+    // 元画像のx倍までに制限する
+    if src.width * limit_ratio < ret.width || src.height * limit_ratio < ret.height {
+        ret.width = src.width * limit_ratio;
+        ret.height = src.height * limit_ratio;
     }
+    ret
 }
 
 /// きれいな拡大縮小
-pub fn resize_lanczos3(src: &RgbaImage, size: ImageSize) -> anyhow::Result<RgbaImage> {
+pub fn resize_lanczos3(src: &RgbaImage, size: &ImageSize) -> anyhow::Result<RgbaImage> {
     let src_image = fir::images::Image::from_vec_u8(
         src.width(),
         src.height(),

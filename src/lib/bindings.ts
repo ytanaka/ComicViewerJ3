@@ -39,9 +39,9 @@ export const commands = {
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  画像ファイルのサムネイルを取得 */
-	getThumbnail: (tabId: number, fileId: string, size: number) => typedError<GetImgCachelResult, string>(__TAURI_INVOKE("get_thumbnail", { tabId, fileId, size })),
+	getThumbnail: (tabId: number, fileId: string, size: number) => typedError<GetThumbnailResult, string>(__TAURI_INVOKE("get_thumbnail", { tabId, fileId, size })),
 	/**  画像ファイルをリサイズする */
-	getResizedImg: (tabId: number, fileId: string, size: ImageSize) => typedError<GetImgCachelResult, string>(__TAURI_INVOKE("get_resized_img", { tabId, fileId, size })),
+	getResizedImg: (tabId: number, fileId: string, targetSize: ImageSize) => typedError<GetResizedImgResult, string>(__TAURI_INVOKE("get_resized_img", { tabId, fileId, targetSize })),
 	/**  設定取得 */
 	loadPreferences: () => typedError<AppPreferences, string>(__TAURI_INVOKE("load_preferences")),
 	/**  設定保存 */
@@ -124,12 +124,21 @@ export type FilenameCmpType =
 { type: "Icu" };
 
 /**  get_thumbnail(), get_resized_img() の結果 */
-export type GetImgCachelResult = 
+export type GetResizedImgResult = 
 /**  処理済み画像ファイル名 */
+{ type: "Ok"; filename: string; size: ImageSize } | 
+/**  現在処理が集中しているので、リトライしてほしい */
+{ type: "Busy" } | 
+/**  その他 (画像ではない、ファイルが読めないなど) */
+{ type: "Fail"; error_msg: string };
+
+/**  get_thumbnail(), get_resized_img() の結果 */
+export type GetThumbnailResult = 
+/**  サムネイル画像ファイル名 */
 { type: "Ok"; filename: string } | 
 /**  現在処理が集中しているので、リトライしてほしい */
 { type: "Busy" } | 
-/**  対象画像がない (サムネイル作成で、ディレクトリの中に画像ファイルが見つからない) */
+/**  対象画像がない (ディレクトリの中に画像ファイルが見つからない) */
 { type: "NoImage" } | 
 /**  その他 (画像ではない、ファイルが読めないなど) */
 { type: "Fail"; error_msg: string };

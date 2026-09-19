@@ -1,6 +1,7 @@
 use std::{ffi::OsStr, fmt, num::NonZero, sync::Arc};
 
 use anyhow::anyhow;
+use image::ImageBuffer;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -161,7 +162,7 @@ pub struct FileMetadata {
 }
 
 // =====================================================================================================================
-// thumbnail.rs
+// imgcache.rs
 // =====================================================================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
@@ -178,18 +179,44 @@ impl ImageSize {
     pub fn new(width: u32, height: u32) -> Self {
         Self { width, height }
     }
+    pub fn max(&self) -> u32 {
+        self.width.max(self.height)
+    }
+}
+impl<P, C> From<&ImageBuffer<P, C>> for ImageSize
+where
+    P: image::Pixel + 'static,
+    C: std::ops::Deref<Target = [P::Subpixel]>,
+{
+    fn from(img: &ImageBuffer<P, C>) -> Self {
+        ImageSize {
+            width: img.width(),
+            height: img.height(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
 /// get_thumbnail(), get_resized_img() の結果
-pub enum GetImgCachelResult {
-    /// 処理済み画像ファイル名
+pub enum GetThumbnailResult {
+    /// サムネイル画像ファイル名
     Ok { filename: String },
     /// 現在処理が集中しているので、リトライしてほしい
     Busy,
-    /// 対象画像がない (サムネイル作成で、ディレクトリの中に画像ファイルが見つからない)
+    /// 対象画像がない (ディレクトリの中に画像ファイルが見つからない)
     NoImage,
+    /// その他 (画像ではない、ファイルが読めないなど)
+    Fail { error_msg: String },
+}
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[serde(tag = "type")]
+/// get_thumbnail(), get_resized_img() の結果
+pub enum GetResizedImgResult {
+    /// 処理済み画像ファイル名
+    Ok { filename: String, size: ImageSize },
+    /// 現在処理が集中しているので、リトライしてほしい
+    Busy,
     /// その他 (画像ではない、ファイルが読めないなど)
     Fail { error_msg: String },
 }
