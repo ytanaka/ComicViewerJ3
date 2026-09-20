@@ -15,11 +15,12 @@ let running = 0;
 export function useResizedImagePath(tabId: TabId, dirEntry: DirEntry | undefined, size: ImageSize | null) {
   const { data: pref } = usePreferences();
   const LIMIT = pref?.resize_img_command_limit ?? 4;
+  const enable = !!size && dirEntry && (isPictureFileExtension(dirEntry.name) || dirEntry.is_dir);
 
   return useQuery({
     queryKey: queryKey_useResizedImagePath(tabId, dirEntry?.file_id, size),
-    enabled: !!size && dirEntry && (isPictureFileExtension(dirEntry.name) || dirEntry.is_dir),
-    retry: true,
+    enabled: enable,
+    retry: enable,
     retryDelay: 10,
     queryFn: async () => {
       if (LIMIT <= running) {
@@ -29,7 +30,7 @@ export function useResizedImagePath(tabId: TabId, dirEntry: DirEntry | undefined
 
       try {
         const result = await rustcmds.getResizedImg(tabId, dirEntry!.file_id, size!);
-        const comment = `rustcmds.getResizedImg(${tabId}, ${dirEntry!.file_id}, ${size}) running[${running}]`;
+        const comment = `rustcmds.getResizedImg(${tabId}, ${dirEntry!.file_id}, ${size?.width}x${size?.height}) running[${running}]`;
         handleRustCmdResult(result, comment, '画像リサイズ失敗');
         if (result.status === 'ok' && result.data.type === 'Busy') {
           console.debug(comment, 'busy retry');
