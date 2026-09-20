@@ -54,7 +54,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
         />}
       {!readyResizedImage &&
         <div
-          className="absolute left-0 top-0 border-2 text-black bg-white dark:text-white dark:bg-black"
+          className="absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black"
         >リサイズ中... {props.dirEntry?.name}
         </div>}
     </div>
