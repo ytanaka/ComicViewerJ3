@@ -148,31 +148,33 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             style={{ width: styleImgSize0.width + styleImgSize1.width, height: Math.max(styleImgSize0.height, styleImgSize1.height) }}
           >
             <ImageViewCell
-              key={`${tab.id}/${focusIndex + 1}`}
+              key={`${tab.id}/${focusIndex + 1}/${getResizedImagePath(img1)}`}
               dirEntry={dirEntries[focusIndex + 1]}
               originalImagePath={originalImagePaths?.[focusIndex + 1]}
               resizedImagePath={getResizedImagePath(img1)}
               size={styleImgSize1}
-              visible={dualView}
+              hidden={!dualView}
             />
             <ImageViewCell
-              key={`${tab.id}/${focusIndex}`}
+              key={`${tab.id}/${focusIndex}/${getResizedImagePath(img0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
               dirEntry={dirEntries[focusIndex]}
               originalImagePath={originalImagePaths?.[focusIndex]}
               resizedImagePath={getResizedImagePath(img0)}
               size={styleImgSize0}
+              hidden={false}
+              debugPrint={true}
             />
             <ImageViewCell
               key={`${tab.id}/${focusIndex + 2}`}
               originalImagePath={originalImagePaths?.[focusIndex + 2]}
               resizedImagePath={getResizedImagePath(img2)}
-              visible={false}
+              hidden={true}
             />
             <ImageViewCell
               key={`${tab.id}/${focusIndex + 3}`}
               originalImagePath={originalImagePaths?.[focusIndex + 3]}
               resizedImagePath={getResizedImagePath(img3)}
-              visible={false}
+              hidden={true}
             />
           </div>
         )}

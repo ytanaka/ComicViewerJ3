@@ -8,7 +8,8 @@ export interface ImageViewCellProps {
   resizedImagePath: string | undefined,
   dirEntry?: DirEntry,
   size?: Dimension,
-  visible?: boolean,
+  hidden: boolean,
+  debugPrint?: boolean,
 }
 
 export function ImageViewCell(props: ImageViewCellProps) {
@@ -19,12 +20,16 @@ export function ImageViewCell(props: ImageViewCellProps) {
 
   const [readyResizedImage, setReadyResizedImage] = useState(false);
 
+  if (props.debugPrint) {
+    console.debug(`<ImageViewCell> ${props.dirEntry?.name} (${props.size?.width}x${props.size?.height}) ${props.originalImagePath} ${props.resizedImagePath}`);
+  }
+
   return (
     <div
       className="relative"
       style={{
-        display: props.visible === false ? 'none' : undefined,
-        visibility: props.visible === false ? 'hidden' : undefined,
+        display: props.hidden ? 'none' : undefined,
+        visibility: props.hidden ? 'hidden' : undefined,
       }}
     >
       <img
