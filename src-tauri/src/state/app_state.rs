@@ -53,8 +53,8 @@ pub const START_TAB_ID: TabId = 1;
 pub const START_FILE_ID: FileId = 100001;
 
 pub struct AppState {
-    pub next_tab_id: AtomicU32,
-    pub next_file_id: AtomicU64,
+    pub next_tab_id: AtomicU32, // TabId の採番 (アプリ内で起動時からユニーク)
+    pub next_file_id: AtomicU64, // FileId の採番 (アプリ内で起動時からユニーク)
 
     // UIのタブ情報
     pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,

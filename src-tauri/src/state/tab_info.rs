@@ -1,4 +1,6 @@
 //! UIのタブ1つに相当するRust側データ
+//!
+//! タブデータはUIのタブ内でディレクトリを移動するたびに新規作成され、古いタブデータは消される。
 
 use std::{
     collections::HashMap,
@@ -32,13 +34,13 @@ pub struct TabInfo {
     file_names: HashMap<Arc<OsStr>, FileId>, // ファイル更新検知からファイル名が渡されるので逆引きのために使用する
 
     // ↑↑↑ ここまでは構造体作成時に設定され、不変
-    //     ※ files の中の FileInfo は、ファイル監視から通知が来たときに変更されることがある
+    // ※ ただし、files の中の FileInfoOS.metadata は、ファイル監視から通知が来たときにNoneになる
     //
-    sort_condition: SortCondition, // デフォルトはNameなのでソート可能。Size,Timeに変更するには is_sortable() == true にならなければならない
-    sorted_list: Option<Vec<FileId>>, // files のキーを sort_condition でソート。必要な時に files から生成する。ファイル監視通知で files が更新されたらNoneにする
+    sort_condition: SortCondition, // デフォルトはNameなので作成直後もソート可能。Size,Timeに変更するには is_sortable() == true にならなければならない
+    sorted_list: Option<Vec<FileId>>, // files のキーを sort_condition でソートしたもの。必要な時に files から生成する。ファイル監視通知で files が更新されたらNoneにする
 
     metadata_loaded_count: usize, // filesのmetada未取得の項目数。Size,Time でソートするときは全部取得済みである必要がある (MetadataWorkerから更新される)
-    generation: TabGeneration, // sorted_list が更新された回数。ファイル名検索中に参照して中断する
+    generation: TabGeneration, // sorted_list が更新された回数。ファイル名検索中に参照して中断する(ソート状態が変わると検索の意味がなくなるので)
 
     file_watcher: FileWatcher,
 

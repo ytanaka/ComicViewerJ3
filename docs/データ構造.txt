@@ -4,6 +4,7 @@ Rust側データ構造
   ※ AppState でなく Arc<AppState> にしたのは、バックグラウンドのワーカースレッドに AppState を渡したいから
 
   UIとのやり取りをするデータ構造は src-tauri/src/types.ts にある
+  
     AppState
       tabs: Map<TabId, TabInfo> // タブ一覧
 

@@ -1,3 +1,12 @@
+//! RustとUIのあいだでやり取りする構造体の宣言
+//!
+//! XyzUI 構造体はRustからUIへ渡す型
+//! UI側で内部の number を別の型の type 宣言(TabId,FileIdなど)に置き換えて Xyz に変換して使用する
+//!
+//! XyzOS はRust側で使用する型。XyzUI と対になっている。
+//!
+//! Xyz はUI,Rust側共通で使用する型。
+
 use std::{ffi::OsStr, fmt, num::NonZero, sync::Arc};
 
 use anyhow::anyhow;
@@ -5,19 +14,12 @@ use image::ImageBuffer;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+// =====================================================================================================================
+
 pub type TabId = u32;
 pub type FileId = u64;
 
-// =====================================================================================================================
-
 /// 2つの型のどちらか片方だけ保持するための構造体
-//
-// XxxxxUI 構造体はRustからUIへ渡す型
-// UI側で内部の number を別の型の type 宣言に置き換えて Xxxxx に変換して使用する
-//
-// XxxxxOS はRust側で使用する型。XxxxxUI と対になっている。
-//
-// Xxxxx はUI,Rust側共通で使用する型。
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub enum Either<A, B> {
     Left(A),
