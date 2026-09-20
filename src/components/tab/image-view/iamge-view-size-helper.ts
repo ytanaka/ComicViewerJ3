@@ -2,8 +2,8 @@ import { ImageSize } from '@/lib/bindings';
 import { zoomLevel2ZoomRatio } from '@/lib/tools/image-zoom';
 
 export type ImageViewHelperParam = {
-  imageInfos: ImageSize[];
-  fileIndex: number;
+  imageSize0: ImageSize;
+  imageSize1: ImageSize;
   dualView: boolean;
   zoomLevel: number;
   divSize: ImageSize | null;
@@ -24,13 +24,13 @@ const imageDefaultSize = [
 // return [メイン画像サイズ, dualView の時の２つ目の画像サイズ]
 //   表示対象画像がない場合は、width = height = 0
 export function getImageWH(param: ImageViewHelperParam): ImageSize[] {
-  const { imageInfos, fileIndex, dualView, divSize } = param;
+  const { imageSize0, imageSize1, dualView, divSize } = param;
 
   // 画像表示の準備が整っていない
-  if (!divSize || !imageInfos[fileIndex]) return imageDefaultSize;
+  if (!divSize || !imageSize0) return imageDefaultSize;
 
   // １枚だけ表示
-  if (!dualView || !imageInfos[fileIndex + 1]) {
+  if (!dualView || !imageSize1) {
     return getImageWH1(param);
   }
 
@@ -38,12 +38,12 @@ export function getImageWH(param: ImageViewHelperParam): ImageSize[] {
   return getImageWH2(param);
 }
 function getImageWH1(param: ImageViewHelperParam) {
-  const { imageInfos, fileIndex, zoomLevel, divSize } = param;
+  const { imageSize0, zoomLevel, divSize } = param;
   const uiZoom = zoomLevel2ZoomRatio(zoomLevel);
 
   // 画像のサイズ
-  const imgWidth = imageInfos[fileIndex].width;
-  const imgHeight = imageInfos[fileIndex].height;
+  const imgWidth = imageSize0.width;
+  const imgHeight = imageSize0.height;
   const imgRatio = imgWidth / imgHeight;
 
   // 表示領域のサイズ
@@ -82,14 +82,14 @@ function getImageWH1(param: ImageViewHelperParam) {
 }
 
 function getImageWH2(param: ImageViewHelperParam) {
-  const { imageInfos, fileIndex, zoomLevel, divSize } = param;
+  const { imageSize0, imageSize1, zoomLevel, divSize } = param;
   const uiZoom = zoomLevel2ZoomRatio(zoomLevel);
 
   // 画像のサイズ
-  const w1 = imageInfos[fileIndex].width;
-  const h1 = imageInfos[fileIndex].height;
-  const w2 = imageInfos[fileIndex + 1].width;
-  const h2 = imageInfos[fileIndex + 1].height;
+  const w1 = imageSize0.width;
+  const h1 = imageSize0.height;
+  const w2 = imageSize1.width;
+  const h2 = imageSize1.height;
   const imgWidth = w1 + w2;
   const imgHeight = Math.max(h1, h2);
   const imgRatio = imgWidth / imgHeight;
