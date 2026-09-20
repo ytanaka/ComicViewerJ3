@@ -186,7 +186,7 @@ pub fn get_resized_img_impl(
         .parse()
         .map_err(|_| anyhow!("invalid file_id as u64"))?;
 
-    // 元画像ファイル/ディレクトリ情報取得
+    // 元画像ファイル情報取得
     let (dir, file) = get_tab_file(state, tab_id, file_id)?;
     let meta = match read_metadata(&dir, &file.name) {
         Either::Left(e) => return Err(anyhow!(e)),
@@ -214,6 +214,16 @@ pub fn get_resized_img_impl(
         &meta,
         &dst_size,
     )?;
+    if dst_path.exists() {
+        // すでに存在するなら、更新日時を最新にしておく
+        if let Err(e) = touch_file(&dst_path) {
+            log::warn!("get_resized_img_impl: {:?}, error = {}", dst_path, e);
+        }
+        return Ok(GetResizedImgResult::Ok {
+            filename: dst_path.to_string_lossy().to_string(),
+            size: dst_size,
+        });
+    }
 
     // 画像読み込み
     let img = match image::open(&src_path) {
