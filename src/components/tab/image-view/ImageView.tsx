@@ -12,6 +12,7 @@ import { imageView_handleKeyDown } from '@/lib/event-handler/image-view-key-hand
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useResizedImagePath } from '@/services/tab-resized-image';
 import { GetResizedImgResult, Dimension } from '@/lib/bindings';
+import { useImageSize } from '@/services/tab-image-size';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -43,6 +44,20 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   setColumns(1);
   setScrollHandler(null);
 
+  // 画像サイズ
+  const { data: imageSize0 } = useImageSize(tab.id, dirEntries?.[focusIndex]);
+  const { data: imageSize1 } = useImageSize(tab.id, dirEntries?.[focusIndex + 1]);
+  const { data: imageSize2 } = useImageSize(tab.id, dirEntries?.[focusIndex + 2]);
+  const { data: imageSize3 } = useImageSize(tab.id, dirEntries?.[focusIndex + 3]);
+  useImageSize(tab.id, dirEntries?.[focusIndex - 1]);
+  useImageSize(tab.id, dirEntries?.[focusIndex - 2]);
+  const imageSizes = [imageSize0, imageSize1, imageSize2, imageSize3,];
+  function getImageSize(i: number) {
+    const size = imageSizes[i];
+    if (size) return size;
+    return { width: 0, height: 0 };
+  }
+
   // 画像ファイル取得
   const { data: img0 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex], divSize);
   if (img0?.type === 'Fail') {
@@ -57,10 +72,6 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   function getImgPath(result?: GetResizedImgResult) {
     if (result?.type === 'Ok') return result.filename;
     return undefined;
-  }
-  function getImgSize(result?: GetResizedImgResult) {
-    if (result?.type === 'Ok') return result.size;
-    return { width: 0, height: 0 };
   }
   const imgs = [getImgPath(img0), getImgPath(img1), getImgPath(img2), getImgPath(img3)];
 
@@ -114,9 +125,9 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const notImage = !isPictureFileExtension(dirEntries?.[focusIndex].name ?? '');
   const dualView = useTabStore(state => state.getCurrentTab()?.imageViewMode.dualImage) ?? false;
   const zoomLevel = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 0;
-  const [imgSize0, imgSize1] = getImageWH({ imageSize0: getImgSize(img0), imageSize1: getImgSize(img1), dualView, zoomLevel, divSize });
+  const [styleImgSize0, styleImgSize1] = getImageWH({ imageSize0: getImageSize(0), imageSize1: getImageSize(1), dualView, zoomLevel, divSize });
 
-  console.debug(`<ImageView> ${tab.path} focusIndex=${focusIndex} zoom=${zoomLevel} size0=`, getImgSize(img0), '=>', imgSize0);
+  console.debug(`<ImageView> ${tab.path} focusIndex=${focusIndex} zoom=${zoomLevel} size0=`, getImageSize(0), '=>', styleImgSize0);
 
   const rendering = useUiStore(state => state.imageRendering);
 
@@ -138,14 +149,14 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
           // 画像表示
           <div
             className="flex justify-center items-center min-w-full min-h-full"
-            style={{ width: imgSize0.width + imgSize1.width, height: Math.max(imgSize0.height, imgSize1.height) }}
+            style={{ width: styleImgSize0.width + styleImgSize1.width, height: Math.max(styleImgSize0.height, styleImgSize1.height) }}
           >
             {imgs[1] && (
               <img
                 src={convertFileSrc(imgs[1])}
                 style={{
                   imageRendering: rendering,
-                  ...imgSize1,
+                  ...styleImgSize1,
                 }}
                 draggable={false}
               />
@@ -154,7 +165,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
               src={convertFileSrc(imgs[0])}
               style={{
                 imageRendering: rendering,
-                ...imgSize0,
+                ...styleImgSize0,
               }}
               draggable={false}
             />

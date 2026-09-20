@@ -23,6 +23,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::get_file_infos,
         fs::sort_files,
         search::search_next_filename,
+        imgcache::get_image_size,
         imgcache::get_thumbnail,
         imgcache::get_resized_img,
         preferences::load_preferences,

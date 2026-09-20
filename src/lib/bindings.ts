@@ -38,6 +38,11 @@ export const commands = {
 	sortFiles: (tabId: number, sortCondition: SortCondition) => typedError<boolean, string>(__TAURI_INVOKE("sort_files", { tabId, sortCondition })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
+	/**  画像のサイズを取得 */
+	getImageSize: (tabId: number, fileId: string) => typedError<{
+	width: number,
+	height: number,
+} | null, string>(__TAURI_INVOKE("get_image_size", { tabId, fileId })),
 	/**  画像ファイルのサムネイルを取得 */
 	getThumbnail: (tabId: number, fileId: string, size: number) => typedError<GetThumbnailResult, string>(__TAURI_INVOKE("get_thumbnail", { tabId, fileId, size })),
 	/**  画像ファイルをリサイズする */

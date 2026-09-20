@@ -60,6 +60,9 @@ export const rustcmds = {
   searchNextFilename: (tabId: TabId, startIndex: number, romaji: string, reverse: boolean) => {
     return commands.searchNextFilename(tabId, startIndex, romaji, reverse);
   },
+  getImageSize: (tabId: number, fileId: FileId) => {
+    return commands.getImageSize(tabId, fileId.toString());
+  },
   getThumbnail: (tabId: number, fileId: FileId, size: number) => {
     return commands.getThumbnail(tabId, fileId.toString(), size);
   },

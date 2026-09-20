@@ -27,7 +27,34 @@ pub async fn get_image_size(
     tab_id: TabId,
     file_id: String,
 ) -> Result<Option<Dimension>, String> {
-    todo!()
+    let comment = format!("get_image_size({},{})", tab_id, file_id);
+    LOG_RESULT!(comment, {
+        get_image_size_impl(&state, tab_id, file_id).map_err(|e| e.to_full_string())
+    })
+}
+pub fn get_image_size_impl(
+    state: &AppState,
+    tab_id: TabId,
+    file_id: String,
+) -> anyhow::Result<Option<Dimension>> {
+    let file_id: u64 = file_id
+        .parse()
+        .map_err(|_| anyhow!("invalid file_id as u64"))?;
+
+    // 元画像ファイル情報取得
+    let (dir, file) = get_tab_file(state, tab_id, file_id)?;
+
+    // 変換元画像ファイル
+    let src_path = dir.join(&*file.name);
+    if !src_path.is_file() || !is_picture_ext(&src_path) {
+        return Ok(None);
+    }
+
+    // 変換元画像のサイズ
+    match get_img_size(&src_path) {
+        Err(_) => Ok(None),
+        Ok(size) => Ok(Some(size)),
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
