@@ -10,13 +10,25 @@ use crate::file_operations::file_utils::{self, touch_file};
 use crate::file_operations::image_utils::{
     calc_resize, get_img_size, is_picture_ext, resize_lanczos3, unsharp_mask,
 };
-use crate::types::{Either, GetResizedImgResult, GetThumbnailResult, ImageSize};
+use crate::types::{Dimension, Either, GetResizedImgResult, GetThumbnailResult};
 use crate::util::ErrorExt;
 use crate::LOG_RESULT;
 use crate::{
     commands::fs_util::get_tab_file, file_operations::file_utils::read_metadata,
     state::app_state::AppState, types::TabId,
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
+#[tauri::command]
+#[specta::specta]
+/// 画像のサイズを取得
+pub async fn get_image_size(
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    file_id: String,
+) -> Result<Option<Dimension>, String> {
+    todo!()
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
@@ -37,7 +49,7 @@ pub async fn get_thumbnail(
             running = permit.running;
             let state2 = state.inner().clone();
             let result = tauri::async_runtime::spawn_blocking(move || {
-                get_thumbnail_impl(&app, &state2, tab_id, &file_id, &ImageSize::new(size, size))
+                get_thumbnail_impl(&app, &state2, tab_id, &file_id, &Dimension::new(size, size))
             });
             result.await.unwrap()
         }
@@ -51,7 +63,7 @@ pub fn get_thumbnail_impl(
     state: &AppState,
     tab_id: TabId,
     file_id: &str,
-    size: &ImageSize,
+    size: &Dimension,
 ) -> anyhow::Result<GetThumbnailResult> {
     let file_id: u64 = file_id
         .parse()
@@ -156,7 +168,7 @@ pub async fn get_resized_img(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_id: String,
-    target_size: ImageSize,
+    target_size: Dimension,
 ) -> Result<GetResizedImgResult, String> {
     let comment = format!("get_resized_img({}, {}, {})", tab_id, file_id, target_size);
     let mut running = 0;
@@ -180,7 +192,7 @@ pub fn get_resized_img_impl(
     state: &AppState,
     tab_id: TabId,
     file_id: &str,
-    target_size: &ImageSize,
+    target_size: &Dimension,
 ) -> anyhow::Result<GetResizedImgResult> {
     let file_id: u64 = file_id
         .parse()
@@ -252,10 +264,10 @@ pub fn get_resized_img_impl(
 
 fn resize_image(
     img: &DynamicImage,
-    target_size: &ImageSize,
-) -> anyhow::Result<(RgbaImage, ImageSize)> {
+    target_size: &Dimension,
+) -> anyhow::Result<(RgbaImage, Dimension)> {
     let img = &img.to_rgba8();
-    let size = calc_resize(&ImageSize::from(img), target_size, 2);
+    let size = calc_resize(&Dimension::from(img), target_size, 2);
     let resized = resize_lanczos3(&img, &size)?;
     let unsharped = unsharp_mask(&resized, 0.7, 0.8); // TODO 設定で変更可能に
     Ok((unsharped, size))

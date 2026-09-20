@@ -166,16 +166,16 @@ pub struct FileMetadata {
 // =====================================================================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-pub struct ImageSize {
+pub struct Dimension {
     pub width: u32,
     pub height: u32,
 }
-impl fmt::Display for ImageSize {
+impl fmt::Display for Dimension {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}x{}", &self.width, &self.height)
     }
 }
-impl ImageSize {
+impl Dimension {
     pub fn new(width: u32, height: u32) -> Self {
         Self { width, height }
     }
@@ -183,13 +183,13 @@ impl ImageSize {
         self.width.max(self.height)
     }
 }
-impl<P, C> From<&ImageBuffer<P, C>> for ImageSize
+impl<P, C> From<&ImageBuffer<P, C>> for Dimension
 where
     P: image::Pixel + 'static,
     C: std::ops::Deref<Target = [P::Subpixel]>,
 {
     fn from(img: &ImageBuffer<P, C>) -> Self {
-        ImageSize {
+        Dimension {
             width: img.width(),
             height: img.height(),
         }
@@ -214,7 +214,7 @@ pub enum GetThumbnailResult {
 /// get_thumbnail(), get_resized_img() の結果
 pub enum GetResizedImgResult {
     /// 処理済み画像ファイル名
-    Ok { filename: String, size: ImageSize },
+    Ok { filename: String, size: Dimension },
     /// 現在処理が集中しているので、リトライしてほしい
     Busy,
     /// その他 (画像ではない、ファイルが読めないなど)

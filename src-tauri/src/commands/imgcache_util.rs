@@ -11,7 +11,7 @@ use anyhow::Context;
 use sha2::Digest;
 use sha2::Sha256;
 
-use crate::types::{FileMetadata, ImageSize};
+use crate::types::{FileMetadata, Dimension};
 
 pub enum ImageCacheType {
     ResizedImage,
@@ -62,7 +62,7 @@ pub fn get_imgcache_fullpath(
     dir: impl AsRef<Path>,
     name: &OsStr,
     metadata: &FileMetadata,
-    size: &ImageSize,
+    size: &Dimension,
 ) -> anyhow::Result<(PathBuf, PathBuf)> {
     // "16進文字列.jpg" を取得
     let mut hasher = Sha256::new();

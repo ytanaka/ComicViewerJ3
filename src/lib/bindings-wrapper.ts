@@ -8,7 +8,7 @@ import {
   FileInfoUI,
   FileMetadata,
   FilenameCmpType,
-  ImageSize,
+  Dimension,
   SortCondition,
   SortType,
   TabInfoUI,
@@ -63,7 +63,7 @@ export const rustcmds = {
   getThumbnail: (tabId: number, fileId: FileId, size: number) => {
     return commands.getThumbnail(tabId, fileId.toString(), size);
   },
-  getResizedImg: (tabId: number, fileId: FileId, size: ImageSize) => {
+  getResizedImg: (tabId: number, fileId: FileId, size: Dimension) => {
     return commands.getResizedImg(tabId, fileId.toString(), size);
   },
   loadPreferences: commands.loadPreferences,

@@ -11,7 +11,7 @@ import { useUiStore } from '@/store/ui-store';
 import { imageView_handleKeyDown } from '@/lib/event-handler/image-view-key-handler';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useResizedImagePath } from '@/services/tab-resized-image';
-import { GetResizedImgResult, ImageSize } from '@/lib/bindings';
+import { GetResizedImgResult, Dimension } from '@/lib/bindings';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -19,7 +19,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   // 画面サイズ管理
   const divRef = useRef<HTMLDivElement>(null);
-  const [divSize, setDivSize] = useState<ImageSize | null>(null);
+  const [divSize, setDivSize] = useState<Dimension | null>(null);
   useEffect(() => {
     if (!divRef.current) return;
 

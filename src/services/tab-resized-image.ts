@@ -4,15 +4,15 @@ import { queryKey_tabId } from './tab';
 import { DirEntry, handleRustCmdResult, rustcmds } from '@/lib/bindings-wrapper';
 import { isPictureFileExtension } from '@/lib/tools/string-util';
 import { usePreferences } from './preferences';
-import { ImageSize } from '@/lib/bindings';
+import { Dimension } from '@/lib/bindings';
 
-function queryKey_useResizedImagePath(tabId: TabId, fileId: FileId | undefined, size: ImageSize | null) {
+function queryKey_useResizedImagePath(tabId: TabId, fileId: FileId | undefined, size: Dimension | null) {
   return [...queryKey_tabId(tabId), 'getResizedImg', fileId, size?.width, size?.height];
 }
 
 let running = 0;
 
-export function useResizedImagePath(tabId: TabId, dirEntry: DirEntry | undefined, size: ImageSize | null) {
+export function useResizedImagePath(tabId: TabId, dirEntry: DirEntry | undefined, size: Dimension | null) {
   const { data: pref } = usePreferences();
   const LIMIT = pref?.resize_img_command_limit ?? 4;
   const enable = !!size && dirEntry && isPictureFileExtension(dirEntry.name);

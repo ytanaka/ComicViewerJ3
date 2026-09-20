@@ -41,7 +41,7 @@ export const commands = {
 	/**  画像ファイルのサムネイルを取得 */
 	getThumbnail: (tabId: number, fileId: string, size: number) => typedError<GetThumbnailResult, string>(__TAURI_INVOKE("get_thumbnail", { tabId, fileId, size })),
 	/**  画像ファイルをリサイズする */
-	getResizedImg: (tabId: number, fileId: string, targetSize: ImageSize) => typedError<GetResizedImgResult, string>(__TAURI_INVOKE("get_resized_img", { tabId, fileId, targetSize })),
+	getResizedImg: (tabId: number, fileId: string, targetSize: Dimension) => typedError<GetResizedImgResult, string>(__TAURI_INVOKE("get_resized_img", { tabId, fileId, targetSize })),
 	/**  設定取得 */
 	loadPreferences: () => typedError<AppPreferences, string>(__TAURI_INVOKE("load_preferences")),
 	/**  設定保存 */
@@ -70,6 +70,11 @@ export type AppPreferences = {
 /**  create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合) */
 export type CreateTabError = {
 	msg: string,
+};
+
+export type Dimension = {
+	width: number,
+	height: number,
 };
 
 /**  UIへ返すファイル一覧の要素 */
@@ -126,7 +131,7 @@ export type FilenameCmpType =
 /**  get_thumbnail(), get_resized_img() の結果 */
 export type GetResizedImgResult = 
 /**  処理済み画像ファイル名 */
-{ type: "Ok"; filename: string; size: ImageSize } | 
+{ type: "Ok"; filename: string; size: Dimension } | 
 /**  現在処理が集中しているので、リトライしてほしい */
 { type: "Busy" } | 
 /**  その他 (画像ではない、ファイルが読めないなど) */
@@ -142,11 +147,6 @@ export type GetThumbnailResult =
 { type: "NoImage" } | 
 /**  その他 (画像ではない、ファイルが読めないなど) */
 { type: "Fail"; error_msg: string };
-
-export type ImageSize = {
-	width: number,
-	height: number,
-};
 
 export type SortCondition = {
 	sort_type: SortType,
