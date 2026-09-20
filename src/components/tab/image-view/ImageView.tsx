@@ -14,10 +14,12 @@ import { GetResizedImgResult, Dimension } from '@/lib/bindings';
 import { useImageSize } from '@/services/tab-image-size';
 import { useImageFullpath } from '@/hooks/use-image-fullpath';
 import { ImageViewCell } from './ImageViewCell';
+import { zoomDimension } from '@/lib/tools/image-zoom';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
   const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
+  const zoomLevel = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 0;
 
   // 画面サイズ管理
   const divRef = useRef<HTMLDivElement>(null);
@@ -45,7 +47,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   setColumns(1);
   setScrollHandler(null);
 
-  // 画像サイズ
+  // 画像サイズ取得
   const { data: imageSize0 } = useImageSize(tab.id, dirEntries?.[focusIndex]);
   const { data: imageSize1 } = useImageSize(tab.id, dirEntries?.[focusIndex + 1]);
   useImageSize(tab.id, dirEntries?.[focusIndex + 2]);
@@ -54,16 +56,17 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   useImageSize(tab.id, dirEntries?.[focusIndex - 2]);
 
   // 画像ファイル取得
-  const { data: img0 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex], divSize);
+  const zoomedDivSize = zoomDimension(zoomLevel, divSize);
+  const { data: img0 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex], zoomedDivSize);
   if (img0?.type === 'Fail') {
     // TODO
     console.error(`${img0.error_msg}`)
   }
-  const { data: img1 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 1], divSize);
-  const { data: img2 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 2], divSize);
-  const { data: img3 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 3], divSize);
-  useResizedImagePath(tab.id, dirEntries?.[focusIndex - 1], divSize);
-  useResizedImagePath(tab.id, dirEntries?.[focusIndex - 2], divSize);
+  const { data: img1 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 1], zoomedDivSize);
+  const { data: img2 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 2], zoomedDivSize);
+  const { data: img3 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 3], zoomedDivSize);
+  useResizedImagePath(tab.id, dirEntries?.[focusIndex - 1], zoomedDivSize);
+  useResizedImagePath(tab.id, dirEntries?.[focusIndex - 2], zoomedDivSize);
   function getResizedImagePath(result?: GetResizedImgResult) {
     if (result?.type === 'Ok') return result.filename;
     return undefined;
@@ -120,8 +123,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   const notImage = !isPictureFileExtension(dirEntries?.[focusIndex].name ?? '');
   const dualView = useTabStore(state => state.getCurrentTab()?.imageViewMode.dualImage) ?? false;
-  const zoomLevel = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 0;
-  const [styleImgSize0, styleImgSize1] = getImageWH({ imageSize0, imageSize1, dualView, zoomLevel, divSize });
+  const [styleImgSize0, styleImgSize1] = getImageWH({ imageSize0, imageSize1, dualView, zoomLevel, screenSize: divSize });
 
   console.debug(`<ImageView> ${tab.path} focusIndex=${focusIndex} zoom=${zoomLevel} size=${imageSize0?.width}x${imageSize0?.height} => ${styleImgSize0.width}x${styleImgSize0.height}`);
 

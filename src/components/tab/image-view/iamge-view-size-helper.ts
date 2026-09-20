@@ -6,7 +6,7 @@ export type ImageViewHelperParam = {
   imageSize1: Dimension | undefined;
   dualView: boolean;
   zoomLevel: number;
-  divSize: Dimension | null;
+  screenSize: Dimension | null;
 };
 
 const DEFAULT_SIZE = [
@@ -24,10 +24,10 @@ const DEFAULT_SIZE = [
 // return [メイン画像サイズ, dualView の時の２つ目の画像サイズ]
 //   表示対象画像がない場合は、width = height = 0
 export function getImageWH(param: ImageViewHelperParam): Dimension[] {
-  const { imageSize0, imageSize1, dualView, divSize } = param;
+  const { imageSize0, imageSize1, dualView, screenSize } = param;
 
   // 画像表示の準備が整っていない
-  if (!divSize || !imageSize0) return DEFAULT_SIZE;
+  if (!screenSize || !imageSize0) return DEFAULT_SIZE;
 
   // １枚だけ表示
   if (!dualView || !imageSize1) {
@@ -38,7 +38,7 @@ export function getImageWH(param: ImageViewHelperParam): Dimension[] {
   return toInt(getImageWH2(param));
 }
 function getImageWH1(param: ImageViewHelperParam) {
-  const { imageSize0, zoomLevel, divSize } = param;
+  const { imageSize0, zoomLevel, screenSize } = param;
   if (!imageSize0) return DEFAULT_SIZE;
   const uiZoom = zoomLevel2ZoomRatio(zoomLevel);
 
@@ -49,8 +49,8 @@ function getImageWH1(param: ImageViewHelperParam) {
   const imgRatio = imgWidth / imgHeight;
 
   // 表示領域のサイズ
-  const viewHeight = divSize?.height;
-  const viewWidth = divSize?.width;
+  const viewHeight = screenSize?.height;
+  const viewWidth = screenSize?.width;
   if (!viewHeight || !viewWidth) return DEFAULT_SIZE;
   const viewRatio = viewWidth / viewHeight;
 
@@ -84,7 +84,7 @@ function getImageWH1(param: ImageViewHelperParam) {
 }
 
 function getImageWH2(param: ImageViewHelperParam) {
-  const { imageSize0, imageSize1, zoomLevel, divSize } = param;
+  const { imageSize0, imageSize1, zoomLevel, screenSize } = param;
   if (!imageSize0 || !imageSize1) return DEFAULT_SIZE;
   const uiZoom = zoomLevel2ZoomRatio(zoomLevel);
 
@@ -98,8 +98,8 @@ function getImageWH2(param: ImageViewHelperParam) {
   const imgRatio = imgWidth / imgHeight;
 
   // 表示領域のサイズ
-  const viewHeight = divSize?.height;
-  const viewWidth = divSize?.width;
+  const viewHeight = screenSize?.height;
+  const viewWidth = screenSize?.width;
   if (!viewHeight || !viewWidth) return DEFAULT_SIZE;
   const viewRatio = viewWidth / viewHeight;
 
