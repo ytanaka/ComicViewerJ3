@@ -22,6 +22,7 @@ export function useImageSize(tabId: TabId, dirEntry: DirEntry | undefined) {
       if (data.status === 'error') {
         return undefined; // queryFn で toast 表示済み
       }
+      if (data.data === null) return undefined
       return data.data;
     },
   });

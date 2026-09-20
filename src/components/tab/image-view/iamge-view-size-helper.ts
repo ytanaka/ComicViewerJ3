@@ -2,14 +2,14 @@ import { Dimension } from '@/lib/bindings';
 import { zoomLevel2ZoomRatio } from '@/lib/tools/image-zoom';
 
 export type ImageViewHelperParam = {
-  imageSize0: Dimension;
-  imageSize1: Dimension;
+  imageSize0: Dimension | undefined;
+  imageSize1: Dimension | undefined;
   dualView: boolean;
   zoomLevel: number;
   divSize: Dimension | null;
 };
 
-const imageDefaultSize = [
+const DEFAULT_SIZE = [
   {
     width: 0,
     height: 0,
@@ -27,30 +27,31 @@ export function getImageWH(param: ImageViewHelperParam): Dimension[] {
   const { imageSize0, imageSize1, dualView, divSize } = param;
 
   // 画像表示の準備が整っていない
-  if (!divSize || !imageSize0) return imageDefaultSize;
+  if (!divSize || !imageSize0) return DEFAULT_SIZE;
 
   // １枚だけ表示
   if (!dualView || !imageSize1) {
-    return getImageWH1(param);
+    return toInt(getImageWH1(param));
   }
 
   // ２枚表示
-  return getImageWH2(param);
+  return toInt(getImageWH2(param));
 }
 function getImageWH1(param: ImageViewHelperParam) {
   const { imageSize0, zoomLevel, divSize } = param;
+  if (!imageSize0) return DEFAULT_SIZE;
   const uiZoom = zoomLevel2ZoomRatio(zoomLevel);
 
   // 画像のサイズ
   const imgWidth = imageSize0.width;
   const imgHeight = imageSize0.height;
-  if (!imgWidth || !imgHeight) return imageDefaultSize;
+  if (!imgWidth || !imgHeight) return DEFAULT_SIZE;
   const imgRatio = imgWidth / imgHeight;
 
   // 表示領域のサイズ
   const viewHeight = divSize?.height;
   const viewWidth = divSize?.width;
-  if (!viewHeight || !viewWidth) return imageDefaultSize;
+  if (!viewHeight || !viewWidth) return DEFAULT_SIZE;
   const viewRatio = viewWidth / viewHeight;
 
   if (imgRatio < viewRatio) {
@@ -84,6 +85,7 @@ function getImageWH1(param: ImageViewHelperParam) {
 
 function getImageWH2(param: ImageViewHelperParam) {
   const { imageSize0, imageSize1, zoomLevel, divSize } = param;
+  if (!imageSize0 || !imageSize1) return DEFAULT_SIZE;
   const uiZoom = zoomLevel2ZoomRatio(zoomLevel);
 
   // 画像のサイズ
@@ -98,7 +100,7 @@ function getImageWH2(param: ImageViewHelperParam) {
   // 表示領域のサイズ
   const viewHeight = divSize?.height;
   const viewWidth = divSize?.width;
-  if (!viewHeight || !viewWidth) return imageDefaultSize;
+  if (!viewHeight || !viewWidth) return DEFAULT_SIZE;
   const viewRatio = viewWidth / viewHeight;
 
   let height;
@@ -133,4 +135,13 @@ function getImageWH2(param: ImageViewHelperParam) {
       height: height2 * uiZoom,
     },
   ];
+}
+
+function toInt(sizes: Dimension[]) {
+  sizes.forEach(s => toInt1(s));
+  return sizes;
+}
+function toInt1(size: Dimension) {
+  size.width = Math.round(size.width);
+  size.height = Math.round(size.height);
 }
