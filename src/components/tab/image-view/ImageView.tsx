@@ -63,7 +63,6 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     return { width: 0, height: 0 };
   }
   const imgs = [getImgPath(img0), getImgPath(img1), getImgPath(img2), getImgPath(img3)];
-  const imageSizes = [getImgSize(img0), getImgSize(img1)];
 
   // キー操作
   useEffect(() => {
@@ -114,15 +113,15 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   const notImage = !isPictureFileExtension(dirEntries?.[focusIndex].name ?? '');
   const dualView = useTabStore(state => state.getCurrentTab()?.imageViewMode.dualImage) ?? false;
-  const uiZoom = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 1;
-  const [imgSize0, imgSize1] = getImageWH({ imageSize0: getImgSize(img0), imageSize1: getImgSize(img1), dualView, zoomLevel: uiZoom, divSize });
+  const zoomLevel = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 0;
+  const [imgSize0, imgSize1] = getImageWH({ imageSize0: getImgSize(img0), imageSize1: getImgSize(img1), dualView, zoomLevel, divSize });
 
-  console.debug(`<ImageView> ${tab.path} focusIndex=${focusIndex} size0=`, imageSizes[0], '=>', imgSize0);
+  console.debug(`<ImageView> ${tab.path} focusIndex=${focusIndex} zoom=${zoomLevel} size0=`, getImgSize(img0), '=>', imgSize0);
 
   const rendering = useUiStore(state => state.imageRendering);
 
   return (
-    <div ref={divRef} className="w-full h-full">
+    <div ref={divRef} className="w-full h-full max-w-full max-h-full overflow-auto">
       {!dirEntries || dirEntries.length === 0 ? (
         // 空ディレクトリ
         <div>ファイルがありません</div>

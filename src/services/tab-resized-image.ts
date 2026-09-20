@@ -15,7 +15,7 @@ let running = 0;
 export function useResizedImagePath(tabId: TabId, dirEntry: DirEntry | undefined, size: ImageSize | null) {
   const { data: pref } = usePreferences();
   const LIMIT = pref?.resize_img_command_limit ?? 4;
-  const enable = !!size && dirEntry && (isPictureFileExtension(dirEntry.name) || dirEntry.is_dir);
+  const enable = !!size && dirEntry && isPictureFileExtension(dirEntry.name);
 
   return useQuery({
     queryKey: queryKey_useResizedImagePath(tabId, dirEntry?.file_id, size),

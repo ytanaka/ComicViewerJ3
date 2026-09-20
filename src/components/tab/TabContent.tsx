@@ -41,7 +41,7 @@ export function TabContentWrapper() {
   const tabsLength = useTabStore(state => state.tabs.length);
 
   return (
-    <div ref={ref} tabIndex={0} style={{ outline: 'none' }} className="flex-1 select-none">
+    <div ref={ref} tabIndex={0} style={{ outline: 'none' }} className="flex-1 select-none min-h-0">  {/* flex-1 して子コンポーネントが大きくなると、この<div>が画面からはみ出す。min-h-0 をつける */}
       {tabsLength === 0 ? (
         // タブがない場合
         <div className="w-full h-full justify-center items-center text-xl">No Tabs</div>
