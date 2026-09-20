@@ -44,6 +44,7 @@ function getImageWH1(param: ImageViewHelperParam) {
   // 画像のサイズ
   const imgWidth = imageSize0.width;
   const imgHeight = imageSize0.height;
+  if (!imgWidth || !imgHeight) return imageDefaultSize;
   const imgRatio = imgWidth / imgHeight;
 
   // 表示領域のサイズ

@@ -121,62 +121,64 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const rendering = useUiStore(state => state.imageRendering);
 
   return (
-    <div ref={divRef} className="w-full h-full max-w-full max-h-full overflow-auto">
-      {!dirEntries || dirEntries.length === 0 ? (
-        // 空ディレクトリ
-        <div>ファイルがありません</div>
-      ) : notImage || !imgs[0] ? (
-        // 画像ファイルでない
-        <div className="flex flex-col overflow-hidden p-3">
-          <div className="min-w-[1lh] w-[3lh]">
-            <FileIconByFileInfo dirEntry={dirEntries[focusIndex]} />
+    <div ref={divRef} className='flex w-full h-full max-w-full max-h-full'>
+      <div className="flex-1 min-h-0, min-w-0 overflow-auto">
+        {!dirEntries || dirEntries.length === 0 ? (
+          // 空ディレクトリ
+          <div>ファイルがありません</div>
+        ) : notImage || !imgs[0] ? (
+          // 画像ファイルでない
+          <div className="flex flex-col overflow-hidden p-3">
+            <div className="min-w-[1lh] w-[3lh]">
+              <FileIconByFileInfo dirEntry={dirEntries[focusIndex]} />
+            </div>
+            <div className="flex-1">{dirEntries[focusIndex].name}</div>
           </div>
-          <div className="flex-1">{dirEntries[focusIndex].name}</div>
-        </div>
-      ) : (
-        // 画像表示
-        <div
-          className="flex justify-center items-center min-w-full min-h-full"
-          style={{ width: imgSize0.width + imgSize1.width, height: Math.max(imgSize0.height, imgSize1.height) }}
-        >
-          {imgs[1] && (
+        ) : (
+          // 画像表示
+          <div
+            className="flex justify-center items-center min-w-full min-h-full"
+            style={{ width: imgSize0.width + imgSize1.width, height: Math.max(imgSize0.height, imgSize1.height) }}
+          >
+            {imgs[1] && (
+              <img
+                src={convertFileSrc(imgs[1])}
+                style={{
+                  imageRendering: rendering,
+                  ...imgSize1,
+                }}
+                draggable={false}
+              />
+            )}
             <img
-              src={convertFileSrc(imgs[1])}
+              src={convertFileSrc(imgs[0])}
               style={{
                 imageRendering: rendering,
-                ...imgSize1,
+                ...imgSize0,
               }}
               draggable={false}
             />
-          )}
-          <img
-            src={convertFileSrc(imgs[0])}
-            style={{
-              imageRendering: rendering,
-              ...imgSize0,
-            }}
-            draggable={false}
-          />
-          {imgs[2] && (
-            <img
-              src={convertFileSrc(imgs[2])}
-              style={{
-                display: 'none',
-                visibility: 'hidden',
-              }}
-            />
-          )}
-          {imgs[3] && (
-            <img
-              src={convertFileSrc(imgs[3])}
-              style={{
-                display: 'none',
-                visibility: 'hidden',
-              }}
-            />
-          )}
-        </div>
-      )}
+            {imgs[2] && (
+              <img
+                src={convertFileSrc(imgs[2])}
+                style={{
+                  display: 'none',
+                  visibility: 'hidden',
+                }}
+              />
+            )}
+            {imgs[3] && (
+              <img
+                src={convertFileSrc(imgs[3])}
+                style={{
+                  display: 'none',
+                  visibility: 'hidden',
+                }}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
