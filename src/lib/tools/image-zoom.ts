@@ -1,4 +1,4 @@
-import { Dimension } from "../bindings";
+import { Dimension } from '../bindings';
 
 const zoomLevelsPlus: number[] = [1, 1.5, 2, 3, 4];
 const zoomLevelsMinus: number[] = [1, 0.75, 0.5, 0.25, 0.125];

@@ -3,9 +3,9 @@ use tauri_specta::{collect_commands, Builder};
 pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::app;
     use crate::commands::fs;
+    use crate::commands::images;
     use crate::commands::preferences;
     use crate::commands::search;
-    use crate::commands::images;
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         app::init,

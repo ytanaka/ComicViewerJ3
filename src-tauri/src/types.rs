@@ -174,7 +174,7 @@ pub struct Dimension {
 }
 impl fmt::Display for Dimension {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}x{}", &self.width, &self.height)
+        write!(f, "{}x{}", self.width, self.height)
     }
 }
 impl Dimension {

@@ -60,7 +60,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const { data: img0 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex], zoomedDivSize);
   if (img0?.type === 'Fail') {
     // TODO
-    console.error(`${img0.error_msg}`)
+    console.error(`${img0.error_msg}`);
   }
   const { data: img1 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 1], zoomedDivSize);
   const { data: img2 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 2], zoomedDivSize);
@@ -123,12 +123,20 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   const notImage = !isPictureFileExtension(dirEntries?.[focusIndex].name ?? '');
   const dualView = useTabStore(state => state.getCurrentTab()?.imageViewMode.dualImage) ?? false;
-  const [styleImgSize0, styleImgSize1] = getImageWH({ imageSize0, imageSize1, dualView, zoomLevel, screenSize: divSize });
+  const [styleImgSize0, styleImgSize1] = getImageWH({
+    imageSize0,
+    imageSize1,
+    dualView,
+    zoomLevel,
+    screenSize: divSize,
+  });
 
-  console.debug(`<ImageView> ${tab.path} focusIndex=${focusIndex} zoom=${zoomLevel} size=${imageSize0?.width}x${imageSize0?.height} => ${styleImgSize0.width}x${styleImgSize0.height}`);
+  console.debug(
+    `<ImageView> ${tab.path} focusIndex=${focusIndex} zoom=${zoomLevel} size=${imageSize0?.width}x${imageSize0?.height} => ${styleImgSize0.width}x${styleImgSize0.height}`
+  );
 
   return (
-    <div ref={divRef} className='flex w-full h-full max-w-full max-h-full'>
+    <div ref={divRef} className="flex w-full h-full max-w-full max-h-full">
       <div className="flex-1 min-h-0, min-w-0 overflow-auto">
         {!dirEntries || dirEntries.length === 0 ? (
           // 空ディレクトリ
@@ -145,7 +153,10 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
           // 画像表示
           <div
             className="flex justify-center items-center min-w-full min-h-full"
-            style={{ width: styleImgSize0.width + styleImgSize1.width, height: Math.max(styleImgSize0.height, styleImgSize1.height) }}
+            style={{
+              width: styleImgSize0.width + styleImgSize1.width,
+              height: Math.max(styleImgSize0.height, styleImgSize1.height),
+            }}
           >
             <ImageViewCell
               key={`${tab.id}/${focusIndex + 1}/${getResizedImagePath(img1)}`}

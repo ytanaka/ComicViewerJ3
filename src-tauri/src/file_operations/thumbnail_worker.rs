@@ -2,7 +2,7 @@ use std::{fs, sync::Arc, thread, time::Duration};
 
 use walkdir::WalkDir;
 
-use crate::{ commands::images_util::get_thumbnail_dir, state::app_state::AppState};
+use crate::{commands::images_util::get_thumbnail_dir, state::app_state::AppState};
 
 // ---------------------------------------------------------------------------------------------------------------------
 

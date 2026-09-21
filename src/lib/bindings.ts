@@ -45,7 +45,7 @@ export const commands = {
 } | null, string>(__TAURI_INVOKE("get_image_size", { tabId, fileId })),
 	/**  画像ファイルのサムネイルを取得 */
 	getThumbnail: (tabId: number, fileId: string, size: number) => typedError<GetThumbnailResult, string>(__TAURI_INVOKE("get_thumbnail", { tabId, fileId, size })),
-	/**  画像ファイルをリサイズする */
+	/**  リサイズした画像ファイルを取得する */
 	getResizedImg: (tabId: number, fileId: string, targetSize: Dimension) => typedError<GetResizedImgResult, string>(__TAURI_INVOKE("get_resized_img", { tabId, fileId, targetSize })),
 	/**  設定取得 */
 	loadPreferences: () => typedError<AppPreferences, string>(__TAURI_INVOKE("load_preferences")),
@@ -70,6 +70,8 @@ export type AppPreferences = {
 	thumbnail_command_limit: number,
 	/**  画像リサイズ同時実行数 */
 	resize_img_command_limit: number,
+	/**  画像リサイズ時の画質設定 */
+	image_resize_config: ImageResizeConfig,
 };
 
 /**  create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合) */
@@ -136,7 +138,7 @@ export type FilenameCmpType =
 /**  get_thumbnail(), get_resized_img() の結果 */
 export type GetResizedImgResult = 
 /**  処理済み画像ファイル名 */
-{ type: "Ok"; filename: string; size: Dimension } | 
+{ type: "Ok"; filename: string } | 
 /**  現在処理が集中しているので、リトライしてほしい */
 { type: "Busy" } | 
 /**  その他 (画像ではない、ファイルが読めないなど) */
@@ -152,6 +154,12 @@ export type GetThumbnailResult =
 { type: "NoImage" } | 
 /**  その他 (画像ではない、ファイルが読めないなど) */
 { type: "Fail"; error_msg: string };
+
+/**  画像リサイズ時の画質設定 */
+export type ImageResizeConfig = {
+	unsharp_sigma: number | null,
+	unsharp_amount: number | null,
+};
 
 export type SortCondition = {
 	sort_type: SortType,

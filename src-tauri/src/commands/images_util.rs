@@ -30,7 +30,7 @@ fn get_imgcache_dir(app: &tauri::AppHandle, subdir: &str) -> anyhow::Result<Path
     let p = resolver
         .app_cache_dir()
         .context(format!("fail get {} cache dir: error", subdir))?;
-    let p = p.join(subdir.to_string());
+    let p = p.join(subdir);
 
     if !p.is_dir() {
         log::info!("mkdir {} dir: {}", subdir, p.to_string_lossy());

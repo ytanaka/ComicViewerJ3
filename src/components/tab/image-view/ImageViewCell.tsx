@@ -1,15 +1,15 @@
-import { Dimension } from "@/lib/bindings"
-import { DirEntry } from "@/lib/bindings-wrapper";
-import { convertFileSrc } from "@tauri-apps/api/core"
-import { useState } from "react";
+import { Dimension } from '@/lib/bindings';
+import { DirEntry } from '@/lib/bindings-wrapper';
+import { convertFileSrc } from '@tauri-apps/api/core';
+import { useState } from 'react';
 
 export interface ImageViewCellProps {
-  originalImagePath: string | undefined,
-  resizedImagePath: string | undefined,
-  dirEntry?: DirEntry,
-  size?: Dimension,
-  hidden: boolean,
-  debugPrint?: boolean,
+  originalImagePath: string | undefined;
+  resizedImagePath: string | undefined;
+  dirEntry?: DirEntry;
+  size?: Dimension;
+  hidden: boolean;
+  debugPrint?: boolean;
 }
 
 export function ImageViewCell(props: ImageViewCellProps) {
@@ -21,7 +21,9 @@ export function ImageViewCell(props: ImageViewCellProps) {
   const [readyResizedImage, setReadyResizedImage] = useState(false);
 
   if (props.debugPrint) {
-    console.debug(`<ImageViewCell> ${props.dirEntry?.name} (${props.size?.width}x${props.size?.height}) ${props.originalImagePath} ${props.resizedImagePath}`);
+    console.debug(
+      `<ImageViewCell> ${props.dirEntry?.name} (${props.size?.width}x${props.size?.height}) ${props.originalImagePath} ${props.resizedImagePath}`
+    );
   }
 
   return (
@@ -42,7 +44,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
         }}
         onLoad={() => setReadyResizedImage(true)}
       />
-      {!readyResizedImage &&
+      {!readyResizedImage && (
         <img
           src={getAssetUrl(props.originalImagePath)}
           draggable={false}
@@ -51,12 +53,13 @@ export function ImageViewCell(props: ImageViewCellProps) {
             display: readyResizedImage ? 'none' : undefined,
             visibility: readyResizedImage ? 'hidden' : undefined,
           }}
-        />}
-      {!readyResizedImage &&
-        <div
-          className="absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black"
-        >リサイズ中... {props.dirEntry?.name}
-        </div>}
+        />
+      )}
+      {!readyResizedImage && (
+        <div className="absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black">
+          リサイズ中... {props.dirEntry?.name}
+        </div>
+      )}
     </div>
   );
 }

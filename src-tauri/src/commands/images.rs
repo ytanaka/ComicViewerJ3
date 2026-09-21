@@ -182,7 +182,7 @@ fn get_thumbnail_target_file(
 fn resize_to_thumbnail(img: &DynamicImage, target_size: &Dimension) -> anyhow::Result<RgbaImage> {
     let img = &img.to_rgba8();
     let size = calc_resize(&Dimension::from(img), target_size, 2);
-    let resized = resize_lanczos3(&img, &size)?;
+    let resized = resize_lanczos3(img, &size)?;
     let resize_config = ImageResizeConfig::default();
     let unsharped = unsharp_mask(&resized, &resize_config);
     Ok(unsharped)
@@ -242,7 +242,7 @@ pub fn get_resized_img_impl(
     let src_path = dir.join(&*file.name);
     if !src_path.is_file() || !is_picture_ext(&src_path) {
         return Ok(GetResizedImgResult::Fail {
-            error_msg: format!("not a picture file"),
+            error_msg: "not a picture file".to_string(),
         });
     }
 
@@ -288,7 +288,7 @@ fn resize_image(
 ) -> anyhow::Result<RgbaImage> {
     let img = &img.to_rgba8();
     let size = calc_resize(&Dimension::from(img), target_size, 2);
-    let resized = resize_lanczos3(&img, &size)?;
+    let resized = resize_lanczos3(img, &size)?;
     let unsharped = unsharp_mask(&resized, config);
     Ok(unsharped)
 }
