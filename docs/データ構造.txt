@@ -15,7 +15,7 @@ Rust側データ構造
       tab_id                          // (不変)
       path                            // (不変)
       files: Map<FileId, FileInfoOS>  // (基本的に不変) ※ TabInfo 作成時にpath以下のファイル一覧を読む
-                                      // TODO: ディレクトリ内のファイル更新通知を受け取ると変更される
+                                      // ディレクトリ内のファイル更新通知を受け取ると変更される
 
       sorted_list: Option<Vec<FileId>>  // UI画面に表示する並び順 (初期化時はNone、UIからファイル名一覧の取得依頼があったときにSomeになる)
       sort_condition                    // ソート条件 (これが変更されたときは sorted_list を None にする)

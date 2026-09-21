@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import { Button } from '../ui/button';
 
 export function LinkButton({ label, onClick }: { label: string; onClick: () => Promise<void> }) {
   return (

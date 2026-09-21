@@ -128,7 +128,8 @@ export function mkAppPreferencesDefault(): AppPreferences {
     thumbnail_expiration_days: 0,
     thumbnail_command_limit: 5,
     resize_img_command_limit: 5,
-    image_resize_config: { unsharp_sigma: 0.7, unsharp_amount: 0.8 },
+    image_resize_config: { unsharp_sigma: 0.5, unsharp_threshold: 30 },
+    default: null,
   };
 }
 

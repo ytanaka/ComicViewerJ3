@@ -249,7 +249,7 @@ pub fn get_resized_img_impl(
     // 生成する画像のフルパス取得
     let resize_config = &state.preferences.read().unwrap().image_resize_config;
     let (dst_path, dst_tmp_path) =
-        get_resized_img_fullpath(app, &dir, &file.name, &meta, &target_size, resize_config)?;
+        get_resized_img_fullpath(app, &dir, &file.name, &meta, target_size, resize_config)?;
     if dst_path.exists() {
         // すでに存在するなら、更新日時を最新にしておく
         if let Err(e) = touch_file(&dst_path) {

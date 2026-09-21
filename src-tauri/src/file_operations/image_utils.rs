@@ -30,7 +30,6 @@ pub fn is_picture_ext<P: AsRef<Path>>(p: P) -> bool {
 }
 
 // 画像のサイズ取得
-// TODO キャッシュする
 pub fn get_img_size(path: impl AsRef<Path>) -> anyhow::Result<Dimension> {
     let reader = ImageReader::open(path)?;
     let dim = reader.into_dimensions()?;
