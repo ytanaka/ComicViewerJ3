@@ -16,6 +16,7 @@ import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handle
 import { ImageView } from './image-view/ImageView';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { windowCommands } from '@/lib/commands/window-commands';
+import { isPictureFileExtension } from '@/lib/tools/string-util';
 
 function st() {
   return useTabStore.getState();
@@ -130,6 +131,25 @@ function TabContent() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }); // 初回だけ実行する
+
+  // サムネイルモードで子ディレクトリに移動して画像ファイルにフォーカスがあったら、画像表示モードにする
+  useEffect(() => {
+    if (!dirEntries) return;
+
+    // ディレクトリ移動後、１回だけ実行する
+    if (useTabStore.getState().getCurrentTab()?.justDirMoved != true) return;
+    useTabStore.getState().clearJustDirMoved(tab.id);
+
+    if (fileViewMode != FileViewMode.Thumbnail) return;
+    if (imageView) return;
+    const focus = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
+    if (focus === undefined) return;
+    const dirEntry = dirEntries[focus];
+    if (dirEntry.is_dir) return;
+    if (!isPictureFileExtension(dirEntry.name)) return;
+
+    useTabStore.getState().setImageView(tab.id, true);
+  });
 
   const ret = imageView ? (
     <ImageView dirEntries={dirEntries} />

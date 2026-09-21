@@ -18,6 +18,7 @@ export interface UiTab {
   // TabInfo.path: 必ず設定されている
   // TabInfo.id: 負数の場合は TabInfo.path で新しいRustタブを作成する必要がある
   //     負数になるのは、zustand がLocalStrageから復元したときと、Rustからファイル一覧更新イベントが届いたとき
+  // ※ ディレクトリ移動するたびに TabInfo が置き換わる。UiTab は継続利用される
   info: TabInfo;
 
   fileViewMode: FileViewMode;
@@ -27,7 +28,9 @@ export interface UiTab {
   sortCondition: SortCondition;
   selection: FileSelection;
   focusHistories: FileFocus[]; // 先頭が古いデータ
+
   refreshCount: number; // ソートされると + 1
+  justDirMoved: boolean; // ディレクトリ移動直後かどうかフラグ
 }
 export interface FileSelection {
   focusIndex: number;
@@ -71,6 +74,7 @@ export function mkUiTab(tab: TabInfo): UiTab {
     selection: mkFileSelection(),
     focusHistories: [],
     refreshCount: 0,
+    justDirMoved: false,
   };
 }
 
