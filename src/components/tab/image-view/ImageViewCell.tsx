@@ -39,6 +39,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
         draggable={false}
         style={{
           ...props.size,
+          imageRendering: 'pixelated',
           display: !readyResizedImage ? 'none' : undefined,
           visibility: !readyResizedImage ? 'hidden' : undefined,
         }}
@@ -50,6 +51,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
           draggable={false}
           style={{
             ...props.size,
+            imageRendering: 'smooth',
             display: readyResizedImage ? 'none' : undefined,
             visibility: readyResizedImage ? 'hidden' : undefined,
           }}

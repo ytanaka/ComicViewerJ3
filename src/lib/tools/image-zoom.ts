@@ -3,7 +3,7 @@ import { Dimension } from '../bindings';
 const zoomLevelsPlus: number[] = [1, 1.5, 2, 3, 4];
 const zoomLevelsMinus: number[] = [1, 0.75, 0.5, 0.25, 0.125];
 
-export function zoomDimension(level: number, size: Dimension | null): Dimension | null {
+export function zoomDimension(level: number, size: Dimension | undefined): Dimension | null {
   if (!size) return null;
   const ratio = zoomLevel2ZoomRatio(level);
   return {

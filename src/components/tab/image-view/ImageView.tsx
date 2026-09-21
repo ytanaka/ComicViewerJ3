@@ -10,7 +10,7 @@ import { useUiStore } from '@/store/ui-store';
 import { imageView_handleKeyDown } from '@/lib/event-handler/image-view-key-handler';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useResizedImagePath } from '@/services/tab-resized-image';
-import { GetResizedImgResult, Dimension } from '@/lib/bindings';
+import { Dimension } from '@/lib/bindings';
 import { useImageSize } from '@/services/tab-image-size';
 import { useImageFullpath } from '@/hooks/use-image-fullpath';
 import { ImageViewCell } from './ImageViewCell';
@@ -20,10 +20,11 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
   const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
   const zoomLevel = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 0;
+  const originalSize = useTabStore(state => state.getCurrentTab()?.imageViewMode.useOriginalSize) ?? false;
 
   // 画面サイズ管理
   const divRef = useRef<HTMLDivElement>(null);
-  const [divSize, setDivSize] = useState<Dimension | null>(null);
+  const [divSize, setDivSize] = useState<Dimension | undefined>(undefined);
   useEffect(() => {
     if (!divRef.current) return;
 
@@ -55,24 +56,31 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   useImageSize(tab.id, dirEntries?.[focusIndex - 1]);
   useImageSize(tab.id, dirEntries?.[focusIndex - 2]);
 
+  // オリジナル画像ファイルのフルパス
+  const { data: originalImagePaths } = useImageFullpath(tab.id);
+
   // 画像ファイル取得
-  const zoomedDivSize = zoomDimension(zoomLevel, divSize);
-  const { data: img0 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex], zoomedDivSize);
+  const zoomedDivSize = zoomDimension(zoomLevel, originalSize ? imageSize0 : divSize);
+  function ent(fileIndex: number) { return originalSize ? undefined : dirEntries?.[fileIndex]; }
+  const { data: img0 } = useResizedImagePath(tab.id, ent(focusIndex), zoomedDivSize);
   if (img0?.type === 'Fail') {
     // TODO
     console.error(`${img0.error_msg}`);
   }
-  const { data: img1 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 1], zoomedDivSize);
-  const { data: img2 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 2], zoomedDivSize);
-  const { data: img3 } = useResizedImagePath(tab.id, dirEntries?.[focusIndex + 3], zoomedDivSize);
-  useResizedImagePath(tab.id, dirEntries?.[focusIndex - 1], zoomedDivSize);
-  useResizedImagePath(tab.id, dirEntries?.[focusIndex - 2], zoomedDivSize);
-  function getResizedImagePath(result?: GetResizedImgResult) {
+  const { data: img1 } = useResizedImagePath(tab.id, ent(focusIndex + 1), zoomedDivSize);
+  const { data: img2 } = useResizedImagePath(tab.id, ent(focusIndex + 2), zoomedDivSize);
+  const { data: img3 } = useResizedImagePath(tab.id, ent(focusIndex + 3), zoomedDivSize);
+  useResizedImagePath(tab.id, originalSize ? undefined : dirEntries?.[focusIndex - 1], zoomedDivSize);
+  useResizedImagePath(tab.id, originalSize ? undefined : dirEntries?.[focusIndex - 2], zoomedDivSize);
+
+  // 最終表示画像取得 (i: 0-3) 原寸表示時は、リサイズしない画像ファイル名を返す
+  function getResizedImagePath(i: number) {
+    const imgs = [img0, img1, img2, img3];
+    if (originalSize) return originalImagePaths?.[focusIndex + i];
+    const result = imgs[i];
     if (result?.type === 'Ok') return result.filename;
     return undefined;
   }
-  // オリジナル画像ファイルのフルパス
-  const { data: originalImagePaths } = useImageFullpath(tab.id);
 
   // キー操作
   useEffect(() => {
@@ -128,7 +136,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     imageSize1,
     dualView,
     zoomLevel,
-    screenSize: divSize,
+    screenSize: originalSize ? imageSize0 : divSize,
   });
 
   console.debug(
@@ -159,18 +167,18 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             }}
           >
             <ImageViewCell
-              key={`${tab.id}/${focusIndex + 1}/${getResizedImagePath(img1)}`}
+              key={`${tab.id}/${focusIndex + 1}/${getResizedImagePath(1)}`}
               dirEntry={dirEntries[focusIndex + 1]}
               originalImagePath={originalImagePaths?.[focusIndex + 1]}
-              resizedImagePath={getResizedImagePath(img1)}
+              resizedImagePath={getResizedImagePath(1)}
               size={styleImgSize1}
               hidden={!dualView}
             />
             <ImageViewCell
-              key={`${tab.id}/${focusIndex}/${getResizedImagePath(img0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
+              key={`${tab.id}/${focusIndex}/${getResizedImagePath(0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
               dirEntry={dirEntries[focusIndex]}
               originalImagePath={originalImagePaths?.[focusIndex]}
-              resizedImagePath={getResizedImagePath(img0)}
+              resizedImagePath={getResizedImagePath(0)}
               size={styleImgSize0}
               hidden={false}
               debugPrint={true}
@@ -178,13 +186,13 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             <ImageViewCell
               key={`${tab.id}/${focusIndex + 2}`}
               originalImagePath={originalImagePaths?.[focusIndex + 2]}
-              resizedImagePath={getResizedImagePath(img2)}
+              resizedImagePath={getResizedImagePath(2)}
               hidden={true}
             />
             <ImageViewCell
               key={`${tab.id}/${focusIndex + 3}`}
               originalImagePath={originalImagePaths?.[focusIndex + 3]}
-              resizedImagePath={getResizedImagePath(img3)}
+              resizedImagePath={getResizedImagePath(3)}
               hidden={true}
             />
           </div>

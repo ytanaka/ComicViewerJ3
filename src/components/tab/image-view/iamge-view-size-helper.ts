@@ -6,7 +6,7 @@ export type ImageViewHelperParam = {
   imageSize1: Dimension | undefined;
   dualView: boolean;
   zoomLevel: number;
-  screenSize: Dimension | null;
+  screenSize: Dimension | undefined;
 };
 
 const DEFAULT_SIZE = [

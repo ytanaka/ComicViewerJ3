@@ -9,6 +9,7 @@ export interface ImageViewModeActions {
   setImageView: (tabId: TabId, b: boolean) => void;
   setDualImage: (tabId: TabId, b: boolean) => void;
   setZoomLevel: (tabId: TabId, n: number) => void;
+  setUseOriginalSize: (tabId: TabId, b: boolean) => void;
 }
 
 export const createImageViewModeActions: StateCreator<
@@ -50,6 +51,14 @@ export const createImageViewModeActions: StateCreator<
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
           tab.imageViewMode.zoomLevel = zoomLevelNormalize(n);
+        });
+      });
+    },
+
+    setUseOriginalSize: (tabId: TabId, b: boolean) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
+          tab.imageViewMode.useOriginalSize = b;
         });
       });
     },

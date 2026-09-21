@@ -67,6 +67,22 @@ function imageView_handleKeyDown_impl(e: KeyboardEvent): boolean {
   }
 
   // -------------------------------------------------------------------------------------------------------------------
+  // 原寸表示
+  // -------------------------------------------------------------------------------------------------------------------
+  if (NO_MOD && e.key === '0') {
+    const newMode = !tab.imageViewMode.useOriginalSize;
+    st().setUseOriginalSize(tabInfo.id, newMode);
+    st().setDualImage(tabInfo.id, false);
+    setZoomLevel(e, tabInfo, 0);
+    return true;
+  }
+  if (NO_MOD && e.key === 'Enter' && tab.imageViewMode.useOriginalSize) {
+    st().setUseOriginalSize(tabInfo.id, false);
+    setZoomLevel(e, tabInfo, 0);
+    return true;
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
   // 画像モード終了
   // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && (e.key === 'Escape' || e.key === 'Enter')) {
