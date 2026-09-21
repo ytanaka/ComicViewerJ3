@@ -216,7 +216,7 @@ pub enum GetThumbnailResult {
 /// get_thumbnail(), get_resized_img() の結果
 pub enum GetResizedImgResult {
     /// 処理済み画像ファイル名
-    Ok { filename: String, size: Dimension },
+    Ok { filename: String },
     /// 現在処理が集中しているので、リトライしてほしい
     Busy,
     /// その他 (画像ではない、ファイルが読めないなど)
@@ -290,6 +290,9 @@ pub struct AppPreferences {
     pub thumbnail_command_limit: u32,
     /// 画像リサイズ同時実行数
     pub resize_img_command_limit: u32,
+
+    /// 画像リサイズ時の画質設定
+    pub image_resize_config: ImageResizeConfig,
 }
 impl Default for AppPreferences {
     fn default() -> Self {
@@ -304,6 +307,7 @@ impl Default for AppPreferences {
             resize_img_command_limit: std::thread::available_parallelism()
                 .unwrap_or(NonZero::new(4).unwrap())
                 .get() as u32,
+            image_resize_config: ImageResizeConfig::default(),
         }
     }
 }
@@ -323,9 +327,9 @@ impl AppPreferences {
     }
 }
 
-/// ファイル名ソート時の文字比較方法
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 #[serde(tag = "type")]
+/// ファイル名ソート時の文字比較方法
 pub enum FilenameCmpType {
     /// Unicode文字コード順
     #[default]
@@ -334,6 +338,20 @@ pub enum FilenameCmpType {
     Sjis,
     /// 自然
     Icu,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+/// 画像リサイズ時の画質設定
+pub struct ImageResizeConfig {
+    pub unsharp_sigma: f32,
+    pub unsharp_amount: f32,
+}
+impl Default for ImageResizeConfig {
+    fn default() -> Self {
+        Self {
+            unsharp_sigma: 0.7,
+            unsharp_amount: 0.8,
+        }
+    }
 }
 
 // =====================================================================================================================

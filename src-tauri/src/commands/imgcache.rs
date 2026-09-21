@@ -5,12 +5,12 @@ use tauri::{AppHandle, State};
 
 use anyhow::{anyhow, Context};
 
-use crate::commands::imgcache_util::{get_imgcache_fullpath, ImageCacheType};
+use crate::commands::imgcache_util::{get_resized_img_fullpath, get_thubmnail_fullpath};
 use crate::file_operations::file_utils::{self, touch_file};
 use crate::file_operations::image_utils::{
     calc_resize, get_img_size, is_picture_ext, resize_lanczos3, unsharp_mask,
 };
-use crate::types::{Dimension, Either, GetResizedImgResult, GetThumbnailResult};
+use crate::types::{Dimension, Either, GetResizedImgResult, GetThumbnailResult, ImageResizeConfig};
 use crate::util::ErrorExt;
 use crate::LOG_RESULT;
 use crate::{
@@ -104,14 +104,7 @@ pub fn get_thumbnail_impl(
     };
 
     // 生成するサムネイル画像のフルパス取得
-    let (dst_path, dst_tmp_path) = get_imgcache_fullpath(
-        app,
-        &ImageCacheType::Thumbnail,
-        &dir,
-        &file.name,
-        &meta,
-        size,
-    )?;
+    let (dst_path, dst_tmp_path) = get_thubmnail_fullpath(app, &dir, &file.name, &meta, size)?;
     if dst_path.exists() {
         // すでに存在するなら、更新日時を最新にしておく
         if let Err(e) = touch_file(&dst_path) {
@@ -139,7 +132,7 @@ pub fn get_thumbnail_impl(
         }
     };
     // リサイズ
-    let (img, _) = resize_image(&img, size)?;
+    let img = resize_to_thumbnail(&img, size)?;
     // セーブ
     img.save(&dst_tmp_path)
         .context(format!("fail save imgcache: {:?}", dst_tmp_path))?;
@@ -151,6 +144,7 @@ pub fn get_thumbnail_impl(
 }
 /// サムネイル対象のファイルを探す。
 /// 必要なら、サブディレクトリを探す
+///
 /// return OK(Some(filename)): 見つかった
 /// return OK(None): 見つからなかった
 /// return Err(msg): ファイル or ディレクトリが読めない
@@ -185,11 +179,19 @@ fn get_thumbnail_target_file(
     let path = path.join(list.first().unwrap().name.as_ref());
     get_thumbnail_target_file(state, &path, max_depth - 1)
 }
+fn resize_to_thumbnail(img: &DynamicImage, target_size: &Dimension) -> anyhow::Result<RgbaImage> {
+    let img = &img.to_rgba8();
+    let size = calc_resize(&Dimension::from(img), target_size, 2);
+    let resized = resize_lanczos3(&img, &size)?;
+    let resize_config = ImageResizeConfig::default();
+    let unsharped = unsharp_mask(&resized, &resize_config);
+    Ok(unsharped)
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
-/// 画像ファイルをリサイズする
+/// リサイズした画像ファイルを取得する
 pub async fn get_resized_img(
     app: AppHandle,
     state: State<'_, Arc<AppState>>,
@@ -225,14 +227,18 @@ pub fn get_resized_img_impl(
         .parse()
         .map_err(|_| anyhow!("invalid file_id as u64"))?;
 
-    // 元画像ファイル情報取得
+    // 元画像ファイルメタデータ取得
     let (dir, file) = get_tab_file(state, tab_id, file_id)?;
-    let meta = match read_metadata(&dir, &file.name) {
+    let meta = match file.metadata {
+        Some(m) => m.as_ref().clone(),
+        None => read_metadata(&dir, &file.name),
+    };
+    let meta = match meta {
         Either::Left(e) => return Err(anyhow!(e)),
         Either::Right(m) => m,
     };
 
-    // 変換元画像ファイル
+    // 変換元画像ファイルパス
     let src_path = dir.join(&*file.name);
     if !src_path.is_file() || !is_picture_ext(&src_path) {
         return Ok(GetResizedImgResult::Fail {
@@ -240,19 +246,10 @@ pub fn get_resized_img_impl(
         });
     }
 
-    // 変換元画像のサイズ
-    let src_size = get_img_size(&src_path).context("can not get image dimension")?;
-    let dst_size = calc_resize(&src_size, target_size, 2);
-
     // 生成する画像のフルパス取得
-    let (dst_path, dst_tmp_path) = get_imgcache_fullpath(
-        app,
-        &ImageCacheType::ResizedImage,
-        &dir,
-        &file.name,
-        &meta,
-        &dst_size,
-    )?;
+    let resize_config = &state.preferences.read().unwrap().image_resize_config;
+    let (dst_path, dst_tmp_path) =
+        get_resized_img_fullpath(app, &dir, &file.name, &meta, resize_config)?;
     if dst_path.exists() {
         // すでに存在するなら、更新日時を最新にしておく
         if let Err(e) = touch_file(&dst_path) {
@@ -260,7 +257,6 @@ pub fn get_resized_img_impl(
         }
         return Ok(GetResizedImgResult::Ok {
             filename: dst_path.to_string_lossy().to_string(),
-            size: dst_size,
         });
     }
 
@@ -274,7 +270,7 @@ pub fn get_resized_img_impl(
         }
     };
     // リサイズ
-    let (img, ret_size) = resize_image(&img, target_size)?;
+    let img = resize_image(&img, target_size, resize_config)?;
 
     // セーブ
     img.save(&dst_tmp_path)
@@ -283,19 +279,16 @@ pub fn get_resized_img_impl(
 
     Ok(GetResizedImgResult::Ok {
         filename: dst_path.to_string_lossy().to_string(),
-        size: ret_size,
     })
 }
-
-// ---------------------------------------------------------------------------------------------------------------------
-
 fn resize_image(
     img: &DynamicImage,
     target_size: &Dimension,
-) -> anyhow::Result<(RgbaImage, Dimension)> {
+    config: &ImageResizeConfig,
+) -> anyhow::Result<RgbaImage> {
     let img = &img.to_rgba8();
     let size = calc_resize(&Dimension::from(img), target_size, 2);
     let resized = resize_lanczos3(&img, &size)?;
-    let unsharped = unsharp_mask(&resized, 0.7, 0.8); // TODO 設定で変更可能に
-    Ok((unsharped, size))
+    let unsharped = unsharp_mask(&resized, config);
+    Ok(unsharped)
 }

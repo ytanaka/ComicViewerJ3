@@ -3,7 +3,7 @@ use std::{collections::HashSet, path::Path};
 use fast_image_resize as fir;
 use image::{ImageReader, RgbaImage};
 
-use crate::types::Dimension;
+use crate::types::{Dimension, ImageResizeConfig};
 
 pub fn is_picture_ext<P: AsRef<Path>>(p: P) -> bool {
     // 静的に保持する拡張子セット
@@ -30,6 +30,7 @@ pub fn is_picture_ext<P: AsRef<Path>>(p: P) -> bool {
 }
 
 // 画像のサイズ取得
+// TODO キャッシュする
 pub fn get_img_size(path: impl AsRef<Path>) -> anyhow::Result<Dimension> {
     let reader = ImageReader::open(path)?;
     let dim = reader.into_dimensions()?;
@@ -81,15 +82,16 @@ pub fn resize_lanczos3(src: &RgbaImage, size: &Dimension) -> anyhow::Result<Rgba
 }
 
 /// 画像のエッジを強調
-pub fn unsharp_mask(src: &RgbaImage, sigma: f32, amount: f32) -> RgbaImage {
+pub fn unsharp_mask(src: &RgbaImage, config: &ImageResizeConfig) -> RgbaImage {
     // Gaussian Blur
-    let blurred = image::imageops::blur(src, sigma);
+    let blurred = image::imageops::blur(src, config.unsharp_sigma);
 
     let mut output = src.clone();
 
     for ((dst, original), blur) in output.pixels_mut().zip(src.pixels()).zip(blurred.pixels()) {
         for c in 0..3 {
-            let value = original[c] as f32 + amount * (original[c] as f32 - blur[c] as f32);
+            let value =
+                original[c] as f32 + config.unsharp_amount * (original[c] as f32 - blur[c] as f32);
 
             dst[c] = value.clamp(0.0, 255.0) as u8;
         }

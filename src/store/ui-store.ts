@@ -35,7 +35,7 @@ export interface UiState {
   // フルスクリーン時にマウスカーソルを消す
   hideMouseCursorWhenFullscreen: boolean;
   // 画像表示時の画質設定
-  imageRendering: 'auto' | 'crisp-edges' | 'pixelated' | 'smooth';
+  imageRendering: 'auto' | 'crisp-edges' | 'pixelated' | 'smooth'; // TODO 消す？
 }
 
 type UiState_and_Action = UiState & {
