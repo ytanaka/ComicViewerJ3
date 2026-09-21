@@ -5,7 +5,7 @@ use tauri::{AppHandle, State};
 
 use anyhow::{anyhow, Context};
 
-use crate::commands::imgcache_util::{get_resized_img_fullpath, get_thubmnail_fullpath};
+use crate::commands::images_util::{get_resized_img_fullpath, get_thubmnail_fullpath};
 use crate::file_operations::file_utils::{self, touch_file};
 use crate::file_operations::image_utils::{
     calc_resize, get_img_size, is_picture_ext, resize_lanczos3, unsharp_mask,
