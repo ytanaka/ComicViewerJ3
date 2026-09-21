@@ -66,7 +66,7 @@ export function ImageQuorityPanel() {
             <br />
             参考:
             <LinkButton onClick={() => openUrl('https://ja.wikipedia.org/wiki/%E3%82%A2%E3%83%B3%E3%82%B7%E3%83%A3%E3%83%BC%E3%83%97%E3%83%9E%E3%82%B9%E3%82%AF')} label="アンシャープマスク" />
-            <LinkButton onClick={() => openUrl('https://docs.rs/image/0.25.10/image/imageops/fn.unsharpen.html')} label="(プログラム)" />
+            <LinkButton onClick={() => openUrl('https://docs.rs/image/0.25.10/image/imageops/fn.unsharpen.html')} label="(sigma,threshold について)" />
           </FieldDescription>
         </Field>
       </FieldGroup>

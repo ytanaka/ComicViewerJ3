@@ -37,8 +37,6 @@ export interface UiState {
 
   // フルスクリーン時にマウスカーソルを消す
   hideMouseCursorWhenFullscreen: boolean;
-  // 画像表示時の画質設定
-  imageRendering: 'auto' | 'crisp-edges' | 'pixelated' | 'smooth'; // TODO 消す？
 }
 
 type UiState_and_Action = UiState & {
@@ -59,7 +57,6 @@ export const useUiStore = create<UiState_and_Action>()(
       fileListHeaderSizes: [35, 500, 100, 120, 180],
       defaultThumbnailSize: 128, // THUMBNAIL_SIZE_DEFAULT と書きたいが、初期化前参照エラーになる
       hideMouseCursorWhenFullscreen: true,
-      imageRendering: 'smooth',
 
       setField: (key, value) => set({ [key]: value }),
     }),
