@@ -160,7 +160,7 @@ export const menuItems = {
   changeFullscreen: M('フルスクリーンモード', () => console.log('FULL SCREEN!!!')),
 
   // -------------------- Tab --------------------
-  cloneTab: M('新規タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T'),
+  cloneTab: M('新規タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T', hasTab),
   closeCurrentTab: M('現在のタブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl//W', hasTab),
 
   nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl//PageDown', hasTab),

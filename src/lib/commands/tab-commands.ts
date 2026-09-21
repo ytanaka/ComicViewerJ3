@@ -21,7 +21,7 @@ function st() {
 }
 
 async function _addTab(result: RustCmdResult<Either<CreateTabError, TabInfo>>) {
-  handleRustCmdCreateTabResult(result, 'rustcmds.create_clene_Tab(...)', 'タブ追加失敗', data => {
+  return handleRustCmdCreateTabResult(result, 'rustcmds.create_clene_Tab(...)', 'タブ追加失敗', data => {
     st().addTab(mkUiTab(data));
   });
 }
@@ -48,7 +48,10 @@ export const tabCommands = {
     if (!currentTab) {
       await this.addTab_homeDir();
     } else {
-      _addTab(await rustcmds.cloneTab(currentTab.info.id));
+      if (await _addTab(await rustcmds.cloneTab(currentTab.info.id))) {
+        const newTab = st().getCurrentTab();
+        if (newTab) st().setViewMode(newTab.info.id, currentTab.fileViewMode);
+      }
     }
   },
 
