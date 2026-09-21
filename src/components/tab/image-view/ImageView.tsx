@@ -61,7 +61,9 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   // 画像ファイル取得
   const zoomedDivSize = zoomDimension(zoomLevel, originalSize ? imageSize0 : divSize);
-  function ent(fileIndex: number) { return originalSize ? undefined : dirEntries?.[fileIndex]; }
+  function ent(fileIndex: number) {
+    return originalSize ? undefined : dirEntries?.[fileIndex];
+  }
   const { data: img0 } = useResizedImagePath(tab.id, ent(focusIndex), zoomedDivSize);
   if (img0?.type === 'Fail') {
     // TODO
@@ -144,35 +146,43 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     `<ImageView> ${tab.path} focusIndex=${focusIndex} zoom=${zoomLevel} size=${imageSize0?.width}x${imageSize0?.height} => ${styleImgSize0.width}x${styleImgSize0.height}`
   );
 
-  const imgViewCell0 = (<ImageViewCell
-    key={`${tab.id}/${focusIndex}/${getResizedImagePath(0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
-    dirEntry={dirEntries?.[focusIndex]}
-    originalImagePath={originalImagePaths?.[focusIndex]}
-    resizedImagePath={getResizedImagePath(0)}
-    size={styleImgSize0}
-    hidden={false}
-    debugPrint={true}
-  />);
-  const imgViewCell1 = (<ImageViewCell
-    key={`${tab.id}/${focusIndex + 1}/${getResizedImagePath(1)}`}
-    dirEntry={dirEntries?.[focusIndex + 1]}
-    originalImagePath={originalImagePaths?.[focusIndex + 1]}
-    resizedImagePath={getResizedImagePath(1)}
-    size={styleImgSize1}
-    hidden={!dualView}
-  />);
-  const imgViewCell2 = (<ImageViewCell
-    key={`${tab.id}/${focusIndex + 2}`}
-    originalImagePath={originalImagePaths?.[focusIndex + 2]}
-    resizedImagePath={getResizedImagePath(2)}
-    hidden={true}
-  />);
-  const imgViewCell3 = (<ImageViewCell
-    key={`${tab.id}/${focusIndex + 3}`}
-    originalImagePath={originalImagePaths?.[focusIndex + 3]}
-    resizedImagePath={getResizedImagePath(3)}
-    hidden={true}
-  />);
+  const imgViewCell0 = (
+    <ImageViewCell
+      key={`${tab.id}/${focusIndex}/${getResizedImagePath(0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
+      dirEntry={dirEntries?.[focusIndex]}
+      originalImagePath={originalImagePaths?.[focusIndex]}
+      resizedImagePath={getResizedImagePath(0)}
+      size={styleImgSize0}
+      hidden={false}
+      debugPrint={true}
+    />
+  );
+  const imgViewCell1 = (
+    <ImageViewCell
+      key={`${tab.id}/${focusIndex + 1}/${getResizedImagePath(1)}`}
+      dirEntry={dirEntries?.[focusIndex + 1]}
+      originalImagePath={originalImagePaths?.[focusIndex + 1]}
+      resizedImagePath={getResizedImagePath(1)}
+      size={styleImgSize1}
+      hidden={!dualView}
+    />
+  );
+  const imgViewCell2 = (
+    <ImageViewCell
+      key={`${tab.id}/${focusIndex + 2}`}
+      originalImagePath={originalImagePaths?.[focusIndex + 2]}
+      resizedImagePath={getResizedImagePath(2)}
+      hidden={true}
+    />
+  );
+  const imgViewCell3 = (
+    <ImageViewCell
+      key={`${tab.id}/${focusIndex + 3}`}
+      originalImagePath={originalImagePaths?.[focusIndex + 3]}
+      resizedImagePath={getResizedImagePath(3)}
+      hidden={true}
+    />
+  );
 
   return (
     <div ref={divRef} className="flex w-full h-full max-w-full max-h-full">
@@ -197,10 +207,17 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
               height: Math.max(styleImgSize0.height, styleImgSize1.height),
             }}
           >
-            {!reverseDualView ?
-              (<>{imgViewCell1}{imgViewCell0}</>) :
-              (<>{imgViewCell0}{imgViewCell1}</>)
-            }
+            {!reverseDualView ? (
+              <>
+                {imgViewCell1}
+                {imgViewCell0}
+              </>
+            ) : (
+              <>
+                {imgViewCell0}
+                {imgViewCell1}
+              </>
+            )}
             {imgViewCell2}
             {imgViewCell3}
           </div>

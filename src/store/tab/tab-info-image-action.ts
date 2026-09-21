@@ -37,7 +37,7 @@ export const createImageViewModeActions: StateCreator<
           tab.imageViewMode = {
             ...mkImageViewMode(),
             enable: b,
-          }
+          };
         });
       });
     },

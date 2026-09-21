@@ -18,6 +18,7 @@ const emptyTab: Readonly<UiTab> = {
   selection: mkFileSelection(),
   focusHistories: [],
   refreshCount: 0,
+  justDirMoved: false,
 } as const;
 
 let searchTab: UiTab = emptyTab;

@@ -88,6 +88,6 @@ export const createUiTabActions: StateCreator<TabStore, [['zustand/immer', never
           tab.justDirMoved = false;
         });
       });
-    }
+    },
   };
 };

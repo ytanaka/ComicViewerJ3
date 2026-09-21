@@ -69,7 +69,6 @@ function imageView_handleKeyDown_impl(e: KeyboardEvent): boolean {
     st().setDualImage(tabInfo.id, tab.imageViewMode.dualImage, !tab.imageViewMode.reverseDualImage);
     return true;
   }
-  
 
   // -------------------------------------------------------------------------------------------------------------------
   // 原寸表示
