@@ -356,7 +356,7 @@ impl Default for ImageResizeConfig {
     fn default() -> Self {
         Self {
             unsharp_sigma: 0.5,
-            unsharp_threshold: 3
+            unsharp_threshold: 30,
         }
     }
 }

@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
 import { InputGroup, InputGroupInput } from '@/components/ui/input-group';
 import { Separator } from '@/components/ui/separator';
@@ -12,6 +13,12 @@ export function ImageQuorityPanel() {
   return (
     <FieldSet className="flex-1">
       <FieldLegend>画質設定</FieldLegend>
+      <FieldDescription>
+        以下の設定を変えたらアプリを
+        <Button size="sm" className="font-light" variant="secondary" onClick={() => window.location.reload()}>
+          再読み込み
+        </Button>
+      </FieldDescription>
       <FieldGroup>
         <Separator />
         <Field>
