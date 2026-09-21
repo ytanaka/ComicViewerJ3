@@ -184,7 +184,7 @@ fn resize_to_thumbnail(img: &DynamicImage, target_size: &Dimension) -> anyhow::R
     let size = calc_resize(&Dimension::from(img), target_size, 2);
     let resized = resize_lanczos3(img, &size)?;
     let resize_config = ImageResizeConfig::default();
-    let unsharped = unsharp_mask(&resized, &resize_config);
+    let unsharped = unsharp_mask(resized, &resize_config);
     Ok(unsharped)
 }
 
@@ -249,7 +249,7 @@ pub fn get_resized_img_impl(
     // 生成する画像のフルパス取得
     let resize_config = &state.preferences.read().unwrap().image_resize_config;
     let (dst_path, dst_tmp_path) =
-        get_resized_img_fullpath(app, &dir, &file.name, &meta, resize_config)?;
+        get_resized_img_fullpath(app, &dir, &file.name, &meta, &target_size, resize_config)?;
     if dst_path.exists() {
         // すでに存在するなら、更新日時を最新にしておく
         if let Err(e) = touch_file(&dst_path) {
@@ -289,6 +289,6 @@ fn resize_image(
     let img = &img.to_rgba8();
     let size = calc_resize(&Dimension::from(img), target_size, 2);
     let resized = resize_lanczos3(img, &size)?;
-    let unsharped = unsharp_mask(&resized, config);
+    let unsharped = unsharp_mask(resized, config);
     Ok(unsharped)
 }

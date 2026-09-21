@@ -160,7 +160,7 @@ export type GetThumbnailResult =
 /**  画像リサイズ時の画質設定 */
 export type ImageResizeConfig = {
 	unsharp_sigma: number | null,
-	unsharp_amount: number | null,
+	unsharp_threshold: number,
 };
 
 export type SortCondition = {

@@ -79,6 +79,7 @@ pub fn get_resized_img_fullpath(
     dir: impl AsRef<Path>,
     name: &OsStr,
     metadata: &FileMetadata,
+    target_size: &Dimension,
     config: &ImageResizeConfig,
 ) -> anyhow::Result<(PathBuf, PathBuf)> {
     // "16進文字列.jpg" を取得
@@ -91,9 +92,13 @@ pub fn get_resized_img_fullpath(
     hasher.update(vec![0]);
     hasher.update(metadata.modified.unwrap_or_default().to_ne_bytes());
     hasher.update(vec![0]);
+    hasher.update(target_size.width.to_ne_bytes());
+    hasher.update(vec![0]);
+    hasher.update(target_size.height.to_ne_bytes());
+    hasher.update(vec![0]);
     hasher.update(config.unsharp_sigma.to_ne_bytes());
     hasher.update(vec![0]);
-    hasher.update(config.unsharp_amount.to_ne_bytes());
+    hasher.update(config.unsharp_threshold.to_ne_bytes());
     let result = hasher.finalize();
     let name = format!("{}.{}", hex::encode(result), RESIZED_IMG_EXT);
 

@@ -82,23 +82,10 @@ pub fn resize_lanczos3(src: &RgbaImage, size: &Dimension) -> anyhow::Result<Rgba
 }
 
 /// 画像のエッジを強調
-pub fn unsharp_mask(src: &RgbaImage, config: &ImageResizeConfig) -> RgbaImage {
-    // Gaussian Blur
-    let blurred = image::imageops::blur(src, config.unsharp_sigma);
-
-    let mut output = src.clone();
-
-    for ((dst, original), blur) in output.pixels_mut().zip(src.pixels()).zip(blurred.pixels()) {
-        for c in 0..3 {
-            let value =
-                original[c] as f32 + config.unsharp_amount * (original[c] as f32 - blur[c] as f32);
-
-            dst[c] = value.clamp(0.0, 255.0) as u8;
-        }
-
-        // Alpha は変更しない
-        dst[3] = original[3];
+pub fn unsharp_mask(src: RgbaImage, config: &ImageResizeConfig) -> RgbaImage {
+    if config.unsharp_sigma < 0.001 {
+        src
+    } else {
+        image::imageops::unsharpen(&src, config.unsharp_sigma, config.unsharp_threshold)
     }
-
-    output
 }

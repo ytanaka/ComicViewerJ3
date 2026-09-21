@@ -1,3 +1,4 @@
+import { PreferenceDialogTabId } from '@/components/preferences/PreferencesDialog';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -14,6 +15,8 @@ export const MAX_TAB_NUM_LIMIT = 30;
 export interface UiState {
   // 設定画面でデバッグ項目を編集可能にする
   debugPreferenceOn: boolean;
+  // 設定ダイアログを開いたときの選択タブ
+  preferenceDialogTabId: PreferenceDialogTabId;
 
   // 最大タブ数
   maxTabNum: number;
@@ -46,6 +49,7 @@ export const useUiStore = create<UiState_and_Action>()(
   persist(
     set => ({
       debugPreferenceOn: false,
+      preferenceDialogTabId: 'general',
       maxTabNum: 10,
 
       fileSearchInputTimeoutMs: 2000,

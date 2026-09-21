@@ -350,13 +350,13 @@ pub enum FilenameCmpType {
 /// 画像リサイズ時の画質設定
 pub struct ImageResizeConfig {
     pub unsharp_sigma: f32,
-    pub unsharp_amount: f32,
+    pub unsharp_threshold: i32,
 }
 impl Default for ImageResizeConfig {
     fn default() -> Self {
         Self {
-            unsharp_sigma: 0.7,
-            unsharp_amount: 0.8,
+            unsharp_sigma: 0.5,
+            unsharp_threshold: 3
         }
     }
 }

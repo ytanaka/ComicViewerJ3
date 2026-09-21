@@ -91,8 +91,9 @@ export type PreferenceDialogTabId = PanelProp['id'];
 
 export function PreferencesDialog() {
   const showPreferencesDialog = useUiVolatileStore(state => state.showPreferencesDialog);
-  const preferenceDialogTabId = useUiVolatileStore(state => state.preferenceDialogTabId);
-  const setField = useUiVolatileStore(state => state.setField);
+  const setVolatileField = useUiVolatileStore(state => state.setField);
+  const preferenceDialogTabId = useUiStore(state => state.preferenceDialogTabId);
+  const setField = useUiStore(state => state.setField);
 
   const debugPreferenceOn = useUiStore(state => state.debugPreferenceOn);
 
@@ -101,7 +102,7 @@ export function PreferencesDialog() {
   // このダイアログのスタイル設定はAIが決めたのでよくわからない。変更するときは以下をコピペしてAIに聞く。
   // 手動で変更しようとすると、ダイアログのサイズが変になったり、コンテンツがやたら小さくなったりしてどうにもならない。
   return (
-    <Dialog open={showPreferencesDialog} onOpenChange={b => setField('showPreferencesDialog', b)}>
+    <Dialog open={showPreferencesDialog} onOpenChange={b => setVolatileField('showPreferencesDialog', b)}>
       <DialogContent className="w-[90vw]! max-w-[90vw]! h-[90vh] max-h-none flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>設定</DialogTitle>

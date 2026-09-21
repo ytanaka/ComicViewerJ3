@@ -4,6 +4,7 @@ import { appCacheDir, appConfigDir, appDataDir, appLogDir } from '@tauri-apps/ap
 
 import { Button } from '@/components/ui/button';
 import { useUiStore } from '@/store/ui-store';
+import { LinkButton } from '@/components/ui2/LinkButton';
 
 export function AboutPanel() {
   const debugPreferenceOn = useUiStore(state => state.debugPreferenceOn);
@@ -41,13 +42,5 @@ export function AboutPanel() {
         {debugPreferenceOn && <Button onClick={handleClick_debugOff}>OFFにする</Button>}
       </div>
     </div>
-  );
-}
-
-function LinkButton({ label, onClick }: { label: string; onClick: () => Promise<void> }) {
-  return (
-    <Button size="sm" className="font-light" variant="link" onClick={onClick}>
-      {label}
-    </Button>
   );
 }
