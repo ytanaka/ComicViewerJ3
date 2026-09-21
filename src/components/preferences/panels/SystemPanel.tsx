@@ -13,7 +13,7 @@ export function SystemPanel() {
       <FieldGroup>
         <Separator />
         <Field>
-          <FieldLabel>画像の古いサムネイルキャッシュを消す期限</FieldLabel>
+          <FieldLabel>古いサムネイルキャッシュファイルを消す期限</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
               disabled={!pref}
@@ -34,11 +34,13 @@ export function SystemPanel() {
             3時間おきに各サムネイルファイルを消すかどうかチェックします
             <br />
             0にすると、起動時に全てのサムネイルキャッシュを削除します
+            <br />
+            デフォルト: {pref?.default?.thumbnail_expiration_days}日
           </FieldDescription>
         </Field>
         <Separator />
         <Field>
-          <FieldLabel>サムネイルファイル同時処理数</FieldLabel>
+          <FieldLabel>サムネイルファイル作成 同時処理数</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
               disabled={!pref}
@@ -58,7 +60,7 @@ export function SystemPanel() {
         </Field>
         <Separator />
         <Field>
-          <FieldLabel>画像サイズ変換同時処理数</FieldLabel>
+          <FieldLabel>画像サイズ変換 同時処理数</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
               disabled={!pref}

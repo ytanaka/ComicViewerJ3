@@ -15,6 +15,7 @@ import { ThumbnailPanel } from './panels/ThumbnailPanel';
 import { FileSearchPanel } from './panels/FileSearchPanel';
 import { ImageViewPanel } from './panels/ImageViewPanel';
 import { SystemPanel } from './panels/SystemPanel';
+import { ImageQuorityPanel } from './panels/ImageQuorityPanel';
 
 const allPanelList = [
   {
@@ -26,7 +27,7 @@ const allPanelList = [
   {
     id: 'fileSearch',
     label: 'ファイル検索',
-    icon: Settings,
+    icon: Settings2,
     node: FileSearchPanel,
   },
   {
@@ -38,7 +39,7 @@ const allPanelList = [
   {
     id: 'thumbnail',
     label: 'サムネイル',
-    icon: Settings,
+    icon: Settings2,
     node: ThumbnailPanel,
   },
   {
@@ -46,6 +47,12 @@ const allPanelList = [
     label: '画像表示画面',
     icon: Settings,
     node: ImageViewPanel,
+  },
+  {
+    id: 'imageQuority',
+    label: '画質',
+    icon: Settings,
+    node: ImageQuorityPanel,
   },
   {
     id: 'system',
