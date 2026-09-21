@@ -293,6 +293,9 @@ pub struct AppPreferences {
 
     /// 画像リサイズ時の画質設定
     pub image_resize_config: ImageResizeConfig,
+
+    /// デフォルト値。UI側で参照のため (UI側ではnullにならない)
+    pub default: Option<Box<AppPreferences>>,
 }
 impl Default for AppPreferences {
     fn default() -> Self {
@@ -308,6 +311,7 @@ impl Default for AppPreferences {
                 .unwrap_or(NonZero::new(4).unwrap())
                 .get() as u32,
             image_resize_config: ImageResizeConfig::default(),
+            default: None,
         }
     }
 }
@@ -324,6 +328,9 @@ impl AppPreferences {
     pub fn is_change_sort_config(&self, other: &AppPreferences) -> bool {
         self.filename_cmp != other.filename_cmp
             || self.filename_sort_strength != other.filename_sort_strength
+    }
+    pub fn init_default(&mut self) {
+        self.default = Some(Box::new(Self::default()));
     }
 }
 

@@ -29,7 +29,11 @@ pub async fn load_preferences(
     })
 }
 pub fn load_preferences_impl(app: &AppHandle, state: &AppState) -> anyhow::Result<AppPreferences> {
-    let default = Ok(AppPreferences::default());
+    let default = {
+        let mut tmp = AppPreferences::default();
+        tmp.init_default();
+        Ok(tmp)
+    };
     let prefs_path = get_preferences_path(app)?;
 
     // ファイル存在チェック (存在しない場合はデフォルトを返す)
@@ -38,17 +42,18 @@ pub fn load_preferences_impl(app: &AppHandle, state: &AppState) -> anyhow::Resul
     }
 
     // JSONファイルから読み込み (読めない場合はデフォルトを返す)
-    let pref: AppPreferences = match std::fs::read_to_string(&prefs_path) {
+    let mut pref: AppPreferences = match std::fs::read_to_string(&prefs_path) {
         Err(_) => return default,
         Ok(json_str) => match serde_json::from_str(&json_str) {
             Err(_) => return default,
             Ok(json) => json,
         },
     };
-
     // メモリ中の設定を更新
     let mut pref_mut = state.preferences.write().unwrap();
     *pref_mut = pref.clone();
+
+    pref.init_default(); // デフォルト値上書き
 
     Ok(pref)
 }
@@ -71,6 +76,10 @@ pub fn save_preferences_impl(
     state: &Arc<AppState>,
     preferences: AppPreferences,
 ) -> anyhow::Result<()> {
+    // デフォルト値はいらないので消す
+    let mut preferences = preferences;
+    preferences.default = None;
+
     let prefs_path = get_preferences_path(&app)?;
     let json_content =
         serde_json::to_string_pretty(&preferences).context("Failed to serialize preferences")?;
@@ -91,7 +100,7 @@ pub fn save_preferences_impl(
     let old_pref = pref.clone();
     let new_pref = preferences.clone();
     *pref = preferences;
-    std::mem::drop(pref);
+    std::mem::drop(pref); // ロック解除
 
     // ソート設定が変更されたら、全タブのソート状態を無効化する
     if old_pref.is_change_sort_config(&new_pref) {
@@ -104,6 +113,9 @@ pub fn save_preferences_impl(
     state
         .thumbnail_command_limitter
         .set_limit(new_pref.thumbnail_command_limit);
+    state
+        .resize_img_command_limitter
+        .set_limit(new_pref.resize_img_command_limit);
 
     Ok(())
 }

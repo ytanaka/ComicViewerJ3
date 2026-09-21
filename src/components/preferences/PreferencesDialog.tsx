@@ -14,6 +14,7 @@ import { DebugPanel2 } from './panels/DebugPanel2';
 import { ThumbnailPanel } from './panels/ThumbnailPanel';
 import { FileSearchPanel } from './panels/FileSearchPanel';
 import { ImageViewPanel } from './panels/ImageViewPanel';
+import { SystemPanel } from './panels/SystemPanel';
 
 const allPanelList = [
   {
@@ -45,6 +46,12 @@ const allPanelList = [
     label: '画像表示画面',
     icon: Settings,
     node: ImageViewPanel,
+  },
+  {
+    id: 'system',
+    label: 'システム',
+    icon: Settings,
+    node: SystemPanel,
   },
   {
     id: 'debug',

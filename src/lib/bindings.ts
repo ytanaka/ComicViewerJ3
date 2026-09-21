@@ -72,6 +72,8 @@ export type AppPreferences = {
 	resize_img_command_limit: number,
 	/**  画像リサイズ時の画質設定 */
 	image_resize_config: ImageResizeConfig,
+	/**  デフォルト値。UI側で参照のため (UI側ではnullにならない) */
+	default: AppPreferences | null,
 };
 
 /**  create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合) */
