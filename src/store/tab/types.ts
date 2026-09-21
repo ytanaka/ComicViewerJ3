@@ -48,6 +48,7 @@ export enum FileViewMode {
 export interface ImageViewMode {
   enable: boolean;
   dualImage: boolean;
+  reverseDualImage: boolean;
   zoomLevel: number;
   rotate: number;
   useOriginalSize: boolean;
@@ -94,6 +95,7 @@ export function mkImageViewMode(): ImageViewMode {
   return {
     enable: false,
     dualImage: false,
+    reverseDualImage: false,
     zoomLevel: 0,
     rotate: 0,
     useOriginalSize: false,

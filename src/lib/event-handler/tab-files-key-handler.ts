@@ -129,7 +129,7 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     const ent = dirEntries[sel.focusIndex];
     if (!ent.is_dir) {
       // 画像表示
-      if (isPictureFileExtension(ent.name)) {
+      if (isPictureFileExtension(ent.name) && !tab.imageViewMode.enable) {
         st().setImageView(tabInfo.id, true);
         e.preventDefault();
         return true;

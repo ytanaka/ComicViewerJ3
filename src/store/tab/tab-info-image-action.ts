@@ -1,4 +1,4 @@
-import { _useTabStore_setExistTabFields, TabId } from './types';
+import { _useTabStore_setExistTabFields, mkImageViewMode, TabId } from './types';
 import { TabStore } from './store';
 import { StateCreator } from 'zustand';
 import { zoomLevelNormalize } from '@/lib/tools/image-zoom';
@@ -7,7 +7,7 @@ import { windowCommands } from '@/lib/commands/window-commands';
 
 export interface ImageViewModeActions {
   setImageView: (tabId: TabId, b: boolean) => void;
-  setDualImage: (tabId: TabId, b: boolean) => void;
+  setDualImage: (tabId: TabId, b: boolean, reverse: boolean) => void;
   setZoomLevel: (tabId: TabId, n: number) => void;
   setUseOriginalSize: (tabId: TabId, b: boolean) => void;
 }
@@ -34,15 +34,19 @@ export const createImageViewModeActions: StateCreator<
 
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
-          tab.imageViewMode.enable = b;
+          tab.imageViewMode = {
+            ...mkImageViewMode(),
+            enable: b,
+          }
         });
       });
     },
 
-    setDualImage: (tabId: TabId, b: boolean) => {
+    setDualImage: (tabId: TabId, b: boolean, reverse: boolean) => {
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
           tab.imageViewMode.dualImage = b;
+          tab.imageViewMode.reverseDualImage = reverse;
         });
       });
     },

@@ -62,9 +62,14 @@ function imageView_handleKeyDown_impl(e: KeyboardEvent): boolean {
   // 2ページ表示
   // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && e.key === ' ') {
-    st().setDualImage(tabInfo.id, !tab.imageViewMode.dualImage);
+    st().setDualImage(tabInfo.id, !tab.imageViewMode.dualImage, false);
     return true;
   }
+  if (NO_MOD && e.key === '\\') {
+    st().setDualImage(tabInfo.id, tab.imageViewMode.dualImage, !tab.imageViewMode.reverseDualImage);
+    return true;
+  }
+  
 
   // -------------------------------------------------------------------------------------------------------------------
   // 原寸表示
@@ -72,7 +77,7 @@ function imageView_handleKeyDown_impl(e: KeyboardEvent): boolean {
   if (NO_MOD && e.key === '0') {
     const newMode = !tab.imageViewMode.useOriginalSize;
     st().setUseOriginalSize(tabInfo.id, newMode);
-    st().setDualImage(tabInfo.id, false);
+    st().setDualImage(tabInfo.id, false, false);
     setZoomLevel(e, tabInfo, 0);
     return true;
   }
