@@ -142,6 +142,7 @@ export const menuItems = {
   renameFile: M('名前変更', () => console.log('RENAME!!!'), 'F2', isSelected1File),
 
   preference: M('設定', () => dialogCommands.openPreference(), 'Ctrl//,'),
+  bookmark: M('ブックマーク', () => dialogCommands.openBookmark(), 'Ctrl//B', hasTab),
 
   // -------------------- Search --------------------
   searchFile: M('ファイル検索', () => searchCommands.searchStart(), undefined, hasTab),

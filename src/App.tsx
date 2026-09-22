@@ -11,6 +11,8 @@ import { HotKeys } from './components/util/HotKeys';
 import { TabBar } from './components/tab/TabBar';
 import { StatusBar } from './components/misc/StatusBar';
 import { PreferencesDialog } from './components/preferences/PreferencesDialog';
+import { BookmarkManager } from './components/misc/BookmarkManager';
+import { TauriEventListener } from './lib/tauri-event-listener';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -27,6 +29,8 @@ function App() {
         <TabContentWrapper />
         <StatusBar />
         <PreferencesDialog />
+        <BookmarkManager />
+        <TauriEventListener />
         <Toaster
           position="bottom-right"
           expand={false}
@@ -41,5 +45,3 @@ function App() {
 
 export default App;
 
-// Tauriイベントリスナー初期化
-import './lib/tauri-event-listener';

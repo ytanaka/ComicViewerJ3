@@ -26,6 +26,11 @@ async function processQueue() {
   processing = false;
 }
 
+// App.tsx で以下の listen() を実行させるためのダミー
+export function TauriEventListener() {
+  return (<></>);
+}
+
 tauri_listen<FileNotifyEvent>(EVENT_ID_FILE_NOTIFY, async event => {
   queue.push(event.payload);
   processQueue();
