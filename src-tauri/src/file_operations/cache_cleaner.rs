@@ -23,19 +23,16 @@ pub struct CacheCleanupParam {
 }
 
 pub fn start_cache_cleanup_worker(param: CacheCleanupParam) {
+    log::info!("cache_cleanup_worker({}): start", param.comment);
     thread::spawn(move || loop {
         if let Err(e) = exec(&param) {
-            log::error!("spawn_Cache_cleanup_worker: error {}", e);
+            log::error!("cache_cleanup_worker({}): error {}", param.comment, e);
         }
-        thread::sleep(Duration::from_hours(param.execute_interval_sec));
+        thread::sleep(Duration::from_secs(param.execute_interval_sec));
     });
 }
 
 fn exec(param: &CacheCleanupParam) -> anyhow::Result<()> {
-    if param.verbose_log {
-        log::info!("spawn_Cache_cleanup_worker: start");
-    }
-
     let mut total_file: u64 = 0;
     let mut total: u64 = 0;
     let mut removed: u64 = 0;
@@ -104,14 +101,14 @@ fn start_resized_image_cleanup_worker(
 ) -> anyhow::Result<()> {
     let param = CacheCleanupParam {
         comment: "resized_image".to_string(),
-        verbose_log: false,
+        verbose_log: true,
 
         execute_interval_sec: 60,
         batch_file_num: 100,
         batch_sleep_ms: 100,
 
         target_dir: get_resized_img_dir(&app)?,
-        expire_sec: state.preferences.read().unwrap().thumbnail_expiration_days as u64 * 24 * 3600,
+        expire_sec: state.preferences.read().unwrap().resized_image_expiration_minutes as u64 * 60,
     };
     start_cache_cleanup_worker(param);
     Ok(())

@@ -31,11 +31,38 @@ export function SystemPanel() {
             <InputGroupAddon align="inline-end">(日)</InputGroupAddon>
           </InputGroup>
           <FieldDescription>
-            3時間おきに各サムネイルファイルを消すかどうかチェックします
+            定期的に各サムネイルファイルを消すかどうかチェックします
             <br />
             0にすると、起動時に全てのサムネイルキャッシュを削除します
             <br />
             デフォルト: {pref?.default?.thumbnail_expiration_days}日
+            <br />
+            反映するには、再起動してください
+          </FieldDescription>
+        </Field>
+        <Separator />
+        <Field>
+          <FieldLabel>古い画像表示キャッシュファイルを消す期限</FieldLabel>
+          <InputGroup className="max-w-40">
+            <InputGroupInput
+              disabled={!pref}
+              type="number"
+              min={1}
+              max={10000}
+              step={1}
+              onChange={e => {
+                if (pref) {
+                  savePref.mutate({ ...pref, resized_image_expiration_minutes: Number(e.target.value) });
+                }
+              }}
+              value={pref?.resized_image_expiration_minutes ?? ''}
+            />
+            <InputGroupAddon align="inline-end">(分)</InputGroupAddon>
+          </InputGroup>
+          <FieldDescription>
+            定期的に各画像表示キャッシュファイルを消すかどうかチェックします
+            <br />
+            デフォルト: {pref?.default?.resized_image_expiration_minutes}分
             <br />
             反映するには、再起動してください
           </FieldDescription>
