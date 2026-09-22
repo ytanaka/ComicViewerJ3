@@ -30,7 +30,7 @@ export interface UiTab {
   focusHistories: FileFocus[]; // 先頭が古いデータ
 
   refreshCount: number; // ソートされると + 1
-  justDirMoved: boolean; // ディレクトリ移動直後かどうかフラグ
+  justChildDirMoved: boolean; // 子ディレクトリへ移動直後かどうかフラグ
 }
 export interface FileSelection {
   focusIndex: number;
@@ -75,7 +75,7 @@ export function mkUiTab(tab: TabInfo): UiTab {
     selection: mkFileSelection(),
     focusHistories: [],
     refreshCount: 0,
-    justDirMoved: false,
+    justChildDirMoved: false,
   };
 }
 

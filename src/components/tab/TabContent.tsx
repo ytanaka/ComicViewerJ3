@@ -137,8 +137,8 @@ function TabContent() {
     if (!dirEntries) return;
 
     // ディレクトリ移動後、１回だけ実行する
-    if (useTabStore.getState().getCurrentTab()?.justDirMoved != true) return;
-    useTabStore.getState().clearJustDirMoved(tab.id);
+    if (useTabStore.getState().getCurrentTab()?.justChildDirMoved != true) return;
+    useTabStore.getState().clearJustChildDirMoved(tab.id);
 
     if (fileViewMode != FileViewMode.Thumbnail) return;
     if (imageView) return;
