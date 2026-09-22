@@ -1,15 +1,18 @@
+import React from 'react';
+
+import { cn } from '@/lib/utils';
+import { convertFileSrc } from '@tauri-apps/api/core';
+
 import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
 import { useThumbnailPath } from '@/services/tab-thumbnail';
-import { convertFileSrc } from '@tauri-apps/api/core';
-import { THUMBNAIL_CELL_CLASSNAME, THUMBNAIL_SIZE_DEFAULT } from './Thumbnails';
-import { cn } from '@/lib/utils';
+import { THUMBNAIL_CELL_CLASSNAME } from './Thumbnails';
 import { useTabStore } from '@/store/tab/store';
 import { useFileInfo1Query } from '@/services/tab-file-info';
 import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
-import React from 'react';
 import { unixTime2str } from '@/lib/tools/string-util';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';
 import { SearchResult } from '../SearchResult';
+import { THUMBNAIL_SIZE_DEFAULT } from '@/store/ui-store';
 
 export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
   const isSelected = useTabStore(state => state.getTab(tab.id)?.selection.selectionIndexes.has(fileIndex));

@@ -1,7 +1,7 @@
-import { THUMBNAIL_SIZE_LIST } from '@/components/tab/thumbnail-view/Thumbnails';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useTabStore } from '@/store/tab/store';
 import { FileViewMode } from '@/store/tab/types';
+import { THUMBNAIL_SIZE_LIST } from '@/store/ui-store';
 
 function st() {
   return useTabStore.getState();

@@ -50,7 +50,10 @@ export const tabCommands = {
     } else {
       if (await _addTab(await rustcmds.cloneTab(currentTab.info.id))) {
         const newTab = st().getCurrentTab();
-        if (newTab) st().setViewMode(newTab.info.id, currentTab.fileViewMode);
+        if (newTab) {
+          st().setViewMode(newTab.info.id, currentTab.fileViewMode);
+          st().setThumbnailSize(newTab.info.id, currentTab.thumbnailSize);
+        }
       }
     }
   },

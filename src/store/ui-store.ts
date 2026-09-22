@@ -11,6 +11,9 @@ export enum FileListHeaderN {
 }
 export const MAX_TAB_NUM_LIMIT = 30;
 
+export const THUMBNAIL_SIZE_LIST = [64, 96, 128, 192, 256, 384, 512];
+export const THUMBNAIL_SIZE_DEFAULT = 128;
+
 // localStrage に保存するUIの設定
 export interface UiState {
   // 設定画面でデバッグ項目を編集可能にする
@@ -32,9 +35,6 @@ export interface UiState {
   // FileListのヘッダーサイズ
   fileListHeaderSizes: number[];
 
-  // デフォルトのサムネイルサイズ設定画面
-  defaultThumbnailSize: number;
-
   // フルスクリーン時にマウスカーソルを消す
   hideMouseCursorWhenFullscreen: boolean;
 }
@@ -55,7 +55,6 @@ export const useUiStore = create<UiState_and_Action>()(
       timeoutMsEventTimeStamp: 100,
 
       fileListHeaderSizes: [35, 500, 100, 120, 180],
-      defaultThumbnailSize: 128, // THUMBNAIL_SIZE_DEFAULT と書きたいが、初期化前参照エラーになる
       hideMouseCursorWhenFullscreen: true,
 
       setField: (key, value) => set({ [key]: value }),

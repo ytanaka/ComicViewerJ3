@@ -17,8 +17,6 @@ import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 // サムネイル<div>を取得し、列数を計算するためにこの文字列を className に設定する
 export const THUMBNAIL_CELL_CLASSNAME = 'thumbnail_cells';
 
-export const THUMBNAIL_SIZE_LIST = [64, 96, 128, 192, 256, 384, 512];
-export const THUMBNAIL_SIZE_DEFAULT = 128;
 export const THUMBNAIL_PADDING = 4;
 
 // VirtuosoGrid のリスト全体と個別項目のスタイル設定

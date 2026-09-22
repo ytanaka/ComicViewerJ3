@@ -11,7 +11,6 @@ import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { DebugCmdPanel } from './panels/DebugCmdPanel';
 import { FileListPanel } from './panels/FileListPanel';
 import { DebugPanel2 } from './panels/DebugPanel2';
-import { ThumbnailPanel } from './panels/ThumbnailPanel';
 import { FileSearchPanel } from './panels/FileSearchPanel';
 import { ImageViewPanel } from './panels/ImageViewPanel';
 import { SystemPanel } from './panels/SystemPanel';
@@ -35,12 +34,6 @@ const allPanelList = [
     label: 'ファイル一覧表示',
     icon: Settings2,
     node: FileListPanel,
-  },
-  {
-    id: 'thumbnail',
-    label: 'サムネイル',
-    icon: Settings2,
-    node: ThumbnailPanel,
   },
   {
     id: 'imageView',
