@@ -7,6 +7,8 @@ import { windowCommands } from './commands/window-commands';
 import { FileViewMode } from '@/store/tab/types';
 import { fileCommands } from './commands/file-commands';
 import { searchCommands } from './commands/search-commands';
+import { imageCommands } from './commands/image-commands';
+import { zoomLevelNormalize } from './tools/image-zoom';
 
 type MenuExec = () => Promise<void> | void;
 
@@ -31,9 +33,15 @@ export class AppHotkey {
   alt: boolean = false;
   shift: boolean = false;
   key: string;
+  ignoreEvent: boolean = false;
 
   constructor(s: string) {
-    const spl = s.split('//'); // '+' を区切りにすると Ctrl++ で困るので '//' にする
+    if (s.startsWith('###')) {
+      this.ignoreEvent = true;
+      s = s.slice(3);
+    };
+
+    const spl = s.split('//').map(s => s.trim()); // '+' を区切りにすると Ctrl++ で困るので '//' にする
     const [key] = spl.splice(spl.length - 1, 1);
     this.key = key.toLowerCase();
     spl.forEach(mod => {
@@ -87,6 +95,29 @@ function isSelectedAnyFile() {
 function isImageView() {
   return st().getCurrentTab()?.imageViewMode.enable ?? false;
 }
+function isImageDual() {
+  return st().getCurrentTab()?.imageViewMode.dualImage ?? false;
+}
+function notImageZoomMax() {
+  const lv = st().getCurrentTab()?.imageViewMode.zoomLevel ?? 0;
+  return zoomLevelNormalize(lv + 1) !== lv;
+}
+function notImageZoomMin() {
+  const lv = st().getCurrentTab()?.imageViewMode.zoomLevel ?? 0;
+  return zoomLevelNormalize(lv - 1) !== lv;
+}
+function notImageFitScreen() {
+  const tab = st().getCurrentTab();
+  if (!tab) return false;
+  return tab.imageViewMode.useOriginalSize || tab.imageViewMode.zoomLevel !== 0;
+}
+function notImageOriginalSize() {
+  const tab = st().getCurrentTab();
+  if (!tab) return false;
+  return !tab.imageViewMode.useOriginalSize || tab.imageViewMode.zoomLevel !== 0;
+}
+
+// =====================================================================================================================
 
 export const menuItems = {
   // -------------------- File --------------------
@@ -157,7 +188,6 @@ export const menuItems = {
   sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt//4', hasTab),
 
   toggleTheme: M('テーマ切り替え', () => console.log('THEME CHANGE!!!')),
-  changeFullscreen: M('フルスクリーンモード', () => console.log('FULL SCREEN!!!')),
 
   // -------------------- Tab --------------------
   cloneTab: M('新規タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T', hasTab),
@@ -170,6 +200,17 @@ export const menuItems = {
 
   siblingDirPrev: M('前のディレクトリ', () => fileCommands.moveToPrevNextDirectory(-1), 'Alt//ArrowLeft', hasTab),
   siblingDirNext: M('次のディレクトリ', () => fileCommands.moveToPrevNextDirectory(1), 'Alt//ArrowRight', hasTab),
+
+  // -------------------- Image View --------------------
+
+  endImageViewMode: M('画像表示モードをやめる', imageCommands.exitImageView, '### Escape'),
+  imageZoomIn: M('画像拡大', () => imageCommands.incZoom(1), '### +', notImageZoomMax),
+  imageZoomOut: M('画像縮小', () => imageCommands.incZoom(-1), '### -', notImageZoomMin),
+  imageFit: M('画像を画面にフィットさせて表示', imageCommands.fitWindow, '### Enter', notImageFitScreen),
+  imageZoomOriginal: M('画像をオリジナルサイズで表示', imageCommands.originalSize, '### 0', notImageOriginalSize),
+  imageDualView: M('2枚表示切替', imageCommands.toggleDualView, '### Space'),
+  imageReverseDualView: M('左右反転', imageCommands.toggleReverseDualView, '### \\', isImageDual),
+  changeFullscreen: M('フルスクリーン', imageCommands.toggleFullscreen),
 };
 
 export function getAllMenuItems() {

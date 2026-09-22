@@ -45,6 +45,7 @@ export const createImageViewModeActions: StateCreator<
     setDualImage: (tabId: TabId, b: boolean, reverse: boolean) => {
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
+          tab.imageViewMode.rotate = 0;
           tab.imageViewMode.dualImage = b;
           tab.imageViewMode.reverseDualImage = reverse;
         });
@@ -62,7 +63,11 @@ export const createImageViewModeActions: StateCreator<
     setUseOriginalSize: (tabId: TabId, b: boolean) => {
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
-          tab.imageViewMode.useOriginalSize = b;
+          tab.imageViewMode = {
+            ...mkImageViewMode(),
+            enable: true,
+            useOriginalSize: b,
+          };
         });
       });
     },

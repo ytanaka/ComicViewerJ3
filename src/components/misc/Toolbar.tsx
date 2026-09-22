@@ -12,6 +12,13 @@ import {
   Grid2x2,
   Rows3,
   Settings,
+  ZoomIn,
+  Columns2,
+  ArrowLeftRight,
+  ZoomOut,
+  SearchX,
+  ScanSearch,
+  Square,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -52,43 +59,82 @@ function B({ icon, m }: { icon: ReactNode; m: AppMenuItem }) {
 
 export function Toolbar() {
   // タブ状態やファイル選択状態が変わったら再描画させる
-  useTabStore(state => state.getCurrentTab());
+  const tab = useTabStore(state => state.getCurrentTab());
   useTabStore(state => state.getCurrentTab()?.selection);
   const full = useUiVolatileStore(state => state.isFullscreen);
 
-  return (
-    <div
-      className="flex items-center gap-0.5 border rounded-md p-0.5"
-      hidden={full}
-      style={{ display: full ? 'none' : undefined }}
-    >
-      <B icon={<FolderOpen />} m={menuItems.openDir} />
-      <B icon={<Settings />} m={menuItems.preference} />
-      <Separator orientation="vertical" className="m-1" />
+  if (tab?.imageViewMode.enable != true) {
+    // ファイル表示モード
+    return (
+      <div
+        className="flex items-center gap-0.5 border rounded-md p-0.5"
+        hidden={full}
+        style={{ display: full ? 'none' : undefined }}
+      >
+        <B icon={<FolderOpen />} m={menuItems.openDir} />
+        <B icon={<Settings />} m={menuItems.preference} />
+        <Separator orientation="vertical" className="m-1" />
 
-      <B icon={<Scissors />} m={menuItems.cutFile} />
-      <B icon={<Copy />} m={menuItems.copyFile} />
-      <B icon={<ClipboardPaste />} m={menuItems.pasteFile} />
-      <Separator orientation="vertical" className="m-1" />
+        <B icon={<Scissors />} m={menuItems.cutFile} />
+        <B icon={<Copy />} m={menuItems.copyFile} />
+        <B icon={<ClipboardPaste />} m={menuItems.pasteFile} />
+        <Separator orientation="vertical" className="m-1" />
 
-      <B icon={<Trash2 />} m={menuItems.deleteFile} />
-      <B icon={<TextCursorInput />} m={menuItems.renameFile} />
-      <Separator orientation="vertical" className="m-1" />
+        <B icon={<Trash2 />} m={menuItems.deleteFile} />
+        <B icon={<TextCursorInput />} m={menuItems.renameFile} />
+        <Separator orientation="vertical" className="m-1" />
 
-      <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
-      <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
-      <Separator orientation="vertical" className="m-1" />
+        <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
+        <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
+        <Separator orientation="vertical" className="m-1" />
 
-      <B
-        icon={
-          <>
-            <Sun />
-            <Moon />
-          </>
-        }
-        m={menuItems.toggleTheme}
-      />
-      <B icon={<Fullscreen />} m={menuItems.changeFullscreen} />
-    </div>
-  );
+        <B
+          icon={
+            <>
+              <Sun />
+              <Moon />
+            </>
+          }
+          m={menuItems.toggleTheme}
+        />
+      </div>
+    );
+  } else {
+    // 画像表示モード
+    return (
+      <div
+        className="flex items-center gap-0.5 border rounded-md p-0.5"
+        hidden={full}
+        style={{ display: full ? 'none' : undefined }}
+      >
+        <B icon={<ScanSearch />} m={menuItems.imageFit} />
+        <B icon={<ZoomIn />} m={menuItems.imageZoomIn} />
+        <B icon={<ZoomOut />} m={menuItems.imageZoomOut} />
+        <B icon={<SearchX />} m={menuItems.imageZoomOriginal} />
+        <Separator orientation="vertical" className="m-1" />
+
+        <B
+          icon={
+            <>
+              <Square />
+              <Columns2 />
+            </>
+          }
+          m={menuItems.imageDualView}
+        />
+        <B
+          icon={
+            <>
+              <Columns2 />
+              <ArrowLeftRight />
+            </>
+          }
+          m={menuItems.imageReverseDualView}
+        />
+        <Separator orientation="vertical" className="m-1" />
+
+        <B icon={<Fullscreen />} m={menuItems.changeFullscreen} />
+      </div>
+    );
+  }
 }

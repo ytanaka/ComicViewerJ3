@@ -139,8 +139,18 @@ export function Menu() {
           </MenubarGroup>
           <MenubarSeparator />
           <MenubarGroup>
-            <MyMenuItem m={menuItems.siblingDirPrev} />
-            <MyMenuItem m={menuItems.siblingDirNext} />
+            <MenubarSub>
+              {/* -------------------------------------- */}
+              <MenubarSubTrigger>ソート</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarGroup>
+                  <MyMenuItem m={menuItems.sortByName} />
+                  <MyMenuItem m={menuItems.sortByExt} />
+                  <MyMenuItem m={menuItems.sortBySize} />
+                  <MyMenuItem m={menuItems.sortByTime} />
+                </MenubarGroup>
+              </MenubarSubContent>
+            </MenubarSub>
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>
@@ -154,18 +164,13 @@ export function Menu() {
           </MenubarGroup>
           <MenubarSeparator />
           <MenubarGroup>
-            <MenubarSub>
-              {/* -------------------------------------- */}
-              <MenubarSubTrigger>ソート</MenubarSubTrigger>
-              <MenubarSubContent>
-                <MenubarGroup>
-                  <MyMenuItem m={menuItems.sortByName} />
-                  <MyMenuItem m={menuItems.sortByExt} />
-                  <MyMenuItem m={menuItems.sortBySize} />
-                  <MyMenuItem m={menuItems.sortByTime} />
-                </MenubarGroup>
-              </MenubarSubContent>
-            </MenubarSub>
+            <MyMenuItem m={menuItems.nextTab} />
+            <MyMenuItem m={menuItems.prevTab} />
+          </MenubarGroup>
+          <MenubarSeparator />
+          <MenubarGroup>
+            <MyMenuItem m={menuItems.siblingDirPrev} />
+            <MyMenuItem m={menuItems.siblingDirNext} />
           </MenubarGroup>
         </MenubarContent>
       </MenubarMenu>

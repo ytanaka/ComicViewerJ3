@@ -12,6 +12,7 @@ export const windowCommands = {
   // アプリ終了
   async exitApp() {
     const window = getCurrentWindow();
+    await this.setFullscreen(false);
     await window.close();
     await rustcmds.exitApp();
   },
@@ -41,6 +42,7 @@ export const windowCommands = {
     useUiVolatileStore.getState().setField('isFullscreen', b);
     useTabStore.getState().incGeneration();
 
+    // 初回だけヘルプ表示する
     if (!useUiVolatileStore.getState().isFullscreenUsageShown) {
       toast.info('全画面表示切替は [F11]', {
         id: 'isFullscreenUsageShown',

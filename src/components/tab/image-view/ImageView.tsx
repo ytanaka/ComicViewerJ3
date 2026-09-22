@@ -86,7 +86,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   // キー操作
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const handler = async (e: KeyboardEvent) => {
       // 遅延が発生していたらイベントを無視
       const delay = performance.now() - e.timeStamp;
       const timeout = useUiStore.getState().timeoutMsEventTimeStamp;
@@ -95,7 +95,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
         return;
       }
 
-      if (imageView_handleKeyDown(e)) {
+      if (await imageView_handleKeyDown(e)) {
         return;
       }
     };
