@@ -75,63 +75,67 @@ export function Toolbar() {
   );
 }
 function ButtonsFileView() {
-  return (<>
-    <B icon={<FolderOpen />} m={menuItems.openDir} />
-    <B icon={<Settings />} m={menuItems.preference} />
-    <Separator orientation="vertical" className="m-1" />
+  return (
+    <>
+      <B icon={<FolderOpen />} m={menuItems.openDir} />
+      <B icon={<Settings />} m={menuItems.preference} />
+      <Separator orientation="vertical" className="m-1" />
 
-    <B icon={<Scissors />} m={menuItems.cutFile} />
-    <B icon={<Copy />} m={menuItems.copyFile} />
-    <B icon={<ClipboardPaste />} m={menuItems.pasteFile} />
-    <Separator orientation="vertical" className="m-1" />
+      <B icon={<Scissors />} m={menuItems.cutFile} />
+      <B icon={<Copy />} m={menuItems.copyFile} />
+      <B icon={<ClipboardPaste />} m={menuItems.pasteFile} />
+      <Separator orientation="vertical" className="m-1" />
 
-    <B icon={<Trash2 />} m={menuItems.deleteFile} />
-    <B icon={<TextCursorInput />} m={menuItems.renameFile} />
-    <Separator orientation="vertical" className="m-1" />
+      <B icon={<Trash2 />} m={menuItems.deleteFile} />
+      <B icon={<TextCursorInput />} m={menuItems.renameFile} />
+      <Separator orientation="vertical" className="m-1" />
 
-    <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
-    <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
-    <Separator orientation="vertical" className="m-1" />
+      <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
+      <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
+      <Separator orientation="vertical" className="m-1" />
 
-    <B
-      icon={
-        <>
-          <Sun />
-          <Moon />
-        </>
-      }
-      m={menuItems.toggleTheme}
-    />
-  </>);
+      <B
+        icon={
+          <>
+            <Sun />
+            <Moon />
+          </>
+        }
+        m={menuItems.toggleTheme}
+      />
+    </>
+  );
 }
 function ButtonsImageView() {
-  return (<>
-    <B icon={<ScanSearch />} m={menuItems.imageFit} />
-    <B icon={<ZoomIn />} m={menuItems.imageZoomIn} />
-    <B icon={<ZoomOut />} m={menuItems.imageZoomOut} />
-    <B icon={<SearchX />} m={menuItems.imageZoomOriginal} />
-    <Separator orientation="vertical" className="m-1" />
+  return (
+    <>
+      <B icon={<ScanSearch />} m={menuItems.imageFit} />
+      <B icon={<ZoomIn />} m={menuItems.imageZoomIn} />
+      <B icon={<ZoomOut />} m={menuItems.imageZoomOut} />
+      <B icon={<SearchX />} m={menuItems.imageZoomOriginal} />
+      <Separator orientation="vertical" className="m-1" />
 
-    <B
-      icon={
-        <>
-          <Square />
-          <Columns2 />
-        </>
-      }
-      m={menuItems.imageDualView}
-    />
-    <B
-      icon={
-        <>
-          <Columns2 />
-          <ArrowLeftRight />
-        </>
-      }
-      m={menuItems.imageReverseDualView}
-    />
-    <Separator orientation="vertical" className="m-1" />
+      <B
+        icon={
+          <>
+            <Square />
+            <Columns2 />
+          </>
+        }
+        m={menuItems.imageDualView}
+      />
+      <B
+        icon={
+          <>
+            <Columns2 />
+            <ArrowLeftRight />
+          </>
+        }
+        m={menuItems.imageReverseDualView}
+      />
+      <Separator orientation="vertical" className="m-1" />
 
-    <B icon={<Fullscreen />} m={menuItems.changeFullscreen} />
-  </>);
+      <B icon={<Fullscreen />} m={menuItems.changeFullscreen} />
+    </>
+  );
 }

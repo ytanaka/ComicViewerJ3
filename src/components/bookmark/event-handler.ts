@@ -1,6 +1,6 @@
-import { getQueryData_getDirEntries } from "@/services/tab-dir-entry";
-import { useBookmarkStore } from "@/store/bookmark-store";
-import { useTabStore } from "@/store/tab/store";
+import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
+import { useBookmarkStore } from '@/store/bookmark-store';
+import { useTabStore } from '@/store/tab/store';
 
 function bk() {
   return useBookmarkStore.getState();
@@ -16,10 +16,10 @@ export function bookmark_eventhandler(e: KeyboardEvent): boolean {
 
   const focusIndex = bk().focusIndex;
 
-  if (NO_MOD && e.key === "ArrowDown") {
+  if (NO_MOD && e.key === 'ArrowDown') {
     bk().setFocus(focusIndex + 1);
     return true;
-  } else if (NO_MOD && e.key === "ArrowUp") {
+  } else if (NO_MOD && e.key === 'ArrowUp') {
     bk().setFocus(focusIndex - 1);
     return true;
   } else if (ALT_ONLY && e.key === 'a') {
@@ -50,7 +50,7 @@ export const bookmarkCommands = {
       dir: tab.info.path,
       item: dirEntries[tab.selection.focusIndex].name,
       mode: tab.fileViewMode,
-    })
+    });
   },
 
   remove() {
@@ -61,5 +61,5 @@ export const bookmarkCommands = {
   moveFocusUpDown(i: number) {
     const focusIndex = bk().focusIndex;
     useBookmarkStore.getState().moveBookmark(focusIndex, i);
-  }
-}
+  },
+};

@@ -28,7 +28,7 @@ async function processQueue() {
 
 // App.tsx で以下の listen() を実行させるためのダミー
 export function TauriEventListener() {
-  return (<></>);
+  return <></>;
 }
 
 tauri_listen<FileNotifyEvent>(EVENT_ID_FILE_NOTIFY, async event => {

@@ -108,7 +108,12 @@ fn start_resized_image_cleanup_worker(
         batch_sleep_ms: 100,
 
         target_dir: get_resized_img_dir(&app)?,
-        expire_sec: state.preferences.read().unwrap().resized_image_expiration_minutes as u64 * 60,
+        expire_sec: state
+            .preferences
+            .read()
+            .unwrap()
+            .resized_image_expiration_minutes as u64
+            * 60,
     };
     start_cache_cleanup_worker(param);
     Ok(())
@@ -119,10 +124,10 @@ pub struct CacheCleanupWorker {}
 impl CacheCleanupWorker {
     pub fn new(app: Arc<tauri::AppHandle>, state: Arc<AppState>) -> Arc<Self> {
         if let Err(e) = start_thumbnail_cleanup_worker(app.clone(), state.clone()) {
-            log::error!("start_thumbnail_cleanup_worker: error={}", e.to_string())
+            log::error!("start_thumbnail_cleanup_worker: error={}", e)
         }
         if let Err(e) = start_resized_image_cleanup_worker(app.clone(), state.clone()) {
-            log::error!("start_thumbnail_cleanup_worker: error={}", e.to_string())
+            log::error!("start_thumbnail_cleanup_worker: error={}", e)
         }
         Arc::new(CacheCleanupWorker {})
     }

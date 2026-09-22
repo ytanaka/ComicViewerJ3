@@ -39,7 +39,7 @@ export class AppHotkey {
     if (s.startsWith('###')) {
       this.ignoreEvent = true;
       s = s.slice(3);
-    };
+    }
 
     const spl = s.split('//').map(s => s.trim()); // '+' を区切りにすると Ctrl++ で困るので '//' にする
     const [key] = spl.splice(spl.length - 1, 1);

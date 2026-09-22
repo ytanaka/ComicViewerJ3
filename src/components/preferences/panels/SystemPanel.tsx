@@ -105,7 +105,10 @@ export function SystemPanel() {
               value={pref?.resize_image_command_limit ?? ''}
             />
           </InputGroup>
-          <FieldDescription>デフォルトはCPUコア数({pref?.default?.resize_image_command_limit})<br />要再起動</FieldDescription>
+          <FieldDescription>
+            デフォルトはCPUコア数({pref?.default?.resize_image_command_limit})<br />
+            要再起動
+          </FieldDescription>
         </Field>
       </FieldGroup>
     </FieldSet>

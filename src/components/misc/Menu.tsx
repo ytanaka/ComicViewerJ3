@@ -69,7 +69,7 @@ function MyMenuItem({ m }: { m: AppMenuItem }) {
     </MenubarItem>
   );
 }
-function MyMenubarMenu({ name, children }: { name: string, children: ReactNode }) {
+function MyMenubarMenu({ name, children }: { name: string; children: ReactNode }) {
   const setFocus = useFocusStore(state => state.setFocus);
   function handleOpenChange(open: boolean) {
     if (!open) setFocus();
@@ -77,11 +77,9 @@ function MyMenubarMenu({ name, children }: { name: string, children: ReactNode }
   return (
     <MenubarMenu onOpenChange={handleOpenChange}>
       <MenubarTrigger>{name}</MenubarTrigger>
-      <MenubarContent className="w-auto min-w-max">
-        {children}
-      </MenubarContent>
+      <MenubarContent className="w-auto min-w-max">{children}</MenubarContent>
     </MenubarMenu>
-  )
+  );
 }
 
 export function Menu() {
@@ -95,88 +93,92 @@ export function Menu() {
 }
 
 function MenuFileView() {
-  return (<>
-    <MyMenubarMenu name='ファイル'>
-      <MyMenuItem m={menuItems.openDir} />
-      <MyMenuItem m={menuItems.createEmptyFile} />
-      <MyMenuItem m={menuItems.createDir} />
-      <MyMenuItem m={menuItems.openFileProperty} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.exitApp} />
-    </MyMenubarMenu>
-    {/* -------------------------------------------------------------------------------------------------------- */}
-    <MyMenubarMenu name='編集'>
-      <MyMenuItem m={menuItems.cutFile} />
-      <MyMenuItem m={menuItems.copyFile} />
-      <MyMenuItem m={menuItems.pasteFile} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.deleteFile} />
-      <MyMenuItem m={menuItems.renameFile} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.preference} />
-    </MyMenubarMenu>
-    {/* -------------------------------------------------------------------------------------------------------- */}
-    <MyMenubarMenu name='検索'>
-      <MyMenuItem m={menuItems.searchFile} />
-      <MyMenuItem m={menuItems.searchNext} />
-      <MyMenuItem m={menuItems.searchPrev} />
-    </MyMenubarMenu>
-    {/* -------------------------------------------------------------------------------------------------------- */}
-    <MyMenubarMenu name='表示'>
-      <MyMenuItem m={menuItems.toggleFileViewMode} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.thumbnailSizeDown} />
-      <MyMenuItem m={menuItems.thumbnailSizeUp} />
-      <MenubarSeparator />
-      <MenubarSub>
-        {/* -------------------------------------- */}
-        <MenubarSubTrigger>ソート</MenubarSubTrigger>
-        <MenubarSubContent>
-          <MyMenuItem m={menuItems.sortByName} />
-          <MyMenuItem m={menuItems.sortByExt} />
-          <MyMenuItem m={menuItems.sortBySize} />
-          <MyMenuItem m={menuItems.sortByTime} />
-        </MenubarSubContent>
-      </MenubarSub>
-    </MyMenubarMenu >
-    {/* -------------------------------------------------------------------------------------------------------- */}
-    < MyMenubarMenu name='タブ' >
-      <MyMenuItem m={menuItems.cloneTab} />
-      <MyMenuItem m={menuItems.closeCurrentTab} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.nextTab} />
-      <MyMenuItem m={menuItems.prevTab} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.siblingDirPrev} />
-      <MyMenuItem m={menuItems.siblingDirNext} />
-    </MyMenubarMenu >
-  </>);
+  return (
+    <>
+      <MyMenubarMenu name="ファイル">
+        <MyMenuItem m={menuItems.openDir} />
+        <MyMenuItem m={menuItems.createEmptyFile} />
+        <MyMenuItem m={menuItems.createDir} />
+        <MyMenuItem m={menuItems.openFileProperty} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.exitApp} />
+      </MyMenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
+      <MyMenubarMenu name="編集">
+        <MyMenuItem m={menuItems.cutFile} />
+        <MyMenuItem m={menuItems.copyFile} />
+        <MyMenuItem m={menuItems.pasteFile} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.deleteFile} />
+        <MyMenuItem m={menuItems.renameFile} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.preference} />
+      </MyMenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
+      <MyMenubarMenu name="検索">
+        <MyMenuItem m={menuItems.searchFile} />
+        <MyMenuItem m={menuItems.searchNext} />
+        <MyMenuItem m={menuItems.searchPrev} />
+      </MyMenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
+      <MyMenubarMenu name="表示">
+        <MyMenuItem m={menuItems.toggleFileViewMode} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.thumbnailSizeDown} />
+        <MyMenuItem m={menuItems.thumbnailSizeUp} />
+        <MenubarSeparator />
+        <MenubarSub>
+          {/* -------------------------------------- */}
+          <MenubarSubTrigger>ソート</MenubarSubTrigger>
+          <MenubarSubContent>
+            <MyMenuItem m={menuItems.sortByName} />
+            <MyMenuItem m={menuItems.sortByExt} />
+            <MyMenuItem m={menuItems.sortBySize} />
+            <MyMenuItem m={menuItems.sortByTime} />
+          </MenubarSubContent>
+        </MenubarSub>
+      </MyMenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
+      <MyMenubarMenu name="タブ">
+        <MyMenuItem m={menuItems.cloneTab} />
+        <MyMenuItem m={menuItems.closeCurrentTab} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.nextTab} />
+        <MyMenuItem m={menuItems.prevTab} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.siblingDirPrev} />
+        <MyMenuItem m={menuItems.siblingDirNext} />
+      </MyMenubarMenu>
+    </>
+  );
 }
 function MenuImageView() {
-  return (<>
-    <MyMenubarMenu name='タブ'>
-      <MyMenuItem m={menuItems.cloneTab} />
-      <MyMenuItem m={menuItems.closeCurrentTab} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.nextTab} />
-      <MyMenuItem m={menuItems.prevTab} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.siblingDirPrev} />
-      <MyMenuItem m={menuItems.siblingDirNext} />
-    </MyMenubarMenu>
-    {/* -------------------------------------------------------------------------------------------------------- */}
-    <MyMenubarMenu name='画像'>
-      <MyMenuItem m={menuItems.endImageViewMode} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.imageZoomIn} />
-      <MyMenuItem m={menuItems.imageZoomOut} />
-      <MyMenuItem m={menuItems.imageFit} />
-      <MyMenuItem m={menuItems.imageZoomOriginal} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.imageDualView} />
-      <MyMenuItem m={menuItems.imageReverseDualView} />
-      <MenubarSeparator />
-      <MyMenuItem m={menuItems.changeFullscreen} />
-    </MyMenubarMenu>
-  </>);
+  return (
+    <>
+      <MyMenubarMenu name="タブ">
+        <MyMenuItem m={menuItems.cloneTab} />
+        <MyMenuItem m={menuItems.closeCurrentTab} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.nextTab} />
+        <MyMenuItem m={menuItems.prevTab} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.siblingDirPrev} />
+        <MyMenuItem m={menuItems.siblingDirNext} />
+      </MyMenubarMenu>
+      {/* -------------------------------------------------------------------------------------------------------- */}
+      <MyMenubarMenu name="画像">
+        <MyMenuItem m={menuItems.endImageViewMode} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.imageZoomIn} />
+        <MyMenuItem m={menuItems.imageZoomOut} />
+        <MyMenuItem m={menuItems.imageFit} />
+        <MyMenuItem m={menuItems.imageZoomOriginal} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.imageDualView} />
+        <MyMenuItem m={menuItems.imageReverseDualView} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.changeFullscreen} />
+      </MyMenubarMenu>
+    </>
+  );
 }

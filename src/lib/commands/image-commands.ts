@@ -1,8 +1,8 @@
-import { useTabStore } from "@/store/tab/store";
-import { zoomLevelNormalize } from "../tools/image-zoom";
-import { useUiVolatileStore } from "@/store/ui-volatile-store";
-import { windowCommands } from "./window-commands";
-import { useScrollToFocusStore } from "@/store/scroll-to-focus-store";
+import { useTabStore } from '@/store/tab/store';
+import { zoomLevelNormalize } from '../tools/image-zoom';
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
+import { windowCommands } from './window-commands';
+import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 
 function st() {
   return useTabStore.getState();
@@ -66,4 +66,4 @@ export const imageCommands = {
     useUiVolatileStore.getState().setField('shouldFullscreenWhenImageView', !full);
     await windowCommands.setFullscreen(!full);
   },
-}
+};

@@ -29,7 +29,9 @@ export function ImageViewCell(props: ImageViewCellProps) {
   }
 
   function handleImageError() {
-    console.info(`failed get resized image. remove query cache and re-create file. tabId=${props.tab.id} fileId=${props.dirEntry?.file_id}`);
+    console.info(
+      `failed get resized image. remove query cache and re-create file. tabId=${props.tab.id} fileId=${props.dirEntry?.file_id}`
+    );
     removeQueries_resizedImagePath(props.tab.id, props.dirEntry?.file_id);
   }
 
