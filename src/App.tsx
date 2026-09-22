@@ -11,7 +11,7 @@ import { HotKeys } from './components/util/HotKeys';
 import { TabBar } from './components/tab/TabBar';
 import { StatusBar } from './components/misc/StatusBar';
 import { PreferencesDialog } from './components/preferences/PreferencesDialog';
-import { BookmarkManager } from './components/misc/BookmarkManager';
+import { BookmarkManager } from './components/bookmark/BookmarkManager';
 import { TauriEventListener } from './lib/tauri-event-listener';
 
 function App() {
