@@ -209,8 +209,8 @@ export const menuItems = {
   imageFit: M('画像を画面にフィットさせて表示', imageCommands.fitWindow, '### Enter', notImageFitScreen),
   imageZoomOriginal: M('画像をオリジナルサイズで表示', imageCommands.originalSize, '### 0', notImageOriginalSize),
   imageDualView: M('2枚表示切替', imageCommands.toggleDualView, '### Space'),
-  imageReverseDualView: M('左右反転', imageCommands.toggleReverseDualView, '### \\', isImageDual),
-  changeFullscreen: M('フルスクリーン', imageCommands.toggleFullscreen),
+  imageReverseDualView: M('2枚表示左右反転', imageCommands.toggleReverseDualView, '### \\', isImageDual),
+  changeFullscreen: M('フルスクリーン', imageCommands.toggleFullscreen, '### F11'),
 };
 
 export function getAllMenuItems() {

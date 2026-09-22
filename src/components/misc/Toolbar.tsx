@@ -62,79 +62,76 @@ export function Toolbar() {
   const tab = useTabStore(state => state.getCurrentTab());
   useTabStore(state => state.getCurrentTab()?.selection);
   const full = useUiVolatileStore(state => state.isFullscreen);
+  const imageView = tab?.imageViewMode.enable === true;
 
-  if (tab?.imageViewMode.enable != true) {
-    // ファイル表示モード
-    return (
-      <div
-        className="flex items-center gap-0.5 border rounded-md p-0.5"
-        hidden={full}
-        style={{ display: full ? 'none' : undefined }}
-      >
-        <B icon={<FolderOpen />} m={menuItems.openDir} />
-        <B icon={<Settings />} m={menuItems.preference} />
-        <Separator orientation="vertical" className="m-1" />
+  return (
+    <div
+      className="flex items-center gap-0.5 border rounded-md p-0.5"
+      hidden={full}
+      style={{ display: full ? 'none' : undefined }}
+    >
+      {imageView ? <ButtonsImageView /> : <ButtonsFileView />}
+    </div>
+  );
+}
+function ButtonsFileView() {
+  return (<>
+    <B icon={<FolderOpen />} m={menuItems.openDir} />
+    <B icon={<Settings />} m={menuItems.preference} />
+    <Separator orientation="vertical" className="m-1" />
 
-        <B icon={<Scissors />} m={menuItems.cutFile} />
-        <B icon={<Copy />} m={menuItems.copyFile} />
-        <B icon={<ClipboardPaste />} m={menuItems.pasteFile} />
-        <Separator orientation="vertical" className="m-1" />
+    <B icon={<Scissors />} m={menuItems.cutFile} />
+    <B icon={<Copy />} m={menuItems.copyFile} />
+    <B icon={<ClipboardPaste />} m={menuItems.pasteFile} />
+    <Separator orientation="vertical" className="m-1" />
 
-        <B icon={<Trash2 />} m={menuItems.deleteFile} />
-        <B icon={<TextCursorInput />} m={menuItems.renameFile} />
-        <Separator orientation="vertical" className="m-1" />
+    <B icon={<Trash2 />} m={menuItems.deleteFile} />
+    <B icon={<TextCursorInput />} m={menuItems.renameFile} />
+    <Separator orientation="vertical" className="m-1" />
 
-        <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
-        <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
-        <Separator orientation="vertical" className="m-1" />
+    <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
+    <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
+    <Separator orientation="vertical" className="m-1" />
 
-        <B
-          icon={
-            <>
-              <Sun />
-              <Moon />
-            </>
-          }
-          m={menuItems.toggleTheme}
-        />
-      </div>
-    );
-  } else {
-    // 画像表示モード
-    return (
-      <div
-        className="flex items-center gap-0.5 border rounded-md p-0.5"
-        hidden={full}
-        style={{ display: full ? 'none' : undefined }}
-      >
-        <B icon={<ScanSearch />} m={menuItems.imageFit} />
-        <B icon={<ZoomIn />} m={menuItems.imageZoomIn} />
-        <B icon={<ZoomOut />} m={menuItems.imageZoomOut} />
-        <B icon={<SearchX />} m={menuItems.imageZoomOriginal} />
-        <Separator orientation="vertical" className="m-1" />
+    <B
+      icon={
+        <>
+          <Sun />
+          <Moon />
+        </>
+      }
+      m={menuItems.toggleTheme}
+    />
+  </>);
+}
+function ButtonsImageView() {
+  return (<>
+    <B icon={<ScanSearch />} m={menuItems.imageFit} />
+    <B icon={<ZoomIn />} m={menuItems.imageZoomIn} />
+    <B icon={<ZoomOut />} m={menuItems.imageZoomOut} />
+    <B icon={<SearchX />} m={menuItems.imageZoomOriginal} />
+    <Separator orientation="vertical" className="m-1" />
 
-        <B
-          icon={
-            <>
-              <Square />
-              <Columns2 />
-            </>
-          }
-          m={menuItems.imageDualView}
-        />
-        <B
-          icon={
-            <>
-              <Columns2 />
-              <ArrowLeftRight />
-            </>
-          }
-          m={menuItems.imageReverseDualView}
-        />
-        <Separator orientation="vertical" className="m-1" />
+    <B
+      icon={
+        <>
+          <Square />
+          <Columns2 />
+        </>
+      }
+      m={menuItems.imageDualView}
+    />
+    <B
+      icon={
+        <>
+          <Columns2 />
+          <ArrowLeftRight />
+        </>
+      }
+      m={menuItems.imageReverseDualView}
+    />
+    <Separator orientation="vertical" className="m-1" />
 
-        <B icon={<Fullscreen />} m={menuItems.changeFullscreen} />
-      </div>
-    );
-  }
+    <B icon={<Fullscreen />} m={menuItems.changeFullscreen} />
+  </>);
 }
