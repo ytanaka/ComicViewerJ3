@@ -39,7 +39,6 @@ async function imageView_handleKeyDown_impl(e: KeyboardEvent): Promise<boolean> 
   // -------------------------------------------------------------------------------------------------------------------
   // フルスクリーン ON/OFF
   // -------------------------------------------------------------------------------------------------------------------
-  console.debug(e);
   if ((NO_MOD && e.key === 'F11') || (ALT_ONLY && e.key === 'Enter')) {
     await imageCommands.toggleFullscreen();
     return true;
