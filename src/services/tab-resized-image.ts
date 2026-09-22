@@ -5,9 +5,13 @@ import { DirEntry, handleRustCmdResult, rustcmds } from '@/lib/bindings-wrapper'
 import { isPictureFileExtension } from '@/lib/tools/string-util';
 import { usePreferences } from './preferences';
 import { Dimension } from '@/lib/bindings';
+import { myQueryClient } from '@/lib/query-client';
 
 function queryKey_useResizedImagePath(tabId: TabId, fileId: FileId | undefined, size: Dimension | null) {
   return [...queryKey_tabId(tabId), 'getResizedImg', fileId, size?.width, size?.height];
+}
+function queryKey_useResizedImagePath_no_dimension(tabId: TabId, fileId: FileId | undefined) {
+  return [...queryKey_tabId(tabId), 'getResizedImg', fileId];
 }
 
 let running = 0;
@@ -48,4 +52,7 @@ export function useResizedImagePath(tabId: TabId, dirEntry: DirEntry | undefined
       return data.data;
     },
   });
+}
+export function removeQueries_resizedImagePath(tabId: TabId, fileId: FileId | undefined) {
+  myQueryClient.removeQueries({ queryKey: queryKey_useResizedImagePath_no_dimension(tabId, fileId) });
 }

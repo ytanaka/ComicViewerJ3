@@ -1,11 +1,13 @@
 import { Dimension } from '@/lib/bindings';
-import { DirEntry } from '@/lib/bindings-wrapper';
+import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { removeQueries_resizedImagePath } from '@/services/tab-resized-image';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { useState } from 'react';
 
 export interface ImageViewCellProps {
   originalImagePath: string | undefined;
   resizedImagePath: string | undefined;
+  tab: TabInfo;
   dirEntry?: DirEntry;
   size?: Dimension;
   hidden: boolean;
@@ -26,6 +28,11 @@ export function ImageViewCell(props: ImageViewCellProps) {
     );
   }
 
+  function handleImageError() {
+    console.info(`failed get resized image. remove query cache and re-create file. tabId=${props.tab.id} fileId=${props.dirEntry?.file_id}`);
+    removeQueries_resizedImagePath(props.tab.id, props.dirEntry?.file_id);
+  }
+
   return (
     <div
       className="relative"
@@ -44,6 +51,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
           visibility: !readyResizedImage ? 'hidden' : undefined,
         }}
         onLoad={() => setReadyResizedImage(true)}
+        onError={handleImageError}
       />
       {!readyResizedImage && (
         <img

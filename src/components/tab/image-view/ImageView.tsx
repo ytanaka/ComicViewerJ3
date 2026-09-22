@@ -149,6 +149,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const imgViewCell0 = (
     <ImageViewCell
       key={`${tab.id}/${focusIndex}/${getResizedImagePath(0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
+      tab={tab}
       dirEntry={dirEntries?.[focusIndex]}
       originalImagePath={originalImagePaths?.[focusIndex]}
       resizedImagePath={getResizedImagePath(0)}
@@ -160,6 +161,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const imgViewCell1 = (
     <ImageViewCell
       key={`${tab.id}/${focusIndex + 1}/${getResizedImagePath(1)}`}
+      tab={tab}
       dirEntry={dirEntries?.[focusIndex + 1]}
       originalImagePath={originalImagePaths?.[focusIndex + 1]}
       resizedImagePath={getResizedImagePath(1)}
@@ -170,6 +172,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const imgViewCell2 = (
     <ImageViewCell
       key={`${tab.id}/${focusIndex + 2}`}
+      tab={tab}
       originalImagePath={originalImagePaths?.[focusIndex + 2]}
       resizedImagePath={getResizedImagePath(2)}
       hidden={true}
@@ -178,6 +181,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const imgViewCell3 = (
     <ImageViewCell
       key={`${tab.id}/${focusIndex + 3}`}
+      tab={tab}
       originalImagePath={originalImagePaths?.[focusIndex + 3]}
       resizedImagePath={getResizedImagePath(3)}
       hidden={true}
