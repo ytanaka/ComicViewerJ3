@@ -10,7 +10,7 @@ use crate::file_operations::file_utils::{self, touch_file};
 use crate::file_operations::image_utils::{
     calc_resize, get_img_size, is_picture_ext, resize_lanczos3, unsharp_mask,
 };
-use crate::types::{Dimension, Either, GetResizedImgResult, GetThumbnailResult, ImageResizeConfig};
+use crate::types::{Dimension, Either, GetResizedImgResult, GetThumbnailResult, ResizeImageConfig};
 use crate::util::ErrorExt;
 use crate::LOG_RESULT;
 use crate::{
@@ -183,7 +183,7 @@ fn resize_to_thumbnail(img: &DynamicImage, target_size: &Dimension) -> anyhow::R
     let img = &img.to_rgba8();
     let size = calc_resize(&Dimension::from(img), target_size, 2);
     let resized = resize_lanczos3(img, &size)?;
-    let resize_config = ImageResizeConfig::default();
+    let resize_config = ResizeImageConfig::default();
     let unsharped = unsharp_mask(resized, &resize_config);
     Ok(unsharped)
 }
@@ -247,7 +247,7 @@ pub fn get_resized_img_impl(
     }
 
     // 生成する画像のフルパス取得
-    let resize_config = &state.preferences.read().unwrap().image_resize_config;
+    let resize_config = &state.preferences.read().unwrap().resize_image_config;
     let (dst_path, dst_tmp_path) =
         get_resized_img_fullpath(app, &dir, &file.name, &meta, target_size, resize_config)?;
     if dst_path.exists() {
@@ -284,7 +284,7 @@ pub fn get_resized_img_impl(
 fn resize_image(
     img: &DynamicImage,
     target_size: &Dimension,
-    config: &ImageResizeConfig,
+    config: &ResizeImageConfig,
 ) -> anyhow::Result<RgbaImage> {
     let img = &img.to_rgba8();
     let size = calc_resize(&Dimension::from(img), target_size, 2);

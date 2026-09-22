@@ -3,7 +3,7 @@ use std::{collections::HashSet, path::Path};
 use fast_image_resize as fir;
 use image::{ImageReader, RgbaImage};
 
-use crate::types::{Dimension, ImageResizeConfig};
+use crate::types::{Dimension, ResizeImageConfig};
 
 pub fn is_picture_ext<P: AsRef<Path>>(p: P) -> bool {
     // 静的に保持する拡張子セット
@@ -81,7 +81,7 @@ pub fn resize_lanczos3(src: &RgbaImage, size: &Dimension) -> anyhow::Result<Rgba
 }
 
 /// 画像のエッジを強調
-pub fn unsharp_mask(src: RgbaImage, config: &ImageResizeConfig) -> RgbaImage {
+pub fn unsharp_mask(src: RgbaImage, config: &ResizeImageConfig) -> RgbaImage {
     if config.unsharp_sigma < 0.001 {
         src
     } else {

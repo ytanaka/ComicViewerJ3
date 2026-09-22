@@ -69,9 +69,11 @@ export type AppPreferences = {
 	/**  サムネイル作成同時実行数 */
 	thumbnail_command_limit: number,
 	/**  画像リサイズ同時実行数 */
-	resize_img_command_limit: number,
+	resize_image_command_limit: number,
 	/**  画像リサイズ時の画質設定 */
-	image_resize_config: ImageResizeConfig,
+	resize_image_config: ResizeImageConfig,
+	/**  リサイズ画像ファイル削除期限 */
+	resized_image_expiration_minutes: number,
 	/**  デフォルト値。UI側で参照のため (UI側ではnullにならない) */
 	default: AppPreferences | null,
 };
@@ -158,7 +160,7 @@ export type GetThumbnailResult =
 { type: "Fail"; error_msg: string };
 
 /**  画像リサイズ時の画質設定 */
-export type ImageResizeConfig = {
+export type ResizeImageConfig = {
 	unsharp_sigma: number | null,
 	unsharp_threshold: number,
 };

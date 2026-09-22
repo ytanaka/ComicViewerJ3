@@ -33,17 +33,17 @@ export function ImageQuorityPanel() {
               onChange={e => {
                 if (pref) {
                   const newValue = { ...pref };
-                  newValue.image_resize_config.unsharp_sigma = Number(e.target.value);
+                  newValue.resize_image_config.unsharp_sigma = Number(e.target.value);
                   savePref.mutate(newValue);
                 }
               }}
-              value={pref?.image_resize_config.unsharp_sigma ?? ''}
+              value={pref?.resize_image_config.unsharp_sigma ?? ''}
             />
           </InputGroup>
           <FieldDescription>
             増やすと輪郭を強調する(0～5、0にすると無効)
             <br />
-            デフォルト {pref?.default?.image_resize_config.unsharp_sigma}
+            デフォルト {pref?.default?.resize_image_config.unsharp_sigma}
           </FieldDescription>
         </Field>
         <Separator />
@@ -59,17 +59,17 @@ export function ImageQuorityPanel() {
               onChange={e => {
                 if (pref) {
                   const newValue = { ...pref };
-                  newValue.image_resize_config.unsharp_threshold = Number(e.target.value);
+                  newValue.resize_image_config.unsharp_threshold = Number(e.target.value);
                   savePref.mutate(newValue);
                 }
               }}
-              value={pref?.image_resize_config.unsharp_threshold ?? ''}
+              value={pref?.resize_image_config.unsharp_threshold ?? ''}
             />
           </InputGroup>
           <FieldDescription>
             減らすと輪郭を強調する(0～150)
             <br />
-            デフォルト {pref?.default?.image_resize_config.unsharp_threshold}
+            デフォルト {pref?.default?.resize_image_config.unsharp_threshold}
             <br />
             参考:
             <LinkButton

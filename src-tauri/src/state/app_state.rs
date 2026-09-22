@@ -12,7 +12,7 @@ use tauri::AppHandle;
 
 use crate::{
     commands::preferences::load_preferences_impl,
-    file_operations::{metadata_worker::MetadataWorker, thumbnail_worker::ThumbnailCleanupWorker},
+    file_operations::{cache_cleaner::CacheCleanupWorker, metadata_worker::MetadataWorker},
     state::{command_limitter::CommandLimitter, tab_info::TabInfo},
     text_search::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
@@ -70,7 +70,7 @@ pub struct AppState {
     pub text_matcher: AppStateField<TextMatcher>,
 
     pub metadata_worker: AppStateField<MetadataWorker>,
-    pub thumbnail_worker: AppStateField<ThumbnailCleanupWorker>,
+    pub cache_cleanup_worker: AppStateField<CacheCleanupWorker>,
 
     pub thumbnail_command_limitter: AppStateField<CommandLimitter>,
     pub resize_img_command_limitter: AppStateField<CommandLimitter>,
@@ -92,19 +92,19 @@ impl AppState {
             text_matcher: AppStateField::new(),
 
             metadata_worker: AppStateField::new(),
-            thumbnail_worker: AppStateField::new(),
+            cache_cleanup_worker: AppStateField::new(),
 
             thumbnail_command_limitter: AppStateField::new(),
             resize_img_command_limitter: AppStateField::new(),
         }
     }
 
-    pub fn init(&self, app: &AppHandle, state: Arc<AppState>) {
+    pub fn init(&self, app: Arc<AppHandle>, state: Arc<AppState>) {
         // アプリ中で使用するので読み込んでおく
         state
             .preferences
             .get_or_init(|| Arc::new(RwLock::new(AppPreferences::default())));
-        if let Err(e) = load_preferences_impl(app, &state) {
+        if let Err(e) = load_preferences_impl(&app, &state) {
             log::error!("AppState::init() error: load_preferences_impl => {}", e);
         }
         let pref = self.preferences.read().unwrap().clone();
@@ -121,15 +121,15 @@ impl AppState {
             .metadata_worker
             .get_or_init(|| MetadataWorker::new(state.clone()));
         state
-            .thumbnail_worker
-            .get_or_init(|| ThumbnailCleanupWorker::new(app.clone(), state.clone()));
+            .cache_cleanup_worker
+            .get_or_init(|| CacheCleanupWorker::new(app.clone(), state.clone()));
 
         state
             .thumbnail_command_limitter
             .get_or_init(|| Arc::new(CommandLimitter::new(pref.thumbnail_command_limit)));
         state
             .resize_img_command_limitter
-            .get_or_init(|| Arc::new(CommandLimitter::new(pref.resize_img_command_limit)));
+            .get_or_init(|| Arc::new(CommandLimitter::new(pref.resize_image_command_limit)));
     }
     pub fn stop(&self) {}
 

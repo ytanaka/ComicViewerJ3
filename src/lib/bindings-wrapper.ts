@@ -127,8 +127,9 @@ export function mkAppPreferencesDefault(): AppPreferences {
     filename_cmp: { type: 'Icu' },
     thumbnail_expiration_days: 0,
     thumbnail_command_limit: 5,
-    resize_img_command_limit: 5,
-    image_resize_config: { unsharp_sigma: 0.5, unsharp_threshold: 30 },
+    resize_image_command_limit: 5,
+    resize_image_config: { unsharp_sigma: 0.5, unsharp_threshold: 30 },
+    resized_image_expiration_minutes: 3,
     default: null,
   };
 }

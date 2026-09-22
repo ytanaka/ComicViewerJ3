@@ -10,7 +10,7 @@ use anyhow::Context;
 use sha2::Digest;
 use sha2::Sha256;
 
-use crate::types::ImageResizeConfig;
+use crate::types::ResizeImageConfig;
 use crate::types::{Dimension, FileMetadata};
 
 const THUMBNAIL_EXT: &str = "png";
@@ -80,7 +80,7 @@ pub fn get_resized_img_fullpath(
     name: &OsStr,
     metadata: &FileMetadata,
     target_size: &Dimension,
-    config: &ImageResizeConfig,
+    config: &ResizeImageConfig,
 ) -> anyhow::Result<(PathBuf, PathBuf)> {
     // "16進文字列.jpg" を取得
     let mut hasher = Sha256::new();

@@ -11,7 +11,7 @@ pub async fn init(app: AppHandle, state: State<'_, Arc<AppState>>) -> Result<(),
     let state2 = state.inner().clone();
     let result = tauri::async_runtime::spawn_blocking(move || {
         log::info!("command::init() start");
-        state2.init(&app, state2.clone());
+        state2.init(Arc::new(app), state2.clone());
         log::info!("command::init() end");
     });
     result.await.unwrap();

@@ -36,6 +36,8 @@ export function SystemPanel() {
             0にすると、起動時に全てのサムネイルキャッシュを削除します
             <br />
             デフォルト: {pref?.default?.thumbnail_expiration_days}日
+            <br />
+            反映するには、再起動してください
           </FieldDescription>
         </Field>
         <Separator />
@@ -70,13 +72,13 @@ export function SystemPanel() {
               step={1}
               onChange={e => {
                 if (pref) {
-                  savePref.mutate({ ...pref, resize_img_command_limit: Number(e.target.value) });
+                  savePref.mutate({ ...pref, resize_image_command_limit: Number(e.target.value) });
                 }
               }}
-              value={pref?.resize_img_command_limit ?? ''}
+              value={pref?.resize_image_command_limit ?? ''}
             />
           </InputGroup>
-          <FieldDescription>デフォルトはCPUコア数({pref?.default?.resize_img_command_limit})</FieldDescription>
+          <FieldDescription>デフォルトはCPUコア数({pref?.default?.resize_image_command_limit})<br />要再起動</FieldDescription>
         </Field>
       </FieldGroup>
     </FieldSet>

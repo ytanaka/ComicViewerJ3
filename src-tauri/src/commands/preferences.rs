@@ -115,7 +115,7 @@ pub fn save_preferences_impl(
         .set_limit(new_pref.thumbnail_command_limit);
     state
         .resize_img_command_limitter
-        .set_limit(new_pref.resize_img_command_limit);
+        .set_limit(new_pref.resize_image_command_limit);
 
     Ok(())
 }

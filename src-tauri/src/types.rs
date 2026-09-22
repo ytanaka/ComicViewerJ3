@@ -289,10 +289,12 @@ pub struct AppPreferences {
     /// サムネイル作成同時実行数
     pub thumbnail_command_limit: u32,
     /// 画像リサイズ同時実行数
-    pub resize_img_command_limit: u32,
+    pub resize_image_command_limit: u32,
 
     /// 画像リサイズ時の画質設定
-    pub image_resize_config: ImageResizeConfig,
+    pub resize_image_config: ResizeImageConfig,
+    /// リサイズ画像ファイル削除期限
+    pub resized_image_expiration_minutes: i32,
 
     /// デフォルト値。UI側で参照のため (UI側ではnullにならない)
     pub default: Option<Box<AppPreferences>>,
@@ -303,14 +305,18 @@ impl Default for AppPreferences {
             debug_filename_search_sleep_ms: 0,
             filename_cmp: FilenameCmpType::Icu,
             filename_sort_strength: "Identical".to_string(),
+
             thumbnail_expiration_days: 30,
             thumbnail_command_limit: std::thread::available_parallelism()
                 .unwrap_or(NonZero::new(4).unwrap())
                 .get() as u32,
-            resize_img_command_limit: std::thread::available_parallelism()
+
+            resize_image_command_limit: std::thread::available_parallelism()
                 .unwrap_or(NonZero::new(4).unwrap())
                 .get() as u32,
-            image_resize_config: ImageResizeConfig::default(),
+            resize_image_config: ResizeImageConfig::default(),
+            resized_image_expiration_minutes: 3,
+
             default: None,
         }
     }
@@ -348,11 +354,11 @@ pub enum FilenameCmpType {
 }
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// 画像リサイズ時の画質設定
-pub struct ImageResizeConfig {
+pub struct ResizeImageConfig {
     pub unsharp_sigma: f32,
     pub unsharp_threshold: i32,
 }
-impl Default for ImageResizeConfig {
+impl Default for ResizeImageConfig {
     fn default() -> Self {
         Self {
             unsharp_sigma: 0.5,
