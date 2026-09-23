@@ -12,6 +12,7 @@ export interface Bookmark {
   dir: string;
   item: string;
   mode: FileViewMode;
+  thumbnailSize: number;
 }
 
 type BookmarkStor_and_Action = BookmarkStore & {

@@ -56,6 +56,7 @@ export const bookmarkCommands = {
       dir: tab.info.path,
       item: dirEntries[tab.selection.focusIndex].name,
       mode: tab.fileViewMode,
+      thumbnailSize: tab.thumbnailSize,
     });
   },
 
@@ -76,6 +77,7 @@ export const bookmarkCommands = {
     const tab = tb().getCurrentTab();
     if (!tab) return;
     tb().setViewMode(tab.info.id, b.mode);
+    tb().setThumbnailSize(tab.info.id, b.thumbnailSize);
     tb().pushHistory(tab.info.id, b.dir, b.item);
   }
 };
