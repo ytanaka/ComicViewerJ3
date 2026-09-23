@@ -132,6 +132,7 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
           itemContent={index => <ThumbnailCell tab={tab} fileIndex={index} dirEntry={dirEntries[index]} />}
           components={gridComponents}
           rangeChanged={handleRangeChanged}
+          increaseViewportBy={{ top: 800, bottom: 800 }}
           initialTopMostItemIndex={{ index: focusIndex, align: 'center' }}
         />
         <style>{`html, body, #root { margin: 0; padding: 0 }`}</style>
