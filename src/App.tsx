@@ -13,14 +13,20 @@ import { StatusBar } from './components/misc/StatusBar';
 import { PreferencesDialog } from './components/preferences/PreferencesDialog';
 import { BookmarkManager } from './components/bookmark/BookmarkManager';
 import { TauriEventListener } from './lib/tauri-event-listener';
+import { useUiStore } from './store/ui-store';
 
 function App() {
   const { resolvedTheme } = useTheme();
+  const fontFamily = useUiStore(state => state.fontFamily);
+  const fontSize = useUiStore(state => state.fontSize);
 
   console.debug('<App>');
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm">
+    <div
+      className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm"
+      style={{ fontFamily: fontFamily, fontSize: 0 < fontSize ? fontSize : undefined }}
+    >
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <HotKeys />
         <Menu />

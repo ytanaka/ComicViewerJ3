@@ -14,6 +14,9 @@ export const MAX_TAB_NUM_LIMIT = 30;
 export const THUMBNAIL_SIZE_LIST = [64, 96, 128, 192, 256, 384, 512];
 export const THUMBNAIL_SIZE_DEFAULT = 128;
 
+export const FONT_FAMILY_LIST = ['serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui', 'ui-serif', 'ui-sans-serif', 'ui-monospace', 'ui-rounded', 'fangsong'];
+export const DEFAULT_FONT_FAMILY = 'sans-serif';
+
 // localStrage に保存するUIの設定
 export interface UiState {
   // 設定画面でデバッグ項目を編集可能にする
@@ -23,6 +26,10 @@ export interface UiState {
 
   // 最大タブ数
   maxTabNum: number;
+
+  // アプリで使用するフォント
+  fontFamily: string;
+  fontSize: number;
 
   // ファイル検索テキスト入力のタイムアウト
   fileSearchInputTimeoutMs: number;
@@ -49,6 +56,9 @@ export const useUiStore = create<UiState_and_Action>()(
       debugPreferenceOn: false,
       preferenceDialogTabId: 'general',
       maxTabNum: 10,
+
+      fontFamily: DEFAULT_FONT_FAMILY,
+      fontSize: 0,
 
       fileSearchInputTimeoutMs: 2000,
       fileSearchResultDisplayTimeoutMs: 2000,
