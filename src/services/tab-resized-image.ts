@@ -7,22 +7,22 @@ import { usePreferences } from './preferences';
 import { Dimension } from '@/lib/bindings';
 import { myQueryClient } from '@/lib/query-client';
 
-function queryKey_useResizedImagePath(tabId: TabId, fileId: FileId | undefined, size: Dimension | null) {
+function queryKey_useResizedImage(tabId: TabId, fileId: FileId | undefined, size: Dimension | null) {
   return [...queryKey_tabId(tabId), 'getResizedImg', fileId, size?.width, size?.height];
 }
-function queryKey_useResizedImagePath_no_dimension(tabId: TabId, fileId: FileId | undefined) {
+function queryKey_useResizedImage_no_dimension(tabId: TabId, fileId: FileId | undefined) {
   return [...queryKey_tabId(tabId), 'getResizedImg', fileId];
 }
 
 let running = 0;
 
-export function useResizedImagePath(tabId: TabId, dirEntry: DirEntry | undefined, size: Dimension | null) {
+export function useResizedImage(tabId: TabId, dirEntry: DirEntry | undefined, size: Dimension | null) {
   const { data: pref } = usePreferences();
   const LIMIT = pref?.resize_image_command_limit ?? 4;
   const enable = !!size && dirEntry && isPictureFileExtension(dirEntry.name);
 
   return useQuery({
-    queryKey: queryKey_useResizedImagePath(tabId, dirEntry?.file_id, size),
+    queryKey: queryKey_useResizedImage(tabId, dirEntry?.file_id, size),
     enabled: enable,
     retry: enable,
     retryDelay: 10,
@@ -53,6 +53,6 @@ export function useResizedImagePath(tabId: TabId, dirEntry: DirEntry | undefined
     },
   });
 }
-export function removeQueries_resizedImagePath(tabId: TabId, fileId: FileId | undefined) {
-  myQueryClient.removeQueries({ queryKey: queryKey_useResizedImagePath_no_dimension(tabId, fileId) });
+export function removeQueries_resizedImage(tabId: TabId, fileId: FileId | undefined) {
+  myQueryClient.removeQueries({ queryKey: queryKey_useResizedImage_no_dimension(tabId, fileId) });
 }

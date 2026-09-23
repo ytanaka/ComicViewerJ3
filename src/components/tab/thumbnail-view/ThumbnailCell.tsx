@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { convertFileSrc } from '@tauri-apps/api/core';
 
 import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
-import { useThumbnailPath } from '@/services/tab-thumbnail';
+import { useThumbnail } from '@/services/tab-thumbnail';
 import { THUMBNAIL_CELL_CLASSNAME } from './Thumbnails';
 import { useTabStore } from '@/store/tab/store';
 import { useFileInfo1Query } from '@/services/tab-file-info';
@@ -30,7 +30,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   }
 
   // サムネイル画像ファイル作成
-  const { data: thumbData } = useThumbnailPath(tab.id, dirEntry, thumbSize);
+  const { data: thumbData } = useThumbnail(tab.id, dirEntry, thumbSize);
   if (!dirEntry.is_dir && thumbData?.type === 'Fail') {
     toolTipMsg += `\n\n画像読み込みエラー:\n${thumbData.error_msg}`;
   }

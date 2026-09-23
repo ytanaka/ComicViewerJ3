@@ -9,10 +9,10 @@ import { getImageWH } from './iamge-view-size-helper';
 import { useUiStore } from '@/store/ui-store';
 import { imageView_handleKeyDown } from '@/lib/event-handler/image-view-key-handler';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { useResizedImagePath } from '@/services/tab-resized-image';
+import { useResizedImage } from '@/services/tab-resized-image';
 import { Dimension } from '@/lib/bindings';
 import { useImageSize } from '@/services/tab-image-size';
-import { useImageFullpath } from '@/hooks/use-image-fullpath';
+import { useOriginalImage } from '@/hooks/use-original-image';
 import { ImageViewCell } from './ImageViewCell';
 import { zoomDimension } from '@/lib/tools/image-zoom';
 
@@ -57,28 +57,28 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   useImageSize(tab.id, dirEntries?.[focusIndex - 2]);
 
   // オリジナル画像ファイルのフルパス
-  const { data: originalImagePaths } = useImageFullpath(tab.id);
+  const { data: originalImages } = useOriginalImage(tab.id);
 
   // 画像ファイル取得
   const zoomedDivSize = zoomDimension(zoomLevel, originalSize ? imageSize0 : divSize);
   function ent(fileIndex: number) {
     return originalSize ? undefined : dirEntries?.[fileIndex];
   }
-  const { data: img0 } = useResizedImagePath(tab.id, ent(focusIndex), zoomedDivSize);
+  const { data: img0 } = useResizedImage(tab.id, ent(focusIndex), zoomedDivSize);
   if (img0?.type === 'Fail') {
     // TODO
     console.error(`${img0.error_msg}`);
   }
-  const { data: img1 } = useResizedImagePath(tab.id, ent(focusIndex + 1), zoomedDivSize);
-  const { data: img2 } = useResizedImagePath(tab.id, ent(focusIndex + 2), zoomedDivSize);
-  const { data: img3 } = useResizedImagePath(tab.id, ent(focusIndex + 3), zoomedDivSize);
-  useResizedImagePath(tab.id, originalSize ? undefined : dirEntries?.[focusIndex - 1], zoomedDivSize);
-  useResizedImagePath(tab.id, originalSize ? undefined : dirEntries?.[focusIndex - 2], zoomedDivSize);
+  const { data: img1 } = useResizedImage(tab.id, ent(focusIndex + 1), zoomedDivSize);
+  const { data: img2 } = useResizedImage(tab.id, ent(focusIndex + 2), zoomedDivSize);
+  const { data: img3 } = useResizedImage(tab.id, ent(focusIndex + 3), zoomedDivSize);
+  useResizedImage(tab.id, originalSize ? undefined : dirEntries?.[focusIndex - 1], zoomedDivSize);
+  useResizedImage(tab.id, originalSize ? undefined : dirEntries?.[focusIndex - 2], zoomedDivSize);
 
   // 最終表示画像取得 (i: 0-3) 原寸表示時は、リサイズしない画像ファイル名を返す
-  function getResizedImagePath(i: number) {
+  function getResizedImage(i: number) {
     const imgs = [img0, img1, img2, img3];
-    if (originalSize) return originalImagePaths?.[focusIndex + i];
+    if (originalSize) return originalImages?.[focusIndex + i];
     const result = imgs[i];
     if (result?.type === 'Ok') return result.filename;
     return undefined;
@@ -148,11 +148,11 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   const imgViewCell0 = (
     <ImageViewCell
-      key={`${tab.id}/${focusIndex}/${getResizedImagePath(0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
+      key={`${tab.id}/${focusIndex}/${getResizedImage(0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
       tab={tab}
       dirEntry={dirEntries?.[focusIndex]}
-      originalImagePath={originalImagePaths?.[focusIndex]}
-      resizedImagePath={getResizedImagePath(0)}
+      originalImage={originalImages?.[focusIndex]}
+      resizedImage={getResizedImage(0)}
       size={styleImgSize0}
       hidden={false}
       debugPrint={true}
@@ -160,11 +160,11 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   );
   const imgViewCell1 = (
     <ImageViewCell
-      key={`${tab.id}/${focusIndex + 1}/${getResizedImagePath(1)}`}
+      key={`${tab.id}/${focusIndex + 1}/${getResizedImage(1)}`}
       tab={tab}
       dirEntry={dirEntries?.[focusIndex + 1]}
-      originalImagePath={originalImagePaths?.[focusIndex + 1]}
-      resizedImagePath={getResizedImagePath(1)}
+      originalImage={originalImages?.[focusIndex + 1]}
+      resizedImage={getResizedImage(1)}
       size={styleImgSize1}
       hidden={!dualView}
     />
@@ -173,8 +173,8 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     <ImageViewCell
       key={`${tab.id}/${focusIndex + 2}`}
       tab={tab}
-      originalImagePath={originalImagePaths?.[focusIndex + 2]}
-      resizedImagePath={getResizedImagePath(2)}
+      originalImage={originalImages?.[focusIndex + 2]}
+      resizedImage={getResizedImage(2)}
       hidden={true}
     />
   );
@@ -182,8 +182,8 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     <ImageViewCell
       key={`${tab.id}/${focusIndex + 3}`}
       tab={tab}
-      originalImagePath={originalImagePaths?.[focusIndex + 3]}
-      resizedImagePath={getResizedImagePath(3)}
+      originalImage={originalImages?.[focusIndex + 3]}
+      resizedImage={getResizedImage(3)}
       hidden={true}
     />
   );

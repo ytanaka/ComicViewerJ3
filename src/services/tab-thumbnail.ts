@@ -5,18 +5,18 @@ import { DirEntry, handleRustCmdResult, rustcmds } from '@/lib/bindings-wrapper'
 import { isPictureFileExtension } from '@/lib/tools/string-util';
 import { usePreferences } from './preferences';
 
-function queryKey_useThumbnailPath(tabId: TabId, fileId: FileId, size: number) {
+function queryKey_useThumbnail(tabId: TabId, fileId: FileId, size: number) {
   return [...queryKey_tabId(tabId), 'getThumbnail', fileId, size];
 }
 
 let running = 0;
 
-export function useThumbnailPath(tabId: TabId, dirEntry: DirEntry, size: number) {
+export function useThumbnail(tabId: TabId, dirEntry: DirEntry, size: number) {
   const { data: pref } = usePreferences();
   const LIMIT = pref?.thumbnail_command_limit ?? 4;
 
   return useQuery({
-    queryKey: queryKey_useThumbnailPath(tabId, dirEntry.file_id, size),
+    queryKey: queryKey_useThumbnail(tabId, dirEntry.file_id, size),
     enabled: isPictureFileExtension(dirEntry.name) || dirEntry.is_dir,
     retry: true,
     retryDelay: 10,

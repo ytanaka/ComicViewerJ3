@@ -1,12 +1,12 @@
 import { Dimension } from '@/lib/bindings';
 import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
-import { removeQueries_resizedImagePath } from '@/services/tab-resized-image';
+import { removeQueries_resizedImage } from '@/services/tab-resized-image';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { useState } from 'react';
 
 export interface ImageViewCellProps {
-  originalImagePath: string | undefined;
-  resizedImagePath: string | undefined;
+  originalImage: string | undefined;
+  resizedImage: string | undefined;
   tab: TabInfo;
   dirEntry?: DirEntry;
   size?: Dimension;
@@ -24,7 +24,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
 
   if (props.debugPrint) {
     console.debug(
-      `<ImageViewCell> ${props.dirEntry?.name} (${props.size?.width}x${props.size?.height}) ${props.originalImagePath} ${props.resizedImagePath}`
+      `<ImageViewCell> ${props.dirEntry?.name} (${props.size?.width}x${props.size?.height}) ${props.originalImage} ${props.resizedImage}`
     );
   }
 
@@ -32,7 +32,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
     console.info(
       `failed get resized image. remove query cache and re-create file. tabId=${props.tab.id} fileId=${props.dirEntry?.file_id}`
     );
-    removeQueries_resizedImagePath(props.tab.id, props.dirEntry?.file_id);
+    removeQueries_resizedImage(props.tab.id, props.dirEntry?.file_id);
   }
 
   return (
@@ -44,7 +44,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
       }}
     >
       <img
-        src={getAssetUrl(props.resizedImagePath)}
+        src={getAssetUrl(props.resizedImage)}
         draggable={false}
         style={{
           ...props.size,
@@ -57,7 +57,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
       />
       {!readyResizedImage && (
         <img
-          src={getAssetUrl(props.originalImagePath)}
+          src={getAssetUrl(props.originalImage)}
           draggable={false}
           style={{
             ...props.size,
