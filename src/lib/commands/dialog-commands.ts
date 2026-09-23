@@ -15,4 +15,7 @@ export const dialogCommands = {
   openBookmark() {
     useUiVolatileStore.getState().setField('showBookmarkManager', true);
   },
+  closeBookmark() {
+    useUiVolatileStore.getState().setField('showBookmarkManager', false);
+  },
 };

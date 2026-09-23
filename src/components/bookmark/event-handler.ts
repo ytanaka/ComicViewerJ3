@@ -1,3 +1,5 @@
+import { dialogCommands } from '@/lib/commands/dialog-commands';
+import { tabCommands } from '@/lib/commands/tab-commands';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { useBookmarkStore } from '@/store/bookmark-store';
 import { useTabStore } from '@/store/tab/store';
@@ -16,7 +18,11 @@ export function bookmark_eventhandler(e: KeyboardEvent): boolean {
 
   const focusIndex = bk().focusIndex;
 
-  if (NO_MOD && e.key === 'ArrowDown') {
+  if (NO_MOD && e.key === 'Enter') {
+    bookmarkCommands.newTab();
+    dialogCommands.closeBookmark()
+    return true;
+  } else if (NO_MOD && e.key === 'ArrowDown') {
     bk().setFocus(focusIndex + 1);
     return true;
   } else if (NO_MOD && e.key === 'ArrowUp') {
@@ -62,4 +68,14 @@ export const bookmarkCommands = {
     const focusIndex = bk().focusIndex;
     useBookmarkStore.getState().moveBookmark(focusIndex, i);
   },
+
+  async newTab() {
+    const b = bk().list[bk().focusIndex];
+    await tabCommands.cloneTab(b.dir);
+
+    const tab = tb().getCurrentTab();
+    if (!tab) return;
+    tb().setViewMode(tab.info.id, b.mode);
+    tb().pushHistory(tab.info.id, b.dir, b.item);
+  }
 };
