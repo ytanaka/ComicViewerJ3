@@ -17,21 +17,6 @@ export function GeneralPanel() {
       <FieldGroup>
         <Separator />
         <Field>
-          <FieldLabel>タブ数制限</FieldLabel>
-          <InputGroup className="max-w-40">
-            <InputGroupInput
-              type="number"
-              min={1}
-              max={MAX_TAB_NUM_LIMIT}
-              step={1}
-              onChange={e => setField('maxTabNum', Number(e.target.value))}
-              value={maxTabNum}
-            />
-          </InputGroup>
-          <FieldDescription>最大 {MAX_TAB_NUM_LIMIT}</FieldDescription>
-        </Field>
-        <Separator />
-        <Field>
           <FieldLabel>フォント</FieldLabel>
           <NativeSelect className='max-w-40' value={fontFamily} onChange={(e) => { setField('fontFamily', e.target.value) }}>
             {FONT_FAMILY_LIST.map(item => (
@@ -57,6 +42,21 @@ export function GeneralPanel() {
             フォントの表示例です。<br />
             あいうえおABC123.456.789 漢字テスト「日本語Font Sample」
           </div>
+        </Field>
+        <Separator />
+        <Field>
+          <FieldLabel>タブ数制限</FieldLabel>
+          <InputGroup className="max-w-40">
+            <InputGroupInput
+              type="number"
+              min={1}
+              max={MAX_TAB_NUM_LIMIT}
+              step={1}
+              onChange={e => setField('maxTabNum', Number(e.target.value))}
+              value={maxTabNum}
+            />
+          </InputGroup>
+          <FieldDescription>最大 {MAX_TAB_NUM_LIMIT}</FieldDescription>
         </Field>
       </FieldGroup>
     </FieldSet >
