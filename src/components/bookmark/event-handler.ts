@@ -18,17 +18,33 @@ export function bookmark_eventhandler(e: KeyboardEvent, newBookmark: Bookmark): 
 
   const focusIndex = bk().focusIndex;
 
+  // 選択されたブックマークでタブを開く
   if (NO_MOD && e.key === 'Enter') {
     bookmarkCommands.newTab();
-    dialogCommands.closeBookmark()
+    dialogCommands.closeBookmark();
     return true;
-  } else if (NO_MOD && e.key === 'ArrowDown') {
+  }
+
+  // カーソル移動
+  if (NO_MOD && e.key === 'ArrowDown') {
     bk().setFocus(focusIndex + 1);
     return true;
   } else if (NO_MOD && e.key === 'ArrowUp') {
     bk().setFocus(focusIndex - 1);
     return true;
-  } else if (ALT_ONLY && e.key === 'a') {
+  } else if (NO_MOD && e.key === 'Home') {
+    bk().setFocus(0);
+    return true;
+  } else if (NO_MOD && e.key === 'End') {
+    bk().setFocus(bk().list.length - 1);
+    return true;
+  } else if (NO_MOD && (e.key === 'PageUp' || e.key === 'PageDown')) {
+    // 何もしない
+    return true;
+  }
+
+  // コマンド
+  if (ALT_ONLY && e.key === 'a') {
     bookmarkCommands.add(newBookmark);
     return true;
   } else if (ALT_ONLY && e.key === 'd') {
@@ -74,5 +90,5 @@ export const bookmarkCommands = {
     tb().setViewMode(tab.info.id, b.mode);
     tb().setThumbnailSize(tab.info.id, b.thumbnailSize);
     tb().pushHistory(tab.info.id, b.dir, b.name);
-  }
+  },
 };
