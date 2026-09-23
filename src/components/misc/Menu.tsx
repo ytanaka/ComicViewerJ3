@@ -113,6 +113,7 @@ function MenuFileView() {
         <MyMenuItem m={menuItems.renameFile} />
         <MenubarSeparator />
         <MyMenuItem m={menuItems.preference} />
+        <MyMenuItem m={menuItems.bookmark} />
       </MyMenubarMenu>
       {/* -------------------------------------------------------------------------------------------------------- */}
       <MyMenubarMenu name="検索">

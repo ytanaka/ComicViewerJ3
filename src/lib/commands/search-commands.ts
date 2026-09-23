@@ -39,7 +39,7 @@ function searchNextPrev(next: boolean): boolean {
 function showSearchHelp(): boolean {
   toast.info('ファイル名を検索するときは、IMEをOFFにしてローマ字入力してください。', {
     id: 'showSearchHelp',
-    duration: 5000,
+    duration: 10000,
     description: 'ファイルが見つかった後、次のファイルを検索するには CTRL+N、前のファイルを検索するには CTRL+P',
   });
   return false;

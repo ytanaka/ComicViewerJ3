@@ -19,6 +19,7 @@ import {
   SearchX,
   ScanSearch,
   Square,
+  Bookmark,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -79,6 +80,7 @@ function ButtonsFileView() {
     <>
       <B icon={<FolderOpen />} m={menuItems.openDir} />
       <B icon={<Settings />} m={menuItems.preference} />
+      <B icon={<Bookmark />} m={menuItems.bookmark} />
       <Separator orientation="vertical" className="m-1" />
 
       <B icon={<Scissors />} m={menuItems.cutFile} />
