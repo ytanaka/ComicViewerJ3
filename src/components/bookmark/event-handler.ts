@@ -1,7 +1,7 @@
 import { dialogCommands } from '@/lib/commands/dialog-commands';
 import { tabCommands } from '@/lib/commands/tab-commands';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
-import { useBookmarkStore } from '@/store/bookmark-store';
+import { Bookmark, useBookmarkStore } from '@/store/bookmark-store';
 import { useTabStore } from '@/store/tab/store';
 
 function bk() {
@@ -11,7 +11,7 @@ function tb() {
   return useTabStore.getState();
 }
 
-export function bookmark_eventhandler(e: KeyboardEvent): boolean {
+export function bookmark_eventhandler(e: KeyboardEvent, newBookmark: Bookmark): boolean {
   const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
   const NO_MOD = !C && !S && !A;
   const ALT_ONLY = !C && !S && A;
@@ -29,7 +29,7 @@ export function bookmark_eventhandler(e: KeyboardEvent): boolean {
     bk().setFocus(focusIndex - 1);
     return true;
   } else if (ALT_ONLY && e.key === 'a') {
-    bookmarkCommands.add();
+    bookmarkCommands.add(newBookmark);
     return true;
   } else if (ALT_ONLY && e.key === 'd') {
     bookmarkCommands.remove();
@@ -46,18 +46,13 @@ export function bookmark_eventhandler(e: KeyboardEvent): boolean {
 }
 
 export const bookmarkCommands = {
-  add() {
+  add(newBookmark: Bookmark) {
     const tab = tb().getCurrentTab();
     if (!tab) return;
     const dirEntries = getQueryData_getDirEntries(tab.info.id);
     if (!dirEntries) return;
 
-    useBookmarkStore.getState().addBookmark({
-      dir: tab.info.path,
-      item: dirEntries[tab.selection.focusIndex].name,
-      mode: tab.fileViewMode,
-      thumbnailSize: tab.thumbnailSize,
-    });
+    useBookmarkStore.getState().addBookmark(newBookmark);
   },
 
   remove() {
@@ -78,6 +73,6 @@ export const bookmarkCommands = {
     if (!tab) return;
     tb().setViewMode(tab.info.id, b.mode);
     tb().setThumbnailSize(tab.info.id, b.thumbnailSize);
-    tb().pushHistory(tab.info.id, b.dir, b.item);
+    tb().pushHistory(tab.info.id, b.dir, b.name);
   }
 };

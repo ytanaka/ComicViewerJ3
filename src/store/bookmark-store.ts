@@ -10,7 +10,7 @@ export interface BookmarkStore {
 
 export interface Bookmark {
   dir: string;
-  item: string;
+  name: string;
   mode: FileViewMode;
   thumbnailSize: number;
 }
