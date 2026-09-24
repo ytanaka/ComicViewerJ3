@@ -150,12 +150,20 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   function getImageInfoString() {
     const list = [];
     if (useUiVolatileStore.getState().isFullscreen) list.push(tab.path);
-    if (imageSize0) list.push(`${dualView ? "1枚目: " : ""}${dirEntries?.[focusIndex].name} (${imageSize0.width} × ${imageSize0.height})`);
-    if (dualView && imageSize1) list.push(`2枚目: ${dirEntries?.[focusIndex + 1].name} (${imageSize1.width} × ${imageSize1.height})`);
-    list.push(`${originalSize ? "元画像の" : "画面の"} ${Math.round(zoomLevel2ZoomRatio(zoomLevel) * 100)}%で表示`)
-    return <>
-      {list.map((s, i) => <div key={i}>{s}</div>)}
-    </>
+    if (imageSize0)
+      list.push(
+        `${dualView ? '1枚目: ' : ''}${dirEntries?.[focusIndex].name} (${imageSize0.width} × ${imageSize0.height})`
+      );
+    if (dualView && imageSize1)
+      list.push(`2枚目: ${dirEntries?.[focusIndex + 1].name} (${imageSize1.width} × ${imageSize1.height})`);
+    list.push(`${originalSize ? '元画像の' : '画面の'} ${Math.round(zoomLevel2ZoomRatio(zoomLevel) * 100)}%で表示`);
+    return (
+      <>
+        {list.map((s, i) => (
+          <div key={i}>{s}</div>
+        ))}
+      </>
+    );
   }
 
   const imgViewCell0 = (
@@ -236,10 +244,11 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             )}
             {imgViewCell2}
             {imgViewCell3}
-            {showInfo && <div className="absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black">
-              {getImageInfoString()}
-            </div>
-            }
+            {showInfo && (
+              <div className="absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black">
+                {getImageInfoString()}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -54,7 +54,7 @@ export const createImageViewModeActions: StateCreator<
             dualImage: b,
             reverseDualImage: reverse,
             showInfo: tab.imageViewMode.showInfo,
-          }
+          };
         });
       });
     },

@@ -279,6 +279,8 @@ pub struct AppPreferences {
 
     /// ファイル名ソート時の文字比較方法
     pub filename_cmp: FilenameCmpType,
+    /// ファイル名ソート時、先頭の数字を数字として比較
+    pub filename_cmp_by_digit: bool,
 
     /// ファイル名ソート時のCollator設定 (icu_collator::options::Strength)
     /// 'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'
@@ -305,6 +307,7 @@ impl Default for AppPreferences {
             debug_filename_search_sleep_ms: 0,
             filename_cmp: FilenameCmpType::Icu,
             filename_sort_strength: "Identical".to_string(),
+            filename_cmp_by_digit: false,
 
             thumbnail_expiration_days: 30,
             thumbnail_command_limit: std::thread::available_parallelism()
@@ -334,6 +337,7 @@ impl AppPreferences {
     pub fn is_change_sort_config(&self, other: &AppPreferences) -> bool {
         self.filename_cmp != other.filename_cmp
             || self.filename_sort_strength != other.filename_sort_strength
+            || self.filename_cmp_by_digit != other.filename_cmp_by_digit
     }
     pub fn init_default(&mut self) {
         self.default = Some(Box::new(Self::default()));

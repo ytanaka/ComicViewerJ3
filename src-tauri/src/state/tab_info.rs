@@ -112,6 +112,7 @@ impl TabInfo {
 
     fn sort_items(&mut self) {
         let cmp = mk_filename_cmp(&self.state);
+        let cmp_by_digit = self.state.preferences.read().unwrap().filename_cmp_by_digit;
         let need_metadata = !matches!(
             self.sort_condition.sort_type,
             crate::types::SortType::Name | crate::types::SortType::Ext
@@ -129,7 +130,14 @@ impl TabInfo {
             }
             let a = self.files.get(a).unwrap();
             let b = self.files.get(b).unwrap();
-            cmp_file(a, b, &self.sort_condition, cmp.as_ref(), &mut sjis_cache)
+            cmp_file(
+                a,
+                b,
+                &self.sort_condition,
+                cmp.as_ref(),
+                &mut sjis_cache,
+                cmp_by_digit,
+            )
         });
         self.sorted_list = Some(list);
         self.generation += 1;

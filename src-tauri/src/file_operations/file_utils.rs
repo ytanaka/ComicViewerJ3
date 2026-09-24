@@ -62,10 +62,11 @@ pub fn touch_file(file: impl AsRef<Path>) -> anyhow::Result<()> {
 
 pub fn sort_by_name(state: &AppState, list: &mut [FileInfoOS]) {
     let cmp = mk_filename_cmp(state);
+    let cmp_by_digit = state.preferences.read().unwrap().filename_cmp_by_digit;
     let sort = SortCondition {
         sort_type: crate::types::SortType::Name,
         asc: true,
     };
     let mut sjis_cache = SJIS_CACHE.lock().unwrap();
-    list.sort_by(|a, b| cmp_file(a, b, &sort, cmp.as_ref(), &mut sjis_cache));
+    list.sort_by(|a, b| cmp_file(a, b, &sort, cmp.as_ref(), &mut sjis_cache, cmp_by_digit));
 }

@@ -59,6 +59,8 @@ export type AppPreferences = {
 	debug_filename_search_sleep_ms: number,
 	/**  ファイル名ソート時の文字比較方法 */
 	filename_cmp: FilenameCmpType,
+	/**  ファイル名ソート時、先頭の数字を数字として比較 */
+	filename_cmp_by_digit: boolean,
 	/**
 	 *  ファイル名ソート時のCollator設定 (icu_collator::options::Strength)
 	 *  'Primary', 'Secondary', 'Tertiary', 'Quaternary', 'Identical'

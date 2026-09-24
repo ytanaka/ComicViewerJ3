@@ -125,6 +125,7 @@ export function mkAppPreferencesDefault(): AppPreferences {
     debug_filename_search_sleep_ms: 0,
     filename_sort_strength: 'Identical',
     filename_cmp: { type: 'Icu' },
+    filename_cmp_by_digit: false,
     thumbnail_expiration_days: 0,
     thumbnail_command_limit: 5,
     resize_image_command_limit: 5,

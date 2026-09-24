@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, ffi::OsStr, path::Path};
+use std::{borrow::Cow, cmp::Ordering, ffi::OsStr, path::Path};
 
 use icu::locale::locale;
 use icu_collator::{options::CollatorOptions, Collator, CollatorBorrowed};
@@ -16,7 +16,8 @@ pub fn cmp_file(
     f2: &FileInfoOS,
     sort: &SortCondition,
     filname_cmp: &dyn FilenameCmp,
-    sjis_cache: &mut SjisCache,
+    sjis_cache: &mut SjisCache, // 1ファイル比較ごとにロックしたくないので、呼び出しもとでロックした結果を渡す
+    cmp_by_digit: bool,
 ) -> Ordering {
     // ディレクトリとファイルを比較する場合
     let cmp = match (f1.is_dir, f2.is_dir) {
@@ -31,7 +32,16 @@ pub fn cmp_file(
 
     // ファイル同士 or ディレクトリ同士
     let cmp = match sort.sort_type {
-        SortType::Name => filname_cmp.cmp(&f1.name, &f2.name, sjis_cache),
+        SortType::Name => {
+            if cmp_by_digit {
+                match cmp_prefix_digit(f1.name.to_string_lossy(), f2.name.to_string_lossy()) {
+                    Ordering::Equal => filname_cmp.cmp(&f1.name, &f2.name, sjis_cache),
+                    other => other,
+                }
+            } else {
+                filname_cmp.cmp(&f1.name, &f2.name, sjis_cache)
+            }
+        }
         SortType::Ext => {
             let ext1 = Path::new(&f1.name).extension().unwrap_or_default();
             let ext2 = Path::new(&f2.name).extension().unwrap_or_default();
@@ -138,6 +148,44 @@ impl FilenameCmp for IcuFilenameCmp {
     }
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// ファイル名中の数値で比較
+/// ["abc123.txt"  "abc234.txt"] のように先頭が一致して数値で比較できるなら Less or Greater
+/// ["abc123.txt", "xyz234.txt"] や、["a.txt", "b.txt"], ["1.txt", "1.jpg"] など比較できないときは Equal
+//
+fn cmp_prefix_digit(s1: Cow<'_, str>, s2: Cow<'_, str>) -> Ordering {
+    match (get_prefix_str_digit(s1), get_prefix_str_digit(s2)) {
+        ((s1, Some(n1)), (s2, Some(n2))) => {
+            if s1 == s2 {
+                n1.cmp(&n2)
+            } else {
+                Ordering::Equal
+            }
+        }
+        _ => Ordering::Equal,
+    }
+}
+fn get_prefix_str_digit(s: Cow<'_, str>) -> (String, Option<u64>) {
+    // 先頭の数値以外を抽出
+    let prefix: String = s.chars().take_while(|c| !c.is_ascii_digit()).collect();
+
+    // prefix の直後から連続する数字を抽出
+    let digit_part: String = s[prefix.len()..]
+        .chars()
+        .take_while(|c| c.is_ascii_digit())
+        .collect();
+
+    // 3. 数字があれば u64 に変換
+    let num = if digit_part.is_empty() {
+        None
+    } else {
+        digit_part.parse::<u64>().ok()
+    };
+
+    (prefix, num)
+}
+
 // =============================================================================================
 //
 // #####################   #####################      ###############      #####################
@@ -191,7 +239,7 @@ mod tests {
                 metadata: None,
             };
             let mut sjis_cache = SJIS_CACHE.lock().unwrap();
-            let ret = cmp_file(&f1, &f2, &cond, &cmp, &mut sjis_cache);
+            let ret = cmp_file(&f1, &f2, &cond, &cmp, &mut sjis_cache, false);
             assert_eq!(
                 ret,
                 expect,
