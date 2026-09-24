@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useTabStore } from '@/store/tab/store';
-import { useCmdGetDirEntries } from '@/services/tab-dir-entry';
+import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { Bookmark, useBookmarkStore } from '@/store/bookmark-store';
 import { bookmark_eventhandler, bookmarkCommands } from './event-handler';
 import { ChevronsRight, Grid2X2, Rows3, Square, SquareX } from 'lucide-react';
@@ -15,11 +15,9 @@ import { FileViewMode } from '@/store/tab/types';
 export function BookmarkManager() {
   const showBookmarkManager = useUiVolatileStore(state => state.showBookmarkManager);
   const setVolatileField = useUiVolatileStore(state => state.setField);
-  const tab = useTabStore(state => state.getCurrentTab()!);
   const listRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  const { data: dirEntries } = useCmdGetDirEntries(tab.info);
 
   const list = useBookmarkStore(state => state.list);
   const focusIndex = useBookmarkStore(state => state.focusIndex);
@@ -37,13 +35,23 @@ export function BookmarkManager() {
   }, [showBookmarkManager]); // ダイアログオープン時に毎回呼ばれる
 
   const mkNewBk = useCallback(() => {
+    const tab = useTabStore.getState().getCurrentTab();
+    if (!tab) {
+      return {
+        dir: "",
+        name: '',
+        mode: FileViewMode.List,
+        thumbnailSize: 128,
+      };
+    }
+    const dirEntries = getQueryData_getDirEntries(tab.info.id);
     return {
       dir: tab.info.path,
       name: enableName ? (dirEntries?.[tab.selection.focusIndex].name ?? '') : '',
       mode: tab.fileViewMode,
       thumbnailSize: tab.thumbnailSize,
     };
-  }, [dirEntries, enableName, tab.fileViewMode, tab.info.path, tab.selection.focusIndex, tab.thumbnailSize]);
+  }, [enableName]);
 
   useEffect(() => {
     listRef.current?.focus();
