@@ -40,7 +40,7 @@ export function FileSearchPanel() {
             <br />
             ゆっくり入力したいときは長くしてください
             <br />
-            入力途中で中断して次の検索をしたいときは&quot;ESC&quot;キーを押してください
+            入力途中で中断して次の検索をしたいときは<Kbd>ESC</Kbd>キーを押してください
           </FieldDescription>
         </Field>
         <Separator />

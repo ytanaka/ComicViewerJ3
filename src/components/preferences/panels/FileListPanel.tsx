@@ -85,10 +85,14 @@ export function FileListPanel() {
         </Field>
         <FieldSeparator />
         <Field>
-          <FieldLabel>ファイル名の数字の大小で並べる</FieldLabel>
+          <FieldLabel>ファイル名に含まれる数値で比較</FieldLabel>
           <Switch checked={pref?.filename_cmp_by_digit ?? false} onCheckedChange={handleChange_filename_cmp_digit} />
         </Field>
-        <FieldDescription>img_1.txt → img_2.txt → img_10.txt のように並べる</FieldDescription>
+        <FieldDescription>
+          オン: <code>img1.txt → img2.txt → img10.txt</code>
+          <br />
+          オフ: <code>img1.txt → img10.txt → img2.txt</code>
+        </FieldDescription>
       </FieldGroup>
     </FieldSet>
   );
