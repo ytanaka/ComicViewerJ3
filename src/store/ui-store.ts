@@ -14,7 +14,19 @@ export const MAX_TAB_NUM_LIMIT = 30;
 export const THUMBNAIL_SIZE_LIST = [64, 96, 128, 192, 256, 384, 512];
 export const THUMBNAIL_SIZE_DEFAULT = 128;
 
-export const FONT_FAMILY_LIST = ['serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui', 'ui-serif', 'ui-sans-serif', 'ui-monospace', 'ui-rounded', 'fangsong'];
+export const FONT_FAMILY_LIST = [
+  'serif',
+  'sans-serif',
+  'monospace',
+  'cursive',
+  'fantasy',
+  'system-ui',
+  'ui-serif',
+  'ui-sans-serif',
+  'ui-monospace',
+  'ui-rounded',
+  'fangsong',
+];
 export const DEFAULT_FONT_FAMILY = 'sans-serif';
 
 // localStrage に保存するUIの設定

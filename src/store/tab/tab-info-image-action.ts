@@ -10,6 +10,7 @@ export interface ImageViewModeActions {
   setDualImage: (tabId: TabId, b: boolean, reverse: boolean) => void;
   setZoomLevel: (tabId: TabId, n: number) => void;
   setUseOriginalSize: (tabId: TabId, b: boolean) => void;
+  setShowImageInfo: (tabId: TabId, b: boolean) => void;
 }
 
 export const createImageViewModeActions: StateCreator<
@@ -37,6 +38,7 @@ export const createImageViewModeActions: StateCreator<
           tab.imageViewMode = {
             ...mkImageViewMode(),
             enable: b,
+            showInfo: tab.imageViewMode.showInfo,
           };
         });
       });
@@ -45,9 +47,14 @@ export const createImageViewModeActions: StateCreator<
     setDualImage: (tabId: TabId, b: boolean, reverse: boolean) => {
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
-          tab.imageViewMode.rotate = 0;
-          tab.imageViewMode.dualImage = b;
-          tab.imageViewMode.reverseDualImage = reverse;
+          tab.imageViewMode = {
+            ...mkImageViewMode(),
+            enable: true,
+            rotate: 0,
+            dualImage: b,
+            reverseDualImage: reverse,
+            showInfo: tab.imageViewMode.showInfo,
+          }
         });
       });
     },
@@ -67,7 +74,16 @@ export const createImageViewModeActions: StateCreator<
             ...mkImageViewMode(),
             enable: true,
             useOriginalSize: b,
+            showInfo: tab.imageViewMode.showInfo,
           };
+        });
+      });
+    },
+
+    setShowImageInfo: (tabId: TabId, b: boolean) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
+          tab.imageViewMode.showInfo = b;
         });
       });
     },

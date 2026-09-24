@@ -66,4 +66,12 @@ export const imageCommands = {
     useUiVolatileStore.getState().setField('shouldFullscreenWhenImageView', !full);
     await windowCommands.setFullscreen(!full);
   },
+
+  async toggleShowInfo() {
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+    if (!tab.imageViewMode.enable) return;
+
+    st().setShowImageInfo(tab.info.id, !tab.imageViewMode.showInfo);
+  },
 };

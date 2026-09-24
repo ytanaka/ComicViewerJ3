@@ -53,6 +53,7 @@ export interface ImageViewMode {
   zoomLevel: number;
   rotate: number;
   useOriginalSize: boolean;
+  showInfo: boolean;
 }
 
 // =====================================================================================================================
@@ -100,6 +101,7 @@ export function mkImageViewMode(): ImageViewMode {
     zoomLevel: 0,
     rotate: 0,
     useOriginalSize: false,
+    showInfo: false,
   };
 }
 

@@ -18,14 +18,20 @@ export function GeneralPanel() {
         <Separator />
         <Field>
           <FieldLabel>フォント</FieldLabel>
-          <NativeSelect className='max-w-40' value={fontFamily} onChange={(e) => { setField('fontFamily', e.target.value) }}>
+          <NativeSelect
+            className="max-w-40"
+            value={fontFamily}
+            onChange={e => {
+              setField('fontFamily', e.target.value);
+            }}
+          >
             {FONT_FAMILY_LIST.map(item => (
               <NativeSelectOption key={item} value={item}>
                 {item}
               </NativeSelectOption>
             ))}
           </NativeSelect>
-          <div className='flex items-center'>
+          <div className="flex items-center">
             <InputGroup className="max-w-40">
               <InputGroupInput
                 type="number"
@@ -36,10 +42,14 @@ export function GeneralPanel() {
                 value={fontSize}
               />
             </InputGroup>
-            <FieldDescription className='pl-2'>0: デフォルト</FieldDescription>
+            <FieldDescription className="pl-2">0: デフォルト</FieldDescription>
           </div>
-          <div className='border w-fit' style={{ fontFamily: fontFamily, fontSize: 0 < fontSize ? fontSize : undefined }}>
-            フォントの表示例です。<br />
+          <div
+            className="border w-fit"
+            style={{ fontFamily: fontFamily, fontSize: 0 < fontSize ? fontSize : undefined }}
+          >
+            フォントの表示例です。
+            <br />
             あいうえおABC123.456.789 漢字テスト「日本語Font Sample」
           </div>
         </Field>
@@ -59,6 +69,6 @@ export function GeneralPanel() {
           <FieldDescription>最大 {MAX_TAB_NUM_LIMIT}</FieldDescription>
         </Field>
       </FieldGroup>
-    </FieldSet >
+    </FieldSet>
   );
 }

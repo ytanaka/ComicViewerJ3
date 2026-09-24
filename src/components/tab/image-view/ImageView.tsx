@@ -14,13 +14,14 @@ import { Dimension } from '@/lib/bindings';
 import { useImageSize } from '@/services/tab-image-size';
 import { useOriginalImage } from '@/hooks/use-original-image';
 import { ImageViewCell } from './ImageViewCell';
-import { zoomDimension } from '@/lib/tools/image-zoom';
+import { zoomDimension, zoomLevel2ZoomRatio } from '@/lib/tools/image-zoom';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
   const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
   const zoomLevel = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 0;
   const originalSize = useTabStore(state => state.getCurrentTab()?.imageViewMode.useOriginalSize) ?? false;
+  const showInfo = useTabStore(state => state.getCurrentTab()?.imageViewMode.showInfo === true);
 
   // 画面サイズ管理
   const divRef = useRef<HTMLDivElement>(null);
@@ -146,6 +147,17 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     `<ImageView> ${tab.path} focusIndex=${focusIndex} zoom=${zoomLevel} size=${imageSize0?.width}x${imageSize0?.height} => ${styleImgSize0.width}x${styleImgSize0.height}`
   );
 
+  function getImageInfoString() {
+    const list = [];
+    if (useUiVolatileStore.getState().isFullscreen) list.push(tab.path);
+    if (imageSize0) list.push(`${dualView ? "1枚目: " : ""}${dirEntries?.[focusIndex].name} (${imageSize0.width} × ${imageSize0.height})`);
+    if (dualView && imageSize1) list.push(`2枚目: ${dirEntries?.[focusIndex + 1].name} (${imageSize1.width} × ${imageSize1.height})`);
+    list.push(`${originalSize ? "元画像の" : "画面の"} ${Math.round(zoomLevel2ZoomRatio(zoomLevel) * 100)}%で表示`)
+    return <>
+      {list.map((s, i) => <div key={i}>{s}</div>)}
+    </>
+  }
+
   const imgViewCell0 = (
     <ImageViewCell
       key={`${tab.id}/${focusIndex}/${getResizedImage(0)}`} // 拡大縮小時にコンポーネントをリセットするため、キーにパスを含める
@@ -205,7 +217,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
         ) : (
           // 画像表示
           <div
-            className="flex justify-center items-center min-w-full min-h-full"
+            className="flex justify-center items-center min-w-full min-h-full relative"
             style={{
               width: styleImgSize0.width + styleImgSize1.width,
               height: Math.max(styleImgSize0.height, styleImgSize1.height),
@@ -224,6 +236,10 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             )}
             {imgViewCell2}
             {imgViewCell3}
+            {showInfo && <div className="absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black">
+              {getImageInfoString()}
+            </div>
+            }
           </div>
         )}
       </div>
