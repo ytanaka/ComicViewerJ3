@@ -35,8 +35,7 @@ export const useBookmarkStore = create<BookmarkStor_and_Action>()(
       },
       addBookmark: (b: Bookmark) => {
         set(state => {
-          state.list = [...state.list, b];
-          state.focusIndex = state.list.length - 1;
+          state.list.splice(state.focusIndex, 0, b);
         });
       },
       removeBookmark: (i: number) => {
