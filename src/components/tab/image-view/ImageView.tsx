@@ -150,17 +150,24 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   function getImageInfoString() {
     const list = [];
     if (useUiVolatileStore.getState().isFullscreen) list.push(tab.path);
-    if (imageSize0)
-      list.push(
-        `${dualView ? '1枚目: ' : ''}${dirEntries?.[focusIndex].name} (${imageSize0.width} × ${imageSize0.height})`
-      );
-    if (dualView && imageSize1)
-      list.push(`2枚目: ${dirEntries?.[focusIndex + 1].name} (${imageSize1.width} × ${imageSize1.height})`);
-    list.push(`${originalSize ? '元画像の' : '画面の'} ${Math.round(zoomLevel2ZoomRatio(zoomLevel) * 100)}%で表示`);
+    list.push(`${focusIndex + 1}/${dirEntries?.length}`);
+    if (imageSize0) {
+      let s = `${dualView ? '1枚目: ' : ''}${dirEntries?.[focusIndex].name} `;
+      s += `(${imageSize0.width} × ${imageSize0.height})`
+      list.push(s);
+    }
+    if (dualView && imageSize1) {
+      let s = `2枚目: ${dirEntries?.[focusIndex + 1].name} `;
+      s += `(${imageSize1.width} × ${imageSize1.height})`
+      list.push(s);
+    }
+    list.push(`${originalSize ? 'オリジナル画像の' : '画面サイズの'} ${Math.round(zoomLevel2ZoomRatio(zoomLevel) * 100)}%で表示`);
+    list.push(`  → (${styleImgSize0.width} × ${styleImgSize0.height})`);
+    if (dualView) list.push(`  → (${styleImgSize1.width} × ${styleImgSize1.height})`);
     return (
       <>
         {list.map((s, i) => (
-          <div key={i}>{s}</div>
+          <div key={i} style={{ whiteSpace: 'pre-wrap' }}>{s}</div>
         ))}
       </>
     );
@@ -245,7 +252,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             {imgViewCell2}
             {imgViewCell3}
             {showInfo && (
-              <div className="absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black">
+              <div className="opacity-70 absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black rounded-br-md">
                 {getImageInfoString()}
               </div>
             )}
