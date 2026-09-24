@@ -120,10 +120,12 @@ function TabContent() {
 
       // ファイル検索テキスト入力
       if (!st().getCurrentTab()?.imageViewMode.enable && fileSearchInput_handleKeyDown(e)) {
+        e.preventDefault();
         return;
       }
 
       if (tabFiles_handleKeyDown(e)) {
+        e.preventDefault();
         return;
       }
     };

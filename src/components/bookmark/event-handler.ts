@@ -21,7 +21,6 @@ export function bookmark_eventhandler(e: KeyboardEvent, newBookmark: Bookmark): 
   // 選択されたブックマークでタブを開く
   if (NO_MOD && e.key === 'Enter') {
     bookmarkCommands.newTab();
-    dialogCommands.closeBookmark();
     return true;
   }
 
@@ -90,5 +89,7 @@ export const bookmarkCommands = {
     tb().setViewMode(tab.info.id, b.mode);
     tb().setThumbnailSize(tab.info.id, b.thumbnailSize);
     tb().pushHistory(tab.info.id, b.dir, b.name);
+
+    dialogCommands.closeBookmark();
   },
 };

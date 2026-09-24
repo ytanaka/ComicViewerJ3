@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 
 import { getFileExtension, unixTime2str } from '@/lib/tools/string-util';
 import { useTabStore } from '@/store/tab/store';
-import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
+import { tabFiles_handleMouseClick, tabFiles_handleMouseDoubleClick } from '@/lib/event-handler/tab-files-key-handler';
 import { SearchResult } from '../SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/tab-file-info';
@@ -65,6 +65,9 @@ export function FileListRow({
   function handleClick(e: React.MouseEvent) {
     tabFiles_handleMouseClick(e, tabInfo, fileIndex);
   }
+  function handleDoubleClick(e: React.MouseEvent) {
+    tabFiles_handleMouseDoubleClick(e, tabInfo, fileIndex);
+  }
 
   if (fileIndex === 0) console.debug(`<FileListRow>[${fileIndex}] tabId:${tabInfo.id}`);
 
@@ -72,7 +75,7 @@ export function FileListRow({
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
   return (
-    <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} {...props}>
+    <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} onDoubleClick={handleDoubleClick} {...props}>
       <Icon dirEntry={dirEntry} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tabInfo} />}</FileExt>

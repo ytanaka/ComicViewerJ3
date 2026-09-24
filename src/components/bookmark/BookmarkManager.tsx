@@ -104,6 +104,7 @@ export function BookmarkManager() {
                     focusIndex === i ? 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black' : undefined
                   )}
                   onClick={() => useBookmarkStore.getState().setFocus(i)}
+                  onDoubleClick={() => { bookmarkCommands.newTab(); }}
                 >
                   <Item bk={b} />
                 </li>

@@ -4,10 +4,11 @@ import { useTabStore } from '@/store/tab/store';
 import { searchHelper } from '../commands/search-helper';
 import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
-import { TabInfo } from '../bindings-wrapper';
+import { DirEntry, TabInfo } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 import { searchCommands } from '../commands/search-commands';
+import { UiTab } from '@/store/tab/types';
 import { isPictureFileExtension } from '../tools/string-util';
 
 function st() {
@@ -97,7 +98,6 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     } else {
       return false;
     }
-    e.preventDefault();
     const doScroll = useListScrollHandlerStore.getState().doScroll;
     if (doScroll) doScroll(index);
 
@@ -109,7 +109,6 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && e.key === ' ') {
     st().toggleSelection(tabInfo.id, focusIndex);
-    e.preventDefault();
     return true;
   }
 
@@ -118,7 +117,6 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && keyLow === 'a') {
     st().toggleAllSelection(tabInfo.id);
-    e.preventDefault();
     return true;
   }
 
@@ -127,29 +125,30 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   // -------------------------------------------------------------------------------------------------------------------
   if (NO_MOD && e.key === 'Enter') {
     const ent = dirEntries[sel.focusIndex];
-    if (!ent.is_dir) {
-      // 画像表示
-      if (isPictureFileExtension(ent.name) && !tab.imageViewMode.enable) {
-        st().setImageView(tabInfo.id, true);
-        e.preventDefault();
-        return true;
-      }
-      return false;
-    }
-
-    if (!tab.imageViewMode.enable) {
-      fileCommands.moveToChildDirectory(ent);
-      e.preventDefault();
-      return true;
-    }
+    return actionForDirEntry(tab, ent);
   }
   if (NO_MOD && e.key === 'Backspace') {
     fileCommands.moveToParentDir();
     st().setImageView(tabInfo.id, false);
-    e.preventDefault();
     return true;
   }
 
+  return false;
+}
+
+function actionForDirEntry(tab: UiTab, ent: DirEntry): boolean {
+  if (tab.imageViewMode.enable) return false;
+
+  if (ent.is_dir) {
+    fileCommands.moveToChildDirectory(ent);
+    return true;
+  } else {
+    if (isPictureFileExtension(ent.name)) {
+      // 画像表示
+      st().setImageView(tab.info.id, true);
+      return true;
+    }
+  }
   return false;
 }
 
@@ -172,6 +171,28 @@ export function tabFiles_handleMouseClick(e: React.MouseEvent, tabInfo: TabInfo,
     st().moveFocusWithSelectionArea(tabId, fileIndex);
   } else {
     return false;
+  }
+
+  e.preventDefault();
+  return true;
+}
+
+export function tabFiles_handleMouseDoubleClick(e: React.MouseEvent, tabInfo: TabInfo, fileIndex: number): boolean {
+  const tab = st().getTab(tabInfo.id);
+  if (!tab) return false;
+
+  console.log("DDDDDDDDDDDDDD", e);
+  const dirEntries = getQueryData_getDirEntries(tabInfo.id);
+  if (dirEntries === undefined) return false;
+
+  const [C, S, A] = [e.ctrlKey, e.shiftKey, e.altKey];
+  const NO_MOD = !C && !S && !A;
+
+  // ファイル検索検索キャンセル
+  searchHelper.cancel();
+
+  if (NO_MOD) {
+    if (!actionForDirEntry(tab, dirEntries[fileIndex])) return false;
   }
 
   e.preventDefault();

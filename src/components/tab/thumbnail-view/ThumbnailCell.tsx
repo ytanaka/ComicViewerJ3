@@ -8,7 +8,7 @@ import { useThumbnail } from '@/services/tab-thumbnail';
 import { THUMBNAIL_CELL_CLASSNAME } from './Thumbnails';
 import { useTabStore } from '@/store/tab/store';
 import { useFileInfo1Query } from '@/services/tab-file-info';
-import { tabFiles_handleMouseClick } from '@/lib/event-handler/tab-files-key-handler';
+import { tabFiles_handleMouseClick, tabFiles_handleMouseDoubleClick } from '@/lib/event-handler/tab-files-key-handler';
 import { unixTime2str } from '@/lib/tools/string-util';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';
 import { SearchResult } from '../SearchResult';
@@ -39,6 +39,9 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   function handleClick(e: React.MouseEvent) {
     tabFiles_handleMouseClick(e, tab, fileIndex);
   }
+  function handleDoubleClick(e: React.MouseEvent) {
+    tabFiles_handleMouseDoubleClick(e, tab, fileIndex);
+  }
 
   if (fileIndex === 0) console.debug(`<ThumbnailCell>[${fileIndex}] tabId:${tab.id}`);
 
@@ -49,6 +52,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
     <div
       className={cn(THUMBNAIL_CELL_CLASSNAME, border, 'overflow-clip', isSelected && select_style)}
       onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
       title={toolTipMsg}
     >
       <div>
