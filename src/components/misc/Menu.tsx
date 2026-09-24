@@ -170,6 +170,8 @@ function MenuImageView() {
       <MyMenubarMenu name="画像">
         <MyMenuItem m={menuItems.endImageViewMode} />
         <MenubarSeparator />
+        <MyMenuItem m={menuItems.toggleImageInfo} />
+        <MenubarSeparator />
         <MyMenuItem m={menuItems.imageZoomIn} />
         <MyMenuItem m={menuItems.imageZoomOut} />
         <MyMenuItem m={menuItems.imageFit} />

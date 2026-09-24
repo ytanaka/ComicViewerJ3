@@ -205,6 +205,7 @@ export const menuItems = {
   // -------------------- Image View --------------------
 
   endImageViewMode: M('画像表示モードをやめる', imageCommands.exitImageView, '### Escape'),
+  toggleImageInfo: M('画像情報表示ON/OFF', imageCommands.toggleShowInfo, '### i', isImageView),
   imageZoomIn: M('画像拡大', () => imageCommands.incZoom(1), '### +', notImageZoomMax),
   imageZoomOut: M('画像縮小', () => imageCommands.incZoom(-1), '### -', notImageZoomMin),
   imageFit: M('画像を画面にフィットさせて表示', imageCommands.fitWindow, '### Enter', notImageFitScreen),
