@@ -14,6 +14,7 @@ import { searchCommands } from '../commands/search-commands';
 import { UiTab } from '@/store/tab/types';
 import { isPictureFileExtension } from '../tools/string-util';
 import { getUIStore_checkInvokeByOsExt } from '@/store/ui-store';
+import { toast } from 'sonner';
 
 function st() {
   return useTabStore.getState();
@@ -96,6 +97,13 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     let index = newIndex;
     index = Math.min(index, dirEntries.length - 1);
     index = Math.max(index, 0);
+    if (tab.imageViewMode.enable && index === focusIndex) {
+      toast.info('これ以上移動できません', {
+        id: 'mo-more-files',
+        duration: 1000,
+      });
+    }
+
     if (NO_MOD) {
       st().moveFocusNormal(tabInfo.id, index as number);
     } else if (CTRL_ONLY) {
