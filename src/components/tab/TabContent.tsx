@@ -147,7 +147,7 @@ function TabContent() {
     const focus = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
     if (focus === undefined) return;
     const dirEntry = dirEntries[focus];
-    if (dirEntry.is_dir) return;
+    if (!dirEntry || dirEntry.is_dir) return;
     if (!isPictureFileExtension(dirEntry.name)) return;
 
     useTabStore.getState().setImageView(tab.id, true);
