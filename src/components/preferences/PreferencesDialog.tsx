@@ -15,6 +15,7 @@ import { FileSearchPanel } from './panels/FileSearchPanel';
 import { ImageViewPanel } from './panels/ImageViewPanel';
 import { SystemPanel } from './panels/SystemPanel';
 import { ImageQuorityPanel } from './panels/ImageQuorityPanel';
+import { InvokeAppPanel } from './panels/InvokeApp';
 
 const allPanelList = [
   {
@@ -28,6 +29,12 @@ const allPanelList = [
     label: 'ファイル検索',
     icon: Settings2,
     node: FileSearchPanel,
+  },
+  {
+    id: 'invokeApp',
+    label: 'アプリ起動',
+    icon: Settings2,
+    node: InvokeAppPanel,
   },
   {
     id: 'fileList',

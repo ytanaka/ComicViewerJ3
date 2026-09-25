@@ -75,7 +75,13 @@ export function FileListRow({
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
   return (
-    <tr title={errorMsg} className={`${bg} ${border}`} onClick={handleClick} onDoubleClick={handleDoubleClick} {...props}>
+    <tr
+      title={errorMsg}
+      className={`${bg} ${border}`}
+      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
+      {...props}
+    >
       <Icon dirEntry={dirEntry} />
       <Name dirEntry={dirEntry} />
       <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tabInfo} />}</FileExt>

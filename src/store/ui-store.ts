@@ -29,6 +29,22 @@ export const FONT_FAMILY_LIST = [
 ];
 export const DEFAULT_FONT_FAMILY = 'sans-serif';
 
+export const DEFAULT_INVOKE_EXT_LIST = [
+  'txt',
+  'ini',
+  'json',
+  'log',
+  'zip',
+  'html',
+  'pdf',
+  'xls',
+  'xlsx',
+  'doc',
+  'docx',
+  'odt',
+  'ods',
+];
+
 // localStrage に保存するUIの設定
 export interface UiState {
   // 設定画面でデバッグ項目を編集可能にする
@@ -56,6 +72,9 @@ export interface UiState {
 
   // フルスクリーン時にマウスカーソルを消す
   hideMouseCursorWhenFullscreen: boolean;
+
+  // OSの機能で起動できるファイルの拡張子
+  invokeByOsExt: string[];
 }
 
 type UiState_and_Action = UiState & {
@@ -78,6 +97,8 @@ export const useUiStore = create<UiState_and_Action>()(
 
       fileListHeaderSizes: [35, 500, 100, 120, 180],
       hideMouseCursorWhenFullscreen: true,
+
+      invokeByOsExt: DEFAULT_INVOKE_EXT_LIST,
 
       setField: (key, value) => set({ [key]: value }),
     }),

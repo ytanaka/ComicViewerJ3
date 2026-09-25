@@ -138,6 +138,9 @@ function MenuFileView() {
             <MyMenuItem m={menuItems.sortByTime} />
           </MenubarSubContent>
         </MenubarSub>
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.siblingDirPrev} />
+        <MyMenuItem m={menuItems.siblingDirNext} />
       </MyMenubarMenu>
       {/* -------------------------------------------------------------------------------------------------------- */}
       <MyMenubarMenu name="タブ">
@@ -146,9 +149,6 @@ function MenuFileView() {
         <MenubarSeparator />
         <MyMenuItem m={menuItems.nextTab} />
         <MyMenuItem m={menuItems.prevTab} />
-        <MenubarSeparator />
-        <MyMenuItem m={menuItems.siblingDirPrev} />
-        <MyMenuItem m={menuItems.siblingDirNext} />
       </MyMenubarMenu>
     </>
   );

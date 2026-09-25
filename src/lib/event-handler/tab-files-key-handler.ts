@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { openPath as tauri_openPath } from '@tauri-apps/plugin-opener';
+import { join as tauri_join } from '@tauri-apps/api/path';
+
 import { useTabStore } from '@/store/tab/store';
 import { searchHelper } from '../commands/search-helper';
 import { fileCommands } from '../commands/file-commands';
@@ -9,12 +12,16 @@ import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 import { searchCommands } from '../commands/search-commands';
 import { UiTab } from '@/store/tab/types';
-import { isPictureFileExtension } from '../tools/string-util';
+import { getFileExtension, isPictureFileExtension } from '../tools/string-util';
+import { useUiStore } from '@/store/ui-store';
 
 function st() {
   return useTabStore.getState();
 }
 
+// ######################################################################################################################
+// キーボード
+// ######################################################################################################################
 export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   if (dialogCommands.isOpenAnyDialog()) return false;
   const tab = st().getCurrentTab();
@@ -133,24 +140,27 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     return true;
   }
 
-  return false;
-}
-
-function actionForDirEntry(tab: UiTab, ent: DirEntry): boolean {
-  if (tab.imageViewMode.enable) return false;
-
-  if (ent.is_dir) {
-    fileCommands.moveToChildDirectory(ent);
-    return true;
-  } else {
-    if (isPictureFileExtension(ent.name)) {
-      // 画像表示
-      st().setImageView(tab.info.id, true);
-      return true;
+  // -------------------------------------------------------------------------------------------------------------------
+  // OSに任せる
+  // -------------------------------------------------------------------------------------------------------------------
+  if (CTRL_ONLY && e.key === 'Enter') {
+    if (sel.selectionIndexes.size === 1 && sel.selectionIndexes.has(focusIndex)) {
+      const ent = dirEntries[sel.focusIndex];
+      if (ent.is_dir) {
+        tauri_join(tab.info.path, ent.name).then(path => {
+          tauri_openPath(path);
+        });
+        return true;
+      }
     }
   }
+
   return false;
 }
+
+// ######################################################################################################################
+// クリック
+// ######################################################################################################################
 
 export function tabFiles_handleMouseClick(e: React.MouseEvent, tabInfo: TabInfo, fileIndex: number): boolean {
   const tabId = tabInfo.id;
@@ -177,11 +187,14 @@ export function tabFiles_handleMouseClick(e: React.MouseEvent, tabInfo: TabInfo,
   return true;
 }
 
+// ######################################################################################################################
+// ダブルクリック
+// ######################################################################################################################
+
 export function tabFiles_handleMouseDoubleClick(e: React.MouseEvent, tabInfo: TabInfo, fileIndex: number): boolean {
   const tab = st().getTab(tabInfo.id);
   if (!tab) return false;
 
-  console.log("DDDDDDDDDDDDDD", e);
   const dirEntries = getQueryData_getDirEntries(tabInfo.id);
   if (dirEntries === undefined) return false;
 
@@ -197,4 +210,32 @@ export function tabFiles_handleMouseDoubleClick(e: React.MouseEvent, tabInfo: Ta
 
   e.preventDefault();
   return true;
+}
+
+// ######################################################################################################################
+
+function actionForDirEntry(tab: UiTab, ent: DirEntry): boolean {
+  if (tab.imageViewMode.enable) return false;
+
+  if (ent.is_dir) {
+    fileCommands.moveToChildDirectory(ent);
+    return true;
+  } else {
+    // OSに任せる拡張子
+    const extList = useUiStore.getState().invokeByOsExt;
+    const ext = getFileExtension(ent.name)?.toLowerCase() ?? '';
+    if (extList.find(s => s === ext.toLowerCase())) {
+      tauri_join(tab.info.path, ent.name).then(path => {
+        tauri_openPath(path);
+      });
+      return true;
+    }
+
+    // 画像のデフォルト動作
+    if (isPictureFileExtension(ent.name)) {
+      st().setImageView(tab.info.id, true);
+      return true;
+    }
+  }
+  return false;
 }

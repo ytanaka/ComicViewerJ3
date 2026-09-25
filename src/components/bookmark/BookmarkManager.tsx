@@ -18,7 +18,6 @@ export function BookmarkManager() {
   const listRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-
   const list = useBookmarkStore(state => state.list);
   const focusIndex = useBookmarkStore(state => state.focusIndex);
 
@@ -38,7 +37,7 @@ export function BookmarkManager() {
     const tab = useTabStore.getState().getCurrentTab();
     if (!tab) {
       return {
-        dir: "",
+        dir: '',
         name: '',
         mode: FileViewMode.List,
         thumbnailSize: 128,
@@ -104,7 +103,9 @@ export function BookmarkManager() {
                     focusIndex === i ? 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black' : undefined
                   )}
                   onClick={() => useBookmarkStore.getState().setFocus(i)}
-                  onDoubleClick={() => { bookmarkCommands.newTab(); }}
+                  onDoubleClick={() => {
+                    bookmarkCommands.newTab();
+                  }}
                 >
                   <Item bk={b} />
                 </li>

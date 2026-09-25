@@ -68,6 +68,7 @@ pub fn run() {
     );
 
     app_builder = app_builder.plugin(tauri_plugin_dialog::init());
+    app_builder = app_builder.plugin(tauri_plugin_opener::init());
 
     app_builder
         .setup(|app| {
@@ -80,7 +81,6 @@ pub fn run() {
             }
         })
         .manage(Arc::new(AppState::new()))
-        .plugin(tauri_plugin_opener::init())
         .invoke_handler(builder.invoke_handler())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
