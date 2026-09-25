@@ -10,7 +10,7 @@ import { Thumbnails } from './thumbnail-view/Thumbnails';
 import { useCmdCreateTab } from '@/services/tab';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useCmdGetDirEntries } from '@/services/tab-dir-entry';
-import { useUiStore } from '@/store/ui-store';
+import { getUIStore_checkInvokeByOsExt, useUiStore } from '@/store/ui-store';
 import { fileSearchInput_handleKeyDown } from '@/lib/event-handler/file-search-input-key-handler';
 import { tabFiles_handleKeyDown } from '@/lib/event-handler/tab-files-key-handler';
 import { ImageView } from './image-view/ImageView';
@@ -149,6 +149,7 @@ function TabContent() {
     const dirEntry = dirEntries[focus];
     if (!dirEntry || dirEntry.is_dir) return;
     if (!isPictureFileExtension(dirEntry.name)) return;
+    if (getUIStore_checkInvokeByOsExt(dirEntry.name)) return;
 
     useTabStore.getState().setImageView(tab.id, true);
   });

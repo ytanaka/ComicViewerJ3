@@ -12,8 +12,8 @@ import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
 import { searchCommands } from '../commands/search-commands';
 import { UiTab } from '@/store/tab/types';
-import { getFileExtension, isPictureFileExtension } from '../tools/string-util';
-import { useUiStore } from '@/store/ui-store';
+import { isPictureFileExtension } from '../tools/string-util';
+import { getUIStore_checkInvokeByOsExt } from '@/store/ui-store';
 
 function st() {
   return useTabStore.getState();
@@ -232,9 +232,7 @@ function actionForDirEntry(tab: UiTab, ent: DirEntry): boolean {
     return true;
   } else {
     // OSに任せる拡張子
-    const extList = useUiStore.getState().invokeByOsExt;
-    const ext = getFileExtension(ent.name)?.toLowerCase() ?? '';
-    if (extList.find(s => s === ext.toLowerCase())) {
+    if (getUIStore_checkInvokeByOsExt(ent.name)) {
       tauri_join(tab.info.path, ent.name).then(path => {
         tauri_openPath(path);
       });

@@ -1,4 +1,5 @@
 import { PreferenceDialogTabId } from '@/components/preferences/PreferencesDialog';
+import { getFileExtension } from '@/lib/tools/string-util';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -107,3 +108,9 @@ export const useUiStore = create<UiState_and_Action>()(
     }
   )
 );
+
+export function getUIStore_checkInvokeByOsExt(filename: string): boolean {
+  const extList = useUiStore.getState().invokeByOsExt;
+  const ext = getFileExtension(filename)?.toLowerCase() ?? '';
+  return !!extList.find(s => s === ext.toLowerCase())
+}
