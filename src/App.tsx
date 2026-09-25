@@ -14,6 +14,7 @@ import { PreferencesDialog } from './components/preferences/PreferencesDialog';
 import { BookmarkManager } from './components/bookmark/BookmarkManager';
 import { TauriEventListener } from './lib/tauri-event-listener';
 import { useUiStore } from './store/ui-store';
+import { OkCancelDialog } from './components/misc/OkCancelDialog';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -36,6 +37,7 @@ function App() {
         <StatusBar />
         <PreferencesDialog />
         <BookmarkManager />
+        <OkCancelDialog />
         <TauriEventListener />
         <Toaster
           position="bottom-right"

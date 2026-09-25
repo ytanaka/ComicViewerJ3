@@ -1,10 +1,12 @@
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
+import { useState } from 'react';
 
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
+import { Kbd } from '@/components/ui/kbd';
 import { Separator } from '@/components/ui/separator';
-import { DEFAULT_INVOKE_EXT_LIST, useUiStore } from '@/store/ui-store';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+
+import { DEFAULT_INVOKE_EXT_LIST, useUiStore } from '@/store/ui-store';
 
 export function InvokeAppPanel() {
   const invokeByOsExt = useUiStore(state => state.invokeByOsExt);
@@ -41,12 +43,18 @@ export function InvokeAppPanel() {
             デフォルト
           </Button>
         </div>
-        <FieldDescription className="m-0 p-0">
-          拡張子をスペース区切りで指定する。
+        <FieldDescription>
+          拡張子をスペース区切りで指定。
           <br />
-          ここで指定した拡張子のファイルをダブルクリックすると、OSに関連付けられたアプリが起動する。
+          ここで指定した拡張子のファイルをダブルクリックすると、OSに関連付けられたアプリが起動します。
           <br />
-          画像ファイルの拡張子を指定すれば、アプリの内蔵ビューアーでなくOSに関連付けられたビューアーが起動する。
+        </FieldDescription>
+        <FieldDescription>
+          ※ ここで指定しなくても<Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>で起動できます。(確認ダイアログが出ます)
+          <br />
+          ※
+          画像ファイルの拡張子を指定すれば、アプリの内蔵ビューアーでなくOSに関連付けられたビューアーが起動するようになります。
+          <br />※ Windowsで exe, bat, cmd などを指定すると危険なプログラムが警告なしに起動するので注意してください。
         </FieldDescription>
       </FieldGroup>
     </FieldSet>

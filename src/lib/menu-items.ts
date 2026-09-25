@@ -121,9 +121,10 @@ function notImageOriginalSize() {
 
 export const menuItems = {
   // -------------------- File --------------------
-  openDir: M('ディレクトリを開く', () => windowCommands.openDirectory(), 'Ctrl//O'),
+  openDir: M('ディレクトリを選択して新しいタブを開く', () => windowCommands.openDirectory(), 'Ctrl//O'),
   createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl//F', hasTab),
   createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl//K', hasTab),
+  openExplorer: M('OSの機能でファイルを開く', undefined, 'Ctrl//Enter', isSelected1File),
   openFileProperty: M(
     'プロパティ',
     () => console.log('FILE PROPERTY!!!'),

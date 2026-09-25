@@ -147,11 +147,21 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     if (sel.selectionIndexes.size === 1 && sel.selectionIndexes.has(focusIndex)) {
       const ent = dirEntries[sel.focusIndex];
       if (ent.is_dir) {
+        // ディレクトリの場合
         tauri_join(tab.info.path, ent.name).then(path => {
           tauri_openPath(path);
         });
-        return true;
+      } else {
+        // ファイルの場合
+        dialogCommands.showOkCancelDialog('アプリ起動確認', `${ent.name} を開きますか？`).then(b => {
+          if (b) {
+            tauri_join(tab.info.path, ent.name).then(path => {
+              tauri_openPath(path);
+            });
+          }
+        });
       }
+      return true;
     }
   }
 

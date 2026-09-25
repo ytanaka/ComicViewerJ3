@@ -17,6 +17,9 @@ export interface UiVolatileStore {
 
   // ブックマーク設定画面表示フラグ
   showBookmarkManager: boolean;
+
+  // OK Cancel ダイアログ
+  showOkCancelDialog: boolean;
 }
 
 type UiVolatileStore_and_Action = UiVolatileStore & {
@@ -30,6 +33,7 @@ export const useUiVolatileStore = create<UiVolatileStore_and_Action>()(set => ({
   isFullscreenUsageShown: false,
   shouldFullscreenWhenImageView: false,
   showBookmarkManager: false,
+  showOkCancelDialog: false,
 
   setField: (key, value) => set({ [key]: value }),
 }));
