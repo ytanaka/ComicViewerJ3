@@ -2,7 +2,7 @@ use tauri_specta::{collect_commands, Builder};
 
 pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::app;
-    use crate::commands::fs;
+    use crate::commands::tabs;
     use crate::commands::images;
     use crate::commands::preferences;
     use crate::commands::search;
@@ -13,16 +13,16 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         app::invoke_program,
         app::set_fullscreen,
         app::dummy,
-        fs::create_tab,
-        fs::clone_tab,
-        fs::clone_tab_child_dir,
-        fs::clone_tab_parent_dir,
-        fs::clone_tab_sibling_dir,
-        fs::remove_tab,
-        fs::get_tabs,
-        fs::get_dir_entries,
-        fs::get_file_infos,
-        fs::sort_files,
+        tabs::create_tab,
+        tabs::clone_tab,
+        tabs::clone_tab_child_dir,
+        tabs::clone_tab_parent_dir,
+        tabs::clone_tab_sibling_dir,
+        tabs::remove_tab,
+        tabs::get_tabs,
+        tabs::get_dir_entries,
+        tabs::get_file_infos,
+        tabs::sort_files,
         search::search_next_filename,
         images::get_image_size,
         images::get_thumbnail,
