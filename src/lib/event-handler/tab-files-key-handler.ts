@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { toast } from 'sonner';
+
 import { useTabStore } from '@/store/tab/store';
 import { searchHelper } from '../commands/search-helper';
 import { fileCommands } from '../commands/file-commands';
@@ -7,11 +9,9 @@ import { dialogCommands } from '../commands/dialog-commands';
 import { DirEntry, TabInfo } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { useListScrollHandlerStore } from '@/store/list-scroll-handler-store';
-import { searchCommands } from '../commands/search-commands';
 import { UiTab } from '@/store/tab/types';
 import { isPictureFileExtension } from '../tools/string-util';
 import { getUIStore_checkInvokeByOsExt } from '@/store/ui-store';
-import { toast } from 'sonner';
 import { programCommands } from '../commands/program-commands';
 
 function st() {
@@ -46,18 +46,7 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
 
   // console.debug(e);
 
-  // -------------------------------------------------------------------------------------------------------------------
-  // ファイル検索
-  // -------------------------------------------------------------------------------------------------------------------
-  if (!tab.imageViewMode.enable) {
-    if (CTRL_ONLY && (keyLow === 'n' || keyLow === 'p')) {
-      if (keyLow === 'n') searchCommands.searchNext();
-      if (keyLow === 'p') searchCommands.searchPrev();
-      e.preventDefault();
-      return true;
-    }
-  }
-  // ファイル検索する以外のキーが押されたら、検索キャンセル
+  // 検索キャンセル
   if (!MOD_ONLY) {
     searchHelper.cancel();
   }
@@ -143,14 +132,6 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   if (NO_MOD && e.key === 'Backspace') {
     fileCommands.moveToParentDir();
     st().setImageView(tabInfo.id, false);
-    return true;
-  }
-
-  // -------------------------------------------------------------------------------------------------------------------
-  // OSに任せる
-  // -------------------------------------------------------------------------------------------------------------------
-  if (CTRL_ONLY && e.key === 'Enter') {
-    programCommands.invokeCurrentFile(true);
     return true;
   }
 

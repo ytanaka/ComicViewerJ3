@@ -21,8 +21,8 @@ export function HotKeys() {
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
-          m.exec();
           searchHelper.cancel();
+          m.exec();
         }
         return;
       }
