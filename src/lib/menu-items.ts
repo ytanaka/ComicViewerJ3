@@ -207,8 +207,29 @@ export const menuItems = {
   imageDualView: M('2枚表示切替', imageCommands.toggleDualView, '### Space'),
   imageReverseDualView: M('2枚表示左右反転', imageCommands.toggleReverseDualView, '### \\', isImageDual),
   changeFullscreen: M('フルスクリーン', imageCommands.toggleFullscreen, '### F11'),
+
+  // -------------------- 外部プログラム --------------------
+  prog0: getDummyProgramMenu(0),
+  prog1: getDummyProgramMenu(1),
+  prog2: getDummyProgramMenu(2),
+  prog3: getDummyProgramMenu(3),
+  prog4: getDummyProgramMenu(4),
+  prog5: getDummyProgramMenu(5),
+  prog6: getDummyProgramMenu(6),
+  prog7: getDummyProgramMenu(7),
+  prog8: getDummyProgramMenu(8),
+  prog9: getDummyProgramMenu(9),
+
 };
+export function getDummyProgramMenu(index: number): AppMenuItem {
+  return {
+    value: `dummy-${index}`,
+    exec: () => programCommands.startProgram(index),
+    hotkey: new AppHotkey(`Ctrl//${index}`),
+  };
+}
 
 export function getAllMenuItems() {
   return Object.values(menuItems);
 }
+

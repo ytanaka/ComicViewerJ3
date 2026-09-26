@@ -1,3 +1,4 @@
+import { getPlatform } from '@/hooks/use-platform';
 import { programCommands } from '@/lib/commands/program-commands';
 import { AppHotkey, AppMenuItem } from '@/lib/menu-items';
 import { create } from 'zustand';
@@ -80,6 +81,54 @@ export function getProgramMenu(index: number): AppMenuItem {
 }
 
 export function getExternalProgramExamples(): ExternalProgram[] {
+  if (getPlatform() === 'linux') {
+    return getExternalProgramExamples_linux();
+  } else {
+    return getExternalProgramExamples_windows();
+  }
+}
+function getExternalProgramExamples_windows(): ExternalProgram[] {
+  return [
+    {
+      name: 'メモ帳で開く',
+      command: 'notepad.exe\n${files}',
+      debugPrompt: true,
+      maxSelectionLimit: 1,
+    },
+    {
+      name: 'Visual Studio Codeで選択されたファイル／ディレクトリを開く',
+      command: 'code.cmd\n${files}',
+      debugPrompt: true,
+      maxSelectionLimit: 1,
+    },
+    {
+      name: 'Windows Terminalでカレントディレクトリを開く',
+      command: 'wt.exe\n-d\n${dir}\n--profile\nGit Bash',
+      debugPrompt: true,
+      maxSelectionLimit: 0,
+    },
+    {
+      name: 'エクスプローラーでカレントディレクトリを開く',
+      command: 'explorer.exe\n${dir}',
+      debugPrompt: true,
+      maxSelectionLimit: 0,
+    },
+    {
+      name: 'Git GUI を開く',
+      command: 'git-gui.exe',
+      debugPrompt: true,
+      maxSelectionLimit: 0,
+    },
+    {
+      name: 'gitk を開く',
+      command: 'gitk.exe',
+      debugPrompt: true,
+      maxSelectionLimit: 0,
+    },
+  ]
+}
+
+function getExternalProgramExamples_linux(): ExternalProgram[] {
   return [
     {
       name: 'メモ帳で開く',

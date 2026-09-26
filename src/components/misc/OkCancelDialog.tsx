@@ -35,7 +35,7 @@ export function OkCancelDialog() {
           <AlertDialogTitle>{dialogState.title}</AlertDialogTitle>
           <AlertDialogDescription>
             {dialogState.msg.split('\n').map((s, i) => (
-              <div key={i}>{s}</div>
+              <span key={i}>{s}<br /></span>
             ))}
           </AlertDialogDescription>
         </AlertDialogHeader>

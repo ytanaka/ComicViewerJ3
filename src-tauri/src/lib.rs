@@ -69,6 +69,7 @@ pub fn run() {
 
     app_builder = app_builder.plugin(tauri_plugin_dialog::init());
     app_builder = app_builder.plugin(tauri_plugin_opener::init());
+    app_builder = app_builder.plugin(tauri_plugin_os::init());
 
     app_builder
         .setup(|app| {

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ExternalProgram, getExternalProgramExamples, useExternalProgramStore } from '@/store/external-program-store';
 import { Switch } from '@/components/ui/switch';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Kbd } from '@/components/ui/kbd';
 
 export function ExternalProgramPanel() {
   const list = useExternalProgramStore(state => state.list);
@@ -32,12 +33,14 @@ export function ExternalProgramPanel() {
                 <B click={() => remove(i)}>削除</B>
                 <B click={() => swap(i, i - 1)}>↑</B>
                 <B click={() => swap(i, i + 1)}>↓</B>
-                <div>{p.name}</div>
+                <div className='pl-2'>{p.name}</div>
               </div>
             );
           })}
         </div>
-        <FieldDescription></FieldDescription>
+        <FieldDescription>
+          ショートカットキー<Kbd>Ctrl+0</Kbd>～<Kbd>Ctrl+9</Kbd>で起動
+        </FieldDescription>
         <Separator />
       </FieldGroup>
     </FieldSet>
@@ -67,7 +70,6 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
   function upd<K extends keyof ExternalProgram>(key: K, value: ExternalProgram[K]) {
     const p = { ...program };
     p[key] = value;
-    console.log('upd', key, value);
     if (typeof value === 'number' && isNaN(value)) return;
     update(index, p);
   }
