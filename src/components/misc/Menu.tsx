@@ -14,7 +14,7 @@ import {
   MenubarTrigger,
 } from '@/components/ui/menubar';
 
-import { AppHotkey, AppMenuItem, menuItems } from '@/lib/menu-items';
+import { AppHotkey, AppMenuItem, getProgramMenu, menuItems } from '@/lib/menu-items';
 import { useFocusStore } from '@/store/focus-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useTabStore } from '@/store/tab/store';
@@ -100,6 +100,17 @@ function MenuFileView() {
         <MenubarSeparator />
         <MyMenuItem m={menuItems.createEmptyFile} />
         <MyMenuItem m={menuItems.createDir} />
+        <MenubarSeparator />
+        <MenubarSub>
+          {/* -------------------------------------- */}
+          <MenubarSubTrigger>外部プログラム起動</MenubarSubTrigger>
+          <MenubarSubContent>
+            {[...Array(10).keys()].map(i => {
+              const progMenu = getProgramMenu(i);
+              if (progMenu) return <MyMenuItem key={i} m={progMenu} />;
+            })}
+          </MenubarSubContent>
+        </MenubarSub>
         <MenubarSeparator />
         <MyMenuItem m={menuItems.openExplorer} />
         <MyMenuItem m={menuItems.openFileProperty} />

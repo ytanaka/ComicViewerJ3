@@ -21,6 +21,7 @@ export const rustcmds = {
   init: commands.init,
   exitApp: commands.exitApp,
   setFullscreen: commands.setFullscreen,
+  invokeProgram: commands.invokeProgram,
 
   createTab: (path: string) => {
     return commands.createTab(path).then(result => cnvOk(result, toCreateTabResult));

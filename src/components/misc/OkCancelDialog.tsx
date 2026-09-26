@@ -33,7 +33,7 @@ export function OkCancelDialog() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{dialogState.title}</AlertDialogTitle>
-          <AlertDialogDescription>{dialogState.msg}</AlertDialogDescription>
+          <AlertDialogDescription>{dialogState.msg.split('\n').map((s, i) => (<div key={i}>{s}</div>))}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => handleOkCancel(false)}>Cancel</AlertDialogCancel>

@@ -12,6 +12,8 @@ export const commands = {
 	init: () => typedError<null, string>(__TAURI_INVOKE("init")),
 	/**  アプリ終了 */
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
+	/**  外部プログラム起動 */
+	invokeProgram: (program: string, args: string[]) => typedError<InvokeProgramResult, string>(__TAURI_INVOKE("invoke_program", { program, args })),
 	/**  フルスクリーン */
 	setFullscreen: (fullscreen: boolean) => __TAURI_INVOKE<void>("set_fullscreen", { fullscreen }),
 	/**  ダミー */
@@ -160,6 +162,9 @@ export type GetThumbnailResult =
 { type: "NoImage" } | 
 /**  その他 (画像ではない、ファイルが読めないなど) */
 { type: "Fail"; error_msg: string };
+
+/**  プログラム起動結果 */
+export type InvokeProgramResult = "Success" | { Fail: string };
 
 /**  画像リサイズ時の画質設定 */
 export type ResizeImageConfig = {

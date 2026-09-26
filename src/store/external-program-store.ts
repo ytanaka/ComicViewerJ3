@@ -63,7 +63,7 @@ export const useExternalProgramStore = create<ExternalProgramState>()(
       },
     })),
     {
-      name: 'ui-state',
+      name: 'external-program-state',
     }
   )
 );
@@ -71,7 +71,7 @@ export const useExternalProgramStore = create<ExternalProgramState>()(
 export function mkExternalProgram(): ExternalProgram {
   return {
     name: "メモ帳で開く",
-    command: "notepad.exe\n${selected_files}",
+    command: "notepad.exe\n${files}",
     debugPrompt: true,
     maxSelectionLimit: 1,
   };

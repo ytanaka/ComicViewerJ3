@@ -1,13 +1,14 @@
+import { MouseEventHandler, ReactNode } from 'react';
 
-import { FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field';
+import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field';
 import { Separator } from '@/components/ui/separator';
-
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
 import { ExternalProgram, mkExternalProgram, useExternalProgramStore } from '@/store/external-program-store';
-import { MouseEventHandler, ReactNode } from 'react';
+import { Switch } from '@/components/ui/switch';
 
 export function ExternalProgramPanel() {
   const list = useExternalProgramStore(state => state.list);
@@ -36,6 +37,7 @@ export function ExternalProgramPanel() {
             );
           })}
         </div>
+        <FieldDescription></FieldDescription>
         <Separator />
       </FieldGroup>
     </FieldSet>
@@ -44,25 +46,45 @@ export function ExternalProgramPanel() {
 
 function EditButton({ index, program }: { index: number, program: ExternalProgram }) {
   const update = useExternalProgramStore(state => state.update);
-  function x<K extends keyof ExternalProgram>(key: K, value: ExternalProgram[K]) {
+  function upd<K extends keyof ExternalProgram>(key: K, value: ExternalProgram[K]) {
     const p = { ...program };
     p[key] = value;
+    console.log('upd', key, value);
+    if (typeof value === 'number' && isNaN(value)) return;
     update(index, p);
   }
 
   return (
     <Popover>
-      <PopoverTrigger render={<B>編集</B>} />
-      <PopoverContent>
+      <PopoverTrigger render={<Button size='sm'>編集</Button>} />
+      <PopoverContent className='min-w-max p-3'>
         <div className='flex flex-col'>
-          <div>
+          <div className='flex items-center m-1'>
             <label>名前</label>
-            <Input value={program.name} onChange={(e) => x('name', e.target.value)}></Input>
+            <Input className='flex-1 ml-2' value={program.name} onChange={(e) => upd('name', e.target.value)}></Input>
           </div>
-          <div>
-            <Textarea value={program.command} onChange={(e) => x('command', e.target.value)} />
+
+          <div className='flex m-1'>
+            <div>起動前に確認する</div>
+            <Switch className='ml-2' checked={program.debugPrompt} onCheckedChange={(e) => upd('debugPrompt', e)} />
+          </div>
+
+          <div className='flex items-center m-1'>
+            <div>選択ファイル数制限</div>
+            <Input type='number' className="max-w-20 ml-2 mr-2" min={0} value={program.maxSelectionLimit} onChange={(e) => upd('maxSelectionLimit', Number(e.target.value))} />
+            <div className='opacity-65'>(0は制限なし)</div>
+          </div>
+
+          <div className='m-1'>
+            <Textarea value={program.command} onChange={(e) => upd('command', e.target.value)} />
           </div>
         </div>
+
+        <FieldDescription>
+          プログラム引数の <code>{'${files}'}</code> は選択ファイルに置き換え<br />
+          プログラム引数の <code>{'${dir}'}</code> は現在のタブのディレクトリに置き換え<br />
+        </FieldDescription>
+
       </PopoverContent>
     </Popover>
   );

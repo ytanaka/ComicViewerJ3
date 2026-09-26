@@ -10,6 +10,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
     Builder::<tauri::Wry>::new().commands(collect_commands![
         app::init,
         app::exit_app,
+        app::invoke_program,
         app::set_fullscreen,
         app::dummy,
         fs::create_tab,

@@ -16,7 +16,7 @@ import { ImageViewPanel } from './panels/ImageViewPanel';
 import { SystemPanel } from './panels/SystemPanel';
 import { ImageQuorityPanel } from './panels/ImageQuorityPanel';
 import { InvokeAppPanel } from './panels/InvokeApp';
-import { ExternalProgramPanel } from './panels/ExternalProgram';
+import { ExternalProgramPanel } from './panels/ExternalProgramPanel';
 
 const allPanelList = [
   {
