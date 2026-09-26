@@ -16,6 +16,7 @@ import { ImageViewPanel } from './panels/ImageViewPanel';
 import { SystemPanel } from './panels/SystemPanel';
 import { ImageQuorityPanel } from './panels/ImageQuorityPanel';
 import { InvokeAppPanel } from './panels/InvokeApp';
+import { ExternalProgramPanel } from './panels/ExternalProgram';
 
 const allPanelList = [
   {
@@ -35,6 +36,12 @@ const allPanelList = [
     label: 'アプリ起動',
     icon: Settings2,
     node: InvokeAppPanel,
+  },
+  {
+    id: 'externalProgram',
+    label: '外部アプリ起動',
+    icon: Settings2,
+    node: ExternalProgramPanel,
   },
   {
     id: 'fileList',

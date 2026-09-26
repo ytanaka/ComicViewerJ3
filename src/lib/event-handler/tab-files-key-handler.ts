@@ -1,8 +1,5 @@
 import React from 'react';
 
-import { openPath as tauri_openPath } from '@tauri-apps/plugin-opener';
-import { join as tauri_join } from '@tauri-apps/api/path';
-
 import { useTabStore } from '@/store/tab/store';
 import { searchHelper } from '../commands/search-helper';
 import { fileCommands } from '../commands/file-commands';
@@ -15,6 +12,7 @@ import { UiTab } from '@/store/tab/types';
 import { isPictureFileExtension } from '../tools/string-util';
 import { getUIStore_checkInvokeByOsExt } from '@/store/ui-store';
 import { toast } from 'sonner';
+import { programCommands } from '../commands/program-commands';
 
 function st() {
   return useTabStore.getState();
@@ -152,25 +150,8 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
   // OSに任せる
   // -------------------------------------------------------------------------------------------------------------------
   if (CTRL_ONLY && e.key === 'Enter') {
-    if (sel.selectionIndexes.size === 1 && sel.selectionIndexes.has(focusIndex)) {
-      const ent = dirEntries[sel.focusIndex];
-      if (ent.is_dir) {
-        // ディレクトリの場合
-        tauri_join(tab.info.path, ent.name).then(path => {
-          tauri_openPath(path);
-        });
-      } else {
-        // ファイルの場合
-        dialogCommands.showOkCancelDialog('アプリ起動確認', `${ent.name} を開きますか？`).then(b => {
-          if (b) {
-            tauri_join(tab.info.path, ent.name).then(path => {
-              tauri_openPath(path);
-            });
-          }
-        });
-      }
-      return true;
-    }
+    programCommands.invokeCurrentFile(true);
+    return true;
   }
 
   return false;
@@ -241,9 +222,7 @@ function actionForDirEntry(tab: UiTab, ent: DirEntry): boolean {
   } else {
     // OSに任せる拡張子
     if (getUIStore_checkInvokeByOsExt(ent.name)) {
-      tauri_join(tab.info.path, ent.name).then(path => {
-        tauri_openPath(path);
-      });
+      programCommands.invoke(tab.info, ent, false);
       return true;
     }
 

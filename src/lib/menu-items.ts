@@ -9,6 +9,7 @@ import { fileCommands } from './commands/file-commands';
 import { searchCommands } from './commands/search-commands';
 import { imageCommands } from './commands/image-commands';
 import { zoomLevelNormalize } from './tools/image-zoom';
+import { programCommands } from './commands/program-commands';
 
 type MenuExec = () => Promise<void> | void;
 
@@ -121,10 +122,10 @@ function notImageOriginalSize() {
 
 export const menuItems = {
   // -------------------- File --------------------
-  openDir: M('ディレクトリを選択して新しいタブを開く', () => windowCommands.openDirectory(), 'Ctrl//O'),
+  openDir: M('ディレクトリを選択して新しいタブを開く', windowCommands.openDirectory, 'Ctrl//O'),
   createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl//F', hasTab),
   createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl//K', hasTab),
-  openExplorer: M('OSの機能でファイルを開く', undefined, 'Ctrl//Enter', isSelected1File),
+  openExplorer: M('OSの機能でファイルを開く', () => { programCommands.invokeCurrentFile(true) }, 'Ctrl//Enter', isSelected1File),
   openFileProperty: M(
     'プロパティ',
     () => console.log('FILE PROPERTY!!!'),
@@ -132,7 +133,8 @@ export const menuItems = {
     () => isSelected1File() && !isImageView()
   ),
 
-  exitApp: M('終了', () => windowCommands.exitApp(), 'Ctrl//Q'),
+
+  exitApp: M('終了', windowCommands.exitApp, 'Ctrl//Q'),
 
   // -------------------- Edit --------------------
   copyFile: M('コピー', () => console.log('COPY!!!'), 'Ctrl//C', isSelectedAnyFile),
@@ -142,44 +144,44 @@ export const menuItems = {
   deleteFile: M('削除', () => console.log('DEL!!!'), 'Delete', isSelected1File),
   renameFile: M('名前変更', () => console.log('RENAME!!!'), 'F2', isSelected1File),
 
-  preference: M('設定', () => dialogCommands.openPreference(), 'Ctrl//,'),
-  bookmark: M('ブックマーク', () => dialogCommands.openBookmark(), 'Ctrl//B', hasTab),
+  preference: M('設定', dialogCommands.openPreference, 'Ctrl//,'),
+  bookmark: M('ブックマーク', dialogCommands.openBookmark, 'Ctrl//B', hasTab),
 
   // -------------------- Search --------------------
-  searchFile: M('ファイル検索', () => searchCommands.searchStart(), undefined, hasTab),
-  searchNext: M('次のファイルを検索', undefined, 'Ctrl//N', hasTab),
-  searchPrev: M('前のファイルを検索', undefined, 'Ctrl//P', hasTab),
+  searchFile: M('ファイル検索', searchCommands.searchStart, undefined, hasTab),
+  searchNext: M('次のファイルを検索', searchCommands.searchNext, 'Ctrl//N', hasTab),
+  searchPrev: M('前のファイルを検索', searchCommands.searchPrev, 'Ctrl//P', hasTab),
 
   // -------------------- View --------------------
 
   toggleFileViewMode: M(
     'リストモード、サムネイルモード切替',
-    () => fileViewModeCommands.toggleViewMode(),
+    fileViewModeCommands.toggleViewMode,
     'Ctrl//L',
     hasTab
   ),
   changeToListViewMode: M(
     'リストモードに切替',
-    () => fileViewModeCommands.changeToListViewMode(),
+    fileViewModeCommands.changeToListViewMode,
     'Ctrl//L',
     isThumbnailView
   ),
   changeToThumbnailViewMode: M(
     'サムネイルモードに切替',
-    () => fileViewModeCommands.changeToThumbnailViewMode(),
+    fileViewModeCommands.changeToThumbnailViewMode,
     'Ctrl//L',
     isListView
   ),
 
   thumbnailSizeUp: M(
     'サムネイルサイズを大きくする',
-    () => fileViewModeCommands.thumbnailSizeUp(),
+    fileViewModeCommands.thumbnailSizeUp,
     'Ctrl//+',
     isThumbnailView
   ),
   thumbnailSizeDown: M(
     'サムネイルサイズを小さくする',
-    () => fileViewModeCommands.thumbnailSizeDown(),
+    fileViewModeCommands.thumbnailSizeDown,
     'Ctrl//-',
     isThumbnailView
   ),
@@ -192,8 +194,8 @@ export const menuItems = {
   toggleTheme: M('テーマ切り替え', () => console.log('THEME CHANGE!!!')),
 
   // -------------------- Tab --------------------
-  cloneTab: M('新規タブを開く', () => tabCommands.cloneCurrentTab(), 'Ctrl//T', hasTab),
-  closeCurrentTab: M('現在のタブを閉じる', () => tabCommands.removeCurrentTab(), 'Ctrl//W', hasTab),
+  cloneTab: M('新規タブを開く', tabCommands.cloneCurrentTab, 'Ctrl//T', hasTab),
+  closeCurrentTab: M('現在のタブを閉じる', tabCommands.removeCurrentTab, 'Ctrl//W', hasTab),
 
   nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl//PageDown', hasTab),
   prevTab: M('前のタブ', () => tabCommands.setCurrentTabNextPrev(-1), 'Ctrl//PageUp', hasTab),

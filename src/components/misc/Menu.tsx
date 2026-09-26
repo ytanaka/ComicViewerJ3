@@ -97,8 +97,11 @@ function MenuFileView() {
     <>
       <MyMenubarMenu name="ファイル">
         <MyMenuItem m={menuItems.openDir} />
+        <MenubarSeparator />
         <MyMenuItem m={menuItems.createEmptyFile} />
         <MyMenuItem m={menuItems.createDir} />
+        <MenubarSeparator />
+        <MyMenuItem m={menuItems.openExplorer} />
         <MyMenuItem m={menuItems.openFileProperty} />
         <MenubarSeparator />
         <MyMenuItem m={menuItems.exitApp} />
