@@ -9,7 +9,12 @@ import { Button } from '@/components/ui/button';
 
 import { ExternalProgram, getExternalProgramExamples, useExternalProgramStore } from '@/store/external-program-store';
 import { Switch } from '@/components/ui/switch';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Kbd } from '@/components/ui/kbd';
 
 export function ExternalProgramPanel() {
@@ -28,12 +33,12 @@ export function ExternalProgramPanel() {
           {list.map((p, i) => {
             return (
               <div key={i} className="flex">
-                <div className='pr-2'>{i}: </div>
+                <div className="pr-2">{i}: </div>
                 <EditButton index={i} program={p} />
                 <B click={() => remove(i)}>削除</B>
                 <B click={() => swap(i, i - 1)}>↑</B>
                 <B click={() => swap(i, i + 1)}>↓</B>
-                <div className='pl-2'>{p.name}</div>
+                <div className="pl-2">{p.name}</div>
               </div>
             );
           })}
@@ -54,7 +59,7 @@ function AddButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button>追加</Button>} />
-      <DropdownMenuContent className='min-w-max'>
+      <DropdownMenuContent className="min-w-max">
         {list.map((p, i) => (
           <DropdownMenuItem key={i} onClick={() => add(p)}>
             {p.name}
@@ -62,7 +67,7 @@ function AddButton() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 function EditButton({ index, program }: { index: number; program: ExternalProgram }) {

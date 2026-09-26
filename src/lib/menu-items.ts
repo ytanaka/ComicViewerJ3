@@ -219,7 +219,6 @@ export const menuItems = {
   prog7: getDummyProgramMenu(7),
   prog8: getDummyProgramMenu(8),
   prog9: getDummyProgramMenu(9),
-
 };
 export function getDummyProgramMenu(index: number): AppMenuItem {
   return {
@@ -232,4 +231,3 @@ export function getDummyProgramMenu(index: number): AppMenuItem {
 export function getAllMenuItems() {
   return Object.values(menuItems);
 }
-

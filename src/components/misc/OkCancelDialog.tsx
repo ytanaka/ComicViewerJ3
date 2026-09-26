@@ -30,12 +30,15 @@ export function OkCancelDialog() {
         if (!open) handleOkCancel(false);
       }}
     >
-      <AlertDialogContent className='max-w-3xl!'>
+      <AlertDialogContent className="max-w-3xl!">
         <AlertDialogHeader>
           <AlertDialogTitle>{dialogState.title}</AlertDialogTitle>
-          <AlertDialogDescription className='max-w-full overflow-x-auto'>
+          <AlertDialogDescription className="max-w-full overflow-x-auto">
             {dialogState.msg.split('\n').map((s, i) => (
-              <span key={i} className='whitespace-nowrap'>{s}<br /></span>
+              <span key={i} className="whitespace-nowrap">
+                {s}
+                <br />
+              </span>
             ))}
           </AlertDialogDescription>
         </AlertDialogHeader>

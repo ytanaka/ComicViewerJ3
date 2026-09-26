@@ -1,8 +1,8 @@
-import { platform, type Platform } from '@tauri-apps/plugin-os'
+import { platform, type Platform } from '@tauri-apps/plugin-os';
 
-export type AppPlatform = 'macos' | 'windows' | 'linux'
+export type AppPlatform = 'macos' | 'windows' | 'linux';
 
-let cachedPlatform: AppPlatform | null = null
+let cachedPlatform: AppPlatform | null = null;
 
 function mapPlatform(p: Platform): AppPlatform {
   if (p === 'macos') return 'macos';
@@ -13,7 +13,7 @@ function mapPlatform(p: Platform): AppPlatform {
 function initPlatform(): AppPlatform {
   if (cachedPlatform === null) {
     try {
-      cachedPlatform = mapPlatform(platform())
+      cachedPlatform = mapPlatform(platform());
     } catch (e) {
       console.error('Platform detection failed, defaulting to windows', e);
       cachedPlatform = 'windows';
@@ -23,5 +23,5 @@ function initPlatform(): AppPlatform {
 }
 
 export function getPlatform(): AppPlatform {
-  return initPlatform()
+  return initPlatform();
 }

@@ -60,7 +60,11 @@ pub async fn invoke_program_impl(
     program: String,
     args: Vec<String>,
 ) -> anyhow::Result<InvokeProgramResult> {
-    match Command::new(program).args(args).current_dir(current_dir).spawn() {
+    match Command::new(program)
+        .args(args)
+        .current_dir(current_dir)
+        .spawn()
+    {
         Ok(_) => Ok(Success),
         Err(e) => Ok(Fail(e.to_string())), // 起動できないのはシステムエラーではない
     }

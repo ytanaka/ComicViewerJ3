@@ -125,7 +125,7 @@ function getExternalProgramExamples_windows(): ExternalProgram[] {
       debugPrompt: true,
       maxSelectionLimit: 0,
     },
-  ]
+  ];
 }
 
 function getExternalProgramExamples_linux(): ExternalProgram[] {
@@ -166,5 +166,5 @@ function getExternalProgramExamples_linux(): ExternalProgram[] {
       debugPrompt: true,
       maxSelectionLimit: 0,
     },
-  ]
+  ];
 }
