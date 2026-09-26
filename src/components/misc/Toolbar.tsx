@@ -1,8 +1,6 @@
 import { ReactNode } from 'react';
 import {
   Fullscreen,
-  Moon,
-  Sun,
   FolderOpen,
   Scissors,
   Copy,
@@ -95,16 +93,6 @@ function ButtonsFileView() {
       <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
       <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
       <Separator orientation="vertical" className="m-1" />
-
-      <B
-        icon={
-          <>
-            <Sun />
-            <Moon />
-          </>
-        }
-        m={menuItems.toggleTheme}
-      />
     </>
   );
 }

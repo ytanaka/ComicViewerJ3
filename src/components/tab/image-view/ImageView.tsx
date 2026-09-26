@@ -15,6 +15,7 @@ import { useImageSize } from '@/services/tab-image-size';
 import { useOriginalImage } from '@/hooks/use-original-image';
 import { ImageViewCell } from './ImageViewCell';
 import { zoomDimension, zoomLevel2ZoomRatio } from '@/lib/tools/image-zoom';
+import { useImageScrollState } from './image-scroll-state';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
@@ -39,6 +40,39 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
     return () => observer.disconnect();
   }, []);
+
+  // マウスドラッグで画面スクロール
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollState = useImageScrollState();
+  useEffect(() => {
+    const scr = scrollRef.current;
+    if (!scr) return;
+
+    const onMouseDown = (e: MouseEvent) => {
+      scrollState.setDragging(true);
+      scrollState.setStart({ x: e.clientX, y: e.clientY, left: scr.scrollLeft, top: scr.scrollTop });
+    };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!scrollState.dragging) return;
+      scr.scrollLeft = scrollState.start.left - (e.clientX - scrollState.start.x);
+      scr.scrollTop = scrollState.start.top - (e.clientY - scrollState.start.y);
+    };
+    const onMouseUp = () => {
+      scrollState.setDragging(false);
+    };
+
+    scr.addEventListener('mousedown', onMouseDown);
+    scr.addEventListener('mousemove', onMouseMove);
+    scr.addEventListener('mouseup', onMouseUp);
+    scr.addEventListener('mouseleave', onMouseUp);
+
+    return () => {
+      scr.removeEventListener('mousedown', onMouseDown);
+      scr.removeEventListener('mousemove', onMouseMove);
+      scr.removeEventListener('mouseup', onMouseUp);
+      scr.removeEventListener('mouseleave', onMouseUp);
+    };
+  }, [scrollState]);
 
   // 行数、列数の設定
   // ※ TabContent で共通処理をしているイベントハンドラーが使っている
@@ -221,7 +255,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
 
   return (
     <div ref={divRef} className="flex w-full h-full max-w-full max-h-full">
-      <div className="flex-1 min-h-0, min-w-0 overflow-auto">
+      <div ref={scrollRef} className="flex-1 min-h-0, min-w-0 overflow-auto">
         {!dirEntries || dirEntries.length === 0 ? (
           // 空ディレクトリ
           <div>ファイルがありません</div>

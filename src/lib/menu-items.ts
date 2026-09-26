@@ -182,8 +182,6 @@ export const menuItems = {
   sortBySize: M('サイズでソート', () => sortCommands.sortFiles('Size'), 'Alt//3', hasTab),
   sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt//4', hasTab),
 
-  toggleTheme: M('テーマ切り替え', () => console.log('THEME CHANGE!!!')),
-
   // -------------------- Tab --------------------
   cloneTab: M('新規タブを開く', tabCommands.cloneCurrentTab, 'Ctrl//T', hasTab),
   closeCurrentTab: M('現在のタブを閉じる', tabCommands.removeCurrentTab, 'Ctrl//W', hasTab),
