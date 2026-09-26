@@ -45,20 +45,22 @@ pub fn set_fullscreen(window: Window, fullscreen: bool) {
 #[specta::specta]
 /// 外部プログラム起動
 pub async fn invoke_program(
+    current_dir: String,
     program: String,
     args: Vec<String>,
 ) -> Result<InvokeProgramResult, String> {
     LOG_RESULT!(format!("invoke_program({}, {:?})", program, args), {
-        invoke_program_impl(program, args)
+        invoke_program_impl(current_dir, program, args)
             .await
             .map_err(|e| e.to_string())
     })
 }
 pub async fn invoke_program_impl(
+    current_dir: String,
     program: String,
     args: Vec<String>,
 ) -> anyhow::Result<InvokeProgramResult> {
-    match Command::new(program).args(args).spawn() {
+    match Command::new(program).args(args).current_dir(current_dir).spawn() {
         Ok(_) => Ok(Success),
         Err(e) => Ok(Fail(e.to_string())), // 起動できないのはシステムエラーではない
     }

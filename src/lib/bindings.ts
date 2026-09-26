@@ -13,7 +13,7 @@ export const commands = {
 	/**  アプリ終了 */
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
 	/**  外部プログラム起動 */
-	invokeProgram: (program: string, args: string[]) => typedError<InvokeProgramResult, string>(__TAURI_INVOKE("invoke_program", { program, args })),
+	invokeProgram: (currentDir: string, program: string, args: string[]) => typedError<InvokeProgramResult, string>(__TAURI_INVOKE("invoke_program", { currentDir, program, args })),
 	/**  フルスクリーン */
 	setFullscreen: (fullscreen: boolean) => __TAURI_INVOKE<void>("set_fullscreen", { fullscreen }),
 	/**  ダミー */

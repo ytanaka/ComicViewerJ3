@@ -7,12 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
-import { ExternalProgram, mkExternalProgram, useExternalProgramStore } from '@/store/external-program-store';
+import { ExternalProgram, getExternalProgramExamples, useExternalProgramStore } from '@/store/external-program-store';
 import { Switch } from '@/components/ui/switch';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export function ExternalProgramPanel() {
   const list = useExternalProgramStore(state => state.list);
-  const add = useExternalProgramStore(state => state.add);
   const remove = useExternalProgramStore(state => state.remove);
   const swap = useExternalProgramStore(state => state.swap);
 
@@ -21,13 +21,13 @@ export function ExternalProgramPanel() {
       <FieldLegend>外部アプリ起動</FieldLegend>
       <FieldGroup>
         <div className="flex m-0">
-          <Button onClick={() => add(mkExternalProgram())}>追加</Button>
+          <AddButton />
         </div>
         <div className="flex flex-col overflow-auto m-0">
           {list.map((p, i) => {
             return (
               <div key={i} className="flex">
-                <div>{i}: </div>
+                <div className='pr-2'>{i}: </div>
                 <EditButton index={i} program={p} />
                 <B click={() => remove(i)}>削除</B>
                 <B click={() => swap(i, i - 1)}>↑</B>
@@ -44,6 +44,24 @@ export function ExternalProgramPanel() {
   );
 }
 
+function AddButton() {
+  const add = useExternalProgramStore(state => state.add);
+  const list = getExternalProgramExamples();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button>追加</Button>} />
+      <DropdownMenuContent className='min-w-max'>
+        {list.map((p, i) => (
+          <DropdownMenuItem key={i} onClick={() => add(p)}>
+            {p.name}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 function EditButton({ index, program }: { index: number; program: ExternalProgram }) {
   const update = useExternalProgramStore(state => state.update);
   function upd<K extends keyof ExternalProgram>(key: K, value: ExternalProgram[K]) {
@@ -56,7 +74,7 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
 
   return (
     <Popover>
-      <PopoverTrigger render={<Button size="sm">編集</Button>} />
+      <PopoverTrigger render={<Button size="xs">編集</Button>} />
       <PopoverContent className="min-w-max p-3">
         <div className="flex flex-col">
           <div className="flex items-center m-1">
@@ -99,7 +117,7 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
 
 function B({ click, children }: { click?: MouseEventHandler | undefined; children: ReactNode }) {
   return (
-    <Button size="sm" variant="secondary" onClick={click}>
+    <Button size="xs" variant="secondary" onClick={click}>
       {children}
     </Button>
   );

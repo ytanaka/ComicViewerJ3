@@ -70,15 +70,6 @@ export const useExternalProgramStore = create<ExternalProgramState>()(
   )
 );
 
-export function mkExternalProgram(): ExternalProgram {
-  return {
-    name: 'メモ帳で開く',
-    command: 'notepad.exe\n${files}',
-    debugPrompt: true,
-    maxSelectionLimit: 1,
-  };
-}
-
 export function getProgramMenu(index: number): AppMenuItem {
   const p = useExternalProgramStore.getState().list[index];
   return {
@@ -88,3 +79,43 @@ export function getProgramMenu(index: number): AppMenuItem {
   };
 }
 
+export function getExternalProgramExamples(): ExternalProgram[] {
+  return [
+    {
+      name: 'メモ帳で開く',
+      command: 'notepad.exe\n${files}',
+      debugPrompt: true,
+      maxSelectionLimit: 1,
+    },
+    {
+      name: 'Visual Studio Codeで選択されたファイル／ディレクトリを開く',
+      command: 'code.cmd\n${files}',
+      debugPrompt: true,
+      maxSelectionLimit: 1,
+    },
+    {
+      name: 'Windows Terminalでカレントディレクトリを開く',
+      command: 'wt.exe\n-d\n${dir}\n--profile\nGit Bash',
+      debugPrompt: true,
+      maxSelectionLimit: 0,
+    },
+    {
+      name: 'エクスプローラーでカレントディレクトリを開く',
+      command: 'explorer.exe\n${dir}',
+      debugPrompt: true,
+      maxSelectionLimit: 0,
+    },
+    {
+      name: 'Git GUI を開く',
+      command: 'git-gui.exe',
+      debugPrompt: true,
+      maxSelectionLimit: 0,
+    },
+    {
+      name: 'gitk を開く',
+      command: 'gitk.exe',
+      debugPrompt: true,
+      maxSelectionLimit: 0,
+    },
+  ]
+}
