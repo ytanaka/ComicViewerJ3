@@ -126,7 +126,14 @@ export const menuItems = {
   openDir: M('ディレクトリを選択して新しいタブを開く', windowCommands.openDirectory, 'Ctrl//O'),
   createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl//F', hasTab),
   createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl//K', hasTab),
-  openExplorer: M('OSの機能でファイルを開く', () => { programCommands.invokeCurrentFile(true) }, 'Ctrl//Enter', isSelected1File),
+  openExplorer: M(
+    'OSの機能でファイルを開く',
+    () => {
+      programCommands.invokeCurrentFile(true);
+    },
+    'Ctrl//Enter',
+    isSelected1File
+  ),
   openFileProperty: M(
     'プロパティ',
     () => console.log('FILE PROPERTY!!!'),
@@ -154,18 +161,8 @@ export const menuItems = {
 
   // -------------------- View --------------------
 
-  toggleFileViewMode: M(
-    'リストモード、サムネイルモード切替',
-    fileViewModeCommands.toggleViewMode,
-    'Ctrl//L',
-    hasTab
-  ),
-  changeToListViewMode: M(
-    'リストモードに切替',
-    fileViewModeCommands.changeToListViewMode,
-    'Ctrl//L',
-    isThumbnailView
-  ),
+  toggleFileViewMode: M('リストモード、サムネイルモード切替', fileViewModeCommands.toggleViewMode, 'Ctrl//L', hasTab),
+  changeToListViewMode: M('リストモードに切替', fileViewModeCommands.changeToListViewMode, 'Ctrl//L', isThumbnailView),
   changeToThumbnailViewMode: M(
     'サムネイルモードに切替',
     fileViewModeCommands.changeToThumbnailViewMode,
@@ -173,12 +170,7 @@ export const menuItems = {
     isListView
   ),
 
-  thumbnailSizeUp: M(
-    'サムネイルサイズを大きくする',
-    fileViewModeCommands.thumbnailSizeUp,
-    'Ctrl//+',
-    isThumbnailView
-  ),
+  thumbnailSizeUp: M('サムネイルサイズを大きくする', fileViewModeCommands.thumbnailSizeUp, 'Ctrl//+', isThumbnailView),
   thumbnailSizeDown: M(
     'サムネイルサイズを小さくする',
     fileViewModeCommands.thumbnailSizeDown,

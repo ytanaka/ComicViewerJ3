@@ -112,5 +112,5 @@ export const useUiStore = create<UiState_and_Action>()(
 export function getUIStore_checkInvokeByOsExt(filename: string): boolean {
   const extList = useUiStore.getState().invokeByOsExt;
   const ext = getFileExtension(filename)?.toLowerCase() ?? '';
-  return !!extList.find(s => s === ext.toLowerCase())
+  return !!extList.find(s => s === ext.toLowerCase());
 }

@@ -1,8 +1,8 @@
 import { openPath as tauri_openPath } from '@tauri-apps/plugin-opener';
 import { join as tauri_join } from '@tauri-apps/api/path';
 
-import { getQueryData_getDirEntries } from "@/services/tab-dir-entry";
-import { useTabStore } from "@/store/tab/store";
+import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
+import { useTabStore } from '@/store/tab/store';
 import { dialogCommands } from './dialog-commands';
 import { DirEntry, handleRustCmdResult, rustcmds, TabInfo } from '../bindings-wrapper';
 import { useExternalProgramStore } from '@/store/external-program-store';
@@ -68,7 +68,7 @@ export const programCommands = {
       } else {
         args.push(s);
       }
-    };
+    }
 
     async function invokeFn() {
       const result = await rustcmds.invokeProgram(prog, args);
@@ -84,10 +84,10 @@ export const programCommands = {
     } else {
       await invokeFn();
     }
-  }
-}
+  },
+};
 
-function getCurrentDirFiles(): { tab?: TabInfo, files?: DirEntry[] } {
+function getCurrentDirFiles(): { tab?: TabInfo; files?: DirEntry[] } {
   const tab = st().getCurrentTab();
   if (!tab) return {};
 
@@ -102,8 +102,6 @@ function getCurrentDirFiles(): { tab?: TabInfo, files?: DirEntry[] } {
   sel.selectionIndexes.forEach(i => {
     const ent = dirEntries[i];
     if (ent) files.push(ent);
-  })
+  });
   return { tab: tab.info, files };
-
-
 }

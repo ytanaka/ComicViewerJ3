@@ -20,18 +20,18 @@ export function ExternalProgramPanel() {
     <FieldSet className="flex-1">
       <FieldLegend>外部アプリ起動</FieldLegend>
       <FieldGroup>
-        <div className='flex m-0'>
+        <div className="flex m-0">
           <Button onClick={() => add(mkExternalProgram())}>追加</Button>
         </div>
         <div className="flex flex-col overflow-auto m-0">
           {list.map((p, i) => {
             return (
-              <div key={i} className='flex'>
+              <div key={i} className="flex">
                 <div>{i}: </div>
                 <EditButton index={i} program={p} />
-                <B click={() => remove(i)} >削除</B>
-                <B click={() => swap(i, i - 1)} >↑</B>
-                <B click={() => swap(i, i + 1)} >↓</B>
+                <B click={() => remove(i)}>削除</B>
+                <B click={() => swap(i, i - 1)}>↑</B>
+                <B click={() => swap(i, i + 1)}>↓</B>
                 <div>{p.name}</div>
               </div>
             );
@@ -44,7 +44,7 @@ export function ExternalProgramPanel() {
   );
 }
 
-function EditButton({ index, program }: { index: number, program: ExternalProgram }) {
+function EditButton({ index, program }: { index: number; program: ExternalProgram }) {
   const update = useExternalProgramStore(state => state.update);
   function upd<K extends keyof ExternalProgram>(key: K, value: ExternalProgram[K]) {
     const p = { ...program };
@@ -56,42 +56,51 @@ function EditButton({ index, program }: { index: number, program: ExternalProgra
 
   return (
     <Popover>
-      <PopoverTrigger render={<Button size='sm'>編集</Button>} />
-      <PopoverContent className='min-w-max p-3'>
-        <div className='flex flex-col'>
-          <div className='flex items-center m-1'>
+      <PopoverTrigger render={<Button size="sm">編集</Button>} />
+      <PopoverContent className="min-w-max p-3">
+        <div className="flex flex-col">
+          <div className="flex items-center m-1">
             <label>名前</label>
-            <Input className='flex-1 ml-2' value={program.name} onChange={(e) => upd('name', e.target.value)}></Input>
+            <Input className="flex-1 ml-2" value={program.name} onChange={e => upd('name', e.target.value)}></Input>
           </div>
 
-          <div className='flex m-1'>
+          <div className="flex m-1">
             <div>起動前に確認する</div>
-            <Switch className='ml-2' checked={program.debugPrompt} onCheckedChange={(e) => upd('debugPrompt', e)} />
+            <Switch className="ml-2" checked={program.debugPrompt} onCheckedChange={e => upd('debugPrompt', e)} />
           </div>
 
-          <div className='flex items-center m-1'>
+          <div className="flex items-center m-1">
             <div>選択ファイル数制限</div>
-            <Input type='number' className="max-w-20 ml-2 mr-2" min={0} value={program.maxSelectionLimit} onChange={(e) => upd('maxSelectionLimit', Number(e.target.value))} />
-            <div className='opacity-65'>(0は制限なし)</div>
+            <Input
+              type="number"
+              className="max-w-20 ml-2 mr-2"
+              min={0}
+              value={program.maxSelectionLimit}
+              onChange={e => upd('maxSelectionLimit', Number(e.target.value))}
+            />
+            <div className="opacity-65">(0は制限なし)</div>
           </div>
 
-          <div className='m-1'>
-            <Textarea value={program.command} onChange={(e) => upd('command', e.target.value)} />
+          <div className="m-1">
+            <Textarea value={program.command} onChange={e => upd('command', e.target.value)} />
           </div>
         </div>
 
         <FieldDescription>
-          プログラム引数の <code>{'${files}'}</code> は選択ファイルに置き換え<br />
-          プログラム引数の <code>{'${dir}'}</code> は現在のタブのディレクトリに置き換え<br />
+          プログラム引数の <code>{'${files}'}</code> は選択ファイルに置き換え
+          <br />
+          プログラム引数の <code>{'${dir}'}</code> は現在のタブのディレクトリに置き換え
+          <br />
         </FieldDescription>
-
       </PopoverContent>
     </Popover>
   );
 }
 
-function B({ click, children }: { click?: MouseEventHandler | undefined, children: ReactNode }) {
+function B({ click, children }: { click?: MouseEventHandler | undefined; children: ReactNode }) {
   return (
-    <Button size='sm' variant='secondary' onClick={click} >{children}</Button>
+    <Button size="sm" variant="secondary" onClick={click}>
+      {children}
+    </Button>
   );
 }

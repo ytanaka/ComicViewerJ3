@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { immer } from "zustand/middleware/immer";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
 export const MAX_EXTERNAL_PROGRAMS = 10;
 
@@ -14,10 +14,10 @@ export interface ExternalProgramState {
 }
 
 export interface ExternalProgram {
-  name: string,
-  command: string,
-  maxSelectionLimit: number,
-  debugPrompt: boolean,
+  name: string;
+  command: string;
+  maxSelectionLimit: number;
+  debugPrompt: boolean;
 }
 
 export const useExternalProgramStore = create<ExternalProgramState>()(
@@ -31,7 +31,7 @@ export const useExternalProgramStore = create<ExternalProgramState>()(
             state.list.push(p);
           }
           return state;
-        })
+        });
       },
       remove: (i: number) => {
         set(state => {
@@ -39,7 +39,7 @@ export const useExternalProgramStore = create<ExternalProgramState>()(
             state.list.splice(i, 1);
           }
           return state;
-        })
+        });
       },
       swap: (i1: number, i2: number) => {
         set(state => {
@@ -50,7 +50,7 @@ export const useExternalProgramStore = create<ExternalProgramState>()(
             state.list[i2] = p1;
           }
           return state;
-        })
+        });
       },
       update: (i: number, p: ExternalProgram) => {
         set(state => {
@@ -59,7 +59,7 @@ export const useExternalProgramStore = create<ExternalProgramState>()(
             state.list[i] = p;
           }
           return state;
-        })
+        });
       },
     })),
     {
@@ -70,8 +70,8 @@ export const useExternalProgramStore = create<ExternalProgramState>()(
 
 export function mkExternalProgram(): ExternalProgram {
   return {
-    name: "メモ帳で開く",
-    command: "notepad.exe\n${files}",
+    name: 'メモ帳で開く',
+    command: 'notepad.exe\n${files}',
     debugPrompt: true,
     maxSelectionLimit: 1,
   };

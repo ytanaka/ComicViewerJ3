@@ -25,7 +25,7 @@ function NormalStatusBar() {
   let totalSizeUnknown = false;
   sel.forEach(i => {
     if (dirEntries?.[i] && !dirEntries[i].is_dir) {
-      const fileInfo = getQueryData_getFileInfo1(tab.id, dirEntries[i].file_id)
+      const fileInfo = getQueryData_getFileInfo1(tab.id, dirEntries[i].file_id);
       const size = fileInfo?.metadata.Right?.size;
       if (size !== undefined && size !== null) {
         totalSize += size;
@@ -33,22 +33,22 @@ function NormalStatusBar() {
         totalSizeUnknown = true;
       }
     }
-  })
+  });
 
   console.debug(`<NormalStatusBar> tab(${tab.id}) sel=${selSize} fileNum=${fileNum}`);
 
   let msg = '';
   if (fileNum !== undefined) {
     if (0 < totalSize) {
-      msg = `${totalSize.toLocaleString()}バイト${totalSizeUnknown ? "以上？" : ""}`;
+      msg = `${totalSize.toLocaleString()}バイト${totalSizeUnknown ? '以上？' : ''}`;
     }
     msg = `${msg} (選択 ${selSize} / 全 ${fileNum})`;
   }
 
   return (
     <div className="flex border select-none" hidden={full} style={{ display: full ? 'none' : undefined }}>
-      <div className='flex-1' />
-      <div className='mr-2' >{msg}</div>
+      <div className="flex-1" />
+      <div className="mr-2">{msg}</div>
     </div>
   );
 }
