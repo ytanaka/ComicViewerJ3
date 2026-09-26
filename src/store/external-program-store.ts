@@ -1,3 +1,5 @@
+import { programCommands } from '@/lib/commands/program-commands';
+import { AppHotkey, AppMenuItem } from '@/lib/menu-items';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -76,3 +78,13 @@ export function mkExternalProgram(): ExternalProgram {
     maxSelectionLimit: 1,
   };
 }
+
+export function getProgramMenu(index: number): AppMenuItem {
+  const p = useExternalProgramStore.getState().list[index];
+  return {
+    value: p.name,
+    exec: () => programCommands.startProgram(index),
+    hotkey: new AppHotkey(`Ctrl//${index}`),
+  };
+}
+

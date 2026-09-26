@@ -14,10 +14,11 @@ import {
   MenubarTrigger,
 } from '@/components/ui/menubar';
 
-import { AppHotkey, AppMenuItem, getProgramMenu, menuItems } from '@/lib/menu-items';
+import { AppHotkey, AppMenuItem, menuItems } from '@/lib/menu-items';
 import { useFocusStore } from '@/store/focus-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useTabStore } from '@/store/tab/store';
+import { getProgramMenu, useExternalProgramStore } from '@/store/external-program-store';
 
 function MyHotkey({ k }: { k: AppHotkey }) {
   return (
@@ -93,6 +94,7 @@ export function Menu() {
 }
 
 function MenuFileView() {
+  const progList = useExternalProgramStore(state => state.list);
   return (
     <>
       <MyMenubarMenu name="ファイル">
@@ -105,9 +107,8 @@ function MenuFileView() {
           {/* -------------------------------------- */}
           <MenubarSubTrigger>外部プログラム起動</MenubarSubTrigger>
           <MenubarSubContent>
-            {[...Array(10).keys()].map(i => {
-              const progMenu = getProgramMenu(i);
-              if (progMenu) return <MyMenuItem key={i} m={progMenu} />;
+            {progList.map((_, i) => {
+              return <MyMenuItem key={i} m={getProgramMenu(i)} />;
             })}
           </MenubarSubContent>
         </MenubarSub>

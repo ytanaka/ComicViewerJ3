@@ -80,7 +80,7 @@ export const tabCommands = {
   async removeCurrentTab() {
     const tab = st().getCurrentTab();
     if (!tab) return;
-    await this.removeTab(tab.info.id);
+    await tabCommands.removeTab(tab.info.id);
   },
 
   // フォーカスするタブの指定

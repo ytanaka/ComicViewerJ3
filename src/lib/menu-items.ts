@@ -10,7 +10,6 @@ import { searchCommands } from './commands/search-commands';
 import { imageCommands } from './commands/image-commands';
 import { zoomLevelNormalize } from './tools/image-zoom';
 import { programCommands } from './commands/program-commands';
-import { useExternalProgramStore } from '@/store/external-program-store';
 
 type MenuExec = () => Promise<void> | void;
 
@@ -209,15 +208,6 @@ export const menuItems = {
   imageReverseDualView: M('2枚表示左右反転', imageCommands.toggleReverseDualView, '### \\', isImageDual),
   changeFullscreen: M('フルスクリーン', imageCommands.toggleFullscreen, '### F11'),
 };
-
-export function getProgramMenu(i: number): AppMenuItem | undefined {
-  const p = useExternalProgramStore.getState().list[i];
-  if (!p) {
-    return undefined;
-  } else {
-    return M(`${p.name}`, () => programCommands.startProgram(i), `Ctrl//${i}`);
-  }
-}
 
 export function getAllMenuItems() {
   return Object.values(menuItems);
