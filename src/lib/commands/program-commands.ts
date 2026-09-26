@@ -66,7 +66,9 @@ export const programCommands = {
       } else if (s === '${dir}') {
         args.push(tab.path);
       } else {
-        args.push(s);
+        let arg = s.replace('${dir}', tab.path);
+        arg = arg.replace('${files}', files.join(' '));
+        args.push(arg);
       }
     }
 

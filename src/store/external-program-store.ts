@@ -131,38 +131,38 @@ function getExternalProgramExamples_windows(): ExternalProgram[] {
 function getExternalProgramExamples_linux(): ExternalProgram[] {
   return [
     {
-      name: 'メモ帳で開く',
-      command: 'notepad.exe\n${files}',
+      name: 'geditで開く',
+      command: 'gedit\n${files}',
       debugPrompt: true,
       maxSelectionLimit: 1,
     },
     {
       name: 'Visual Studio Codeで選択されたファイル／ディレクトリを開く',
-      command: 'code.cmd\n${files}',
+      command: 'code\n${files}',
       debugPrompt: true,
       maxSelectionLimit: 1,
     },
     {
-      name: 'Windows Terminalでカレントディレクトリを開く',
-      command: 'wt.exe\n-d\n${dir}\n--profile\nGit Bash',
+      name: 'Gnome Terminalでカレントディレクトリを開く',
+      command: 'gnome-terminal\n--working-directory=${dir}',
       debugPrompt: true,
       maxSelectionLimit: 0,
     },
     {
-      name: 'エクスプローラーでカレントディレクトリを開く',
-      command: 'explorer.exe\n${dir}',
+      name: '"ファイル"でカレントディレクトリを開く',
+      command: 'nautilus\n${dir}',
       debugPrompt: true,
       maxSelectionLimit: 0,
     },
     {
       name: 'Git GUI を開く',
-      command: 'git-gui.exe',
+      command: 'git\ngui',
       debugPrompt: true,
       maxSelectionLimit: 0,
     },
     {
       name: 'gitk を開く',
-      command: 'gitk.exe',
+      command: 'gitk',
       debugPrompt: true,
       maxSelectionLimit: 0,
     },
