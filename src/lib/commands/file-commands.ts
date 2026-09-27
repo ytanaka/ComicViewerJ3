@@ -16,7 +16,9 @@ export const fileCommands = {
     const name = await dialogCommands.showInputDialog("リネーム", "", sel[0].name);
     if (!name || name === sel[0].name) return;
     const result = await rustcmds.renameFile(tab.id, sel[0].file_id, name);
-    handleRustCmdResult(result, `rustcmds.renameFile(${tab.id},${sel[0].file_id},${name})`, '変更できません');
+    handleRustCmdResult(result, `rustcmds.renameFile(${tab.id},${sel[0].file_id},${name})`, '変更できません', () => {
+      st().pushHistory(tab.id, tab.path, name);
+    });
   }
 };
 
