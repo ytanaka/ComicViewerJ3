@@ -35,7 +35,7 @@ export const rustcmds = {
   cloneTabParentDir: (tabId: TabId) => {
     return commands.cloneTabParentDir(tabId).then(result => cnvOk(result, toCreateTabResult));
   },
-  cloneTabSiblingDir: (tabId: number, moveNext: boolean) => {
+  cloneTabSiblingDir: (tabId: TabId, moveNext: boolean) => {
     return commands.cloneTabSiblingDir(tabId, moveNext).then(result => cnvOk(result, toCreateTabResult));
   },
   removeTab: (tabId: TabId) => {
@@ -58,16 +58,21 @@ export const rustcmds = {
   sortFiles: (tabId: TabId, sortCondition: SortCondition) => {
     return commands.sortFiles(tabId, sortCondition);
   },
+
+  renameFile: (tabId: TabId, fileId: FileId, name: string) => {
+    return commands.renameFile(tabId, fileId.toString(), name);
+  },
+
   searchNextFilename: (tabId: TabId, startIndex: number, romaji: string, reverse: boolean) => {
     return commands.searchNextFilename(tabId, startIndex, romaji, reverse);
   },
-  getImageSize: (tabId: number, fileId: FileId) => {
+  getImageSize: (tabId: TabId, fileId: FileId) => {
     return commands.getImageSize(tabId, fileId.toString());
   },
-  getThumbnail: (tabId: number, fileId: FileId, size: number) => {
+  getThumbnail: (tabId: TabId, fileId: FileId, size: number) => {
     return commands.getThumbnail(tabId, fileId.toString(), size);
   },
-  getResizedImg: (tabId: number, fileId: FileId, size: Dimension) => {
+  getResizedImg: (tabId: TabId, fileId: FileId, size: Dimension) => {
     return commands.getResizedImg(tabId, fileId.toString(), size);
   },
   loadPreferences: commands.loadPreferences,

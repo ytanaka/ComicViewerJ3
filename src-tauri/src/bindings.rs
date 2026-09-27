@@ -2,10 +2,11 @@ use tauri_specta::{collect_commands, Builder};
 
 pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::app;
-    use crate::commands::tabs;
+    use crate::commands::fs;
     use crate::commands::images;
     use crate::commands::preferences;
     use crate::commands::search;
+    use crate::commands::tabs;
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         app::init,
@@ -23,6 +24,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         tabs::get_dir_entries,
         tabs::get_file_infos,
         tabs::sort_files,
+        fs::rename_file,
         search::search_next_filename,
         images::get_image_size,
         images::get_thumbnail,

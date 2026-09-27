@@ -5,6 +5,7 @@ use tauri::{AppHandle, State};
 
 use anyhow::{anyhow, Context};
 
+use crate::commands::fs_util::parse_file_id_str;
 use crate::commands::images_util::{get_resized_img_fullpath, get_thubmnail_fullpath};
 use crate::file_operations::file_utils::{self, touch_file};
 use crate::file_operations::image_utils::{
@@ -37,10 +38,7 @@ pub fn get_image_size_impl(
     tab_id: TabId,
     file_id: String,
 ) -> anyhow::Result<Option<Dimension>> {
-    let file_id: u64 = file_id
-        .parse()
-        .map_err(|_| anyhow!("invalid file_id as u64"))?;
-
+    let file_id = parse_file_id_str(&file_id)?;
     // 元画像ファイル情報取得
     let (dir, file) = get_tab_file(state, tab_id, file_id)?;
 
@@ -92,10 +90,7 @@ pub fn get_thumbnail_impl(
     file_id: &str,
     size: &Dimension,
 ) -> anyhow::Result<GetThumbnailResult> {
-    let file_id: u64 = file_id
-        .parse()
-        .map_err(|_| anyhow!("invalid file_id as u64"))?;
-
+    let file_id = parse_file_id_str(file_id)?;
     // 元画像ファイル情報取得
     let (dir, file) = get_tab_file(state, tab_id, file_id)?;
     let meta = match read_metadata(&dir, &file.name) {
@@ -223,9 +218,7 @@ pub fn get_resized_img_impl(
     file_id: &str,
     target_size: &Dimension,
 ) -> anyhow::Result<GetResizedImgResult> {
-    let file_id: u64 = file_id
-        .parse()
-        .map_err(|_| anyhow!("invalid file_id as u64"))?;
+    let file_id = parse_file_id_str(file_id)?;
 
     // 元画像ファイルメタデータ取得
     let (dir, file) = get_tab_file(state, tab_id, file_id)?;

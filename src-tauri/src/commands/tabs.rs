@@ -10,7 +10,7 @@ use anyhow::anyhow;
 use tauri::{AppHandle, State};
 
 use crate::{
-    commands::fs_util,
+    commands::fs_util::{self, parse_file_id_str},
     file_operations::{file_utils, file_watcher::FileWatcher},
     state::{
         app_state::AppState,
@@ -230,9 +230,7 @@ async fn clone_tab_child_dir_impl<E: EventEmitter>(
     tab_id: TabId,
     file_id: String,
 ) -> anyhow::Result<CreateTabResult> {
-    let file_id: u64 = file_id
-        .parse()
-        .map_err(|_| anyhow!("invalid file_id as u64"))?;
+    let file_id: u64 = parse_file_id_str(&file_id)?;
     let (path, file) = fs_util::get_tab_file(state, tab_id, file_id)?;
     if !file.is_dir {
         return Err(anyhow!("not a dir"));
@@ -429,7 +427,7 @@ async fn get_file_infos_impl(
     let mut tab = tab.write().unwrap();
     let mut ret = Vec::new();
     for s in file_ids {
-        let file_id: u64 = s.parse().map_err(|_| anyhow!("invalid file_id as u64"))?;
+        let file_id = parse_file_id_str(&s)?;
         tab.load_metadata(file_id)?;
         let file_info = tab.get_file_info(file_id)?;
         ret.push(file_info.to_ui(file_id)?);

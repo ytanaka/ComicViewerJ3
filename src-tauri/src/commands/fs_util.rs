@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use anyhow::anyhow;
+
 use crate::{
     state::app_state::AppState,
     types::{FileId, FileInfoOS, TabId},
@@ -20,4 +22,10 @@ pub fn get_tab_file(
     let tab = tab.read().unwrap();
     let ret = tab.get_file_info(file_id)?;
     Ok((tab.get_path().to_path_buf(), ret.clone()))
+}
+
+pub fn parse_file_id_str(file_id: &str) -> anyhow::Result<u64> {
+    file_id
+        .parse()
+        .map_err(|_| anyhow!("invalid file_id as u64"))
 }
