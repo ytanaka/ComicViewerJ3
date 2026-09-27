@@ -16,6 +16,7 @@ import {
 } from './bindings';
 import { logErr } from './tools/log';
 import { toast } from 'sonner';
+import { dialogCommands } from './commands/dialog-commands';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
@@ -224,10 +225,7 @@ export function handleRustCmdFileOpResult(
         break;
     }
     if (errMsg) {
-      toast.info(errMsg, {
-        id: 'handleRustCmdFileOpResult',
-        duration: 3000,
-      });
+      dialogCommands.showMsgDialog("エラー", errMsg);
       return false;
     } else {
       if (okFn) okFn();

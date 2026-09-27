@@ -32,6 +32,10 @@ export const dialogCommands = {
     });
   },
 
+  showMsgDialog(title: string, msg: string) {
+    useOkCancelDialogStore.getState().showDialogNoCancel(title, msg);
+  },
+
   showInputDialog(title: string, msg: string, defaultValue: string): Promise<string | null> {
     return new Promise<string | null>(resolve => {
       useInputDialogStore.getState().showDialog(title, msg, defaultValue, resolve);

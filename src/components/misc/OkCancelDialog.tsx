@@ -43,7 +43,7 @@ export function OkCancelDialog() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => handleOkCancel(false)}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel hidden={dialogState.hideCancelButton} onClick={() => handleOkCancel(false)}>Cancel</AlertDialogCancel>
           <AlertDialogAction autoFocus={true} onClick={() => handleOkCancel(true)}>
             Ok
           </AlertDialogAction>
@@ -56,23 +56,38 @@ export function OkCancelDialog() {
 interface OkCancelDialogStore {
   title: string;
   msg: string;
+  hideCancelButton: boolean;
   resolve: ((value: boolean) => void) | null;
 
   showDialog: (title: string, msg: string, resolve: (value: boolean) => void) => void;
+  showDialogNoCancel: (title: string, msg: string) => void;
 }
 export const useOkCancelDialogStore = create<OkCancelDialogStore>()(set => ({
-  msg: '',
   title: '',
+  msg: '',
+  hideCancelButton: false,
   resolve: null,
 
   showDialog: (title: string, msg: string, resolve: (value: boolean) => void) => {
     useUiVolatileStore.getState().setField('showOkCancelDialog', true);
-
     set(() => {
       return {
         title,
         msg,
+        hideCancelButton: false,
         resolve,
+      };
+    });
+  },
+
+  showDialogNoCancel: (title: string, msg: string) => {
+    useUiVolatileStore.getState().setField('showOkCancelDialog', true);
+    set(() => {
+      return {
+        title,
+        msg,
+        hideCancelButton: true,
+        resolve: null,
       };
     });
   },
