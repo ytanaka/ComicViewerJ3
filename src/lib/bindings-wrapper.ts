@@ -12,6 +12,7 @@ import {
   SortCondition,
   SortType,
   TabInfoUI,
+  FileOpResult,
 } from './bindings';
 import { logErr } from './tools/log';
 import { toast } from 'sonner';
@@ -196,6 +197,40 @@ export function handleRustCmdCreateTabResult(
       return false;
     } else {
       if (okFn) okFn(either.Right);
+      return true;
+    }
+  });
+}
+
+export function handleRustCmdFileOpResult(
+  result: RustCmdResult<FileOpResult>,
+  logComment: string,
+  userMsg: string,
+  okFn?: () => void
+): boolean {
+  return handleRustCmdResult(result, logComment, userMsg, opResult => {
+    let errMsg = null;
+    switch (opResult.type) {
+      case 'AlreadyExists':
+        errMsg = 'すでに存在します';
+        break;
+      case 'InvalidFilename':
+        errMsg = 'その名前は使用できません';
+        break;
+      case 'Fail':
+        errMsg = opResult.error_msg;
+        break;
+      case 'Success':
+        break;
+    }
+    if (errMsg) {
+      toast.info(errMsg, {
+        id: 'handleRustCmdFileOpResult',
+        duration: 3000,
+      });
+      return false;
+    } else {
+      if (okFn) okFn();
       return true;
     }
   });

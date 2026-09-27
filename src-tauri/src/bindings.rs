@@ -27,6 +27,8 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::create_file,
         fs::create_directory,
         fs::rename_file,
+        fs::remove_files,
+        fs::prepare_file_op,
         search::search_next_filename,
         images::get_image_size,
         images::get_thumbnail,

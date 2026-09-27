@@ -1,5 +1,5 @@
 import { useTabStore } from "@/store/tab/store";
-import { DirEntry, handleRustCmdResult, rustcmds, TabInfo } from "../bindings-wrapper";
+import { DirEntry, handleRustCmdFileOpResult, rustcmds, TabInfo } from "../bindings-wrapper";
 import { getQueryData_getDirEntries } from "@/services/tab-dir-entry";
 import { dialogCommands } from "./dialog-commands";
 
@@ -15,7 +15,7 @@ export const fileCommands = {
     const name = await dialogCommands.showInputDialog("新規ファイル作成", "", "新規ファイル.txt");
     if (!name) return;
     const result = await rustcmds.createFile(tab.id, name);
-    handleRustCmdResult(result, `rustcmds.createFile(${tab.id},${name})`, '作成できません', () => {
+    handleRustCmdFileOpResult(result, `rustcmds.createFile(${tab.id},${name})`, '作成できません', () => {
       st().pushHistory(tab.id, tab.path, name);
     });
   },
@@ -27,7 +27,7 @@ export const fileCommands = {
     const name = await dialogCommands.showInputDialog("新規ディレクトリ作成", "", "");
     if (!name) return;
     const result = await rustcmds.createDirectory(tab.id, name);
-    handleRustCmdResult(result, `rustcmds.createDirectory(${tab.id},${name})`, '作成できません', () => {
+    handleRustCmdFileOpResult(result, `rustcmds.createDirectory(${tab.id},${name})`, '作成できません', () => {
       st().pushHistory(tab.id, tab.path, name);
     });
   },
@@ -40,7 +40,7 @@ export const fileCommands = {
     const name = await dialogCommands.showInputDialog("名前変更", "", sel[0].name);
     if (!name || name === sel[0].name) return;
     const result = await rustcmds.renameFile(tab.id, sel[0].file_id, name);
-    handleRustCmdResult(result, `rustcmds.renameFile(${tab.id},${sel[0].file_id},${name})`, '変更できません', () => {
+    handleRustCmdFileOpResult(result, `rustcmds.renameFile(${tab.id},${sel[0].file_id},${name})`, '変更できません', () => {
       st().pushHistory(tab.id, tab.path, name);
     });
   }

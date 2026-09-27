@@ -39,11 +39,15 @@ export const commands = {
 	/**  ファイル一覧をソートする (まだソートできない場合は false を返す) */
 	sortFiles: (tabId: number, sortCondition: SortCondition) => typedError<boolean, string>(__TAURI_INVOKE("sort_files", { tabId, sortCondition })),
 	/**  新規ファイル */
-	createFile: (tabId: number, name: string) => typedError<null, string>(__TAURI_INVOKE("create_file", { tabId, name })),
+	createFile: (tabId: number, name: string) => typedError<FileOpResult, string>(__TAURI_INVOKE("create_file", { tabId, name })),
 	/**  新規ディレクトリ */
-	createDirectory: (tabId: number, name: string) => typedError<null, string>(__TAURI_INVOKE("create_directory", { tabId, name })),
+	createDirectory: (tabId: number, name: string) => typedError<FileOpResult, string>(__TAURI_INVOKE("create_directory", { tabId, name })),
 	/**  リネーム */
-	renameFile: (tabId: number, fileId: string, name: string) => typedError<null, string>(__TAURI_INVOKE("rename_file", { tabId, fileId, name })),
+	renameFile: (tabId: number, fileId: string, name: string) => typedError<FileOpResult, string>(__TAURI_INVOKE("rename_file", { tabId, fileId, name })),
+	/**  削除 */
+	removeFiles: (tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds })),
+	/**  削除、コピー、移動の準備 */
+	prepareFileOp: (tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("prepare_file_op", { tabId, fileIds })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  画像のサイズを取得 */
@@ -128,6 +132,16 @@ export type FileNotifyEvent = {
 	tab_id: number,
 	file_id: number | null,
 };
+
+export type FileOpResult = 
+/**  成功 */
+{ type: "Success" } | 
+/**  不正なファイル名 */
+{ type: "InvalidFilename" } | 
+/**  すでに存在している */
+{ type: "AlreadyExists" } | 
+/**  システムエラー以外の失敗 (リネームですでに存在しているなど) */
+{ type: "Fail"; error_msg: string };
 
 /**  ファイル検索結果 */
 export type FileSearchResult = 
