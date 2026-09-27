@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 
 import { useTabStore } from '@/store/tab/store';
 import { searchHelper } from '../commands/search-helper';
-import { fileCommands } from '../commands/file-commands';
 import { dialogCommands } from '../commands/dialog-commands';
 import { DirEntry, TabInfo } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
@@ -13,6 +12,7 @@ import { UiTab } from '@/store/tab/types';
 import { isPictureFileExtension } from '../tools/string-util';
 import { getUIStore_checkInvokeByOsExt } from '@/store/ui-store';
 import { programCommands } from '../commands/program-commands';
+import { tabCommands } from '../commands/tab-commands';
 
 function st() {
   return useTabStore.getState();
@@ -130,7 +130,7 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     return actionForDirEntry(tab, ent);
   }
   if (NO_MOD && e.key === 'Backspace') {
-    fileCommands.moveToParentDir();
+    tabCommands.moveToParentDir();
     st().setImageView(tabInfo.id, false);
     return true;
   }
@@ -198,7 +198,7 @@ function actionForDirEntry(tab: UiTab, ent: DirEntry): boolean {
   if (tab.imageViewMode.enable) return false;
 
   if (ent.is_dir) {
-    fileCommands.moveToChildDirectory(ent);
+    tabCommands.moveToChildDirectory(ent);
     return true;
   } else {
     // OSに任せる拡張子

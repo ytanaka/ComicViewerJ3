@@ -4,6 +4,7 @@ import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 import { useTabStore } from '@/store/tab/store';
 import { mkUiTab, TabId } from '@/store/tab/types';
 import {
+  DirEntry,
   handleRustCmdCreateTabResult,
   handleRustCmdResult,
   RustCmdResult,
@@ -96,4 +97,48 @@ export const tabCommands = {
     else if (st().tabs.length <= index) index = 0;
     this.setCurrentTabIndex(index);
   },
+
+  // 親ディレクトリへ移動
+  async moveToParentDir() {
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+    const comment = `rustcmds.cloneTabParentDir(${tab.info.id})`;
+    _moveDir(tab.info, comment, () => {
+      return rustcmds.cloneTabParentDir(tab.info.id);
+    });
+  },
+
+  // 子ディレクトリに移動
+  async moveToChildDirectory(dirEntry: DirEntry) {
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+    const comment = `rustcmds.cloneTabChildDir(${tab.info.id},${dirEntry.file_id})`;
+    _moveDir(tab.info, comment, () => {
+      return rustcmds.cloneTabChildDir(tab.info.id, dirEntry.file_id);
+    });
+  },
+
+  // 次、前のディレクトリに移動
+  async moveToPrevNextDirectory(move: number) {
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+    const comment = `rustcmds.cloneTabSiblingDir(${tab.info.id},${move})`;
+    _moveDir(tab.info, comment, () => {
+      return rustcmds.cloneTabSiblingDir(tab.info.id, 0 < move);
+    });
+  },
 };
+
+async function _moveDir(
+  tab: TabInfo,
+  comment: string,
+  createNewTabFn: () => Promise<RustCmdResult<Either<CreateTabError, TabInfo>>>
+) {
+  const result = await createNewTabFn();
+  handleRustCmdCreateTabResult(result, comment, 'ディレクトリ移動できません', async data => {
+    st().updateTab(tab.id, data);
+    removeQueries_tab(tab.id);
+    const result = await rustcmds.removeTab(tab.id);
+    handleRustCmdResult(result, `rustcmds.removeTab(${tab.id})`, 'タブ更新失敗');
+  });
+}
