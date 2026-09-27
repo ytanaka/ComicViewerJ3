@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
@@ -14,7 +15,6 @@ import {
 import { removeQueries_tab } from '@/services/tab';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
 import { useUiStore } from '@/store/ui-store';
-import { toast } from 'sonner';
 import { CreateTabError, Either } from '../bindings';
 
 function st() {

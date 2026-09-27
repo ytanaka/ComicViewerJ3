@@ -9,6 +9,7 @@ import { searchCommands } from './commands/search-commands';
 import { imageCommands } from './commands/image-commands';
 import { zoomLevelNormalize } from './tools/image-zoom';
 import { programCommands } from './commands/program-commands';
+import { fileCommands } from './commands/file-commands';
 
 type MenuExec = () => Promise<void> | void;
 
@@ -147,7 +148,7 @@ export const menuItems = {
   pasteFile: M('貼り付け', () => console.log('PASTE!!!'), 'Ctrl//V', hasTab),
 
   deleteFile: M('削除', () => console.log('DEL!!!'), 'Delete', isSelected1File),
-  renameFile: M('名前変更', () => console.log('RENAME!!!'), 'F2', isSelected1File),
+  renameFile: M('名前変更', fileCommands.rename, 'F2', isSelected1File),
 
   preference: M('設定', dialogCommands.openPreference, 'Ctrl//,'),
   bookmark: M('ブックマーク', dialogCommands.openBookmark, 'Ctrl//B', hasTab),

@@ -23,8 +23,6 @@ export function fileSearchInput_handleKeyDown(e: KeyboardEvent): boolean {
 }
 
 function fileSearchInput_handleKeyDown_impl(e: KeyboardEvent): boolean {
-  if (dialogCommands.isOpenAnyDialog()) return false;
-
   // Shift以外のキーは無効
   if (e.ctrlKey || e.altKey) return false;
   // Shift押しただけは入力がないけどOK

@@ -1,3 +1,4 @@
+import { useInputDialogStore } from '@/components/misc/InputDialog';
 import { useOkCancelDialogStore } from '@/components/misc/OkCancelDialog';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
@@ -7,7 +8,8 @@ export const dialogCommands = {
     return (
       useUiVolatileStore.getState().showPreferencesDialog ||
       useUiVolatileStore.getState().showBookmarkManager ||
-      useUiVolatileStore.getState().showOkCancelDialog
+      useUiVolatileStore.getState().showOkCancelDialog ||
+      useUiVolatileStore.getState().showInputDialog
     );
   },
 
@@ -27,6 +29,12 @@ export const dialogCommands = {
   showOkCancelDialog(title: string, msg: string): Promise<boolean> {
     return new Promise<boolean>(resolve => {
       useOkCancelDialogStore.getState().showDialog(title, msg, resolve);
+    });
+  },
+
+  showInputDialog(title: string, msg: string, defaultValue: string): Promise<string | null> {
+    return new Promise<string | null>(resolve => {
+      useInputDialogStore.getState().showDialog(title, msg, defaultValue, resolve);
     });
   },
 };
