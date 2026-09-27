@@ -38,6 +38,8 @@ export const commands = {
 	getFileInfos: (tabId: number, fileIds: string[]) => typedError<FileInfoUI[], string>(__TAURI_INVOKE("get_file_infos", { tabId, fileIds })),
 	/**  ファイル一覧をソートする (まだソートできない場合は false を返す) */
 	sortFiles: (tabId: number, sortCondition: SortCondition) => typedError<boolean, string>(__TAURI_INVOKE("sort_files", { tabId, sortCondition })),
+	/**  新規ファイル */
+	createFile: (tabId: number, name: string) => typedError<null, string>(__TAURI_INVOKE("create_file", { tabId, name })),
 	/**  リネーム */
 	renameFile: (tabId: number, fileId: string, name: string) => typedError<null, string>(__TAURI_INVOKE("rename_file", { tabId, fileId, name })),
 	/**  ローマ字入力からファイル名をあいまい検索 */

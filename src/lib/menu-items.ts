@@ -123,7 +123,7 @@ function notImageOriginalSize() {
 export const menuItems = {
   // -------------------- File --------------------
   openDir: M('ディレクトリを選択して新しいタブを開く', windowCommands.openDirectory, 'Ctrl//O'),
-  createEmptyFile: M('ファイル作成', () => console.log('CREATE FILE!!!'), 'Ctrl//F', hasTab),
+  createEmptyFile: M('ファイル作成', fileCommands.create, 'Ctrl//F', hasTab),
   createDir: M('ディレクトリ作成', () => console.log('CREATE DIR!!!'), 'Ctrl//K', hasTab),
   openExplorer: M(
     'OSの機能でファイルを開く',

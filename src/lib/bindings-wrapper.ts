@@ -59,6 +59,9 @@ export const rustcmds = {
     return commands.sortFiles(tabId, sortCondition);
   },
 
+  createFile: (tabId: TabId, name: string) => {
+    return commands.createFile(tabId, name);
+  },
   renameFile: (tabId: TabId, fileId: FileId, name: string) => {
     return commands.renameFile(tabId, fileId.toString(), name);
   },

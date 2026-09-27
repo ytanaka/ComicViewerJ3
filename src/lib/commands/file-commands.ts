@@ -8,12 +8,24 @@ function st() {
 }
 
 export const fileCommands = {
+  async create() {
+    const { tab } = getSelectedFiles();
+    if (!tab) return;
+
+    const name = await dialogCommands.showInputDialog("新規ファイル作成", "", "新規ファイル.txt");
+    if (!name) return;
+    const result = await rustcmds.createFile(tab.id, name);
+    handleRustCmdResult(result, `rustcmds.createFile(${tab.id},${name})`, '作成できません', () => {
+      st().pushHistory(tab.id, tab.path, name);
+    });
+  },
+
   async rename() {
     const { tab, sel } = getSelectedFiles();
     if (!tab || !sel) return;
     if (sel.length !== 1) return;
 
-    const name = await dialogCommands.showInputDialog("リネーム", "", sel[0].name);
+    const name = await dialogCommands.showInputDialog("名前変更", "", sel[0].name);
     if (!name || name === sel[0].name) return;
     const result = await rustcmds.renameFile(tab.id, sel[0].file_id, name);
     handleRustCmdResult(result, `rustcmds.renameFile(${tab.id},${sel[0].file_id},${name})`, '変更できません', () => {

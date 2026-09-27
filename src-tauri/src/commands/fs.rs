@@ -13,6 +13,44 @@ use crate::{
 // ---------------------------------------------------------------------------------------------------------------------
 #[tauri::command]
 #[specta::specta]
+/// 新規ファイル
+pub async fn create_file(
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    name: String,
+) -> Result<(), String> {
+    LOG_RESULT!(format!("create_file({}, {})", tab_id, name), {
+        create_file_impl(state, tab_id, name)
+            .await
+            .map_err(|e| e.to_string())
+    })
+}
+async fn create_file_impl(
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    name: String,
+) -> anyhow::Result<()> {
+    if !is_valid_filename(&name) {
+        return Err(anyhow!("invalid filename {}", &name));
+    }
+
+    let tab = state.get_tab(tab_id)?;
+    let tab = tab.read().unwrap();
+    let to = tab.get_path().join(&name);
+
+    // Path::exists, try_exists だと壊れたシンボリックリンクは存在しないとみなすので Path::symlink_metadata を使う
+    if to.symlink_metadata().is_ok() {
+        return Err(anyhow!("exists {}", &name));
+    }
+
+    fs::File::create(to)?;
+
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+#[tauri::command]
+#[specta::specta]
 /// リネーム
 pub async fn rename_file(
     state: State<'_, Arc<AppState>>,
