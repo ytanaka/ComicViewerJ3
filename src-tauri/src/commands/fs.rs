@@ -43,7 +43,45 @@ async fn create_file_impl(
         return Err(anyhow!("exists {}", &name));
     }
 
-    fs::File::create(to)?;
+    fs::File::create_new(to)?;
+
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+#[tauri::command]
+#[specta::specta]
+/// 新規ディレクトリ
+pub async fn create_directory(
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    name: String,
+) -> Result<(), String> {
+    LOG_RESULT!(format!("create_directory({}, {})", tab_id, name), {
+        create_directory_impl(state, tab_id, name)
+            .await
+            .map_err(|e| e.to_string())
+    })
+}
+async fn create_directory_impl(
+    state: State<'_, Arc<AppState>>,
+    tab_id: TabId,
+    name: String,
+) -> anyhow::Result<()> {
+    if !is_valid_filename(&name) {
+        return Err(anyhow!("invalid filename {}", &name));
+    }
+
+    let tab = state.get_tab(tab_id)?;
+    let tab = tab.read().unwrap();
+    let to = tab.get_path().join(&name);
+
+    // Path::exists, try_exists だと壊れたシンボリックリンクは存在しないとみなすので Path::symlink_metadata を使う
+    if to.symlink_metadata().is_ok() {
+        return Err(anyhow!("exists {}", &name));
+    }
+
+    fs::create_dir(to)?;
 
     Ok(())
 }

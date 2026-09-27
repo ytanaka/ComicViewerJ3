@@ -8,7 +8,7 @@ function st() {
 }
 
 export const fileCommands = {
-  async create() {
+  async createFile() {
     const { tab } = getSelectedFiles();
     if (!tab) return;
 
@@ -16,6 +16,18 @@ export const fileCommands = {
     if (!name) return;
     const result = await rustcmds.createFile(tab.id, name);
     handleRustCmdResult(result, `rustcmds.createFile(${tab.id},${name})`, '作成できません', () => {
+      st().pushHistory(tab.id, tab.path, name);
+    });
+  },
+
+  async createDirectory() {
+    const { tab } = getSelectedFiles();
+    if (!tab) return;
+
+    const name = await dialogCommands.showInputDialog("新規ディレクトリ作成", "", "");
+    if (!name) return;
+    const result = await rustcmds.createDirectory(tab.id, name);
+    handleRustCmdResult(result, `rustcmds.createDirectory(${tab.id},${name})`, '作成できません', () => {
       st().pushHistory(tab.id, tab.path, name);
     });
   },

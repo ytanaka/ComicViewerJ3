@@ -62,6 +62,9 @@ export const rustcmds = {
   createFile: (tabId: TabId, name: string) => {
     return commands.createFile(tabId, name);
   },
+  createDirectory: (tabId: TabId, name: string) => {
+    return commands.createDirectory(tabId, name);
+  },
   renameFile: (tabId: TabId, fileId: FileId, name: string) => {
     return commands.renameFile(tabId, fileId.toString(), name);
   },
