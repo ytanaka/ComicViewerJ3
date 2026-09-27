@@ -29,3 +29,17 @@ pub fn parse_file_id_str(file_id: &str) -> anyhow::Result<u64> {
         .parse()
         .map_err(|_| anyhow!("invalid file_id as u64"))
 }
+
+pub fn is_valid_filename(name: &str) -> bool {
+    #[cfg(target_os = "windows")]
+    {
+        !name.chars().any(|c| {
+            matches!(c, '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*') || c.is_control()
+        })
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    {
+        !name.chars().any(|c| c == '/' || c == '\0')
+    }
+}

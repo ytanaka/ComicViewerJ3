@@ -4,7 +4,10 @@ use anyhow::anyhow;
 use tauri::State;
 
 use crate::{
-    commands::fs_util::parse_file_id_str, state::app_state::AppState, types::TabId, LOG_RESULT,
+    commands::fs_util::{is_valid_filename, parse_file_id_str},
+    state::app_state::AppState,
+    types::TabId,
+    LOG_RESULT,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -29,6 +32,10 @@ async fn rename_file_impl(
     file_id: &str,
     name: String,
 ) -> anyhow::Result<()> {
+    if !is_valid_filename(&name) {
+        return Err(anyhow!("invalid filename {}", &name));
+    }
+
     let tab = state.get_tab(tab_id)?;
     let tab = tab.read().unwrap();
     let file_id = parse_file_id_str(file_id)?;
