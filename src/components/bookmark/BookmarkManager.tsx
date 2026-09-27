@@ -21,7 +21,7 @@ export function BookmarkManager() {
   const list = useBookmarkStore(state => state.list);
   const focusIndex = useBookmarkStore(state => state.focusIndex);
 
-  // ブックマークのファイル名が有効か
+  // ブックマークにファイル名を含めるか
   const [enableName, setEnableName] = useState(true);
   function handleNameToggle() {
     setEnableName(state => !state);
