@@ -1,6 +1,5 @@
 use std::{
     fs,
-    os::windows::fs::MetadataExt,
     path::PathBuf,
     sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
@@ -275,7 +274,7 @@ async fn get_files_property_impl3(
             result_event.dires += 1;
         } else {
             result_event.files += 1;
-            result_event.size += meta.file_size();
+            result_event.size += meta.len();
         }
 
         emit_event(app, result_event)?;
