@@ -73,6 +73,7 @@ export type AppConstants = {
 	/**  ファイル更新イベントのID */
 	event_name_file_updaet_notify: string,
 	event_name_get_files_property: string,
+	event_name_file_operation_progress_notify: string,
 };
 
 export type AppPreferences = {

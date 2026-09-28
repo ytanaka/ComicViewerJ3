@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { listen as tauri_listen } from '@tauri-apps/api/event';
 
-import { GetFilesPropertyNotifyEvent } from './bindings';
 import { useAppConstantsStore } from '@/store/app-constants';
 import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
+import { GetFilesPropertyNotifyEvent } from '../bindings';
 
 let initializing = false;
 

@@ -58,12 +58,15 @@ pub struct AppConstants {
     /// ファイル更新イベントのID
     pub event_name_file_updaet_notify: String,
     pub event_name_get_files_property: String,
+    pub event_name_file_operation_progress_notify: String,
 }
 impl AppConstants {
     pub fn new() -> Self {
         Self {
             event_name_file_updaet_notify: EVENT_NAME_FILE_UPDATE_NOTIFY.to_string(),
             event_name_get_files_property: EVENT_NAME_GET_FILES_PROPERTY_NOTIFY.to_string(),
+            event_name_file_operation_progress_notify: EVENT_NAME_FILE_OPERATION_PROGRESS_NOTIFY
+                .to_string(),
         }
     }
 }
@@ -435,6 +438,7 @@ pub struct FileUpdateNotifyEvent {
 }
 
 pub const EVENT_NAME_GET_FILES_PROPERTY_NOTIFY: &str = "get-files-property-notify";
+pub const EVENT_NAME_FILE_OPERATION_PROGRESS_NOTIFY: &str = "file-operation-progress-notify";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 /// ディレクトリの状態取得結果を通知する
