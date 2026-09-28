@@ -39,6 +39,28 @@ export const fileCommands = {
     });
   },
 
+  async delete() {
+    const { tab, sel } = getSelectedFiles();
+    if (!tab || !sel) return;
+    if (sel.length === 0) return;
+
+    const taskId = getNextTaskId();
+    const dialogResult = dialogCommands.showPrepareDeleteDialog(tab, sel, taskId);
+    const result = await rustcmds.getFilesProperty(tab.id, sel.map(ent => ent.file_id), taskId);
+    handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}])`, 'ファイル情報取得失敗');
+    if (result.status === 'error') {
+      return;
+    }
+    // キャンセルされた
+    if (!(await dialogResult)) return;
+
+    
+
+
+
+
+  },
+
   async rename() {
     const { tab, sel } = getSelectedFiles();
     if (!tab || !sel) return;
@@ -63,12 +85,9 @@ export const fileCommands = {
     if (sel.length !== 1) return;
 
     const taskId = getNextTaskId();
-    dialogCommands.showFilePropertyDialog(taskId, sel[0]);
+    dialogCommands.showFilePropertyDialog(tab, sel[0], taskId);
     const result = await rustcmds.getFilesProperty(tab.id, [sel[0].file_id], taskId);
     handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}])`, 'ファイル情報取得失敗');
-    if (result.status === 'error') {
-      dialogCommands.closeFileOperationDialog();
-    }
   },
 };
 

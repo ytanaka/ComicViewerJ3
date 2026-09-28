@@ -2,30 +2,39 @@ import { create } from 'zustand';
 
 import { GetFilesPropertyNotifyEvent } from '@/lib/bindings';
 import { FileOperationDialogType } from '@/components/misc/FileOperationDialog';
-import { DirEntry } from '@/lib/bindings-wrapper';
+import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { useUiVolatileStore } from './ui-volatile-store';
 
 export type TaskId = number & { readonly __brand: unique symbol };
 
 // Rustの get_files_property() を呼んだ後に通知されるデータを格納する
 export interface GetFilesPropertyStore {
+  tab: TabInfo | null,
+  files: DirEntry[];
   type: FileOperationDialogType | null;
   taskId: TaskId | null;
-  files: DirEntry[];
+  resolve: ((value: boolean) => void) | null;
+
   property: GetFilesPropertyNotifyEvent | null;
 
-  init: (files: DirEntry[], taskId: TaskId, type: FileOperationDialogType) => void;
+  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: FileOperationDialogType, resolve: (value: boolean) => void) => void;
   setProperty: (val: GetFilesPropertyNotifyEvent) => void;
 }
 
 export const useGetFilesPropertyStore = create<GetFilesPropertyStore>()((set, get) => ({
+  tab: null,
+  files: [],
   type: null,
   taskId: null,
-  files: [],
+  resolve: null,
+
   property: null,
 
-  init: (files: DirEntry[], taskId: TaskId, type: FileOperationDialogType) => {
+  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: FileOperationDialogType, resolve: (value: boolean) => void) => {
+    useUiVolatileStore.getState().setField('showFileOperationDialog', true);
+
     set(() => {
-      return { taskId, type, files, property: null };
+      return { tab, files, taskId, type, resolve, property: null, };
     });
   },
   setProperty: (val: GetFilesPropertyNotifyEvent) => {

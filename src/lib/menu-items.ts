@@ -142,7 +142,7 @@ export const menuItems = {
   cutFile: M('切り取り', () => console.log('CUT!!!'), 'Ctrl//X', isSelectedAnyFile),
   pasteFile: M('貼り付け', () => console.log('PASTE!!!'), 'Ctrl//V', hasTab),
 
-  deleteFile: M('削除', () => console.log('DEL!!!'), 'Delete', isSelected1File),
+  deleteFile: M('削除', fileCommands.delete, 'Delete', isSelectedAnyFile),
   renameFile: M('名前変更', fileCommands.rename, 'F2', isSelected1File),
 
   preference: M('設定', dialogCommands.openPreference, 'Ctrl//,'),
