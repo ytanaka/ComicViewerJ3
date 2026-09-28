@@ -9,19 +9,19 @@ import {
   AlertDialogTitle,
 } from '../ui/alert-dialog';
 
-import { useGetFilesPropertyStore } from '@/store/get-files-property-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { getQueryData_getFileInfo1 } from '@/services/tab-file-info';
 import { unixTime2str } from '@/lib/tools/string-util';
+import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 
 // ダイアログの表示モード
-export type FileOperationDialogType = 'property' | 'prepare_remove' | 'prepare_copy';
+export type PrepareFileOperationDialogType = 'property' | 'prepare_remove' | 'prepare_copy';
 
-export function FileOperationDialog() {
+export function PrepareFileOperationDialog() {
   const show = useUiVolatileStore(state => state.showFileOperationDialog);
   const setField = useUiVolatileStore(state => state.setField);
 
-  const dialogState = useGetFilesPropertyStore(state => state);
+  const dialogState = usePrepareFileOperationStore(state => state);
   const type = dialogState.type;
   const files = dialogState.files;
 
@@ -34,27 +34,25 @@ export function FileOperationDialog() {
 
   function showOkButton() {
     if (type === 'property') return true;
-    if (!dialogState.property?.finished) return false;
-    if (dialogState.property.canceled) return false;
-    if (dialogState.property.error_msg) return false;
-    if (dialogState.property.symlinks !== 0) return false;
-    // setFocusOkButton(true);
+    if (!dialogState.event) return;
+    if (!dialogState.event.finished) return false;
+    if (dialogState.event.canceled) return false;
+    if (dialogState.event.error_msg) return false;
+    if (dialogState.event.symlinks !== 0) return false;
     return true;
   }
 
-  let title: string;
-  switch (type) {
-    case 'property':
-      title = `${files[0]?.name} のプロパティ`;
-      break;
-    case 'prepare_copy':
-      title = showOkButton() ? 'コピーしますか？' : 'コピー対象を検査中';
-      break;
-    case 'prepare_remove':
-      title = showOkButton() ? '削除しますか？' : '削除対象を検査中';
-      break;
-    default:
-      title = '???';
+  function getTitle() {
+    switch (type) {
+      case 'property':
+        return `${files[0]?.name} のプロパティ`;
+      case 'prepare_copy':
+        return showOkButton() ? 'コピーしますか？' : 'コピー対象を検査中';
+      case 'prepare_remove':
+        return showOkButton() ? '削除しますか？' : '削除対象を検査中';
+      default:
+        return '???';
+    }
   }
 
   return (
@@ -66,7 +64,7 @@ export function FileOperationDialog() {
     >
       <AlertDialogContent className="max-w-3xl!">
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle>{getTitle()}</AlertDialogTitle>
           <AlertDialogDescription className="max-w-full overflow-x-auto">
             <FilePropertyPanel />
           </AlertDialogDescription>
@@ -83,7 +81,6 @@ export function FileOperationDialog() {
               onClick={() => handleOkCancel(true)}
             >Ok</AlertDialogAction>
           }
-
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -91,7 +88,7 @@ export function FileOperationDialog() {
 }
 
 function FilePropertyPanel() {
-  const file = useGetFilesPropertyStore(state => state.files[0]);
+  const file = usePrepareFileOperationStore(state => state.files[0]);
   if (file.is_dir) {
     return <FilePropertyPanel_dir />;
   } else {
@@ -99,8 +96,8 @@ function FilePropertyPanel() {
   }
 }
 function FilePropertyPanel_file() {
-  const tab = useGetFilesPropertyStore(state => state.tab);
-  const file = useGetFilesPropertyStore(state => state.files[0]);
+  const tab = usePrepareFileOperationStore(state => state.tab);
+  const file = usePrepareFileOperationStore(state => state.files[0]);
   const fileInfo = getQueryData_getFileInfo1(tab!.id, file.file_id);
   return (
     <>
@@ -118,9 +115,9 @@ function FilePropertyPanel_file() {
   )
 }
 function FilePropertyPanel_dir() {
-  const tab = useGetFilesPropertyStore(state => state.tab);
-  const property = useGetFilesPropertyStore(state => state.property);
-  const file = useGetFilesPropertyStore(state => state.files[0]);
+  const tab = usePrepareFileOperationStore(state => state.tab);
+  const property = usePrepareFileOperationStore(state => state.event);
+  const file = usePrepareFileOperationStore(state => state.files[0]);
   const fileInfo = getQueryData_getFileInfo1(tab!.id, file.file_id);
   return (
     <>

@@ -17,7 +17,7 @@ import {
 import { logErr } from './tools/log';
 import { toast } from 'sonner';
 import { dialogCommands } from './commands/dialog-commands';
-import { TaskId } from '@/store/get-files-property-store';
+import { TaskId } from '@/store/prepare-file-operation-store';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
@@ -25,6 +25,10 @@ export const rustcmds = {
   exitApp: commands.exitApp,
   setFullscreen: commands.setFullscreen,
   invokeProgram: commands.invokeProgram,
+  
+  cancelTask: (taskId: TaskId) => {
+    return commands.cancelTask(taskId);
+  },
 
   createTab: (path: string) => {
     return commands.createTab(path).then(result => cnvOk(result, toCreateTabResult));

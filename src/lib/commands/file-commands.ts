@@ -9,6 +9,7 @@ import {
 } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { dialogCommands } from './dialog-commands';
+import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 
 function st() {
   return useTabStore.getState();
@@ -44,6 +45,7 @@ export const fileCommands = {
     if (!tab || !sel) return;
     if (sel.length === 0) return;
 
+    // ダイアログを表示して、削除対象を検査する
     const taskId = getNextTaskId();
     const dialogResult = dialogCommands.showPrepareDeleteDialog(tab, sel, taskId);
     const result = await rustcmds.getFilesProperty(tab.id, sel.map(ent => ent.file_id), taskId);
@@ -51,10 +53,18 @@ export const fileCommands = {
     if (result.status === 'error') {
       return;
     }
-    // キャンセルされた
-    if (!(await dialogResult)) return;
 
-    
+    // キャンセルされた
+    if (!(await dialogResult)) {
+      const event = usePrepareFileOperationStore.getState().event;
+      if (event?.finished !== true) {
+        // 計算途中で閉じられたら、タスクをキャンセルする
+        await rustcmds.cancelTask(taskId);
+      }
+      return;
+    }
+
+
 
 
 
@@ -84,10 +94,19 @@ export const fileCommands = {
     if (!tab || !sel) return;
     if (sel.length !== 1) return;
 
+    // ダイアログを表示して、対象を検査する
     const taskId = getNextTaskId();
-    dialogCommands.showFilePropertyDialog(tab, sel[0], taskId);
+    const dialogResult = dialogCommands.showFilePropertyDialog(tab, sel[0], taskId);
     const result = await rustcmds.getFilesProperty(tab.id, [sel[0].file_id], taskId);
     handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}])`, 'ファイル情報取得失敗');
+
+    // ダイアログが閉じるのを待つ
+    await dialogResult;
+    const event = usePrepareFileOperationStore.getState().event;
+    if (event?.finished !== true) {
+      // 計算途中で閉じられたら、タスクをキャンセルする
+      await rustcmds.cancelTask(taskId);
+    }
   },
 };
 

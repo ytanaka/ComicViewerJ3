@@ -3,7 +3,7 @@ import { listen as tauri_listen } from '@tauri-apps/api/event';
 
 import { GetFilesPropertyNotifyEvent } from './bindings';
 import { useAppConstantsStore } from '@/store/app-constants';
-import { useGetFilesPropertyStore } from '@/store/get-files-property-store';
+import { useGetFilesPropertyStore } from '@/store/prepare-file-operation-store';
 
 let initializing = false;
 
