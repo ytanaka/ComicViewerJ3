@@ -4,6 +4,8 @@ import { listen as tauri_listen } from '@tauri-apps/api/event';
 import { GetFilesPropertyNotifyEvent } from './bindings';
 import { useAppConstantsStore } from '@/store/app-constants';
 
+let initializing = false;
+
 export function TauriGetFilesPropertyEventListener() {
   const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_get_files_property);
   useEffect(() => {
@@ -11,9 +13,12 @@ export function TauriGetFilesPropertyEventListener() {
     let unlistenFn: () => void;
 
     const start = async () => {
+      if (initializing) return;
+      initializing = true;
       unlistenFn = await tauri_listen<GetFilesPropertyNotifyEvent>(EVENT_NAME, async event => {
         console.log("EVENT", event);
       });
+      initializing = false;
       console.info("TauriGetFilesPropertyEventListener: start listen");
     }
     start();

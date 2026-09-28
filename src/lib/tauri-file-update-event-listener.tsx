@@ -27,6 +27,8 @@ async function processQueue() {
   processing = false;
 }
 
+let initializing = false;
+
 export function TauriFileUpdateEventListener() {
   const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_updaet_notify);
   useEffect(() => {
@@ -34,10 +36,13 @@ export function TauriFileUpdateEventListener() {
     let unlistenFn: () => void;
 
     const start = async () => {
+      if (initializing) return;
+      initializing = true;
       unlistenFn = await tauri_listen<FileUpdateNotifyEvent>(EVENT_NAME, async event => {
         queue.push(event.payload);
         processQueue();
       });
+      initializing = false;
       console.info("TauriFileUpdateEventListener: start listen");
     }
     start();
