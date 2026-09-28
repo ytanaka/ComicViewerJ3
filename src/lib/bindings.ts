@@ -71,9 +71,9 @@ export const commands = {
 /**  アプリ初期化時にRustからUIに渡す情報 */
 export type AppConstants = {
 	/**  ファイル更新イベントのID */
-	event_name_file_updaet_notify: string,
+	event_name_file_updaet: string,
 	event_name_get_files_property: string,
-	event_name_file_operation_progress_notify: string,
+	event_name_file_delete_progress: string,
 };
 
 export type AppPreferences = {

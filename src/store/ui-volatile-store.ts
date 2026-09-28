@@ -25,8 +25,8 @@ export interface UiVolatileStore {
   showInputDialog: boolean;
   // ファイルプロパティ、削除準備、コピー準備ダイアログ
   showPrepareFileOperationDialog: boolean;
-  // 削除、コピーダイアログ
-  showFileOperationProgressDialog: boolean;
+  // 削除ダイアログ
+  showFileDeleteProgressDialog: boolean;
 }
 
 type UiVolatileStore_and_Action = UiVolatileStore & {
@@ -43,7 +43,7 @@ export const useUiVolatileStore = create<UiVolatileStore_and_Action>()(set => ({
   showOkCancelDialog: false,
   showInputDialog: false,
   showPrepareFileOperationDialog: false,
-  showFileOperationProgressDialog: false,
+  showFileDeleteProgressDialog: false,
 
   setField: (key, value) => set({ [key]: value }),
 }));

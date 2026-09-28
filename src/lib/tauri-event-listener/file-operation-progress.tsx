@@ -2,14 +2,14 @@ import { useEffect } from 'react';
 import { listen as tauri_listen } from '@tauri-apps/api/event';
 
 import { useAppConstantsStore } from '@/store/app-constants';
-import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 import { GetFilesPropertyNotifyEvent } from '../bindings';
+import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
 
 let initializing = false;
 
-export function TauriFileOperationProgressEventListener() {
-  const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_operation_progress_notify);
-  const setNotifyEvent = usePrepareFileOperationStore(state => state.setNotifyEvent);
+export function TauriFileDeleteProgressEventListener() {
+  const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_delete_progress);
+  const setNotifyEvent = useFileDeleteProgressStore(state => state.setNotifyEvent);
 
   useEffect(() => {
     if (!EVENT_NAME) return;
@@ -22,7 +22,7 @@ export function TauriFileOperationProgressEventListener() {
         setNotifyEvent(event.payload);
       });
       initializing = false;
-      console.info('TauriGetFilesPropertyEventListener: start listen');
+      console.info('TauriFileDeleteProgressEventListener: start listen');
     };
     start();
 

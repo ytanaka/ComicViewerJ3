@@ -10,7 +10,7 @@ import {
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { dialogCommands } from './dialog-commands';
 import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
-import { useFileOperationProgressStore } from '@/store/file-operation-progress-store';
+import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
 
 function st() {
   return useTabStore.getState();
@@ -75,7 +75,7 @@ export const fileCommands = {
       handleRustCmdResult(result, `rustcmds.removeFiles(${tab.id}, [len=${fileIds.length}], ${taskId})`, 'ファイル削除失敗');
 
       // 削除中にキャンセルされた
-      const lastEvent = useFileOperationProgressStore.getState().event;
+      const lastEvent = useFileDeleteProgressStore.getState().event;
       if (!(await dialogResult) || lastEvent?.finished !== true) {
         await rustcmds.cancelTask(taskId);
         return;

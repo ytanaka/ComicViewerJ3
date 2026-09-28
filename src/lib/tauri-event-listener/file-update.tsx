@@ -29,7 +29,7 @@ async function processQueue() {
 let initializing = false;
 
 export function TauriFileUpdateEventListener() {
-  const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_updaet_notify);
+  const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_updaet);
   useEffect(() => {
     if (!EVENT_NAME) return;
     let unlistenFn: () => void;

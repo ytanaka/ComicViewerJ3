@@ -9,40 +9,25 @@ import {
 } from '../ui/alert-dialog';
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { useFileOperationProgressStore } from '@/store/file-operation-progress-store';
+import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
 import { useEffect } from 'react';
 
-// ダイアログの表示モード
-export type FileOperationProgressDialogType = 'remove' | 'copy';
-
-export function FileOperationProgressDialog() {
-  const show = useUiVolatileStore(state => state.showFileOperationProgressDialog);
+export function FileDeleteProgressDialog() {
+  const show = useUiVolatileStore(state => state.showFileDeleteProgressDialog);
   const setField = useUiVolatileStore(state => state.setField);
 
-  const dialogState = useFileOperationProgressStore(state => state);
-  const type = dialogState.type;
+  const dialogState = useFileDeleteProgressStore(state => state);
 
   function handleOkCancel(b: boolean) {
-    setField('showFileOperationProgressDialog', false);
+    setField('showFileDeleteProgressDialog', false);
     if (dialogState.resolve) {
       dialogState.resolve(b);
     }
   }
 
-  function getTitle() {
-    switch (type) {
-      case 'copy':
-        return 'コピー';
-      case 'remove':
-        return '削除';
-      default:
-        return '???';
-    }
-  }
-
   useEffect(() => {
     if (dialogState.event?.finished !== true) return;
-    
+
     // TODO
   }, [dialogState.event?.finished])
 
@@ -55,7 +40,7 @@ export function FileOperationProgressDialog() {
     >
       <AlertDialogContent className="max-w-3xl!">
         <AlertDialogHeader>
-          <AlertDialogTitle>{getTitle()}</AlertDialogTitle>
+          <AlertDialogTitle>削除中</AlertDialogTitle>
           <AlertDialogDescription className="max-w-full overflow-x-auto">
             xxxxxxxxxxxaaa
           </AlertDialogDescription>

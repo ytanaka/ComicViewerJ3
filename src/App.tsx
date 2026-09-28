@@ -18,7 +18,7 @@ import { OkCancelDialog } from './components/dialogs/OkCancelDialog';
 import { InputDialog } from './components/dialogs/InputDialog';
 import { PrepareFileOperationDialog } from './components/dialogs/PrepareFileOperationDialog';
 import { TauriGetFilesPropertyEventListener } from './lib/tauri-event-listener/get-files-property';
-import { FileOperationProgressDialog } from './components/dialogs/FileOperationProgressDialog';
+import { FileDeleteProgressDialog } from './components/dialogs/FileDeleteProgressDialog';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -44,7 +44,7 @@ function App() {
         <OkCancelDialog />
         <InputDialog />
         <PrepareFileOperationDialog />
-        <FileOperationProgressDialog />
+        <FileDeleteProgressDialog />
         <TauriFileUpdateEventListener />
         <TauriGetFilesPropertyEventListener />
         <Toaster
