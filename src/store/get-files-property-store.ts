@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import { GetFilesPropertyNotifyEvent } from '@/lib/bindings';
-import { FileOperationDialogType } from '@/components/misc/FileOperationDialog';
+import { FileOperationDialogType } from '@/components/dialogs/FileOperationDialog';
 import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
 import { useUiVolatileStore } from './ui-volatile-store';
 

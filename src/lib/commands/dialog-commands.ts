@@ -1,5 +1,5 @@
-import { useInputDialogStore } from '@/components/misc/InputDialog';
-import { useOkCancelDialogStore } from '@/components/misc/OkCancelDialog';
+import { useInputDialogStore } from '@/components/dialogs/InputDialog';
+import { useOkCancelDialogStore } from '@/components/dialogs/OkCancelDialog';
 import { TaskId, useGetFilesPropertyStore } from '@/store/get-files-property-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { DirEntry, TabInfo } from '../bindings-wrapper';
