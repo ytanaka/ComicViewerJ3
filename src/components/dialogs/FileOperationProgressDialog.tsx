@@ -16,7 +16,7 @@ import { useEffect } from 'react';
 export type FileOperationProgressDialogType = 'remove' | 'copy';
 
 export function FileOperationProgressDialog() {
-  const show = useUiVolatileStore(state => state.showPrepareFileOperationDialog);
+  const show = useUiVolatileStore(state => state.showFileOperationProgressDialog);
   const setField = useUiVolatileStore(state => state.setField);
 
   const dialogState = useFileOperationProgressStore(state => state);
@@ -57,7 +57,7 @@ export function FileOperationProgressDialog() {
         <AlertDialogHeader>
           <AlertDialogTitle>{getTitle()}</AlertDialogTitle>
           <AlertDialogDescription className="max-w-full overflow-x-auto">
-            xxxxxxxxxxx
+            xxxxxxxxxxxaaa
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -17,6 +17,7 @@ import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-sto
 // ダイアログの表示モード
 export type PrepareFileOperationDialogType = 'property' | 'prepare_remove' | 'prepare_copy';
 
+// ファイルプロパティ画面、削除／コピー準備画面
 export function PrepareFileOperationDialog() {
   const show = useUiVolatileStore(state => state.showPrepareFileOperationDialog);
   const setField = useUiVolatileStore(state => state.setField);
