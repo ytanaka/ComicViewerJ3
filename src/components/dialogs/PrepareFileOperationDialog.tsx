@@ -48,9 +48,9 @@ export function PrepareFileOperationDialog() {
       case 'property':
         return `${files[0]?.name} のプロパティ`;
       case 'prepare_copy':
-        return showOkButton() ? 'コピーしますか？' : 'コピー対象を検査中';
+        return showOkButton() ? `コピーしますか？ (${files.length}個のアイテム)` : 'コピー対象を検査中';
       case 'prepare_remove':
-        return showOkButton() ? '削除しますか？' : '削除対象を検査中';
+        return showOkButton() ? `削除しますか？ (${files.length}個のアイテム)` : '削除対象を検査中';
       default:
         return '???';
     }
@@ -65,9 +65,9 @@ export function PrepareFileOperationDialog() {
     >
       <AlertDialogContent className="max-w-3xl!">
         <AlertDialogHeader>
-          <AlertDialogTitle>{getTitle()}</AlertDialogTitle>
-          <AlertDialogDescription className="max-w-full overflow-x-auto">
-            <FilePropertyPanel />
+          <AlertDialogTitle className='max-w-full w-full' >{getTitle()}</AlertDialogTitle>
+          <AlertDialogDescription className="max-w-full w-full overflow-x-auto">
+            <MainContentPanel />
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -88,15 +88,20 @@ export function PrepareFileOperationDialog() {
   );
 }
 
-function FilePropertyPanel() {
+function MainContentPanel() {
+  const type = usePrepareFileOperationStore(state => state.type);
   const file = usePrepareFileOperationStore(state => state.files[0]);
-  if (file.is_dir) {
-    return <FilePropertyPanel_dir />;
+  if (type === 'property') {
+    if (file.is_dir) {
+      return <PropertyPanel_dir />;
+    } else {
+      return <PropertyPanel_file />;
+    }
   } else {
-    return <FilePropertyPanel_file />;
+    return <PrepareDeleteCopyPanel />
   }
 }
-function FilePropertyPanel_file() {
+function PropertyPanel_file() {
   const tab = usePrepareFileOperationStore(state => state.tab);
   const file = usePrepareFileOperationStore(state => state.files[0]);
   const fileInfo = getQueryData_getFileInfo1(tab!.id, file.file_id);
@@ -115,9 +120,8 @@ function FilePropertyPanel_file() {
     </>
   )
 }
-function FilePropertyPanel_dir() {
+function PropertyPanel_dir() {
   const tab = usePrepareFileOperationStore(state => state.tab);
-  const property = usePrepareFileOperationStore(state => state.event);
   const file = usePrepareFileOperationStore(state => state.files[0]);
   const fileInfo = getQueryData_getFileInfo1(tab!.id, file.file_id);
   return (
@@ -132,12 +136,27 @@ function FilePropertyPanel_dir() {
         <></>
       )}
       <br />
+      <EventNotifyPanel />
+    </>
+  )
+}
+function EventNotifyPanel() {
+  const property = usePrepareFileOperationStore(state => state.event);
+  return (
+    <>
       サイズ: ({property?.size.toLocaleString()} バイト)
       <br />
       ファイル数: {property?.files.toLocaleString()}
       <br />
       ディレクトリ数: {property?.dires.toLocaleString()}
       {property?.symlinks !== 0 && <><br />リンク数: {property?.symlinks.toLocaleString()}</>}
+    </>
+  )
+}
+function PrepareDeleteCopyPanel() {
+  return (
+    <>
+      <EventNotifyPanel />
     </>
   )
 }
