@@ -12,12 +12,12 @@ import { TabBar } from './components/tab/TabBar';
 import { StatusBar } from './components/misc/StatusBar';
 import { PreferencesDialog } from './components/preferences/PreferencesDialog';
 import { BookmarkManager } from './components/bookmark/BookmarkManager';
-import { TauriFileUpdateEventListener } from './lib/tauri-event-listener/tauri-file-update-event-listener';
+import { TauriFileUpdateEventListener } from './lib/tauri-event-listener/file-update';
 import { useUiStore } from './store/ui-store';
 import { OkCancelDialog } from './components/dialogs/OkCancelDialog';
 import { InputDialog } from './components/dialogs/InputDialog';
 import { PrepareFileOperationDialog } from './components/dialogs/PrepareFileOperationDialog';
-import { TauriGetFilesPropertyEventListener } from './lib/tauri-event-listener/tauri-get-files-property-event-listener';
+import { TauriGetFilesPropertyEventListener } from './lib/tauri-event-listener/get-files-property';
 
 function App() {
   const { resolvedTheme } = useTheme();
