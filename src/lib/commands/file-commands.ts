@@ -64,6 +64,8 @@ export const fileCommands = {
       return;
     }
 
+    // 削除実行
+    
 
 
 

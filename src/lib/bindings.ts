@@ -19,7 +19,7 @@ export const commands = {
 	/**  タスク中断 */
 	cancelTask: (taskId: number) => __TAURI_INVOKE<void>("cancel_task", { taskId }),
 	/**  ダミー */
-	dummy: (fileNotify: FileUpdateNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify }),
+	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare }),
 	/**  タブ作成 (絶対パス) */
 	createTab: (path: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("create_tab", { path })),
 	/**  タブ作成 (指定タブと同じパス) */
@@ -47,7 +47,7 @@ export const commands = {
 	/**  リネーム */
 	renameFile: (tabId: number, fileId: string, name: string) => typedError<FileOpResult, string>(__TAURI_INVOKE("rename_file", { tabId, fileId, name })),
 	/**  削除 */
-	removeFiles: (tabId: number, fileIds: string[], prepared: GetFilesPropertyNotifyEvent) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds, prepared })),
+	removeFiles: (tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds })),
 	/**  ファイル／ディレクトリの情報取得 */
 	getFilesProperty: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds, taskId })),
 	/**  ローマ字入力からファイル名をあいまい検索 */

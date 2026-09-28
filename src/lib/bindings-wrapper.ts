@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+
 import { FileId, TabId } from '@/store/tab/types';
 import {
   AppPreferences,
@@ -15,7 +17,6 @@ import {
   FileOpResult,
 } from './bindings';
 import { logErr } from './tools/log';
-import { toast } from 'sonner';
 import { dialogCommands } from './commands/dialog-commands';
 import { TaskId } from '@/store/prepare-file-operation-store';
 
@@ -25,7 +26,7 @@ export const rustcmds = {
   exitApp: commands.exitApp,
   setFullscreen: commands.setFullscreen,
   invokeProgram: commands.invokeProgram,
-  
+
   cancelTask: (taskId: TaskId) => {
     return commands.cancelTask(taskId);
   },
@@ -74,6 +75,9 @@ export const rustcmds = {
   },
   renameFile: (tabId: TabId, fileId: FileId, name: string) => {
     return commands.renameFile(tabId, fileId.toString(), name);
+  },
+  removeFiles: (tabId: number, fileIds: string[]) => {
+    return commands.removeFiles(tabId, fileIds);
   },
   getFilesProperty: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
     return commands.getFilesProperty(

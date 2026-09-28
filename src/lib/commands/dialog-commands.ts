@@ -1,6 +1,6 @@
 import { useInputDialogStore } from '@/components/dialogs/InputDialog';
 import { useOkCancelDialogStore } from '@/components/dialogs/OkCancelDialog';
-import { TaskId, useGetFilesPropertyStore } from '@/store/prepare-file-operation-store';
+import { TaskId, usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { DirEntry, TabInfo } from '../bindings-wrapper';
 
@@ -47,12 +47,12 @@ export const dialogCommands = {
 
   showFilePropertyDialog(tab: TabInfo, file: DirEntry, taskId: TaskId): Promise<boolean> {
     return new Promise<boolean>(resolve => {
-      useGetFilesPropertyStore.getState().showDialog(tab, [file], taskId, 'property', resolve);
+      usePrepareFileOperationStore.getState().showDialog(tab, [file], taskId, 'property', resolve);
     });
   },
   showPrepareDeleteDialog(tab: TabInfo, files: DirEntry[], taskId: TaskId): Promise<boolean> {
     return new Promise<boolean>(resolve => {
-      useGetFilesPropertyStore.getState().showDialog(tab, files, taskId, 'prepare_remove', resolve);
+      usePrepareFileOperationStore.getState().showDialog(tab, files, taskId, 'prepare_remove', resolve);
     });
   },
   closeFileOperationDialog() {
