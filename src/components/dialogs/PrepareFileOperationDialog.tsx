@@ -154,9 +154,12 @@ function EventNotifyPanel() {
   )
 }
 function PrepareDeleteCopyPanel() {
+  const type = usePrepareFileOperationStore(state => state.type);
+  const property = usePrepareFileOperationStore(state => state.event);
   return (
     <>
       <EventNotifyPanel />
+      {property?.symlinks !== 0 && <><br /><br />リンクが含まれているので{type === 'prepare_copy' ? 'コピー' : '削除'}できません</>}
     </>
   )
 }
