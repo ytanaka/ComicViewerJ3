@@ -41,7 +41,7 @@ export const usePrepareFileOperationStore = create<PrepareFileOperationStore>()(
       console.error(`invalid task_id: current task_id = ${get().taskId}`, ev);
       return;
     }
-    console.debug('received event GetFilesPropertyNotifyEvent: ', ev);
+    console.debug('PrepareFileOperationStore: received event:', ev);
     set(state => {
       return { ...state, event: ev };
     });

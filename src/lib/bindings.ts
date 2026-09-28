@@ -47,7 +47,7 @@ export const commands = {
 	/**  リネーム */
 	renameFile: (tabId: number, fileId: string, name: string) => typedError<FileOpResult, string>(__TAURI_INVOKE("rename_file", { tabId, fileId, name })),
 	/**  削除 */
-	removeFiles: (tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds })),
+	removeFiles: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds, taskId })),
 	/**  ファイル／ディレクトリの情報取得 */
 	getFilesProperty: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds, taskId })),
 	/**  ローマ字入力からファイル名をあいまい検索 */

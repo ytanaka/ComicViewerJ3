@@ -10,6 +10,7 @@ import {
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { dialogCommands } from './dialog-commands';
 import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
+import { useFileOperationProgressStore } from '@/store/file-operation-progress-store';
 
 function st() {
   return useTabStore.getState();
@@ -44,33 +45,42 @@ export const fileCommands = {
     const { tab, sel } = getSelectedFiles();
     if (!tab || !sel) return;
     if (sel.length === 0) return;
+    const fileIds = sel.map(ent => ent.file_id);
 
     // ダイアログを表示して、削除対象を検査する
-    const taskId = getNextTaskId();
-    const dialogResult = dialogCommands.showPrepareDeleteDialog(tab, sel, taskId);
-    const result = await rustcmds.getFilesProperty(tab.id, sel.map(ent => ent.file_id), taskId);
-    handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}])`, 'ファイル情報取得失敗');
-    if (result.status === 'error') {
-      return;
-    }
-
-    // キャンセルされた
-    if (!(await dialogResult)) {
-      const event = usePrepareFileOperationStore.getState().event;
-      if (event?.finished !== true) {
-        // 計算途中で閉じられたら、タスクをキャンセルする
-        await rustcmds.cancelTask(taskId);
+    {
+      const taskId = getNextTaskId();
+      const dialogResult = dialogCommands.showPrepareDeleteDialog(tab, sel, taskId);
+      const result = await rustcmds.getFilesProperty(tab.id, fileIds, taskId);
+      handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [len=${fileIds.length}], ${taskId})`, 'ファイル情報取得失敗');
+      if (result.status === 'error') {
+        return;
       }
-      return;
+
+      // 検査中にキャンセルされた
+      const lastEvent = usePrepareFileOperationStore.getState().event;
+      if (!(await dialogResult) || lastEvent?.finished !== true) {
+        await rustcmds.cancelTask(taskId);
+        return;
+      }
     }
 
     // 削除実行
-    
+    {
+      const prepareEvent = usePrepareFileOperationStore.getState().event;
+      if (!prepareEvent) return;
+      const taskId = getNextTaskId();
+      const dialogResult = dialogCommands.showDeleteProgressDialog(tab, sel, taskId, prepareEvent);
+      const result = await rustcmds.removeFiles(tab.id, fileIds, taskId);
+      handleRustCmdResult(result, `rustcmds.removeFiles(${tab.id}, [len=${fileIds.length}], ${taskId})`, 'ファイル削除失敗');
 
-
-
-
-
+      // 削除中にキャンセルされた
+      const lastEvent = useFileOperationProgressStore.getState().event;
+      if (!(await dialogResult) || lastEvent?.finished !== true) {
+        await rustcmds.cancelTask(taskId);
+        return;
+      }
+    }
   },
 
   async rename() {
@@ -100,7 +110,7 @@ export const fileCommands = {
     const taskId = getNextTaskId();
     const dialogResult = dialogCommands.showFilePropertyDialog(tab, sel[0], taskId);
     const result = await rustcmds.getFilesProperty(tab.id, [sel[0].file_id], taskId);
-    handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}])`, 'ファイル情報取得失敗');
+    handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}], ${taskId})`, 'ファイル情報取得失敗');
 
     // ダイアログが閉じるのを待つ
     await dialogResult;

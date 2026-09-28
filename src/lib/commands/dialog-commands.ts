@@ -3,6 +3,8 @@ import { useOkCancelDialogStore } from '@/components/dialogs/OkCancelDialog';
 import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { DirEntry, TabInfo, TaskId } from '../bindings-wrapper';
+import { GetFilesPropertyNotifyEvent } from '../bindings';
+import { useFileOperationProgressStore } from '@/store/file-operation-progress-store';
 
 export const dialogCommands = {
   // 現在ダイアログが開いているか判定
@@ -46,6 +48,7 @@ export const dialogCommands = {
     });
   },
 
+  // ---------------------- prepare file operation ----------------------
   showFilePropertyDialog(tab: TabInfo, file: DirEntry, taskId: TaskId): Promise<boolean> {
     return new Promise<boolean>(resolve => {
       usePrepareFileOperationStore.getState().showDialog(tab, [file], taskId, 'property', resolve);
@@ -56,4 +59,22 @@ export const dialogCommands = {
       usePrepareFileOperationStore.getState().showDialog(tab, files, taskId, 'prepare_remove', resolve);
     });
   },
+  showPrepareDialog(tab: TabInfo, files: DirEntry[], taskId: TaskId): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      usePrepareFileOperationStore.getState().showDialog(tab, files, taskId, 'prepare_copy', resolve);
+    });
+  },
+
+  // ---------------------- file operation progress ----------------------
+  showDeleteProgressDialog(tab: TabInfo, files: DirEntry[], taskId: TaskId, prepare: GetFilesPropertyNotifyEvent): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      useFileOperationProgressStore.getState().showDialog(tab, files, taskId, 'remove', resolve, prepare);
+    });
+  },
+  showCopyProgressDialog(tab: TabInfo, files: DirEntry[], taskId: TaskId, prepare: GetFilesPropertyNotifyEvent): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      useFileOperationProgressStore.getState().showDialog(tab, files, taskId, 'copy', resolve, prepare);
+    });
+  },
+
 };

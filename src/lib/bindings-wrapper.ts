@@ -79,8 +79,8 @@ export const rustcmds = {
   renameFile: (tabId: TabId, fileId: FileId, name: string) => {
     return commands.renameFile(tabId, fileId.toString(), name);
   },
-  removeFiles: (tabId: number, fileIds: string[]) => {
-    return commands.removeFiles(tabId, fileIds);
+  removeFiles: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
+    return commands.removeFiles(tabId, fileIds.map(id => id.toString()), taskId);
   },
   getFilesProperty: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
     return commands.getFilesProperty(

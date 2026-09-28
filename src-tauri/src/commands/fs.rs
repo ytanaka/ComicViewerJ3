@@ -146,9 +146,10 @@ pub async fn remove_files(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_ids: Vec<String>,
+    task_id: TaskId,
 ) -> Result<(), String> {
     LOG_RESULT!(format!("rename_file({}, [{}])", tab_id, file_ids.len()), {
-        remove_files_impl(state, tab_id, &file_ids)
+        remove_files_impl(state, tab_id, &file_ids, task_id)
             .await
             .map_err(|e| e.to_string())
     })
@@ -157,6 +158,7 @@ async fn remove_files_impl(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_ids: &[String],
+    task_id: TaskId,
 ) -> anyhow::Result<()> {
     let tab = state.get_tab(tab_id)?;
     let tab = tab.read().unwrap();

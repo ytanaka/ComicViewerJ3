@@ -10,6 +10,7 @@ import {
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useFileOperationProgressStore } from '@/store/file-operation-progress-store';
+import { useEffect } from 'react';
 
 // ダイアログの表示モード
 export type FileOperationProgressDialogType = 'remove' | 'copy';
@@ -38,6 +39,12 @@ export function FileOperationProgressDialog() {
         return '???';
     }
   }
+
+  useEffect(() => {
+    if (dialogState.event?.finished !== true) return;
+    
+    // TODO
+  }, [dialogState.event?.finished])
 
   return (
     <AlertDialog

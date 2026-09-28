@@ -15,7 +15,7 @@ export interface FileOperationProgressStore {
 
   event: GetFilesPropertyNotifyEvent | null;
 
-  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: FileOperationProgressDialogType, resolve: (value: boolean) => void) => void;
+  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: FileOperationProgressDialogType, resolve: (value: boolean) => void, prepareEvent: GetFilesPropertyNotifyEvent) => void;
   setNotifyEvent: (ev: GetFilesPropertyNotifyEvent) => void;
 }
 
@@ -28,11 +28,11 @@ export const useFileOperationProgressStore = create<FileOperationProgressStore>(
 
   event: null,
 
-  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: FileOperationProgressDialogType, resolve: (value: boolean) => void) => {
+  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: FileOperationProgressDialogType, resolve: (value: boolean) => void, prepareEvent: GetFilesPropertyNotifyEvent) => {
     useUiVolatileStore.getState().setField('showFileOperationProgressDialog', true);
 
     set(() => {
-      return { tab, files, taskId, type, resolve, event: null, };
+      return { tab, files, taskId, type, resolve, event: prepareEvent };
     });
   },
 
@@ -41,7 +41,7 @@ export const useFileOperationProgressStore = create<FileOperationProgressStore>(
       console.error(`invalid task_id: current task_id = ${get().taskId}`, ev);
       return;
     }
-    console.debug('received event GetFilesPropertyNotifyEvent: ', ev);
+    console.debug('FileOperationProgressStore: received event:', ev);
     set(state => {
       return { ...state, event: ev };
     });
