@@ -1,13 +1,13 @@
 use std::{
     ops::Deref,
     sync::{
-        atomic::{AtomicU32, AtomicU64},
-        Arc, OnceLock, RwLock,
+        atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering::SeqCst},
+        Arc, OnceLock, RwLock, Weak,
     },
 };
 
 use anyhow::anyhow;
-use dashmap::{DashMap, DashSet};
+use dashmap::DashMap;
 use tauri::AppHandle;
 
 use crate::{
@@ -51,14 +51,23 @@ impl<T> Deref for AppStateField<T> {
 
 pub const START_TAB_ID: TabId = 1;
 pub const START_FILE_ID: FileId = 1001;
-pub const START_TASK_ID: TaskId = 0xA001;
+
+pub struct AppTask {
+    pub canceled: AtomicBool,
+}
+impl AppTask {
+    fn new() -> Arc<Self> {
+        Arc::new(Self {
+            canceled: AtomicBool::new(false),
+        })
+    }
+}
 
 pub struct AppState {
     pub next_tab_id: AtomicU32,  // TabId の採番 (アプリ内で起動時からユニーク)
     pub next_file_id: AtomicU64, // FileId の採番 (アプリ内で起動時からユニーク)
 
-    pub next_task_id: AtomicU32,
-    pub canceled_tasks: DashSet<TaskId>,
+    pub current_tasks: DashMap<TaskId, Weak<AppTask>>,
 
     // UIのタブ情報
     pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,
@@ -85,8 +94,7 @@ impl AppState {
             next_tab_id: AtomicU32::new(START_TAB_ID),
             next_file_id: AtomicU64::new(START_FILE_ID),
 
-            next_task_id: AtomicU32::new(START_TASK_ID),
-            canceled_tasks: DashSet::new(),
+            current_tasks: DashMap::new(),
 
             tabs: DashMap::new(),
 
@@ -157,9 +165,7 @@ impl AppState {
         Ok(ret.clone())
     }
     pub fn has_tab(&self, tab_id: TabId) -> bool {
-        let ret = self
-            .tabs
-            .get(&tab_id);
+        let ret = self.tabs.get(&tab_id);
         ret.is_some()
     }
 
@@ -167,5 +173,34 @@ impl AppState {
         let mut ret: Vec<_> = self.tabs.iter().map(|elm| *elm.key()).collect();
         ret.sort();
         ret
+    }
+
+    pub fn add_task(&self, task_id: TaskId) -> Arc<AppTask> {
+        let task = AppTask::new();
+        self.current_tasks.insert(task_id, Arc::downgrade(&task));
+        self.current_tasks.retain(|_, v| v.upgrade().is_some()); // 不要になったタスクを消す
+        task
+    }
+    pub fn cancel_task(&self, task_id: TaskId) {
+        match self
+            .current_tasks
+            .get(&task_id)
+            .map(|t| t.upgrade())
+            .flatten()
+        {
+            None => log::warn!("no task: id={}", task_id),
+            Some(t) => t.canceled.store(true, SeqCst),
+        }
+    }
+    pub fn is_task_canceled(&self, task_id: TaskId) -> bool {
+        match self
+            .current_tasks
+            .get(&task_id)
+            .map(|t| t.upgrade())
+            .flatten()
+        {
+            None => true,
+            Some(t) => t.canceled.load(SeqCst),
+        }
     }
 }

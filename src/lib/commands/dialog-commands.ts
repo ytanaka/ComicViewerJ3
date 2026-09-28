@@ -1,6 +1,8 @@
 import { useInputDialogStore } from '@/components/misc/InputDialog';
 import { useOkCancelDialogStore } from '@/components/misc/OkCancelDialog';
+import { TaskId, useGetFilesPropertyStore } from '@/store/get-files-property-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
+import { DirEntry } from '../bindings-wrapper';
 
 export const dialogCommands = {
   // 現在ダイアログが開いているか判定
@@ -9,7 +11,8 @@ export const dialogCommands = {
       useUiVolatileStore.getState().showPreferencesDialog ||
       useUiVolatileStore.getState().showBookmarkManager ||
       useUiVolatileStore.getState().showOkCancelDialog ||
-      useUiVolatileStore.getState().showInputDialog
+      useUiVolatileStore.getState().showInputDialog ||
+      useUiVolatileStore.getState().showFileOperationDialog
     );
   },
 
@@ -40,5 +43,13 @@ export const dialogCommands = {
     return new Promise<string | null>(resolve => {
       useInputDialogStore.getState().showDialog(title, msg, defaultValue, resolve);
     });
+  },
+
+  showFilePropertyDialog(taskId: TaskId, file: DirEntry) {
+    useGetFilesPropertyStore.getState().init([file], taskId, 'property');
+    useUiVolatileStore.getState().setField('showFileOperationDialog', true);
+  },
+  closeFileOperationDialog() {
+    useUiVolatileStore.getState().setField('showFileOperationDialog', false);
   },
 };

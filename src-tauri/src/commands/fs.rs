@@ -2,7 +2,7 @@ use std::{
     fs,
     os::windows::fs::MetadataExt,
     path::PathBuf,
-    sync::{atomic::Ordering::SeqCst, Arc},
+    sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -175,19 +175,29 @@ pub async fn get_files_property(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_ids: Vec<String>,
-) -> Result<TaskId, String> {
-    LOG_RESULT!(format!("get_files_property({}, [len={}])", tab_id, file_ids.len()), {
-        get_files_property_impl1(app, &state, tab_id, &file_ids)
-            .await
-            .map_err(|e| e.to_string())
-    })
+    task_id: TaskId,
+) -> Result<(), String> {
+    LOG_RESULT!(
+        format!(
+            "get_files_property({}, {}, [len={}])",
+            task_id,
+            tab_id,
+            file_ids.len()
+        ),
+        {
+            get_files_property_impl1(app, &state, tab_id, &file_ids, task_id)
+                .await
+                .map_err(|e| e.to_string())
+        }
+    )
 }
 async fn get_files_property_impl1(
     app: AppHandle,
     state: &Arc<AppState>,
     tab_id: TabId,
     file_ids: &Vec<String>,
-) -> anyhow::Result<TaskId> {
+    task_id: TaskId,
+) -> anyhow::Result<()> {
     let tab = state.get_tab(tab_id)?;
     let tab = tab.read().unwrap();
     let file_ids: Result<Vec<_>, _> = file_ids.iter().map(|s| parse_file_id_str(s)).collect();
@@ -196,10 +206,11 @@ async fn get_files_property_impl1(
         let f = tab.get_file_info(file_id)?;
         paths.push(tab.get_path().join(&*f.name));
     }
-    let task_id = state.next_task_id.fetch_add(1, SeqCst);
+    let task = state.add_task(task_id);
 
     let state2 = state.clone();
     tauri::async_runtime::spawn(async move {
+        let _task = task; // タスクが終わるまで state から消えないように保持する
         let mut result_event = GetFilesPropertyNotifyEvent::default();
         result_event.task_id = task_id;
         let ret =
@@ -230,7 +241,7 @@ async fn get_files_property_impl1(
             );
         });
     });
-    Ok(task_id)
+    Ok(())
 }
 async fn get_files_property_impl2(
     app: &AppHandle,
@@ -278,7 +289,7 @@ async fn get_files_property_impl3(
     Ok(())
 }
 fn is_canceled(state: &Arc<AppState>, tab_id: TabId, task_id: TaskId) -> bool {
-    !state.has_tab(tab_id) || state.canceled_tasks.get(&task_id).is_some()
+    !state.has_tab(tab_id) || state.is_task_canceled(task_id)
 }
 fn emit_event(
     app: &AppHandle,

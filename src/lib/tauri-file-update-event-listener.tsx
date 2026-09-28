@@ -43,14 +43,14 @@ export function TauriFileUpdateEventListener() {
         processQueue();
       });
       initializing = false;
-      console.info("TauriFileUpdateEventListener: start listen");
-    }
+      console.info('TauriFileUpdateEventListener: start listen');
+    };
     start();
 
     return () => {
       if (unlistenFn) unlistenFn();
-    }
-  }, [EVENT_NAME])
+    };
+  }, [EVENT_NAME]);
   return <></>;
 }
 

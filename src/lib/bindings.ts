@@ -49,7 +49,7 @@ export const commands = {
 	/**  削除 */
 	removeFiles: (tabId: number, fileIds: string[], prepared: GetFilesPropertyNotifyEvent) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds, prepared })),
 	/**  ファイル／ディレクトリの情報取得 */
-	getFilesProperty: (tabId: number, fileIds: string[]) => typedError<number, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds })),
+	getFilesProperty: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds, taskId })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  画像のサイズを取得 */

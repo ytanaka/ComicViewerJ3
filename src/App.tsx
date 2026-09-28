@@ -17,6 +17,7 @@ import { useUiStore } from './store/ui-store';
 import { OkCancelDialog } from './components/misc/OkCancelDialog';
 import { InputDialog } from './components/misc/InputDialog';
 import { TauriGetFilesPropertyEventListener } from './lib/tauri-get-files-property-event-listener';
+import { FileOperationDialog } from './components/misc/FileOperationDialog';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -41,6 +42,7 @@ function App() {
         <BookmarkManager />
         <OkCancelDialog />
         <InputDialog />
+        <FileOperationDialog />
         <TauriFileUpdateEventListener />
         <TauriGetFilesPropertyEventListener />
         <Toaster

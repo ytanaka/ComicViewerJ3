@@ -1,4 +1,3 @@
-import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,6 +9,8 @@ import {
   AlertDialogTitle,
 } from '../ui/alert-dialog';
 import { create } from 'zustand';
+
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
 
 export function OkCancelDialog() {
   const show = useUiVolatileStore(state => state.showOkCancelDialog);
@@ -43,7 +44,9 @@ export function OkCancelDialog() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel hidden={dialogState.hideCancelButton} onClick={() => handleOkCancel(false)}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel hidden={dialogState.hideCancelButton} onClick={() => handleOkCancel(false)}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction autoFocus={true} onClick={() => handleOkCancel(true)}>
             Ok
           </AlertDialogAction>

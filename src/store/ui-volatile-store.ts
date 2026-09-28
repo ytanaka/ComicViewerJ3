@@ -23,6 +23,8 @@ export interface UiVolatileStore {
 
   // Input ダイアログ
   showInputDialog: boolean;
+
+  showFileOperationDialog: boolean;
 }
 
 type UiVolatileStore_and_Action = UiVolatileStore & {
@@ -38,6 +40,7 @@ export const useUiVolatileStore = create<UiVolatileStore_and_Action>()(set => ({
   showBookmarkManager: false,
   showOkCancelDialog: false,
   showInputDialog: false,
+  showFileOperationDialog: false,
 
   setField: (key, value) => set({ [key]: value }),
 }));

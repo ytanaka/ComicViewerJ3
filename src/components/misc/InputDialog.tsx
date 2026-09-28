@@ -56,8 +56,8 @@ export function InputDialog() {
           <Input
             autoFocus={true}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onKeyDown={(e) => {
+            onChange={e => setValue(e.target.value)}
+            onKeyDown={e => {
               if (e.key !== 'Enter') return;
               e.preventDefault();
               e.stopPropagation();
@@ -67,9 +67,7 @@ export function InputDialog() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => handleInput(null)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => handleInput(value)}>
-            Ok
-          </AlertDialogAction>
+          <AlertDialogAction onClick={() => handleInput(value)}>Ok</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

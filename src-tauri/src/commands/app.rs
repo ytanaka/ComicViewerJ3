@@ -3,9 +3,13 @@ use std::{process::Command, sync::Arc};
 use tauri::{AppHandle, State, Window};
 
 use crate::{
-    LOG_RESULT, state::app_state::AppState, types::{
-        AppConstants, FileUpdateNotifyEvent, InvokeProgramResult::{self, Fail, Success}, TaskId,
+    state::app_state::AppState,
+    types::{
+        AppConstants, FileUpdateNotifyEvent,
+        InvokeProgramResult::{self, Fail, Success},
+        TaskId,
     },
+    LOG_RESULT,
 };
 
 #[tauri::command]
@@ -72,7 +76,7 @@ pub async fn invoke_program_impl(
 /// タスク中断
 pub fn cancel_task(state: State<'_, Arc<AppState>>, task_id: TaskId) {
     log::info!("command::cancel_task({})", task_id);
-    state.canceled_tasks.insert(task_id);
+    state.cancel_task(task_id);
 }
 
 #[tauri::command]

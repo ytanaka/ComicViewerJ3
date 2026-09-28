@@ -17,6 +17,7 @@ import {
 import { logErr } from './tools/log';
 import { toast } from 'sonner';
 import { dialogCommands } from './commands/dialog-commands';
+import { TaskId } from '@/store/get-files-property-store';
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
@@ -70,8 +71,8 @@ export const rustcmds = {
   renameFile: (tabId: TabId, fileId: FileId, name: string) => {
     return commands.renameFile(tabId, fileId.toString(), name);
   },
-  getFilesProperty: (tabId: number, fileIds: FileId[]) => {
-    return commands.getFilesProperty(tabId, fileIds.map(id => id.toString()));
+  getFilesProperty: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
+    return commands.getFilesProperty(tabId, fileIds.map(id => id.toString()), taskId);
   },
 
   searchNextFilename: (tabId: TabId, startIndex: number, romaji: string, reverse: boolean) => {
@@ -168,6 +169,11 @@ function cnvOk<F, T>(
 export type SortType_type = SortType['type'];
 export type FilenameCmpType_type = FilenameCmpType['type'];
 
+let nextTaskId = 101;
+export function getNextTaskId(): TaskId {
+  return nextTaskId++ as TaskId;
+}
+
 export function handleRustCmdResult<T>(
   result: RustCmdResult<T>,
   logComment: string,
@@ -228,7 +234,7 @@ export function handleRustCmdFileOpResult(
         break;
     }
     if (errMsg) {
-      dialogCommands.showMsgDialog("エラー", errMsg);
+      dialogCommands.showMsgDialog('エラー', errMsg);
       return false;
     } else {
       if (okFn) okFn();

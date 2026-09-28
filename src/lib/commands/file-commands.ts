@@ -1,7 +1,14 @@
-import { useTabStore } from "@/store/tab/store";
-import { DirEntry, handleRustCmdFileOpResult, handleRustCmdResult, rustcmds, TabInfo } from "../bindings-wrapper";
-import { getQueryData_getDirEntries } from "@/services/tab-dir-entry";
-import { dialogCommands } from "./dialog-commands";
+import { useTabStore } from '@/store/tab/store';
+import {
+  DirEntry,
+  getNextTaskId,
+  handleRustCmdFileOpResult,
+  handleRustCmdResult,
+  rustcmds,
+  TabInfo,
+} from '../bindings-wrapper';
+import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
+import { dialogCommands } from './dialog-commands';
 
 function st() {
   return useTabStore.getState();
@@ -12,7 +19,7 @@ export const fileCommands = {
     const { tab } = getSelectedFiles();
     if (!tab) return;
 
-    const name = await dialogCommands.showInputDialog("新規ファイル作成", "", "新規ファイル.txt");
+    const name = await dialogCommands.showInputDialog('新規ファイル作成', '', '新規ファイル.txt');
     if (!name) return;
     const result = await rustcmds.createFile(tab.id, name);
     handleRustCmdFileOpResult(result, `rustcmds.createFile(${tab.id},${name})`, '作成できません', () => {
@@ -24,7 +31,7 @@ export const fileCommands = {
     const { tab } = getSelectedFiles();
     if (!tab) return;
 
-    const name = await dialogCommands.showInputDialog("新規ディレクトリ作成", "", "");
+    const name = await dialogCommands.showInputDialog('新規ディレクトリ作成', '', '');
     if (!name) return;
     const result = await rustcmds.createDirectory(tab.id, name);
     handleRustCmdFileOpResult(result, `rustcmds.createDirectory(${tab.id},${name})`, '作成できません', () => {
@@ -37,12 +44,17 @@ export const fileCommands = {
     if (!tab || !sel) return;
     if (sel.length !== 1) return;
 
-    const name = await dialogCommands.showInputDialog("名前変更", "", sel[0].name);
+    const name = await dialogCommands.showInputDialog('名前変更', '', sel[0].name);
     if (!name || name === sel[0].name) return;
     const result = await rustcmds.renameFile(tab.id, sel[0].file_id, name);
-    handleRustCmdFileOpResult(result, `rustcmds.renameFile(${tab.id},${sel[0].file_id},${name})`, '変更できません', () => {
-      st().pushHistory(tab.id, tab.path, name);
-    });
+    handleRustCmdFileOpResult(
+      result,
+      `rustcmds.renameFile(${tab.id},${sel[0].file_id},${name})`,
+      '変更できません',
+      () => {
+        st().pushHistory(tab.id, tab.path, name);
+      }
+    );
   },
 
   async fileProperty() {
@@ -50,14 +62,17 @@ export const fileCommands = {
     if (!tab || !sel) return;
     if (sel.length !== 1) return;
 
-    const result = await rustcmds.getFilesProperty(tab.id, [sel[0].file_id]);
-    handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}])`, 'ファイル情報取得失敗', (taskId) => {
-      console.log("TASK ID", taskId);
-    })
+    const taskId = getNextTaskId();
+    dialogCommands.showFilePropertyDialog(taskId, sel[0]);
+    const result = await rustcmds.getFilesProperty(tab.id, [sel[0].file_id], taskId);
+    handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}])`, 'ファイル情報取得失敗');
+    if (result.status === 'error') {
+      dialogCommands.closeFileOperationDialog();
+    }
   },
 };
 
-function getSelectedFiles(): { tab: TabInfo | undefined, sel: DirEntry[] | undefined } {
+function getSelectedFiles(): { tab: TabInfo | undefined; sel: DirEntry[] | undefined } {
   const EMPTY = { tab: undefined, sel: undefined };
 
   const tab = st().getCurrentTab();

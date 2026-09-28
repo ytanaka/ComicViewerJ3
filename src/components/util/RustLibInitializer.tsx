@@ -12,7 +12,7 @@ export function RustLibInitializer({ children }: { children: ReactNode }) {
     const init = async () => {
       // Rustライブラリ初期化
       const result = await rustcmds.init();
-      handleRustCmdResult(result, 'rustcmds.init()', 'アプリ初期化', (data) => {
+      handleRustCmdResult(result, 'rustcmds.init()', 'アプリ初期化', data => {
         useAppConstantsStore.getState().init(data);
       });
 

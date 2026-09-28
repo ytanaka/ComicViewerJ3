@@ -133,12 +133,7 @@ export const menuItems = {
     'Ctrl//Enter',
     isSelected1File
   ),
-  openFileProperty: M(
-    'プロパティ',
-    fileCommands.fileProperty,
-    'Alt//Enter',
-    () => isSelected1File() && !isImageView()
-  ),
+  openFileProperty: M('プロパティ', fileCommands.fileProperty, 'Alt//Enter', () => isSelected1File() && !isImageView()),
 
   exitApp: M('終了', windowCommands.exitApp, 'Ctrl//Q'),
 
