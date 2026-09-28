@@ -11,7 +11,7 @@ import {
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { getQueryData_getFileInfo1 } from '@/services/tab-file-info';
-import { unixTime2str } from '@/lib/tools/string-util';
+import { formatFileBytes, unixTime2str } from '@/lib/tools/string-util';
 import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 
 // ダイアログの表示モード
@@ -111,7 +111,7 @@ function PropertyPanel_file() {
         <>{fileInfo.metadata.Left}</>
       ) : fileInfo?.metadata.Right ? (
         <>
-          サイズ: {fileInfo.metadata.Right.size?.toLocaleString()}<br />
+          サイズ: {formatFileBytes(fileInfo.metadata.Right.size ?? 0)} ({fileInfo.metadata.Right.size?.toLocaleString()}) バイト<br />
           更新日時: {unixTime2str(fileInfo.metadata.Right.modified)}<br />
         </>
       ) : (
@@ -144,7 +144,7 @@ function EventNotifyPanel() {
   const property = usePrepareFileOperationStore(state => state.event);
   return (
     <>
-      サイズ: ({property?.size.toLocaleString()} バイト)
+      サイズ: {formatFileBytes(property?.size ?? 0)} ({property?.size.toLocaleString()} バイト)
       <br />
       ファイル数: {property?.files.toLocaleString()}
       <br />

@@ -71,3 +71,20 @@ export function isPictureFileExtension(filename: string) {
   const ext = getFileExtension(filename);
   return !ext ? false : pictExts.has(ext.toLowerCase());
 }
+
+export function formatFileBytes(bytes: number) {
+  if (bytes < 1024) {
+    return `${bytes} bytes`;
+  }
+
+  const units = ["kB", "MB", "GB", "TB", "PB"];
+  let value = bytes;
+  let unitIndex = -1;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex++;
+  }
+
+  return `${value.toFixed(2)}${units[unitIndex]}`;
+}
