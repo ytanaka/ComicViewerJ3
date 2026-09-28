@@ -439,7 +439,7 @@ pub const EVENT_NAME_GET_FILES_PROPERTY_NOTIFY: &str = "get-files-property-notif
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 /// ディレクトリの状態取得結果を通知する
 pub struct GetFilesPropertyNotifyEvent {
-    pub task_id: u32,
+    pub task_id: TaskId,
 
     #[specta(type =specta_typescript::Number)]
     pub event_time_ms: u128,
@@ -467,4 +467,12 @@ pub struct GetFilesPropertyNotifyEvent {
 
     /// エラー発生時 (finished == true の場合)
     pub error_msg: Option<String>,
+}
+impl GetFilesPropertyNotifyEvent {
+    pub fn new(task_id: TaskId) -> Self {
+        Self {
+            task_id,
+            ..Default::default()
+        }
+    }
 }

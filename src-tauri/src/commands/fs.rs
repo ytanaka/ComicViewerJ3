@@ -157,7 +157,7 @@ pub async fn remove_files(
 async fn remove_files_impl(
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
-    file_ids: &Vec<String>,
+    file_ids: &[String],
     prepared: &GetFilesPropertyNotifyEvent,
 ) -> anyhow::Result<()> {
     let tab = state.get_tab(tab_id)?;
@@ -195,7 +195,7 @@ async fn get_files_property_impl1(
     app: AppHandle,
     state: &Arc<AppState>,
     tab_id: TabId,
-    file_ids: &Vec<String>,
+    file_ids: &[String],
     task_id: TaskId,
 ) -> anyhow::Result<()> {
     let tab = state.get_tab(tab_id)?;
@@ -211,8 +211,7 @@ async fn get_files_property_impl1(
     let state2 = state.clone();
     tauri::async_runtime::spawn(async move {
         let _task = task; // タスクが終わるまで state から消えないように保持する
-        let mut result_event = GetFilesPropertyNotifyEvent::default();
-        result_event.task_id = task_id;
+        let mut result_event = GetFilesPropertyNotifyEvent::new(task_id);
         let ret =
             get_files_property_impl2(&app, &state2, tab_id, task_id, paths, &mut result_event)
                 .await;
@@ -223,21 +222,17 @@ async fn get_files_property_impl1(
             }
             Err(e) => {
                 result_event.error_msg = Some(e.to_string());
-                log::error!(
-                    "get_files_property: error task_id={}, {}",
-                    task_id,
-                    e.to_string()
-                );
+                log::error!("get_files_property: error task_id={}, {}", task_id, e);
             }
         }
         result_event.finished = true;
         result_event.canceled = is_canceled(&state2, tab_id, task_id);
         result_event.event_time_ms = 0; // 最後なので必ず通知させる
-        emit_event(&app, &mut result_event).err().map(|e| {
+        let _ = emit_event(&app, &mut result_event).err().map(|e| {
             log::error!(
                 "get_files_property: notify error task_id={}, {}",
                 task_id,
-                e.to_string()
+                e
             );
         });
     });
@@ -252,7 +247,7 @@ async fn get_files_property_impl2(
     result_event: &mut GetFilesPropertyNotifyEvent,
 ) -> anyhow::Result<()> {
     for path in paths {
-        if is_canceled(&state, tab_id, task_id) {
+        if is_canceled(state, tab_id, task_id) {
             break;
         }
         get_files_property_impl3(app, state, tab_id, task_id, path, result_event).await?;
@@ -268,7 +263,7 @@ async fn get_files_property_impl3(
     result_event: &mut GetFilesPropertyNotifyEvent,
 ) -> anyhow::Result<()> {
     for walk in WalkDir::new(path) {
-        if is_canceled(&state, tab_id, task_id) {
+        if is_canceled(state, tab_id, task_id) {
             return Ok(());
         }
 

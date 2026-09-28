@@ -182,23 +182,13 @@ impl AppState {
         task
     }
     pub fn cancel_task(&self, task_id: TaskId) {
-        match self
-            .current_tasks
-            .get(&task_id)
-            .map(|t| t.upgrade())
-            .flatten()
-        {
+        match self.current_tasks.get(&task_id).and_then(|t| t.upgrade()) {
             None => log::warn!("no task: id={}", task_id),
             Some(t) => t.canceled.store(true, SeqCst),
         }
     }
     pub fn is_task_canceled(&self, task_id: TaskId) -> bool {
-        match self
-            .current_tasks
-            .get(&task_id)
-            .map(|t| t.upgrade())
-            .flatten()
-        {
+        match self.current_tasks.get(&task_id).and_then(|t| t.upgrade()) {
             None => true,
             Some(t) => t.canceled.load(SeqCst),
         }

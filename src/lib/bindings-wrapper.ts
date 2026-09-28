@@ -72,7 +72,11 @@ export const rustcmds = {
     return commands.renameFile(tabId, fileId.toString(), name);
   },
   getFilesProperty: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
-    return commands.getFilesProperty(tabId, fileIds.map(id => id.toString()), taskId);
+    return commands.getFilesProperty(
+      tabId,
+      fileIds.map(id => id.toString()),
+      taskId
+    );
   },
 
   searchNextFilename: (tabId: TabId, startIndex: number, romaji: string, reverse: boolean) => {
