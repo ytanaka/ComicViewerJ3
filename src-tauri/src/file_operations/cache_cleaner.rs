@@ -127,7 +127,7 @@ impl CacheCleanupWorker {
             log::error!("start_thumbnail_cleanup_worker: error={}", e)
         }
         if let Err(e) = start_resized_image_cleanup_worker(app.clone(), state.clone()) {
-            log::error!("start_thumbnail_cleanup_worker: error={}", e)
+            log::error!("start_resized_image_cleanup_worker: error={}", e)
         }
         Arc::new(CacheCleanupWorker {})
     }

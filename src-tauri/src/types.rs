@@ -18,6 +18,7 @@ use specta::Type;
 
 pub type TabId = u32;
 pub type FileId = u64;
+pub type TaskId = u32;
 
 /// 2つの型のどちらか片方だけ保持するための構造体
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
@@ -50,6 +51,22 @@ impl<A, B> Either<A, B> {
 // =====================================================================================================================
 // app.rs
 // =====================================================================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+/// アプリ初期化時にRustからUIに渡す情報
+pub struct AppConstants {
+    /// ファイル更新イベントのID
+    pub event_name_file_updaet_notify: String,
+    pub event_name_get_files_property: String,
+}
+impl AppConstants {
+    pub fn new() -> Self {
+        Self {
+            event_name_file_updaet_notify: EVENT_NAME_FILE_UPDATE_NOTIFY.to_string(),
+            event_name_get_files_property: EVENT_NAME_GET_FILES_PROPERTY_NOTIFY.to_string(),
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// プログラム起動結果
@@ -180,6 +197,7 @@ pub struct FileMetadata {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
+/// ファイル操作の結果
 pub enum FileOpResult {
     /// 成功
     Success,
@@ -403,15 +421,50 @@ impl Default for ResizeImageConfig {
 // Event
 // =====================================================================================================================
 
-pub const EVENT_ID_FILE_NOTIFY: &str = "file-notify";
+pub const EVENT_NAME_FILE_UPDATE_NOTIFY: &str = "file-update-notify";
 
 /// ファイル更新をUIに通知する
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-pub struct FileNotifyEvent {
+pub struct FileUpdateNotifyEvent {
     #[specta(type = specta_typescript::Number)]
     pub tab_id: TabId,
 
     #[specta(type = Option<specta_typescript::Number>)]
     pub file_id: Option<FileId>, // Someの場合は、そのファイルのサイズや更新日時が変更された場合
                                  // Noneの場合は、そのディレクトリを再読み込みする必要がある場合
+}
+
+pub const EVENT_NAME_GET_FILES_PROPERTY_NOTIFY: &str = "get-files-property-notify";
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+/// ディレクトリの状態取得結果を通知する
+pub struct GetFilesPropertyNotifyEvent {
+    pub task_id: TaskId,
+
+    #[specta(type =specta_typescript::Number)]
+    pub event_time_ms: u128,
+
+    pub event_count: u32,
+
+    #[specta(type = specta_typescript::Number)]
+    /// トータルファイルサイズ
+    pub size: u64,
+
+    /// ディレクトリ数
+    pub dires: u32,
+
+    /// ファイル数
+    pub files: u32,
+
+    /// シンボリックリンク数
+    pub symlinks: u32,
+
+    /// 最後の通知かどうか
+    pub finished: bool,
+
+    /// キャンセルされたかどうか (finished == true の場合)
+    pub canceled: bool,
+
+    /// エラー発生時 (finished == true の場合)
+    pub error_msg: Option<String>,
 }

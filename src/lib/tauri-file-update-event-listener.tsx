@@ -1,17 +1,18 @@
+import { useEffect } from 'react';
 import { listen as tauri_listen } from '@tauri-apps/api/event';
-import { FileNotifyEvent } from './bindings';
+
+import { FileUpdateNotifyEvent } from './bindings';
 import { FileId, TabId } from '@/store/tab/types';
 import { useTabStore } from '@/store/tab/store';
 import { handleRustCmdResult, rustcmds } from './bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { setQueryData_getFileInfo1 } from '@/services/tab-file-info';
 import { removeQueries_tab } from '@/services/tab';
+import { useAppConstantsStore } from '@/store/app-constants';
 
 // タブ内ファイルの更新イベントリスナー
 
-const EVENT_ID_FILE_NOTIFY = 'file-notify';
-
-const queue: FileNotifyEvent[] = [];
+const queue: FileUpdateNotifyEvent[] = [];
 let processing = false;
 
 async function processQueue() {
@@ -26,17 +27,29 @@ async function processQueue() {
   processing = false;
 }
 
-// App.tsx で以下の listen() を実行させるためのダミー
-export function TauriEventListener() {
+export function TauriFileUpdateEventListener() {
+  const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_updaet_notify);
+  useEffect(() => {
+    if (!EVENT_NAME) return;
+    let unlistenFn: () => void;
+
+    const start = async () => {
+      unlistenFn = await tauri_listen<FileUpdateNotifyEvent>(EVENT_NAME, async event => {
+        queue.push(event.payload);
+        processQueue();
+      });
+      console.info("TauriFileUpdateEventListener: start listen");
+    }
+    start();
+
+    return () => {
+      if (unlistenFn) unlistenFn();
+    }
+  }, [EVENT_NAME])
   return <></>;
 }
 
-tauri_listen<FileNotifyEvent>(EVENT_ID_FILE_NOTIFY, async event => {
-  queue.push(event.payload);
-  processQueue();
-});
-
-async function handleEvent(event: FileNotifyEvent) {
+async function handleEvent(event: FileUpdateNotifyEvent) {
   const tabId = event.tab_id as TabId;
   const fileId = event.file_id as FileId;
 

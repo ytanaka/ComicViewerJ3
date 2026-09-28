@@ -1,4 +1,5 @@
 import { handleRustCmdResult, rustcmds } from '@/lib/bindings-wrapper';
+import { useAppConstantsStore } from '@/store/app-constants';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { ReactNode, useEffect, useRef } from 'react';
 
@@ -10,7 +11,11 @@ export function RustLibInitializer({ children }: { children: ReactNode }) {
   useEffect(() => {
     const init = async () => {
       // Rustライブラリ初期化
-      await rustcmds.init();
+      const result = await rustcmds.init();
+      handleRustCmdResult(result, 'rustcmds.init()', 'アプリ初期化', (data) => {
+        useAppConstantsStore.getState().init(data);
+      });
+
       // 起動時に存在するRustタブはすべて削除
       await removeOldRustTabs();
 

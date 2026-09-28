@@ -12,10 +12,11 @@ import { TabBar } from './components/tab/TabBar';
 import { StatusBar } from './components/misc/StatusBar';
 import { PreferencesDialog } from './components/preferences/PreferencesDialog';
 import { BookmarkManager } from './components/bookmark/BookmarkManager';
-import { TauriEventListener } from './lib/tauri-event-listener';
+import { TauriFileUpdateEventListener } from './lib/tauri-file-update-event-listener';
 import { useUiStore } from './store/ui-store';
 import { OkCancelDialog } from './components/misc/OkCancelDialog';
 import { InputDialog } from './components/misc/InputDialog';
+import { TauriGetFilesPropertyEventListener } from './lib/tauri-get-files-property-event-listener';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -40,7 +41,8 @@ function App() {
         <BookmarkManager />
         <OkCancelDialog />
         <InputDialog />
-        <TauriEventListener />
+        <TauriFileUpdateEventListener />
+        <TauriGetFilesPropertyEventListener />
         <Toaster
           position="bottom-right"
           expand={false}

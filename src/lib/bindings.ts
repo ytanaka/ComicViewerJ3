@@ -9,15 +9,17 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 /** Commands */
 export const commands = {
 	/**  Rust側の初期化 (ほかのコマンドを使用する前に呼ぶ) */
-	init: () => typedError<null, string>(__TAURI_INVOKE("init")),
+	init: () => typedError<AppConstants, string>(__TAURI_INVOKE("init")),
 	/**  アプリ終了 */
 	exitApp: () => __TAURI_INVOKE<void>("exit_app"),
 	/**  外部プログラム起動 */
 	invokeProgram: (currentDir: string, program: string, args: string[]) => typedError<InvokeProgramResult, string>(__TAURI_INVOKE("invoke_program", { currentDir, program, args })),
 	/**  フルスクリーン */
 	setFullscreen: (fullscreen: boolean) => __TAURI_INVOKE<void>("set_fullscreen", { fullscreen }),
+	/**  タスク中断 */
+	cancelTask: (taskId: number) => __TAURI_INVOKE<void>("cancel_task", { taskId }),
 	/**  ダミー */
-	dummy: (fileNotify: FileNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify }),
+	dummy: (fileNotify: FileUpdateNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify }),
 	/**  タブ作成 (絶対パス) */
 	createTab: (path: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("create_tab", { path })),
 	/**  タブ作成 (指定タブと同じパス) */
@@ -45,9 +47,9 @@ export const commands = {
 	/**  リネーム */
 	renameFile: (tabId: number, fileId: string, name: string) => typedError<FileOpResult, string>(__TAURI_INVOKE("rename_file", { tabId, fileId, name })),
 	/**  削除 */
-	removeFiles: (tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds })),
-	/**  削除、コピー、移動の準備 */
-	prepareFileOp: (tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("prepare_file_op", { tabId, fileIds })),
+	removeFiles: (tabId: number, fileIds: string[], prepared: GetFilesPropertyNotifyEvent) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds, prepared })),
+	/**  ファイル／ディレクトリの情報取得 */
+	getFilesProperty: (tabId: number, fileIds: string[]) => typedError<number, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  画像のサイズを取得 */
@@ -66,6 +68,13 @@ export const commands = {
 };
 
 /* Types */
+/**  アプリ初期化時にRustからUIに渡す情報 */
+export type AppConstants = {
+	/**  ファイル更新イベントのID */
+	event_name_file_updaet_notify: string,
+	event_name_get_files_property: string,
+};
+
 export type AppPreferences = {
 	/**  ファイル名検索するとき */
 	debug_filename_search_sleep_ms: number,
@@ -127,12 +136,7 @@ export type FileMetadata = {
 	created: number | null,
 };
 
-/**  ファイル更新をUIに通知する */
-export type FileNotifyEvent = {
-	tab_id: number,
-	file_id: number | null,
-};
-
+/**  ファイル操作の結果 */
 export type FileOpResult = 
 /**  成功 */
 { type: "Success" } | 
@@ -154,6 +158,12 @@ export type FileSearchResult =
 /**  状態が変わったのでキャンセル */
 { type: "Canceled" };
 
+/**  ファイル更新をUIに通知する */
+export type FileUpdateNotifyEvent = {
+	tab_id: number,
+	file_id: number | null,
+};
+
 /**  ファイル名ソート時の文字比較方法 */
 export type FilenameCmpType = 
 /**  Unicode文字コード順 */
@@ -162,6 +172,27 @@ export type FilenameCmpType =
 { type: "Sjis" } | 
 /**  自然 */
 { type: "Icu" };
+
+/**  ディレクトリの状態取得結果を通知する */
+export type GetFilesPropertyNotifyEvent = {
+	task_id: number,
+	event_time_ms: number,
+	event_count: number,
+	/**  トータルファイルサイズ */
+	size: number,
+	/**  ディレクトリ数 */
+	dires: number,
+	/**  ファイル数 */
+	files: number,
+	/**  シンボリックリンク数 */
+	symlinks: number,
+	/**  最後の通知かどうか */
+	finished: boolean,
+	/**  キャンセルされたかどうか (finished == true の場合) */
+	canceled: boolean,
+	/**  エラー発生時 (finished == true の場合) */
+	error_msg: string | null,
+};
 
 /**  get_thumbnail(), get_resized_img() の結果 */
 export type GetResizedImgResult = 

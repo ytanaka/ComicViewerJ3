@@ -1,5 +1,5 @@
 import { useTabStore } from "@/store/tab/store";
-import { DirEntry, handleRustCmdFileOpResult, rustcmds, TabInfo } from "../bindings-wrapper";
+import { DirEntry, handleRustCmdFileOpResult, handleRustCmdResult, rustcmds, TabInfo } from "../bindings-wrapper";
 import { getQueryData_getDirEntries } from "@/services/tab-dir-entry";
 import { dialogCommands } from "./dialog-commands";
 
@@ -43,7 +43,18 @@ export const fileCommands = {
     handleRustCmdFileOpResult(result, `rustcmds.renameFile(${tab.id},${sel[0].file_id},${name})`, '変更できません', () => {
       st().pushHistory(tab.id, tab.path, name);
     });
-  }
+  },
+
+  async fileProperty() {
+    const { tab, sel } = getSelectedFiles();
+    if (!tab || !sel) return;
+    if (sel.length !== 1) return;
+
+    const result = await rustcmds.getFilesProperty(tab.id, [sel[0].file_id]);
+    handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}])`, 'ファイル情報取得失敗', (taskId) => {
+      console.log("TASK ID", taskId);
+    })
+  },
 };
 
 function getSelectedFiles(): { tab: TabInfo | undefined, sel: DirEntry[] | undefined } {

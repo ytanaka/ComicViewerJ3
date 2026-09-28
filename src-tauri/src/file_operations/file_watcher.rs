@@ -13,7 +13,7 @@ use crate::{
         app_state::AppState,
         util::{AppContext, EventEmitter},
     },
-    types::{FileId, FileNotifyEvent, TabId, EVENT_ID_FILE_NOTIFY},
+    types::{FileId, FileUpdateNotifyEvent, TabId, EVENT_NAME_FILE_UPDATE_NOTIFY},
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -164,5 +164,8 @@ fn file_notify_impl<E: EventEmitter>(
     tab_id: TabId,
     file_id: Option<FileId>,
 ) -> anyhow::Result<()> {
-    app.emit(EVENT_ID_FILE_NOTIFY, FileNotifyEvent { tab_id, file_id })
+    app.emit(
+        EVENT_NAME_FILE_UPDATE_NOTIFY,
+        FileUpdateNotifyEvent { tab_id, file_id },
+    )
 }

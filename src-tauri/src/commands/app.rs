@@ -3,18 +3,15 @@ use std::{process::Command, sync::Arc};
 use tauri::{AppHandle, State, Window};
 
 use crate::{
-    state::app_state::AppState,
-    types::{
-        FileNotifyEvent,
-        InvokeProgramResult::{self, Fail, Success},
+    LOG_RESULT, state::app_state::AppState, types::{
+        AppConstants, FileUpdateNotifyEvent, InvokeProgramResult::{self, Fail, Success}, TaskId,
     },
-    LOG_RESULT,
 };
 
 #[tauri::command]
 #[specta::specta]
 /// Rust側の初期化 (ほかのコマンドを使用する前に呼ぶ)
-pub async fn init(app: AppHandle, state: State<'_, Arc<AppState>>) -> Result<(), String> {
+pub async fn init(app: AppHandle, state: State<'_, Arc<AppState>>) -> Result<AppConstants, String> {
     let state2 = state.inner().clone();
     let result = tauri::async_runtime::spawn_blocking(move || {
         log::info!("command::init() start");
@@ -22,7 +19,7 @@ pub async fn init(app: AppHandle, state: State<'_, Arc<AppState>>) -> Result<(),
         log::info!("command::init() end");
     });
     result.await.unwrap();
-    Ok(())
+    Ok(AppConstants::new())
 }
 
 #[tauri::command]
@@ -72,7 +69,15 @@ pub async fn invoke_program_impl(
 
 #[tauri::command]
 #[specta::specta]
+/// タスク中断
+pub fn cancel_task(state: State<'_, Arc<AppState>>, task_id: TaskId) {
+    log::info!("command::cancel_task({})", task_id);
+    state.canceled_tasks.insert(task_id);
+}
+
+#[tauri::command]
+#[specta::specta]
 /// ダミー
-pub fn dummy(_file_notify: FileNotifyEvent) {
+pub fn dummy(_file_notify: FileUpdateNotifyEvent) {
     log::info!("command::dummy()");
 }

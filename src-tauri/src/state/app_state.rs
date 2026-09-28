@@ -7,7 +7,7 @@ use std::{
 };
 
 use anyhow::anyhow;
-use dashmap::DashMap;
+use dashmap::{DashMap, DashSet};
 use tauri::AppHandle;
 
 use crate::{
@@ -18,7 +18,7 @@ use crate::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
         text_matcher::TextMatcher, vibrato::Vibrato,
     },
-    types::{AppPreferences, FileId, TabId},
+    types::{AppPreferences, FileId, TabId, TaskId},
 };
 
 // =====================================================================================================================
@@ -50,11 +50,15 @@ impl<T> Deref for AppStateField<T> {
 // =====================================================================================================================
 
 pub const START_TAB_ID: TabId = 1;
-pub const START_FILE_ID: FileId = 100001;
+pub const START_FILE_ID: FileId = 1001;
+pub const START_TASK_ID: TaskId = 0xA001;
 
 pub struct AppState {
     pub next_tab_id: AtomicU32,  // TabId の採番 (アプリ内で起動時からユニーク)
     pub next_file_id: AtomicU64, // FileId の採番 (アプリ内で起動時からユニーク)
+
+    pub next_task_id: AtomicU32,
+    pub canceled_tasks: DashSet<TaskId>,
 
     // UIのタブ情報
     pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,
@@ -80,6 +84,9 @@ impl AppState {
         AppState {
             next_tab_id: AtomicU32::new(START_TAB_ID),
             next_file_id: AtomicU64::new(START_FILE_ID),
+
+            next_task_id: AtomicU32::new(START_TASK_ID),
+            canceled_tasks: DashSet::new(),
 
             tabs: DashMap::new(),
 
@@ -148,6 +155,12 @@ impl AppState {
             .get_mut(&tab_id)
             .ok_or_else(|| anyhow!("no tab id:{tab_id}"))?;
         Ok(ret.clone())
+    }
+    pub fn has_tab(&self, tab_id: TabId) -> bool {
+        let ret = self
+            .tabs
+            .get(&tab_id);
+        ret.is_some()
     }
 
     pub fn get_tab_ids(&self) -> Vec<TabId> {

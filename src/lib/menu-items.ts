@@ -135,7 +135,7 @@ export const menuItems = {
   ),
   openFileProperty: M(
     'プロパティ',
-    () => console.log('FILE PROPERTY!!!'),
+    fileCommands.fileProperty,
     'Alt//Enter',
     () => isSelected1File() && !isImageView()
   ),
