@@ -18,7 +18,7 @@ import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-sto
 export type PrepareFileOperationDialogType = 'property' | 'prepare_remove' | 'prepare_copy';
 
 export function PrepareFileOperationDialog() {
-  const show = useUiVolatileStore(state => state.showFileOperationDialog);
+  const show = useUiVolatileStore(state => state.showPrepareFileOperationDialog);
   const setField = useUiVolatileStore(state => state.setField);
 
   const dialogState = usePrepareFileOperationStore(state => state);
@@ -26,7 +26,7 @@ export function PrepareFileOperationDialog() {
   const files = dialogState.files;
 
   function handleOkCancel(b: boolean) {
-    setField('showFileOperationDialog', false);
+    setField('showPrepareFileOperationDialog', false);
     if (dialogState.resolve) {
       dialogState.resolve(b);
     }

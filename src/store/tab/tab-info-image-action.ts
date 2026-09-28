@@ -1,9 +1,10 @@
-import { _useTabStore_setExistTabFields, mkImageViewMode, TabId } from './types';
+import { _useTabStore_setExistTabFields, mkImageViewMode } from './types';
 import { TabStore } from './store';
 import { StateCreator } from 'zustand';
 import { zoomLevelNormalize } from '@/lib/tools/image-zoom';
 import { useUiVolatileStore } from '../ui-volatile-store';
 import { windowCommands } from '@/lib/commands/window-commands';
+import { TabId } from '@/lib/bindings-wrapper';
 
 export interface ImageViewModeActions {
   setImageView: (tabId: TabId, b: boolean) => void;

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { useTabStore } from './store';
-import { MAX_HIST, mkUiTab, TabId } from './types';
+import { MAX_HIST, mkUiTab } from './types';
+import { TabId } from '@/lib/bindings-wrapper';
 
 function st() {
   return useTabStore.getState();

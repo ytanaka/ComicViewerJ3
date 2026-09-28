@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { join as tauri_join } from '@tauri-apps/api/path';
 
 import { useTabStore } from '@/store/tab/store';
-import { TabId } from '@/store/tab/types';
 import { useCmdGetDirEntries } from '@/services/tab-dir-entry';
+import { TabId } from '@/lib/bindings-wrapper';
 
 // ImageView の中で、DirEntry[] のファイル名をフルパスに変換する
 export function useOriginalImage(tabId: TabId) {

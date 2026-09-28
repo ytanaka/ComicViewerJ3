@@ -1,6 +1,7 @@
 import { StateCreator } from 'zustand';
 import { TabStore } from './store';
-import { TabId, UiTab } from './types';
+import { UiTab } from './types';
+import { TabId } from '@/lib/bindings-wrapper';
 
 export interface TabStoreActions {
   setCurrentTabIndex: (index: number) => void;

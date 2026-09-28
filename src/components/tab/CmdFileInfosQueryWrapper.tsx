@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 
-import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { DirEntry, FileId, TabId, TabInfo } from '@/lib/bindings-wrapper';
 import { getQueryData_getFileInfo1, useCmdFileInfosQuery } from '@/services/tab-file-info';
-import { FileId, TabId } from '@/store/tab/types';
 import { ListRange } from 'react-virtuoso';
 
 // <FileList> 内でスクロールした結果を useState<ListRange>() するとスクロールするたびに <FileList> がレンダーされる。

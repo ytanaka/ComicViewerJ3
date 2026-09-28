@@ -3,10 +3,9 @@ import {
   FileViewMode,
   getNextDummyTabId,
   mkDefaultSortCondition,
-  TabId,
 } from './types';
 import { TabStore } from './store';
-import { TabInfo } from '@/lib/bindings-wrapper';
+import { TabId, TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';
 import { StateCreator } from 'zustand';
 import { removeQueries_getDirEntries } from '@/services/tab-dir-entry';

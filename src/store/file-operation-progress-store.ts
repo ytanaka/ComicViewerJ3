@@ -1,25 +1,25 @@
 import { create } from 'zustand';
 
 import { GetFilesPropertyNotifyEvent } from '@/lib/bindings';
-import { PrepareFileOperationDialogType } from '@/components/dialogs/PrepareFileOperationDialog';
 import { DirEntry, TabInfo, TaskId } from '@/lib/bindings-wrapper';
 import { useUiVolatileStore } from './ui-volatile-store';
+import { FileOperationProgressDialogType } from '@/components/dialogs/FileOperationProgressDialog';
 
 // Rustの get_files_property() を呼んだ後に通知されるデータを格納する
-export interface PrepareFileOperationStore {
+export interface FileOperationProgressStore {
   tab: TabInfo | null,
   files: DirEntry[];
-  type: PrepareFileOperationDialogType | null;
+  type: FileOperationProgressDialogType | null;
   taskId: TaskId | null;
   resolve: ((value: boolean) => void) | null;
 
   event: GetFilesPropertyNotifyEvent | null;
 
-  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: PrepareFileOperationDialogType, resolve: (value: boolean) => void) => void;
+  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: FileOperationProgressDialogType, resolve: (value: boolean) => void) => void;
   setNotifyEvent: (ev: GetFilesPropertyNotifyEvent) => void;
 }
 
-export const usePrepareFileOperationStore = create<PrepareFileOperationStore>()((set, get) => ({
+export const useFileOperationProgressStore = create<FileOperationProgressStore>()((set, get) => ({
   tab: null,
   files: [],
   type: null,
@@ -28,8 +28,8 @@ export const usePrepareFileOperationStore = create<PrepareFileOperationStore>()(
 
   event: null,
 
-  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: PrepareFileOperationDialogType, resolve: (value: boolean) => void) => {
-    useUiVolatileStore.getState().setField('showPrepareFileOperationDialog', true);
+  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: FileOperationProgressDialogType, resolve: (value: boolean) => void) => {
+    useUiVolatileStore.getState().setField('showFileOperationProgressDialog', true);
 
     set(() => {
       return { tab, files, taskId, type, resolve, event: null, };

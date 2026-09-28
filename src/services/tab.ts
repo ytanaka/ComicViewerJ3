@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { handleRustCmdCreateTabResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
+import { handleRustCmdCreateTabResult, rustcmds, TabId, TabInfo } from '@/lib/bindings-wrapper';
 import { myQueryClient } from '@/lib/query-client';
 import { useTabStore } from '@/store/tab/store';
-import { TabId } from '@/store/tab/types';
 
 // タブ関連の queryKey はこれを先頭に入れ、次に TabId を入れる
 // タブを消すときはまとめて消す

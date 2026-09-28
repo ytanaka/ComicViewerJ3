@@ -1,12 +1,9 @@
 import type { Draft } from 'immer';
 
 import { SortCondition } from '@/lib/bindings';
-import { TabInfo } from '@/lib/bindings-wrapper';
+import { TabId, TabInfo } from '@/lib/bindings-wrapper';
 import { TabStore } from './store';
 import { THUMBNAIL_SIZE_DEFAULT } from '../ui-store';
-
-export type TabId = number & { readonly __brand: unique symbol };
-export type FileId = number & { readonly __brand: unique symbol };
 
 export const MAX_HIST = 10;
 

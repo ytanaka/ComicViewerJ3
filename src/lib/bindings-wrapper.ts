@@ -1,6 +1,5 @@
 import { toast } from 'sonner';
 
-import { FileId, TabId } from '@/store/tab/types';
 import {
   AppPreferences,
   commands,
@@ -18,7 +17,11 @@ import {
 } from './bindings';
 import { logErr } from './tools/log';
 import { dialogCommands } from './commands/dialog-commands';
-import { TaskId } from '@/store/prepare-file-operation-store';
+
+export type TabId = number & { readonly __brand: unique symbol };
+export type FileId = number & { readonly __brand: unique symbol };
+export type TaskId = number & { readonly __brand: unique symbol };
+
 
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {

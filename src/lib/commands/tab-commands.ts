@@ -3,13 +3,14 @@ import { homeDir as tauri_homeDir } from '@tauri-apps/api/path';
 import { resolve as tauri_path_resolve } from '@tauri-apps/api/path';
 
 import { useTabStore } from '@/store/tab/store';
-import { mkUiTab, TabId } from '@/store/tab/types';
+import { mkUiTab } from '@/store/tab/types';
 import {
   DirEntry,
   handleRustCmdCreateTabResult,
   handleRustCmdResult,
   RustCmdResult,
   rustcmds,
+  TabId,
   TabInfo,
 } from '../bindings-wrapper';
 import { removeQueries_tab } from '@/services/tab';

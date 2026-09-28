@@ -1,8 +1,8 @@
 import { useInputDialogStore } from '@/components/dialogs/InputDialog';
 import { useOkCancelDialogStore } from '@/components/dialogs/OkCancelDialog';
-import { TaskId, usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
+import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { DirEntry, TabInfo } from '../bindings-wrapper';
+import { DirEntry, TabInfo, TaskId } from '../bindings-wrapper';
 
 export const dialogCommands = {
   // 現在ダイアログが開いているか判定
@@ -12,7 +12,8 @@ export const dialogCommands = {
       useUiVolatileStore.getState().showBookmarkManager ||
       useUiVolatileStore.getState().showOkCancelDialog ||
       useUiVolatileStore.getState().showInputDialog ||
-      useUiVolatileStore.getState().showFileOperationDialog
+      useUiVolatileStore.getState().showPrepareFileOperationDialog ||
+      useUiVolatileStore.getState().showFileOperationProgressDialog
     );
   },
 
@@ -54,8 +55,5 @@ export const dialogCommands = {
     return new Promise<boolean>(resolve => {
       usePrepareFileOperationStore.getState().showDialog(tab, files, taskId, 'prepare_remove', resolve);
     });
-  },
-  closeFileOperationDialog() {
-    useUiVolatileStore.getState().setField('showFileOperationDialog', false);
   },
 };

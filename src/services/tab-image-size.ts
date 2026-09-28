@@ -1,7 +1,6 @@
-import { FileId, TabId } from '@/store/tab/types';
 import { useQuery } from '@tanstack/react-query';
 import { queryKey_tabId } from './tab';
-import { DirEntry, handleRustCmdResult, rustcmds } from '@/lib/bindings-wrapper';
+import { DirEntry, FileId, handleRustCmdResult, rustcmds, TabId } from '@/lib/bindings-wrapper';
 import { isPictureFileExtension } from '@/lib/tools/string-util';
 
 function queryKey_useImageSize(tabId: TabId, fileId: FileId | undefined) {

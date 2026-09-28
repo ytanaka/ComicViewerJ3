@@ -1,8 +1,9 @@
 import { StateCreator } from 'zustand';
 import { TabStore } from './store';
-import { _useTabStore_getImmerTab, MAX_HIST, TabId } from './types';
+import { _useTabStore_getImmerTab, MAX_HIST } from './types';
 import { Draft } from 'immer';
 import { getQueryData_getDirEntry } from '@/services/tab-dir-entry';
+import { TabId } from '@/lib/bindings-wrapper';
 
 export interface FileFocusHistoryActions {
   pushHistory: (tabId: TabId, path: string, filename: string) => void;

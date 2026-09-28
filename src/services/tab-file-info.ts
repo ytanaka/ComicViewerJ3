@@ -1,8 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { FileInfo, handleRustCmdResult, rustcmds, TabInfo } from '@/lib/bindings-wrapper';
+import { FileId, FileInfo, handleRustCmdResult, rustcmds, TabId, TabInfo } from '@/lib/bindings-wrapper';
 import { myQueryClient } from '@/lib/query-client';
-import { FileId, TabId } from '@/store/tab/types';
 import { queryKey_tabId } from './tab';
 
 // ---------------------------------------------------------------------------------------------------------------------
