@@ -59,7 +59,7 @@ export const fileCommands = {
 
       // 検査中にキャンセルされた
       const lastEvent = usePrepareFileOperationStore.getState().event;
-      if (!(await dialogResult) || lastEvent?.finished !== true) {
+      if (!(await dialogResult) || lastEvent?.head.finished !== true) {
         await rustcmds.cancelTask(taskId);
         return;
       }
@@ -79,7 +79,7 @@ export const fileCommands = {
 
       // 削除中にキャンセルされた
       const lastEvent = useFileDeleteProgressStore.getState().event;
-      if (!(await dialogResult) || lastEvent?.finished !== true) {
+      if (!(await dialogResult) || lastEvent?.head.finished !== true) {
         await rustcmds.cancelTask(taskId);
         return;
       }
@@ -118,7 +118,7 @@ export const fileCommands = {
     // ダイアログが閉じるのを待つ
     await dialogResult;
     const event = usePrepareFileOperationStore.getState().event;
-    if (event?.finished !== true) {
+    if (event?.head.finished !== true) {
       // 計算途中で閉じられたら、タスクをキャンセルする
       await rustcmds.cancelTask(taskId);
     }

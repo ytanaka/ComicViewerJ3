@@ -23,6 +23,7 @@ export function PrepareFileOperationDialog() {
   const setField = useUiVolatileStore(state => state.setField);
 
   const dialogState = usePrepareFileOperationStore(state => state);
+  const event = dialogState.event;
   const type = dialogState.type;
   const files = dialogState.files;
 
@@ -35,11 +36,11 @@ export function PrepareFileOperationDialog() {
 
   function showOkButton() {
     if (type === 'property') return true;
-    if (!dialogState.event) return;
-    if (!dialogState.event.finished) return false;
-    if (dialogState.event.canceled) return false;
-    if (dialogState.event.error_msg) return false;
-    if (dialogState.event.symlinks !== 0) return false;
+    if (!event) return;
+    if (!event.head.finished) return false;
+    if (event.head.canceled) return false;
+    if (event.head.error_msg) return false;
+    if (event.progress.symlinks !== 0) return false;
     return true;
   }
 
@@ -139,16 +140,17 @@ function PropertyPanel_dir() {
   )
 }
 function EventNotifyPanel() {
-  const property = usePrepareFileOperationStore(state => state.event);
-  const error_msg = property?.error_msg;
+  const event = usePrepareFileOperationStore(state => state.event);
+  const progress = event?.progress;
+  const error_msg = event?.head.error_msg;
   return (
     <>
-      サイズ: {formatFileBytes(property?.size ?? 0)} ({property?.size.toLocaleString()} バイト)
+      サイズ: {formatFileBytes(progress?.size ?? 0)} ({progress?.size.toLocaleString()} バイト)
       <br />
-      ファイル数: {property?.files.toLocaleString()}
+      ファイル数: {progress?.files.toLocaleString()}
       <br />
-      ディレクトリ数: {property?.dires.toLocaleString()}
-      {property?.symlinks !== 0 && <><br />リンク数: {property?.symlinks.toLocaleString()}</>}
+      ディレクトリ数: {progress?.dires.toLocaleString()}
+      {progress?.symlinks !== 0 && <><br />リンク数: {progress?.symlinks.toLocaleString()}</>}
       {error_msg &&
         <>
           <br />
@@ -160,11 +162,11 @@ function EventNotifyPanel() {
   )
 }
 function PrepareDeletePanel() {
-  const property = usePrepareFileOperationStore(state => state.event);
+  const progress = usePrepareFileOperationStore(state => state.event?.progress);
   return (
     <>
       <EventNotifyPanel />
-      {property?.symlinks !== 0 && <><br /><br />リンクが含まれているので削除できません</>}
+      {progress?.symlinks !== 0 && <><br /><br />リンクが含まれているので削除できません</>}
     </>
   )
 }

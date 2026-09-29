@@ -72,6 +72,7 @@ pub struct AppConstants {
     pub event_name_file_updaet: String,
     pub event_name_get_files_property: String,
     pub event_name_file_delete_progress: String,
+    pub event_name_file_copy_move_confirm: String,
 }
 impl AppConstants {
     pub fn new() -> Self {
@@ -79,6 +80,7 @@ impl AppConstants {
             event_name_file_updaet: EVENT_NAME_FILE_UPDATE_NOTIFY.to_string(),
             event_name_get_files_property: EVENT_NAME_GET_FILES_PROPERTY_NOTIFY.to_string(),
             event_name_file_delete_progress: EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY.to_string(),
+            event_name_file_copy_move_confirm: EVENT_NAME_FILE_COPY_MOVE_CONFIRM.to_string(),
         }
     }
 }
@@ -256,6 +258,18 @@ pub enum FileOpResult {
     AlreadyExists,
     /// システムエラー以外の失敗
     Fail { error_msg: String },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[serde(tag = "type")]
+/// クリップボードからファイルをペーストした結果
+pub enum ClipboardPasteResult {
+    /// クリップボードにファイルがなかった
+    NoFiles,
+    /// Cutされた結果を移動中
+    ProgressCut,
+    /// Copyされた結果をコピー中
+    ProgressCopy,
 }
 
 // =====================================================================================================================
@@ -543,19 +557,25 @@ pub struct FileUpdateNotifyEvent {
                                  // Noneの場合は、そのディレクトリを再読み込みする必要がある場合
 }
 
-pub const EVENT_NAME_GET_FILES_PROPERTY_NOTIFY: &str = "get-files-property-notify";
-pub const EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY: &str = "file-delete-progress-notify";
-
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
-/// ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の結果を通知するイベント構造体
-pub struct GetFilesPropertyNotifyEvent {
-    pub task_id: TaskId,
-
+pub struct TaskEventHeader {
     #[specta(type =specta_typescript::Number)]
+    /// Rust内部使用
     pub event_time_ms: u128,
-
+    /// Rust内部使用
     pub event_count: u32,
 
+    /// 最後の通知かどうか
+    pub finished: bool,
+
+    /// キャンセルされたかどうか (finished == true の場合)
+    pub canceled: bool,
+
+    /// エラー発生時 (finished == true の場合)
+    pub error_msg: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+pub struct TaskEventFileProgress {
     #[specta(type = specta_typescript::Number)]
     /// トータルファイルサイズ
     pub size: u64,
@@ -568,15 +588,16 @@ pub struct GetFilesPropertyNotifyEvent {
 
     /// シンボリックリンク数
     pub symlinks: u32,
+}
 
-    /// 最後の通知かどうか
-    pub finished: bool,
+pub const EVENT_NAME_GET_FILES_PROPERTY_NOTIFY: &str = "get-files-property-notify";
 
-    /// キャンセルされたかどうか (finished == true の場合)
-    pub canceled: bool,
-
-    /// エラー発生時 (finished == true の場合)
-    pub error_msg: Option<String>,
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+/// ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の結果を通知するイベント構造体
+pub struct GetFilesPropertyNotifyEvent {
+    pub task_id: TaskId,
+    pub head: TaskEventHeader,
+    pub progress: TaskEventFileProgress,
 }
 impl GetFilesPropertyNotifyEvent {
     pub fn new(task_id: TaskId) -> Self {
@@ -585,4 +606,51 @@ impl GetFilesPropertyNotifyEvent {
             ..Default::default()
         }
     }
+}
+
+pub const EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY: &str = "file-delete-progress-notify";
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+/// ファイル削除 ([`remove_files()`](crate::commands::fs::remove_files)) の結果を通知するイベント構造体
+pub struct RemoveFilesNotifyEvent {
+    pub task_id: TaskId,
+    pub head: TaskEventHeader,
+    pub progress: TaskEventFileProgress,
+}
+impl RemoveFilesNotifyEvent {
+    pub fn new(task_id: TaskId) -> Self {
+        Self {
+            task_id,
+            ..Default::default()
+        }
+    }
+}
+
+pub const EVENT_NAME_FILE_COPY_MOVE_CONFIRM: &str = "file-copy-move-confirm";
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+///
+pub struct FileCopyMoveConfirmEvent {
+    pub task_id: TaskId,
+    /// 相対パス
+    pub conflict_name: String,
+    /// ファイルか
+    pub is_file: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub struct FileCopyMoveConfirmResponse {
+    pub answer: FileCopyMoveConfilctAnswer,
+    pub always: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[serde(tag = "type")]
+pub enum FileCopyMoveConfilctAnswer {
+    /// リネーム (file, dir)
+    Rename,
+    /// マージ (dir)
+    Merge,
+    /// スキップ (file, dir)
+    Skip,
 }

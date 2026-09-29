@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { GetFilesPropertyNotifyEvent } from '@/lib/bindings';
+import { GetFilesPropertyNotifyEvent, RemoveFilesNotifyEvent } from '@/lib/bindings';
 import { DirEntry, TabInfo, TaskId } from '@/lib/bindings-wrapper';
 import { useUiVolatileStore } from './ui-volatile-store';
 
@@ -12,10 +12,10 @@ export interface FileDeleteProgressStore {
   resolve: ((value: boolean) => void) | null;
 
   prepareEvent: GetFilesPropertyNotifyEvent | null;
-  event: GetFilesPropertyNotifyEvent | null;
+  event: RemoveFilesNotifyEvent | null;
 
   showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, resolve: (value: boolean) => void, prepareEvent: GetFilesPropertyNotifyEvent) => void;
-  setNotifyEvent: (ev: GetFilesPropertyNotifyEvent) => void;
+  setNotifyEvent: (ev: RemoveFilesNotifyEvent) => void;
 }
 
 export const useFileDeleteProgressStore = create<FileDeleteProgressStore>()((set, get) => ({
@@ -35,7 +35,7 @@ export const useFileDeleteProgressStore = create<FileDeleteProgressStore>()((set
     });
   },
 
-  setNotifyEvent: (ev: GetFilesPropertyNotifyEvent) => {
+  setNotifyEvent: (ev: RemoveFilesNotifyEvent) => {
     if (get().taskId !== ev.task_id) {
       console.error(`invalid task_id: current task_id = ${get().taskId}`, ev);
       return;

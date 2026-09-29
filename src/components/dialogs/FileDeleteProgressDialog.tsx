@@ -20,13 +20,13 @@ export function FileDeleteProgressDialog() {
   const setField = useUiVolatileStore(state => state.setField);
 
   const dialogState = useFileDeleteProgressStore(state => state);
-  const error_msg = dialogState.event?.error_msg;
+  const event = dialogState.event;
+  const error_msg = event?.head.error_msg;
 
   function getProgress() {
-    const ev = dialogState.event;
     const pre = dialogState.prepareEvent;
-    if (!ev || !pre) return 0;
-    return Math.floor(ev.files / pre.files * 100);
+    if (!event || !pre) return 0;
+    return Math.floor(event.progress.files / pre.progress.files * 100);
   }
 
   const handleOkCancel = useCallback((b: boolean) => {
@@ -37,11 +37,11 @@ export function FileDeleteProgressDialog() {
   }, [dialogState, setField]);
 
   useEffect(() => {
-    if (dialogState.event?.finished !== true) return;
+    if (event?.head.finished !== true) return;
     if (error_msg) return;
 
     handleOkCancel(true);
-  }, [dialogState.event?.finished, error_msg, handleOkCancel])
+  }, [event?.head.finished, error_msg, handleOkCancel])
 
   return (
     <AlertDialog
@@ -57,9 +57,9 @@ export function FileDeleteProgressDialog() {
 
         <Progress value={getProgress()} />
         <AlertDialogDescription>
-          削除サイズ: {formatFileBytes(dialogState.event?.size ?? 0)}({dialogState.event?.size}バイト)<br />
-          削除ファイル: {dialogState.event?.files}<br />
-          削除ディレクトリ: {dialogState.event?.dires}<br />
+          削除サイズ: {formatFileBytes(event?.progress.size ?? 0)}({event?.progress.size}バイト)<br />
+          削除ファイル: {event?.progress.files}<br />
+          削除ディレクトリ: {event?.progress.dires}<br />
         </AlertDialogDescription>
 
         {error_msg &&

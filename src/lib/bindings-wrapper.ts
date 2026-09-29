@@ -156,6 +156,7 @@ export function mkAppPreferencesDefault(): AppPreferences {
   // この関数が呼ばれるのは rustcmds.loadPreferences() がエラーを返した時なので、実際には呼ばれないはず
   return {
     debug_filename_search_sleep_ms: 0,
+    debug_remove_files_sleep_ms: 0,
     filename_sort_strength: 'Identical',
     filename_cmp: { type: 'Icu' },
     filename_cmp_by_digit: false,

@@ -8,7 +8,7 @@ use crate::{
     types::{
         AppConstants, FileUpdateNotifyEvent, GetFilesPropertyNotifyEvent,
         InvokeProgramResult::{self, Fail, Success},
-        TaskId,
+        RemoveFilesNotifyEvent, TaskId,
     },
     LOG_RESULT,
 };
@@ -83,6 +83,10 @@ pub fn cancel_task(state: State<'_, Arc<AppState>>, task_id: TaskId) {
 #[tauri::command]
 #[specta::specta]
 /// ダミー
-pub fn dummy(_file_notify: FileUpdateNotifyEvent, _prepare: GetFilesPropertyNotifyEvent) {
+pub fn dummy(
+    _file_notify: FileUpdateNotifyEvent,
+    _prepare: GetFilesPropertyNotifyEvent,
+    _remove: RemoveFilesNotifyEvent,
+) {
     log::info!("command::dummy()");
 }

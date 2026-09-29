@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { listen as tauri_listen } from '@tauri-apps/api/event';
 
 import { useAppConstantsStore } from '@/store/app-constants';
-import { GetFilesPropertyNotifyEvent } from '../bindings';
+import { RemoveFilesNotifyEvent } from '../bindings';
 import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
 
 let initializing = false;
@@ -18,7 +18,7 @@ export function TauriFileDeleteProgressEventListener() {
     const start = async () => {
       if (initializing) return;
       initializing = true;
-      unlistenFn = await tauri_listen<GetFilesPropertyNotifyEvent>(EVENT_NAME, async event => {
+      unlistenFn = await tauri_listen<RemoveFilesNotifyEvent>(EVENT_NAME, async event => {
         console.debug('TauriFileDeleteProgressEventListener: receive event:', event);
         setNotifyEvent(event.payload);
       });

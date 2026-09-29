@@ -1,6 +1,8 @@
 //! UIから呼ばれるRustコマンド
 pub mod app;
 pub mod fs;
+pub mod fs_clipboard;
+pub mod fs_util_move;
 pub mod fs_util;
 pub mod images;
 pub mod images_util;

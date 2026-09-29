@@ -4,7 +4,7 @@ use std::{
     ops::Deref,
     sync::{
         atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering::SeqCst},
-        Arc, OnceLock, RwLock, Weak,
+        Arc, Mutex, OnceLock, RwLock, Weak,
     },
 };
 
@@ -15,7 +15,7 @@ use tauri::AppHandle;
 use crate::{
     commands::preferences::load_preferences_impl,
     file_operations::{cache_cleaner::CacheCleanupWorker, metadata_worker::MetadataWorker},
-    state::{command_limitter::CommandLimitter, tab_info::TabInfo},
+    state::{clipboard::AppClipboard, command_limitter::CommandLimitter, tab_info::TabInfo},
     text_search::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
         text_matcher::TextMatcher, vibrato::Vibrato,
@@ -74,6 +74,9 @@ pub struct AppState {
     // UIのタブ情報
     pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,
 
+    // クリップボード
+    pub clipboard: AppStateField<Mutex<Option<AppClipboard>>>,
+
     // 設定
     pub preferences: AppStateField<RwLock<AppPreferences>>,
 
@@ -100,6 +103,7 @@ impl AppState {
 
             tabs: DashMap::new(),
 
+            clipboard: AppStateField::new(),
             preferences: AppStateField::new(),
 
             reverse_migemo: AppStateField::new(),
@@ -126,6 +130,7 @@ impl AppState {
         }
         let pref = self.preferences.read().unwrap().clone();
 
+        state.clipboard.get_or_init(|| Arc::new(Mutex::new(None)));
         state.reverse_migemo.get_or_init(ReverseMigemo::new);
         state.vibrato.get_or_init(Vibrato::new);
         state.migemo.get_or_init(Migemo::new);

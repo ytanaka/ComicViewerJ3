@@ -8,6 +8,7 @@ use tauri_specta::{collect_commands, Builder};
 pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::app;
     use crate::commands::fs;
+    use crate::commands::fs_clipboard;
     use crate::commands::images;
     use crate::commands::preferences;
     use crate::commands::search;
@@ -35,6 +36,8 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         fs::rename_file,
         fs::remove_files,
         fs::get_files_property,
+        fs_clipboard::file_cut_clipboard,
+        fs_clipboard::file_paste_clipboard,
         search::search_next_filename,
         images::get_image_size,
         images::get_thumbnail,

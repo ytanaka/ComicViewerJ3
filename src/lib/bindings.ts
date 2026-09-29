@@ -19,7 +19,7 @@ export const commands = {
 	/**  タスク中断 */
 	cancelTask: (taskId: number) => __TAURI_INVOKE<void>("cancel_task", { taskId }),
 	/**  ダミー */
-	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare }),
+	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove }),
 	/**  タブ作成 (絶対パス) */
 	createTab: (path: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("create_tab", { path })),
 	/**  タブ作成 (指定タブと同じパス) */
@@ -53,6 +53,10 @@ export const commands = {
 	 *  途中経過と最終結果は [`GetFilesPropertyNotifyEvent`] でUIに通知される
 	 */
 	getFilesProperty: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds, taskId })),
+	/**  ファイルを Ctrl+X */
+	fileCutClipboard: (tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("file_cut_clipboard", { tabId, fileIds })),
+	/**  ファイルを Ctrl+V */
+	filePasteClipboard: (tabId: number) => typedError<ClipboardPasteResult, string>(__TAURI_INVOKE("file_paste_clipboard", { tabId })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  画像のサイズを取得 */
@@ -77,6 +81,7 @@ export type AppConstants = {
 	event_name_file_updaet: string,
 	event_name_get_files_property: string,
 	event_name_file_delete_progress: string,
+	event_name_file_copy_move_confirm: string,
 };
 
 /**  Rust側で保持するアプリ設定 */
@@ -107,6 +112,15 @@ export type AppPreferences = {
 	/**  デフォルト値。UI側で参照のため (UI側ではnullにならない) */
 	default: AppPreferences | null,
 };
+
+/**  クリップボードからファイルをペーストした結果 */
+export type ClipboardPasteResult = 
+/**  クリップボードにファイルがなかった */
+{ type: "NoFiles" } | 
+/**  Cutされた結果を移動中 */
+{ type: "ProgressCut" } | 
+/**  Copyされた結果をコピー中 */
+{ type: "ProgressCopy" };
 
 /**
  *  [`create_tab()`](crate::commands::tabs::create_tab) 、`clone_*()` コマンドの失敗情報
@@ -200,22 +214,8 @@ export type FilenameCmpType =
 /**  ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の結果を通知するイベント構造体 */
 export type GetFilesPropertyNotifyEvent = {
 	task_id: number,
-	event_time_ms: number,
-	event_count: number,
-	/**  トータルファイルサイズ */
-	size: number,
-	/**  ディレクトリ数 */
-	dires: number,
-	/**  ファイル数 */
-	files: number,
-	/**  シンボリックリンク数 */
-	symlinks: number,
-	/**  最後の通知かどうか */
-	finished: boolean,
-	/**  キャンセルされたかどうか (finished == true の場合) */
-	canceled: boolean,
-	/**  エラー発生時 (finished == true の場合) */
-	error_msg: string | null,
+	head: TaskEventHeader,
+	progress: TaskEventFileProgress,
 };
 
 /**  [`get_resized_img()`](crate::commands::images::get_resized_img) コマンドの結果 */
@@ -240,6 +240,13 @@ export type GetThumbnailResult =
 
 /**  プログラム起動 ([`invoke_program()`](crate::commands::app::invoke_program)) の結果 */
 export type InvokeProgramResult = "Success" | { Fail: string };
+
+/**  ファイル削除 ([`remove_files()`](crate::commands::fs::remove_files)) の結果を通知するイベント構造体 */
+export type RemoveFilesNotifyEvent = {
+	task_id: number,
+	head: TaskEventHeader,
+	progress: TaskEventFileProgress,
+};
 
 /**  画像リサイズ時の画質設定 ([`AppPreferences`]の要素) */
 export type ResizeImageConfig = {
@@ -269,6 +276,30 @@ export type SortType =
 export type TabInfoUI = {
 	id: number,
 	path: string,
+};
+
+export type TaskEventFileProgress = {
+	/**  トータルファイルサイズ */
+	size: number,
+	/**  ディレクトリ数 */
+	dires: number,
+	/**  ファイル数 */
+	files: number,
+	/**  シンボリックリンク数 */
+	symlinks: number,
+};
+
+export type TaskEventHeader = {
+	/**  Rust内部使用 */
+	event_time_ms: number,
+	/**  Rust内部使用 */
+	event_count: number,
+	/**  最後の通知かどうか */
+	finished: boolean,
+	/**  キャンセルされたかどうか (finished == true の場合) */
+	canceled: boolean,
+	/**  エラー発生時 (finished == true の場合) */
+	error_msg: string | null,
 };
 
 /* Tauri Specta runtime */

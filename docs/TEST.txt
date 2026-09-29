@@ -1,0 +1,6 @@
+
+Rustで扱えないファイル名をWindowsのWSLのBashで作成する
+
+touch $'abc\xff\xfe.txt'
+touch 'test.txt.'
+touch 'test.txt '
