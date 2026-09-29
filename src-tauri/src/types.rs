@@ -244,7 +244,6 @@ pub struct FileMetadata {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
-
 /// ファイルのカットかコピーか
 pub enum CutOrCopy {
     Cut,

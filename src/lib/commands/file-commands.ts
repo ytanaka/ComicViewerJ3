@@ -107,7 +107,11 @@ export const fileCommands = {
     const fileIds = sel.map(ent => ent.file_id);
 
     const result = await rustcmds.fileCutOrCopyToClipboard(mode, tab.id, fileIds);
-    handleRustCmdResult(result, `rustcmds.fileCutToClipboard(${mode.type}, ${tab.id}, [len=${fileIds.length}])`, `ファイル${mode.type}`);
+    handleRustCmdResult(
+      result,
+      `rustcmds.fileCutToClipboard(${mode.type}, ${tab.id}, [len=${fileIds.length}])`,
+      `ファイル${mode.type}`
+    );
   },
   async paste() {
     const { tab } = getSelectedFiles();
