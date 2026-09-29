@@ -3,7 +3,7 @@
 use std::{
     ops::Deref,
     sync::{
-        atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering::SeqCst},
+        atomic::{AtomicU32, AtomicU64},
         Arc, Mutex, OnceLock, RwLock, Weak,
     },
 };
@@ -15,7 +15,12 @@ use tauri::AppHandle;
 use crate::{
     commands::preferences::load_preferences_impl,
     file_operations::{cache_cleaner::CacheCleanupWorker, metadata_worker::MetadataWorker},
-    state::{clipboard::AppClipboard, command_limitter::CommandLimitter, tab_info::TabInfo},
+    state::{
+        clipboard::AppClipboard,
+        command_limitter::CommandLimitter,
+        tab_info::TabInfo,
+        task::{AppTask, AppTaskWrapper},
+    },
     text_search::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
         text_matcher::TextMatcher, vibrato::Vibrato,
@@ -54,25 +59,15 @@ impl<T> Deref for AppStateField<T> {
 pub const START_TAB_ID: TabId = 1;
 pub const START_FILE_ID: FileId = 1001;
 
-pub struct AppTask {
-    pub canceled: AtomicBool,
-}
-impl AppTask {
-    fn new() -> Arc<Self> {
-        Arc::new(Self {
-            canceled: AtomicBool::new(false),
-        })
-    }
-}
-
 pub struct AppState {
     pub next_tab_id: AtomicU32,  // TabId の採番 (アプリ内で起動時からユニーク)
     pub next_file_id: AtomicU64, // FileId の採番 (アプリ内で起動時からユニーク)
 
-    pub current_tasks: DashMap<TaskId, Weak<AppTask>>,
-
     // UIのタブ情報
     pub tabs: DashMap<TabId, Arc<RwLock<TabInfo>>>,
+
+    // タスク
+    pub tasks: DashMap<TaskId, Weak<RwLock<AppTask>>>,
 
     // クリップボード
     pub clipboard: AppStateField<Mutex<Option<AppClipboard>>>,
@@ -99,7 +94,7 @@ impl Default for AppState {
             next_tab_id: AtomicU32::new(START_TAB_ID),
             next_file_id: AtomicU64::new(START_FILE_ID),
 
-            current_tasks: DashMap::new(),
+            tasks: DashMap::new(),
 
             tabs: DashMap::new(),
 
@@ -183,22 +178,17 @@ impl AppState {
         ret
     }
 
-    pub fn add_task(&self, task_id: TaskId) -> Arc<AppTask> {
+    pub fn add_task(&self, task_id: TaskId) -> Arc<RwLock<AppTask>> {
         let task = AppTask::new();
-        self.current_tasks.insert(task_id, Arc::downgrade(&task));
-        self.current_tasks.retain(|_, v| v.upgrade().is_some()); // 不要になったタスクを消す
+        self.tasks.insert(task_id, Arc::downgrade(&task));
+        self.tasks.retain(|_, v| v.upgrade().is_some()); // 不要になったタスクを消す
         task
     }
-    pub fn cancel_task(&self, task_id: TaskId) {
-        match self.current_tasks.get(&task_id).and_then(|t| t.upgrade()) {
-            None => log::warn!("no task for cancel: id={}", task_id),
-            Some(t) => t.canceled.store(true, SeqCst),
+    pub fn get_task(&self, task_id: TaskId) -> AppTaskWrapper {
+        let task = self.tasks.get(&task_id).and_then(|t| t.upgrade());
+        if task.is_none() {
+            log::error!("no task: {}", task_id);
         }
-    }
-    pub fn is_task_canceled(&self, task_id: TaskId) -> bool {
-        match self.current_tasks.get(&task_id).and_then(|t| t.upgrade()) {
-            None => true,
-            Some(t) => t.canceled.load(SeqCst),
-        }
+        AppTaskWrapper::new(task)
     }
 }

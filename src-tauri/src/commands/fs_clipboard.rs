@@ -5,7 +5,7 @@ use tauri::State;
 use crate::{
     commands::{fs_util::cnv_file_ids_to_path, fs_util_move::move_paths},
     state::{app_state::AppState, clipboard::AppClipboard},
-    types::{ClipboardPasteResult, CutOrCopy, TabId},
+    types::{ClipboardPasteResult, CutOrCopy, FileCopyMoveConfirmResponse, TabId, TaskId},
     LOG_RESULT,
 };
 
@@ -25,7 +25,10 @@ pub fn file_cut_or_copy_to_clipboard(
             tab_id,
             file_ids.len()
         ),
-        { file_cut_or_copy_to_clipboard_impl(&state, mode, tab_id, &file_ids).map_err(|e| e.to_string()) }
+        {
+            file_cut_or_copy_to_clipboard_impl(&state, mode, tab_id, &file_ids)
+                .map_err(|e| e.to_string())
+        }
     )
 }
 
@@ -50,14 +53,16 @@ pub fn file_cut_or_copy_to_clipboard_impl(
 /// ファイルを Ctrl+V
 pub fn file_paste_from_clipboard(
     state: State<'_, Arc<AppState>>,
+    task_id: TaskId,
     tab_id: TabId,
 ) -> Result<ClipboardPasteResult, String> {
-    LOG_RESULT!(format!("file_paste_clipboard({})", tab_id), {
-        file_paste_from_clipboard_impl(&state, tab_id).map_err(|e| e.to_string())
+    LOG_RESULT!(format!("file_paste_clipboard({},{})", task_id, tab_id), {
+        file_paste_from_clipboard_impl(&state, task_id, tab_id).map_err(|e| e.to_string())
     })
 }
 pub fn file_paste_from_clipboard_impl(
     state: &Arc<AppState>,
+    task_id: TaskId,
     tab_id: TabId,
 ) -> anyhow::Result<ClipboardPasteResult> {
     let paths = {
@@ -95,8 +100,20 @@ pub fn file_paste_from_clipboard_impl(
         CutOrCopy::Cut => {
             let tab = state.get_tab(tab_id)?;
             let tab = tab.read().unwrap();
-            move_paths(&paths, tab.get_path())?;
+            move_paths(task_id, &paths, tab.get_path())?;
             Ok(ClipboardPasteResult::ProgressCut)
         }
     }
+}
+
+#[tauri::command]
+#[specta::specta]
+/// コピー、移動時の確認に対する応答
+pub fn file_paste_response(
+    state: State<'_, Arc<AppState>>,
+    task_id: TaskId,
+    response: FileCopyMoveConfirmResponse,
+) {
+    log::trace!("file_paste_clipboard({},...)", task_id);
+    state.get_task(task_id).set_response(response);
 }

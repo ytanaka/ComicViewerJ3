@@ -56,7 +56,7 @@ export const commands = {
 	/**  ファイルを Ctrl+X,Ctrl+C */
 	fileCutOrCopyToClipboard: (mode: CutOrCopy, tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("file_cut_or_copy_to_clipboard", { mode, tabId, fileIds })),
 	/**  ファイルを Ctrl+V */
-	filePasteFromClipboard: (tabId: number) => typedError<ClipboardPasteResult, string>(__TAURI_INVOKE("file_paste_from_clipboard", { tabId })),
+	filePasteFromClipboard: (taskId: number, tabId: number) => typedError<ClipboardPasteResult, string>(__TAURI_INVOKE("file_paste_from_clipboard", { taskId, tabId })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  画像のサイズを取得 */
@@ -281,6 +281,7 @@ export type TabInfoUI = {
 	path: string,
 };
 
+/**  タスクの処理経過情報の共通情報 */
 export type TaskEventFileProgress = {
 	/**  トータルファイルサイズ */
 	size: number,
@@ -292,6 +293,7 @@ export type TaskEventFileProgress = {
 	symlinks: number,
 };
 
+/**  Rust側で継続的に処理するタスクの進捗状況を通知するイベントの共通ヘッダー */
 export type TaskEventHeader = {
 	/**  Rust内部使用 */
 	event_time_ms: number,

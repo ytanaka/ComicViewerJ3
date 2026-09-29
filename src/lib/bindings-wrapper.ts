@@ -97,8 +97,8 @@ export const rustcmds = {
   fileCutOrCopyToClipboard: (mode: CutOrCopy, tabId: TabId, fileIds: FileId[]) => {
     return commands.fileCutOrCopyToClipboard(mode, tabId, fileIds.map(id => id.toString()));
   },
-  filePasteFromClipboard: (tabId: TabId) => {
-    return commands.filePasteFromClipboard(tabId);
+  filePasteFromClipboard: (taskId: TaskId,tabId: TabId) => {
+    return commands.filePasteFromClipboard(taskId, tabId);
   },
 
   searchNextFilename: (tabId: TabId, startIndex: number, romaji: string, reverse: boolean) => {

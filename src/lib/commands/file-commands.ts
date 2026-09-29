@@ -113,8 +113,11 @@ export const fileCommands = {
     const { tab } = getSelectedFiles();
     if (!tab) return;
 
-    const result = await rustcmds.filePasteFromClipboard(tab.id);
+    const taskId = getNextTaskId();
+    const result = await rustcmds.filePasteFromClipboard(taskId, tab.id);
     handleRustCmdResult(result, `rustcmds.filePasteFromClipboard(${tab.id})`, 'ファイル貼り付け');
+
+    // TODO 通知受け取り
   },
 
   async rename() {

@@ -77,7 +77,7 @@ async fn invoke_program_impl(
 /// タスク中断
 pub fn cancel_task(state: State<'_, Arc<AppState>>, task_id: TaskId) {
     log::info!("command::cancel_task({})", task_id);
-    state.cancel_task(task_id);
+    state.get_task(task_id).cancel_task();
 }
 
 #[tauri::command]

@@ -4,4 +4,5 @@ pub mod app_state;
 pub mod clipboard;
 pub mod command_limitter;
 pub mod tab_info;
+pub mod task;
 pub mod util;

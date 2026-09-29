@@ -398,7 +398,7 @@ async fn get_files_property_impl3(
     Ok(())
 }
 fn is_canceled(state: &Arc<AppState>, tab_id: TabId, task_id: TaskId) -> bool {
-    !state.has_tab(tab_id) || state.is_task_canceled(task_id)
+    !state.has_tab(tab_id) || state.get_task(task_id).is_task_canceled()
 }
 fn can_emit_event(head: &mut TaskEventHeader) -> anyhow::Result<bool> {
     let t = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();

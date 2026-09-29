@@ -566,39 +566,6 @@ pub struct FileUpdateNotifyEvent {
                                  // Noneの場合は、そのディレクトリを再読み込みする必要がある場合
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
-pub struct TaskEventHeader {
-    #[specta(type =specta_typescript::Number)]
-    /// Rust内部使用
-    pub event_time_ms: u128,
-    /// Rust内部使用
-    pub event_count: u32,
-
-    /// 最後の通知かどうか
-    pub finished: bool,
-
-    /// キャンセルされたかどうか (finished == true の場合)
-    pub canceled: bool,
-
-    /// エラー発生時 (finished == true の場合)
-    pub error_msg: Option<String>,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
-pub struct TaskEventFileProgress {
-    #[specta(type = specta_typescript::Number)]
-    /// トータルファイルサイズ
-    pub size: u64,
-
-    /// ディレクトリ数
-    pub dires: u32,
-
-    /// ファイル数
-    pub files: u32,
-
-    /// シンボリックリンク数
-    pub symlinks: u32,
-}
-
 pub const EVENT_NAME_GET_FILES_PROPERTY_NOTIFY: &str = "get-files-property-notify";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
@@ -638,7 +605,7 @@ impl RemoveFilesNotifyEvent {
 pub const EVENT_NAME_FILE_COPY_MOVE_CONFIRM: &str = "file-copy-move-confirm";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-///
+/// ファイルコピー、移動時の重複ファイル処理確認イベント
 pub struct FileCopyMoveConfirmEvent {
     pub task_id: TaskId,
     /// 相対パス
@@ -648,6 +615,7 @@ pub struct FileCopyMoveConfirmEvent {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+/// [`FileCopyMoveConfirmEvent`] の応答
 pub struct FileCopyMoveConfirmResponse {
     pub answer: FileCopyMoveConfilctAnswer,
     pub always: bool,
@@ -658,8 +626,45 @@ pub struct FileCopyMoveConfirmResponse {
 pub enum FileCopyMoveConfilctAnswer {
     /// リネーム (file, dir)
     Rename,
-    /// マージ (dir)
+    /// マージ (コピー時の dir)
     Merge,
     /// スキップ (file, dir)
     Skip,
+}
+
+// =====================================================================================================================
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+/// Rust側で継続的に処理するタスクの進捗状況を通知するイベントの共通ヘッダー
+pub struct TaskEventHeader {
+    #[specta(type =specta_typescript::Number)]
+    /// Rust内部使用
+    pub event_time_ms: u128,
+    /// Rust内部使用
+    pub event_count: u32,
+
+    /// 最後の通知かどうか
+    pub finished: bool,
+
+    /// キャンセルされたかどうか (finished == true の場合)
+    pub canceled: bool,
+
+    /// エラー発生時 (finished == true の場合)
+    pub error_msg: Option<String>,
+}
+// =====================================================================================================================
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+/// タスクの処理経過情報の共通情報
+pub struct TaskEventFileProgress {
+    #[specta(type = specta_typescript::Number)]
+    /// トータルファイルサイズ
+    pub size: u64,
+
+    /// ディレクトリ数
+    pub dires: u32,
+
+    /// ファイル数
+    pub files: u32,
+
+    /// シンボリックリンク数
+    pub symlinks: u32,
 }
