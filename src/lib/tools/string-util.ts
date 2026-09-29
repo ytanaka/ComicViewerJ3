@@ -74,7 +74,7 @@ export function isPictureFileExtension(filename: string) {
 
 export function formatFileBytes(bytes: number) {
   if (bytes < 1024) {
-    return `${bytes} bytes`;
+    return `${bytes}バイト`;
   }
 
   const units = ["kB", "MB", "GB", "TB", "PB"];

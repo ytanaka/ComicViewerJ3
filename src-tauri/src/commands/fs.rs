@@ -6,15 +6,16 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+use anyhow::anyhow;
 use tauri::{AppHandle, Emitter, State};
 use walkdir::WalkDir;
 
 use crate::{
-    commands::fs_util::{is_valid_filename, parse_file_id_str},
+    commands::fs_util::{cnv_file_ids_to_path, is_valid_filename, parse_file_id_str},
     state::app_state::AppState,
     types::{
         FileOpResult, GetFilesPropertyNotifyEvent, TabId, TaskId,
-        EVENT_NAME_GET_FILES_PROPERTY_NOTIFY,
+        EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, EVENT_NAME_GET_FILES_PROPERTY_NOTIFY,
     },
     LOG_RESULT,
 };
@@ -143,27 +144,104 @@ async fn rename_file_impl(
 #[specta::specta]
 /// 削除
 pub async fn remove_files(
+    app: AppHandle,
     state: State<'_, Arc<AppState>>,
     tab_id: TabId,
     file_ids: Vec<String>,
     task_id: TaskId,
 ) -> Result<(), String> {
-    LOG_RESULT!(format!("rename_file({}, [{}])", tab_id, file_ids.len()), {
-        remove_files_impl(state, tab_id, &file_ids, task_id)
-            .await
-            .map_err(|e| e.to_string())
-    })
+    LOG_RESULT!(
+        format!("rename_file({}, [len={}])", tab_id, file_ids.len()),
+        {
+            remove_files_impl1(app, &state, tab_id, &file_ids, task_id)
+                .await
+                .map_err(|e| e.to_string())
+        }
+    )
 }
-async fn remove_files_impl(
-    state: State<'_, Arc<AppState>>,
+async fn remove_files_impl1(
+    app: AppHandle,
+    state: &Arc<AppState>,
     tab_id: TabId,
     file_ids: &[String],
     task_id: TaskId,
 ) -> anyhow::Result<()> {
-    let tab = state.get_tab(tab_id)?;
-    let tab = tab.read().unwrap();
+    let paths = cnv_file_ids_to_path(state, tab_id, file_ids)?;
+    let task = state.add_task(task_id);
 
-    todo!();
+    let state2 = state.clone();
+    tauri::async_runtime::spawn(async move {
+        let _task = task; // タスクが終わるまで state から消えないように保持する
+        let mut result_event = GetFilesPropertyNotifyEvent::new(task_id);
+        let ret =
+            remove_files_impl2(&app, &state2, tab_id, task_id, paths, &mut result_event).await;
+
+        match ret {
+            Ok(_) => {
+                result_event.error_msg = None;
+            }
+            Err(e) => {
+                result_event.error_msg = Some(e.to_string());
+                log::error!("remove_files: error task_id={}, {}", task_id, e);
+            }
+        }
+        result_event.finished = true;
+        result_event.canceled = is_canceled(&state2, tab_id, task_id);
+        result_event.event_time_ms = 0; // 最後なので必ず通知させる
+        let _ = emit_event_file_delete_progress(&app, &mut result_event)
+            .err()
+            .map(|e| {
+                log::error!("remove_files: notify error task_id={}, {}", task_id, e);
+            });
+    });
+    Ok(())
+}
+async fn remove_files_impl2(
+    app: &AppHandle,
+    state: &Arc<AppState>,
+    tab_id: TabId,
+    task_id: TaskId,
+    paths: Vec<PathBuf>,
+    result_event: &mut GetFilesPropertyNotifyEvent,
+) -> anyhow::Result<()> {
+    for path in paths {
+        if is_canceled(state, tab_id, task_id) {
+            break;
+        }
+        remove_files_impl3(app, state, tab_id, task_id, path, result_event).await?;
+    }
+    Ok(())
+}
+async fn remove_files_impl3(
+    app: &AppHandle,
+    state: &Arc<AppState>,
+    tab_id: TabId,
+    task_id: TaskId,
+    path: PathBuf,
+    result_event: &mut GetFilesPropertyNotifyEvent,
+) -> anyhow::Result<()> {
+    for walk in WalkDir::new(path).contents_first(true) {
+        if is_canceled(state, tab_id, task_id) {
+            return Ok(());
+        }
+
+        let f = walk?;
+        let meta = f.metadata()?;
+        if meta.is_symlink() {
+            return Err(anyhow!("リンクは削除できません: {:?}", f.path()));
+        } else if meta.is_dir() {
+            fs::remove_dir(f.path())?;
+            result_event.dires += 1;
+        } else {
+            fs::remove_file(f.path())?;
+            result_event.files += 1;
+            result_event.size += meta.len();
+        }
+
+        emit_event_file_delete_progress(app, result_event)?;
+    }
+
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -199,14 +277,7 @@ async fn get_files_property_impl1(
     file_ids: &[String],
     task_id: TaskId,
 ) -> anyhow::Result<()> {
-    let tab = state.get_tab(tab_id)?;
-    let tab = tab.read().unwrap();
-    let file_ids: Result<Vec<_>, _> = file_ids.iter().map(|s| parse_file_id_str(s)).collect();
-    let mut paths = Vec::<PathBuf>::new();
-    for file_id in file_ids? {
-        let f = tab.get_file_info(file_id)?;
-        paths.push(tab.get_path().join(&*f.name));
-    }
+    let paths = cnv_file_ids_to_path(state, tab_id, file_ids)?;
     let task = state.add_task(task_id);
 
     let state2 = state.clone();
@@ -229,13 +300,15 @@ async fn get_files_property_impl1(
         result_event.finished = true;
         result_event.canceled = is_canceled(&state2, tab_id, task_id);
         result_event.event_time_ms = 0; // 最後なので必ず通知させる
-        let _ = emit_event(&app, &mut result_event).err().map(|e| {
-            log::error!(
-                "get_files_property: notify error task_id={}, {}",
-                task_id,
-                e
-            );
-        });
+        let _ = emit_event_get_files_property(&app, &mut result_event)
+            .err()
+            .map(|e| {
+                log::error!(
+                    "get_files_property: notify error task_id={}, {}",
+                    task_id,
+                    e
+                );
+            });
     });
     Ok(())
 }
@@ -279,7 +352,7 @@ async fn get_files_property_impl3(
             result_event.size += meta.len();
         }
 
-        emit_event(app, result_event)?;
+        emit_event_get_files_property(app, result_event)?;
     }
 
     Ok(())
@@ -287,8 +360,21 @@ async fn get_files_property_impl3(
 fn is_canceled(state: &Arc<AppState>, tab_id: TabId, task_id: TaskId) -> bool {
     !state.has_tab(tab_id) || state.is_task_canceled(task_id)
 }
+fn emit_event_get_files_property(
+    app: &AppHandle,
+    result_event: &mut GetFilesPropertyNotifyEvent,
+) -> anyhow::Result<()> {
+    emit_event(app, EVENT_NAME_GET_FILES_PROPERTY_NOTIFY, result_event)
+}
+fn emit_event_file_delete_progress(
+    app: &AppHandle,
+    result_event: &mut GetFilesPropertyNotifyEvent,
+) -> anyhow::Result<()> {
+    emit_event(app, EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, result_event)
+}
 fn emit_event(
     app: &AppHandle,
+    event_name: &str,
     result_event: &mut GetFilesPropertyNotifyEvent,
 ) -> anyhow::Result<()> {
     let t = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
@@ -297,6 +383,6 @@ fn emit_event(
     }
     result_event.event_time_ms = t;
     result_event.event_count += 1;
-    app.emit(EVENT_NAME_GET_FILES_PROPERTY_NOTIFY, result_event.clone())?;
+    app.emit(event_name, result_event.clone())?;
     Ok(())
 }

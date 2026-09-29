@@ -1,6 +1,6 @@
 //! [`fs`](super::fs) で使用する関数
 
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use anyhow::anyhow;
 
@@ -44,4 +44,20 @@ pub fn is_valid_filename(name: &str) -> bool {
     {
         !name.chars().any(|c| c == '/' || c == '\0')
     }
+}
+
+pub fn cnv_file_ids_to_path(
+    state: &Arc<AppState>,
+    tab_id: TabId,
+    file_ids: &[String],
+) -> anyhow::Result<Vec<PathBuf>> {
+    let tab = state.get_tab(tab_id)?;
+    let tab = tab.read().unwrap();
+    let file_ids: Result<Vec<_>, _> = file_ids.iter().map(|s| parse_file_id_str(s)).collect();
+    let mut paths = Vec::<PathBuf>::new();
+    for file_id in file_ids? {
+        let f = tab.get_file_info(file_id)?;
+        paths.push(tab.get_path().join(&*f.name));
+    }
+    Ok(paths)
 }

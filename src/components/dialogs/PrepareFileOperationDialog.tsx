@@ -17,7 +17,7 @@ import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-sto
 // ダイアログの表示モード
 export type PrepareFileOperationDialogType = 'property' | 'prepare_remove' | 'prepare_copy';
 
-// ファイルプロパティ画面、削除／コピー準備画面
+// ファイルプロパティ画面、削除準備画面
 export function PrepareFileOperationDialog() {
   const show = useUiVolatileStore(state => state.showPrepareFileOperationDialog);
   const setField = useUiVolatileStore(state => state.setField);
@@ -50,7 +50,7 @@ export function PrepareFileOperationDialog() {
       case 'prepare_copy':
         return showOkButton() ? `コピーしますか？ (${files.length}個のアイテム)` : 'コピー対象を検査中';
       case 'prepare_remove':
-        return showOkButton() ? `削除しますか？ (${files.length}個のアイテム)` : '削除対象を検査中';
+        return !showOkButton() ? '削除対象を検査中' : files.length === 1 ? `削除しますか？ (${files[0].name})` : `削除しますか？ (${files.length}個のアイテム)`;
       default:
         return '???';
     }
