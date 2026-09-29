@@ -3,7 +3,7 @@ use std::{
     fs,
     path::PathBuf,
     sync::Arc,
-    time::{SystemTime, UNIX_EPOCH},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
 use anyhow::anyhow;
@@ -239,6 +239,12 @@ async fn remove_files_impl3(
         }
 
         emit_event_file_delete_progress(app, result_event)?;
+
+        let pref = state.preferences.read().unwrap();
+        let sleep = pref.debug_remove_files_sleep_ms;
+        if 0 < sleep {
+            std::thread::sleep(Duration::from_millis(sleep as u64));
+        }
     }
 
     Ok(())

@@ -2,7 +2,6 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -11,12 +10,19 @@ import {
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
 import { useEffect } from 'react';
+import { Progress } from '../ui/progress';
 
 export function FileDeleteProgressDialog() {
   const show = useUiVolatileStore(state => state.showFileDeleteProgressDialog);
   const setField = useUiVolatileStore(state => state.setField);
 
   const dialogState = useFileDeleteProgressStore(state => state);
+  function getProgress() {
+    const ev = dialogState.event;
+    const pre = dialogState.prepareEvent;
+    if (!ev || !pre) return 0;
+    return Math.floor(ev.files / pre.files * 100);
+  }
 
   function handleOkCancel(b: boolean) {
     setField('showFileDeleteProgressDialog', false);
@@ -28,7 +34,6 @@ export function FileDeleteProgressDialog() {
   useEffect(() => {
     if (dialogState.event?.finished !== true) return;
 
-    // TODO
   }, [dialogState.event?.finished])
 
   return (
@@ -41,10 +46,14 @@ export function FileDeleteProgressDialog() {
       <AlertDialogContent className="max-w-3xl!">
         <AlertDialogHeader>
           <AlertDialogTitle>削除中</AlertDialogTitle>
-          <AlertDialogDescription className="max-w-full overflow-x-auto">
-            xxxxxxxxxxxaaa
-          </AlertDialogDescription>
         </AlertDialogHeader>
+
+        <Progress value={getProgress()} />
+        <div>
+
+
+        </div>
+
         <AlertDialogFooter>
           <AlertDialogCancel
             onClick={() => handleOkCancel(false)}

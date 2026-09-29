@@ -11,6 +11,7 @@ export interface FileDeleteProgressStore {
   taskId: TaskId | null;
   resolve: ((value: boolean) => void) | null;
 
+  prepareEvent: GetFilesPropertyNotifyEvent | null;
   event: GetFilesPropertyNotifyEvent | null;
 
   showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, resolve: (value: boolean) => void, prepareEvent: GetFilesPropertyNotifyEvent) => void;
@@ -23,13 +24,14 @@ export const useFileDeleteProgressStore = create<FileDeleteProgressStore>()((set
   taskId: null,
   resolve: null,
 
+  prepareEvent: null,
   event: null,
 
   showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, resolve: (value: boolean) => void, prepareEvent: GetFilesPropertyNotifyEvent) => {
     useUiVolatileStore.getState().setField('showFileDeleteProgressDialog', true);
 
     set(() => {
-      return { tab, files, taskId, resolve, event: prepareEvent };
+      return { tab, files, taskId, resolve, event: null, prepareEvent };
     });
   },
 

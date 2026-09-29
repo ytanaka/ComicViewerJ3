@@ -81,8 +81,10 @@ export type AppConstants = {
 
 /**  Rust側で保持するアプリ設定 */
 export type AppPreferences = {
-	/**  ファイル名検索するとき */
+	/**  ファイル名検索するときスリープする */
 	debug_filename_search_sleep_ms: number,
+	/**  ファイル削除時にスリープする */
+	debug_remove_files_sleep_ms: number,
 	/**  ファイル名ソート時の文字比較方法 */
 	filename_cmp: FilenameCmpType,
 	/**  ファイル名ソート時、先頭の数字を数字として比較 */

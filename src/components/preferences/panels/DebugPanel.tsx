@@ -3,7 +3,6 @@ import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet 
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Separator } from '@/components/ui/separator';
 import { usePreferences, useSavePreferences } from '@/services/preferences';
-import { ChangeEvent } from 'react';
 import { useTabStore } from '@/store/tab/store';
 
 const sortStrengthItems = [
@@ -17,13 +16,6 @@ const sortStrengthItems = [
 export function DebugPanel() {
   const { data: pref } = usePreferences();
   const savePref = useSavePreferences();
-
-  function handleChange_debug_filename_search_sleep_ms(e: ChangeEvent<HTMLInputElement>) {
-    const n = Number(e.target.value);
-    if (pref) {
-      savePref.mutate({ ...pref, debug_filename_search_sleep_ms: n });
-    }
-  }
 
   function handleChange_filename_sort_strength(value: string | null) {
     if (pref && value) {
@@ -59,8 +51,36 @@ export function DebugPanel() {
               min={0}
               max={100}
               step={10}
-              onChange={handleChange_debug_filename_search_sleep_ms}
+              onChange={(e) => {
+                const n = Number(e.target.value);
+                if (pref) {
+                  savePref.mutate({ ...pref, debug_filename_search_sleep_ms: n });
+                }
+              }}
               value={pref?.debug_filename_search_sleep_ms ?? 0}
+            />
+            <InputGroupAddon align="inline-end">(ms)</InputGroupAddon>
+          </InputGroup>
+          <FieldDescription>0: 無効</FieldDescription>
+        </Field>
+
+        <Separator />
+
+        <Field>
+          <FieldLabel>ファイル削除時に1ファイル削除ごとにRust側でスリープを入れる</FieldLabel>
+          <InputGroup className="max-w-40">
+            <InputGroupInput
+              type="number"
+              min={0}
+              max={10000}
+              step={100}
+              onChange={(e) => {
+                const n = Number(e.target.value);
+                if (pref) {
+                  savePref.mutate({ ...pref, debug_remove_files_sleep_ms: n });
+                }
+              }}
+              value={pref?.debug_remove_files_sleep_ms ?? 0}
             />
             <InputGroupAddon align="inline-end">(ms)</InputGroupAddon>
           </InputGroup>
