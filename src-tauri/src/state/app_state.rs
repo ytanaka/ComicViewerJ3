@@ -93,9 +93,9 @@ pub struct AppState {
     pub thumbnail_command_limitter: AppStateField<CommandLimitter>,
     pub resize_img_command_limitter: AppStateField<CommandLimitter>,
 }
-impl AppState {
-    pub fn new() -> Self {
-        AppState {
+impl Default for AppState {
+    fn default() -> Self {
+        Self {
             next_tab_id: AtomicU32::new(START_TAB_ID),
             next_file_id: AtomicU64::new(START_FILE_ID),
 
@@ -119,7 +119,8 @@ impl AppState {
             resize_img_command_limitter: AppStateField::new(),
         }
     }
-
+}
+impl AppState {
     pub fn init(&self, app: Arc<AppHandle>, state: Arc<AppState>) {
         // アプリ中で使用するので読み込んでおく
         state

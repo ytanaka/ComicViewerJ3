@@ -279,7 +279,7 @@ mod tests {
 
     #[test]
     fn test_tab_info() {
-        let state = Arc::new(AppState::new());
+        let state = Arc::new(AppState::default());
         state.init_for_test();
         let files = mk_dummy_files(&state, vec!["f1.txt", "f2.txt", "f3.txt"]);
         let watcher = FileWatcher::new(app(), &state, 123, "/a/b/c").unwrap();

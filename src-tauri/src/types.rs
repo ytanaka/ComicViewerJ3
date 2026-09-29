@@ -74,8 +74,8 @@ pub struct AppConstants {
     pub event_name_file_delete_progress: String,
     pub event_name_file_copy_move_confirm: String,
 }
-impl AppConstants {
-    pub fn new() -> Self {
+impl Default for AppConstants {
+    fn default() -> Self {
         Self {
             event_name_file_updaet: EVENT_NAME_FILE_UPDATE_NOTIFY.to_string(),
             event_name_get_files_property: EVENT_NAME_GET_FILES_PROPERTY_NOTIFY.to_string(),

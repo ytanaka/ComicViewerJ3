@@ -24,7 +24,7 @@ pub async fn init(app: AppHandle, state: State<'_, Arc<AppState>>) -> Result<App
         log::info!("command::init() end");
     });
     result.await.unwrap();
-    Ok(AppConstants::new())
+    Ok(AppConstants::default())
 }
 
 #[tauri::command]

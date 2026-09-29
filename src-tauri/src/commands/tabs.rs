@@ -494,7 +494,7 @@ mod tests {
         std::env::current_dir().unwrap().join("testdata")
     }
     fn state() -> Arc<AppState> {
-        let state = Arc::new(AppState::new());
+        let state = Arc::new(AppState::default());
         state.init_for_test();
         state
     }

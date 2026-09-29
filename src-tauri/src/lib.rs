@@ -82,7 +82,7 @@ pub fn run() {
                 log::info!("app closing");
             }
         })
-        .manage(Arc::new(AppState::new()))
+        .manage(Arc::new(AppState::default()))
         .invoke_handler(builder.invoke_handler())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
