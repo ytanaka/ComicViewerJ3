@@ -1,12 +1,12 @@
 //! ファイル操作
 use std::{
     fs,
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::Arc,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use tauri::{AppHandle, Emitter, State};
 use walkdir::WalkDir;
 
@@ -17,6 +17,7 @@ use crate::{
         FileOpResult, GetFilesPropertyNotifyEvent, TabId, TaskId,
         EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, EVENT_NAME_GET_FILES_PROPERTY_NOTIFY,
     },
+    util::ErrorExt,
     LOG_RESULT,
 };
 
@@ -181,8 +182,12 @@ async fn remove_files_impl1(
                 result_event.error_msg = None;
             }
             Err(e) => {
-                result_event.error_msg = Some(e.to_string());
-                log::error!("remove_files: error task_id={}, {}", task_id, e);
+                result_event.error_msg = Some(e.to_full_string());
+                log::error!(
+                    "remove_files: error task_id={}, {}",
+                    task_id,
+                    e.to_full_string()
+                );
             }
         }
         result_event.finished = true;
@@ -230,10 +235,10 @@ async fn remove_files_impl3(
         if meta.is_symlink() {
             return Err(anyhow!("リンクは削除できません: {:?}", f.path()));
         } else if meta.is_dir() {
-            fs::remove_dir(f.path())?;
+            rm_dir(f.path()).context(format!("{:?}", f.path()))?;
             result_event.dires += 1;
         } else {
-            fs::remove_file(f.path())?;
+            rm_file(f.path()).context(format!("{:?}", f.path()))?;
             result_event.files += 1;
             result_event.size += meta.len();
         }
@@ -248,6 +253,34 @@ async fn remove_files_impl3(
     }
 
     Ok(())
+}
+fn rm_dir(path: impl AsRef<Path>) -> anyhow::Result<()> {
+    if let Err(e) = fs::remove_dir(&path) {
+        if let Some(alt_path) = get_alt_path(path, e) {
+            fs::remove_dir(alt_path)?;
+        }
+    }
+    Ok(())
+}
+fn rm_file(path: impl AsRef<Path>) -> anyhow::Result<()> {
+    if let Err(e) = fs::remove_file(&path) {
+        if let Some(alt_path) = get_alt_path(path, e) {
+            fs::remove_file(alt_path)?;
+        }
+    }
+    Ok(())
+}
+fn get_alt_path(path: impl AsRef<Path>, err: std::io::Error) -> Option<PathBuf> {
+    #[cfg(target_os = "windows")]
+    {
+        if err.kind() == std::io::ErrorKind::NotFound {
+            use std::ffi::OsString;
+            let mut path2 = OsString::from(r"\\?\");
+            path2.push(path.as_ref().as_os_str());
+            return Some(PathBuf::from(path2));
+        }
+    }
+    None
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -299,7 +332,7 @@ async fn get_files_property_impl1(
                 result_event.error_msg = None;
             }
             Err(e) => {
-                result_event.error_msg = Some(e.to_string());
+                result_event.error_msg = Some(e.to_full_string());
                 log::error!("get_files_property: error task_id={}, {}", task_id, e);
             }
         }
@@ -312,7 +345,7 @@ async fn get_files_property_impl1(
                 log::error!(
                     "get_files_property: notify error task_id={}, {}",
                     task_id,
-                    e
+                    e.to_full_string()
                 );
             });
     });
