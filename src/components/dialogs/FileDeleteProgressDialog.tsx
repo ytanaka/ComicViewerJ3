@@ -2,6 +2,7 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -9,8 +10,9 @@ import {
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Progress } from '../ui/progress';
+import { formatFileBytes } from '@/lib/tools/string-util';
 
 export function FileDeleteProgressDialog() {
   const show = useUiVolatileStore(state => state.showFileDeleteProgressDialog);
@@ -24,17 +26,17 @@ export function FileDeleteProgressDialog() {
     return Math.floor(ev.files / pre.files * 100);
   }
 
-  function handleOkCancel(b: boolean) {
+  const handleOkCancel = useCallback((b: boolean) => {
     setField('showFileDeleteProgressDialog', false);
     if (dialogState.resolve) {
       dialogState.resolve(b);
     }
-  }
+  }, [dialogState, setField]);
 
   useEffect(() => {
     if (dialogState.event?.finished !== true) return;
-
-  }, [dialogState.event?.finished])
+    handleOkCancel(true);
+  }, [dialogState.event?.finished, handleOkCancel])
 
   return (
     <AlertDialog
@@ -49,10 +51,11 @@ export function FileDeleteProgressDialog() {
         </AlertDialogHeader>
 
         <Progress value={getProgress()} />
-        <div>
-
-
-        </div>
+        <AlertDialogDescription>
+          削除サイズ: {formatFileBytes(dialogState.event?.size ?? 0)}({dialogState.event?.size}バイト)<br />
+          削除ファイル: {dialogState.event?.files}<br />
+          削除ディレクトリ: {dialogState.event?.dires}<br />
+        </AlertDialogDescription>
 
         <AlertDialogFooter>
           <AlertDialogCancel
