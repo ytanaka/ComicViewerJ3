@@ -400,9 +400,9 @@ async fn get_files_property_impl3(
 fn is_canceled(state: &Arc<AppState>, tab_id: TabId, task_id: TaskId) -> bool {
     !state.has_tab(tab_id) || state.is_task_canceled(task_id)
 }
-fn check_emit_event(head: &mut TaskEventHeader) -> anyhow::Result<bool> {
+fn can_emit_event(head: &mut TaskEventHeader) -> anyhow::Result<bool> {
     let t = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
-    if 100 < t - head.event_time_ms {
+    if t - head.event_time_ms < 100 {
         Ok(false)
     } else {
         head.event_time_ms = t;
@@ -414,14 +414,14 @@ fn emit_event_get_files_property(
     app: &AppHandle,
     ev: &mut GetFilesPropertyNotifyEvent,
 ) -> anyhow::Result<()> {
-    if !check_emit_event(&mut ev.head)? {
+    if !can_emit_event(&mut ev.head)? {
         return Ok(());
     }
     app.emit(EVENT_NAME_GET_FILES_PROPERTY_NOTIFY, ev.clone())?;
     Ok(())
 }
 fn emit_event_remove_files(app: &AppHandle, ev: &mut RemoveFilesNotifyEvent) -> anyhow::Result<()> {
-    if !check_emit_event(&mut ev.head)? {
+    if !can_emit_event(&mut ev.head)? {
         return Ok(());
     }
     app.emit(EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, ev.clone())?;
