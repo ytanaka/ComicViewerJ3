@@ -11,6 +11,7 @@ import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { dialogCommands } from './dialog-commands';
 import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
+import { CutOrCopy } from '../bindings';
 
 function st() {
   return useTabStore.getState();
@@ -92,6 +93,28 @@ export const fileCommands = {
         return;
       }
     }
+  },
+  async cut() {
+    await fileCommands.cut_or_copy({ type: 'Cut' });
+  },
+  async copy() {
+    await fileCommands.cut_or_copy({ type: 'Copy' });
+  },
+  async cut_or_copy(mode: CutOrCopy) {
+    const { tab, sel } = getSelectedFiles();
+    if (!tab || !sel) return;
+    if (sel.length === 0) return;
+    const fileIds = sel.map(ent => ent.file_id);
+
+    const result = await rustcmds.fileCutOrCopyToClipboard(mode, tab.id, fileIds);
+    handleRustCmdResult(result, `rustcmds.fileCutToClipboard(${mode.type}, ${tab.id}, [len=${fileIds.length}])`, `ファイル${mode.type}`);
+  },
+  async paste() {
+    const { tab } = getSelectedFiles();
+    if (!tab) return;
+
+    const result = await rustcmds.filePasteFromClipboard(tab.id);
+    handleRustCmdResult(result, `rustcmds.filePasteFromClipboard(${tab.id})`, 'ファイル貼り付け');
   },
 
   async rename() {

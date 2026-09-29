@@ -244,6 +244,15 @@ pub struct FileMetadata {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
+
+/// ファイルのカットかコピーか
+pub enum CutOrCopy {
+    Cut,
+    Copy,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[serde(tag = "type")]
 /// ファイル操作(
 /// [`create_file()`](crate::commands::fs::create_file),
 /// [`create_directory()`](crate::commands::fs::create_directory),

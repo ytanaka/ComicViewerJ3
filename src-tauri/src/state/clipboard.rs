@@ -2,6 +2,8 @@
 
 use std::path::PathBuf;
 
+use crate::types::CutOrCopy;
+
 /// アプリ内で Ctrl+X, Ctrl+C されたときの情報を保存する
 ///
 /// ※ システムのクリップボードに保存した情報だと、CutかCopyか判別できないので
@@ -21,9 +23,4 @@ impl AppClipboard {
         }
         true
     }
-}
-#[derive(Debug, Clone, Copy)]
-pub enum CutOrCopy {
-    Cut,
-    Copy,
 }

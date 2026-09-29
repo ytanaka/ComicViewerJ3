@@ -53,10 +53,10 @@ export const commands = {
 	 *  途中経過と最終結果は [`GetFilesPropertyNotifyEvent`] でUIに通知される
 	 */
 	getFilesProperty: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds, taskId })),
-	/**  ファイルを Ctrl+X */
-	fileCutClipboard: (tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("file_cut_clipboard", { tabId, fileIds })),
+	/**  ファイルを Ctrl+X,Ctrl+C */
+	fileCutOrCopyToClipboard: (mode: CutOrCopy, tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("file_cut_or_copy_to_clipboard", { mode, tabId, fileIds })),
 	/**  ファイルを Ctrl+V */
-	filePasteClipboard: (tabId: number) => typedError<ClipboardPasteResult, string>(__TAURI_INVOKE("file_paste_clipboard", { tabId })),
+	filePasteFromClipboard: (tabId: number) => typedError<ClipboardPasteResult, string>(__TAURI_INVOKE("file_paste_from_clipboard", { tabId })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
 	/**  画像のサイズを取得 */
@@ -130,6 +130,9 @@ export type ClipboardPasteResult =
 export type CreateTabError = {
 	msg: string,
 };
+
+/**  ファイルのカットかコピーか */
+export type CutOrCopy = { type: "Cut" } | { type: "Copy" };
 
 /**  width, height を持つ構造体 */
 export type Dimension = {

@@ -14,6 +14,7 @@ import {
   SortType,
   TabInfoUI,
   FileOpResult,
+  CutOrCopy,
 } from './bindings';
 import { logErr } from './tools/log';
 import { dialogCommands } from './commands/dialog-commands';
@@ -78,19 +79,26 @@ export const rustcmds = {
   renameFile: (tabId: TabId, fileId: FileId, name: string) => {
     return commands.renameFile(tabId, fileId.toString(), name);
   },
-  removeFiles: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
+  removeFiles: (tabId: TabId, fileIds: FileId[], taskId: TaskId) => {
     return commands.removeFiles(
       tabId,
       fileIds.map(id => id.toString()),
       taskId
     );
   },
-  getFilesProperty: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
+  getFilesProperty: (tabId: TabId, fileIds: FileId[], taskId: TaskId) => {
     return commands.getFilesProperty(
       tabId,
       fileIds.map(id => id.toString()),
       taskId
     );
+  },
+
+  fileCutOrCopyToClipboard: (mode: CutOrCopy, tabId: TabId, fileIds: FileId[]) => {
+    return commands.fileCutOrCopyToClipboard(mode, tabId, fileIds.map(id => id.toString()));
+  },
+  filePasteFromClipboard: (tabId: TabId) => {
+    return commands.filePasteFromClipboard(tabId);
   },
 
   searchNextFilename: (tabId: TabId, startIndex: number, romaji: string, reverse: boolean) => {
