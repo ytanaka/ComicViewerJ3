@@ -15,7 +15,7 @@ import { formatFileBytes, unixTime2str } from '@/lib/tools/string-util';
 import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
 
 // ダイアログの表示モード
-export type PrepareFileOperationDialogType = 'property' | 'prepare_remove' | 'prepare_copy';
+export type PrepareFileOperationDialogType = 'property' | 'prepare_remove';
 
 // ファイルプロパティ画面、削除準備画面
 export function PrepareFileOperationDialog() {
@@ -47,8 +47,6 @@ export function PrepareFileOperationDialog() {
     switch (type) {
       case 'property':
         return `${files[0]?.name} のプロパティ`;
-      case 'prepare_copy':
-        return showOkButton() ? `コピーしますか？ (${files.length}個のアイテム)` : 'コピー対象を検査中';
       case 'prepare_remove':
         return !showOkButton() ? '削除対象を検査中' : files.length === 1 ? `削除しますか？ (${files[0].name})` : `削除しますか？ (${files.length}個のアイテム)`;
       default:
@@ -98,7 +96,7 @@ function MainContentPanel() {
       return <PropertyPanel_file />;
     }
   } else {
-    return <PrepareDeleteCopyPanel />
+    return <PrepareDeletePanel />
   }
 }
 function PropertyPanel_file() {
@@ -142,6 +140,7 @@ function PropertyPanel_dir() {
 }
 function EventNotifyPanel() {
   const property = usePrepareFileOperationStore(state => state.event);
+  const error_msg = property?.error_msg;
   return (
     <>
       サイズ: {formatFileBytes(property?.size ?? 0)} ({property?.size.toLocaleString()} バイト)
@@ -150,16 +149,22 @@ function EventNotifyPanel() {
       <br />
       ディレクトリ数: {property?.dires.toLocaleString()}
       {property?.symlinks !== 0 && <><br />リンク数: {property?.symlinks.toLocaleString()}</>}
+      {error_msg &&
+        <>
+          <br />
+          <br />
+          {error_msg}
+        </>
+      }
     </>
   )
 }
-function PrepareDeleteCopyPanel() {
-  const type = usePrepareFileOperationStore(state => state.type);
+function PrepareDeletePanel() {
   const property = usePrepareFileOperationStore(state => state.event);
   return (
     <>
       <EventNotifyPanel />
-      {property?.symlinks !== 0 && <><br /><br />リンクが含まれているので{type === 'prepare_copy' ? 'コピー' : '削除'}できません</>}
+      {property?.symlinks !== 0 && <><br /><br />リンクが含まれているので削除できません</>}
     </>
   )
 }

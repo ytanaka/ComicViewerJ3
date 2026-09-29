@@ -240,10 +240,10 @@ async fn remove_files_impl3(
         if meta.is_symlink() {
             return Err(anyhow!("リンクは削除できません: {:?}", f.path()));
         } else if meta.is_dir() {
-            rm_dir(f.path()).context(format!("{:?}", f.path()))?;
+            rm_dir(f.path()).context(format!("{}", f.path().to_string_lossy()))?;
             result_event.dires += 1;
         } else {
-            rm_file(f.path()).context(format!("{:?}", f.path()))?;
+            rm_file(f.path()).context(format!("{}", f.path().to_string_lossy()))?;
             result_event.files += 1;
             result_event.size += meta.len();
         }
@@ -261,21 +261,24 @@ async fn remove_files_impl3(
 }
 fn rm_dir(path: impl AsRef<Path>) -> anyhow::Result<()> {
     if let Err(e) = fs::remove_dir(&path) {
-        if let Some(alt_path) = get_alt_path(path, e) {
-            fs::remove_dir(alt_path)?;
+        match get_alt_path(path, &e) {
+            None => return Err(e)?,
+            Some(alt_path) => return Ok(fs::remove_dir(alt_path)?),
         }
     }
     Ok(())
 }
 fn rm_file(path: impl AsRef<Path>) -> anyhow::Result<()> {
     if let Err(e) = fs::remove_file(&path) {
-        if let Some(alt_path) = get_alt_path(path, e) {
-            fs::remove_file(alt_path)?;
+        match get_alt_path(path, &e) {
+            None => return Err(e)?,
+            Some(alt_path) => return Ok(fs::remove_file(alt_path)?),
         }
     }
     Ok(())
 }
-fn get_alt_path(path: impl AsRef<Path>, err: std::io::Error) -> Option<PathBuf> {
+fn get_alt_path(path: impl AsRef<Path>, err: &std::io::Error) -> Option<PathBuf> {
+    // Windows で "text.txt " のようなファイルを削除するための特別なパスを作る
     #[cfg(target_os = "windows")]
     {
         if err.kind() == std::io::ErrorKind::NotFound {
@@ -337,7 +340,7 @@ async fn get_files_property_impl1(
                 result_event.error_msg = None;
             }
             Err(e) => {
-                result_event.error_msg = Some(e.to_full_string());
+                result_event.error_msg = Some(e.to_string());
                 log::error!("get_files_property: error task_id={}, {}", task_id, e);
             }
         }
@@ -350,7 +353,7 @@ async fn get_files_property_impl1(
                 log::error!(
                     "get_files_property: notify error task_id={}, {}",
                     task_id,
-                    e.to_full_string()
+                    e
                 );
             });
     });

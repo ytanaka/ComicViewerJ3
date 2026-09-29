@@ -20,6 +20,8 @@ export function FileDeleteProgressDialog() {
   const setField = useUiVolatileStore(state => state.setField);
 
   const dialogState = useFileDeleteProgressStore(state => state);
+  const error_msg = dialogState.event?.error_msg;
+
   function getProgress() {
     const ev = dialogState.event;
     const pre = dialogState.prepareEvent;
@@ -36,8 +38,10 @@ export function FileDeleteProgressDialog() {
 
   useEffect(() => {
     if (dialogState.event?.finished !== true) return;
+    if (error_msg) return;
+
     handleOkCancel(true);
-  }, [dialogState.event?.finished, handleOkCancel])
+  }, [dialogState.event?.finished, error_msg, handleOkCancel])
 
   return (
     <AlertDialog
@@ -57,6 +61,12 @@ export function FileDeleteProgressDialog() {
           削除ファイル: {dialogState.event?.files}<br />
           削除ディレクトリ: {dialogState.event?.dires}<br />
         </AlertDialogDescription>
+
+        {error_msg &&
+          <AlertDialogDescription>
+            {error_msg}
+          </AlertDialogDescription>
+        }
 
         <AlertDialogFooter>
           <AlertDialogCancel
