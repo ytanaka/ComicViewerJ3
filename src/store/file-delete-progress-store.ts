@@ -40,7 +40,6 @@ export const useFileDeleteProgressStore = create<FileDeleteProgressStore>()((set
       console.error(`invalid task_id: current task_id = ${get().taskId}`, ev);
       return;
     }
-    console.debug('FileDeleteProgressStore: received event:', ev);
     set(state => {
       return { ...state, event: ev };
     });

@@ -1,3 +1,6 @@
+import { useCallback, useEffect } from 'react';
+
+import { Progress } from '../ui/progress';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -10,8 +13,6 @@ import {
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
-import { useCallback, useEffect } from 'react';
-import { Progress } from '../ui/progress';
 import { formatFileBytes } from '@/lib/tools/string-util';
 
 export function FileDeleteProgressDialog() {

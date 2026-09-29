@@ -74,6 +74,9 @@ export const fileCommands = {
       const result = await rustcmds.removeFiles(tab.id, fileIds, taskId);
       handleRustCmdResult(result, `rustcmds.removeFiles(${tab.id}, [len=${fileIds.length}], ${taskId})`, 'ファイル削除失敗');
 
+      // ダイアログが閉じるのを待つ
+      await dialogResult;
+
       // 削除中にキャンセルされた
       const lastEvent = useFileDeleteProgressStore.getState().event;
       if (!(await dialogResult) || lastEvent?.finished !== true) {

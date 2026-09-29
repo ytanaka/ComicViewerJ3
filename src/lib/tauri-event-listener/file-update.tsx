@@ -38,6 +38,7 @@ export function TauriFileUpdateEventListener() {
       if (initializing) return;
       initializing = true;
       unlistenFn = await tauri_listen<FileUpdateNotifyEvent>(EVENT_NAME, async event => {
+        console.log('TauriFileUpdateEventListener: receive event: ', event);
         queue.push(event.payload);
         processQueue();
       });
@@ -87,6 +88,4 @@ async function handleEvent(event: FileUpdateNotifyEvent) {
       useTabStore.getState().invalidateTabForRefresh(tabId);
     }
   }
-
-  console.log('event listener: ', event);
 }

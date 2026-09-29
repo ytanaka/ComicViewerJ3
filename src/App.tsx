@@ -19,7 +19,7 @@ import { InputDialog } from './components/dialogs/InputDialog';
 import { PrepareFileOperationDialog } from './components/dialogs/PrepareFileOperationDialog';
 import { TauriGetFilesPropertyEventListener } from './lib/tauri-event-listener/get-files-property';
 import { FileDeleteProgressDialog } from './components/dialogs/FileDeleteProgressDialog';
-import { TauriFileDeleteProgressEventListener } from './lib/tauri-event-listener/file-operation-progress';
+import { TauriFileDeleteProgressEventListener } from './lib/tauri-event-listener/file-delete-progress';
 
 function App() {
   const { resolvedTheme } = useTheme();

@@ -185,7 +185,7 @@ impl AppState {
     }
     pub fn cancel_task(&self, task_id: TaskId) {
         match self.current_tasks.get(&task_id).and_then(|t| t.upgrade()) {
-            None => log::warn!("no task: id={}", task_id),
+            None => log::warn!("no task for cancel: id={}", task_id),
             Some(t) => t.canceled.store(true, SeqCst),
         }
     }

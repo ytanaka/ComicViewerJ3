@@ -19,6 +19,7 @@ export function TauriFileDeleteProgressEventListener() {
       if (initializing) return;
       initializing = true;
       unlistenFn = await tauri_listen<GetFilesPropertyNotifyEvent>(EVENT_NAME, async event => {
+        console.debug('TauriFileDeleteProgressEventListener: receive event:', event);
         setNotifyEvent(event.payload);
       });
       initializing = false;

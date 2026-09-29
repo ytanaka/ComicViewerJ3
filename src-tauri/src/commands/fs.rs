@@ -152,7 +152,12 @@ pub async fn remove_files(
     task_id: TaskId,
 ) -> Result<(), String> {
     LOG_RESULT!(
-        format!("rename_file({}, [len={}])", tab_id, file_ids.len()),
+        format!(
+            "remove_file(tab:{}, file:[len={}], task:{})",
+            tab_id,
+            file_ids.len(),
+            task_id
+        ),
         {
             remove_files_impl1(app, &state, tab_id, &file_ids, task_id)
                 .await
@@ -297,10 +302,10 @@ pub async fn get_files_property(
 ) -> Result<(), String> {
     LOG_RESULT!(
         format!(
-            "get_files_property({}, {}, [len={}])",
-            task_id,
+            "get_files_property(tab:{},file:[len={}], task:{})",
             tab_id,
-            file_ids.len()
+            file_ids.len(),
+            task_id,
         ),
         {
             get_files_property_impl1(app, &state, tab_id, &file_ids, task_id)
