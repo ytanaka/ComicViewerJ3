@@ -10,7 +10,7 @@ use crate::{
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
-pub struct CacheCleanupParam {
+struct CacheCleanupParam {
     pub comment: String,
     pub verbose_log: bool,
 
@@ -22,7 +22,7 @@ pub struct CacheCleanupParam {
     pub expire_sec: u64,
 }
 
-pub fn start_cache_cleanup_worker(param: CacheCleanupParam) {
+fn start_cache_cleanup_worker(param: CacheCleanupParam) {
     log::info!("cache_cleanup_worker({}): start", param.comment);
     thread::spawn(move || loop {
         if let Err(e) = exec(&param) {
@@ -74,7 +74,7 @@ fn exec(param: &CacheCleanupParam) -> anyhow::Result<()> {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-// サムネイル
+/// サムネイル削除のワーカー
 fn start_thumbnail_cleanup_worker(
     app: Arc<tauri::AppHandle>,
     state: Arc<AppState>,
@@ -94,7 +94,7 @@ fn start_thumbnail_cleanup_worker(
     Ok(())
 }
 
-// サイズ変換された画像
+/// サイズ変換された画像削除のワーカー
 fn start_resized_image_cleanup_worker(
     app: Arc<tauri::AppHandle>,
     state: Arc<AppState>,

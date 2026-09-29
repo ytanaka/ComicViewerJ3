@@ -1,3 +1,5 @@
+//! ファイル関連ライブラリ
+
 pub mod cache_cleaner;
 pub mod file_sort;
 pub mod file_utils;

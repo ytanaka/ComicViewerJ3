@@ -1,3 +1,4 @@
+//! ファイル操作
 use std::{
     fs,
     path::PathBuf,
@@ -169,6 +170,7 @@ async fn remove_files_impl(
 #[tauri::command]
 #[specta::specta]
 /// ファイル／ディレクトリの情報取得
+/// 途中経過と最終結果は [`GetFilesPropertyNotifyEvent`] でUIに通知される
 pub async fn get_files_property(
     app: AppHandle,
     state: State<'_, Arc<AppState>>,

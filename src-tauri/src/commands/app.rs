@@ -1,3 +1,4 @@
+//! アプリ全体
 use std::{process::Command, sync::Arc};
 
 use tauri::{AppHandle, State, Window};
@@ -56,7 +57,7 @@ pub async fn invoke_program(
             .map_err(|e| e.to_string())
     })
 }
-pub async fn invoke_program_impl(
+async fn invoke_program_impl(
     current_dir: String,
     program: String,
     args: Vec<String>,

@@ -1,3 +1,5 @@
+//! アプリ設定
+
 use std::{path::PathBuf, sync::Arc};
 
 use anyhow::{anyhow, Context};
@@ -28,7 +30,10 @@ pub async fn load_preferences(
         load_preferences_impl(&app, &state).map_err(|e| e.to_string())
     })
 }
-pub fn load_preferences_impl(app: &AppHandle, state: &AppState) -> anyhow::Result<AppPreferences> {
+pub(crate) fn load_preferences_impl(
+    app: &AppHandle,
+    state: &AppState,
+) -> anyhow::Result<AppPreferences> {
     let default = {
         let mut tmp = AppPreferences::default();
         tmp.init_default();
@@ -71,7 +76,7 @@ pub async fn save_preferences(
         save_preferences_impl(app, &state, preferences).map_err(|e| e.to_string())
     })
 }
-pub fn save_preferences_impl(
+fn save_preferences_impl(
     app: AppHandle,
     state: &Arc<AppState>,
     preferences: AppPreferences,

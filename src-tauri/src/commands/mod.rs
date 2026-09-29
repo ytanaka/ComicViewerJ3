@@ -1,3 +1,4 @@
+//! UIから呼ばれるRustコマンド
 pub mod app;
 pub mod fs;
 pub mod fs_util;

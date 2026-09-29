@@ -1,3 +1,5 @@
+//! ファイル名検索
+
 use std::{
     sync::Arc,
     time::{Duration, Instant},

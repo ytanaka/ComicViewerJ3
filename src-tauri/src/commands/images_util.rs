@@ -1,3 +1,5 @@
+//! [`images`](super::images) で使用する関数
+
 use std::ffi::OsStr;
 use std::fs;
 use std::path::Path;

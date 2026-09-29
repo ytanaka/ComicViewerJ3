@@ -1,3 +1,5 @@
+//! サムネイル表示画面、画像表示画面で使用する画像ファイル処理
+
 use std::{path::PathBuf, sync::Arc};
 
 use image::{DynamicImage, RgbaImage};

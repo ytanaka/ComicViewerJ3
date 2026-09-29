@@ -1,3 +1,5 @@
+//! タブ操作
+
 use std::{
     collections::HashMap,
     future::Future,

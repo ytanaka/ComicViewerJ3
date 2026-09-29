@@ -1,5 +1,10 @@
+//! Rust構造体や関数プロトタイプをTypeScriptに自動変換するライブラリ
+//!
+//! <https://crates.io/crates/tauri-specta> を使っている
+
 use tauri_specta::{collect_commands, Builder};
 
+/// この中にUIから呼びたいRustコマンドを並べる
 pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::app;
     use crate::commands::fs;
@@ -39,8 +44,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
     ])
 }
 
-/// Export TypeScript bindings to the frontend.
-/// Run with: cargo test export_bindings -- --ignored
+/// 変換処理の実体
 #[allow(dead_code)]
 pub fn export_ts_bindings() {
     generate_bindings()

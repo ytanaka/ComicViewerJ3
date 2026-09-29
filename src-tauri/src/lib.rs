@@ -4,15 +4,16 @@ use tauri::{Manager, WindowEvent};
 
 use crate::state::app_state::AppState;
 
-mod bindings;
-mod commands;
-mod file_operations;
-mod state;
-mod text_search;
-mod types;
-mod util;
+pub mod bindings;
+pub mod commands;
+pub mod file_operations;
+pub mod state;
+pub mod text_search;
+pub mod types;
+pub mod util;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+/// Tauriアプリのエントリーポイント
 pub fn run() {
     println!("run() start");
 

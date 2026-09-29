@@ -1,11 +1,4 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
-pub fn to_unix_time(t: Result<SystemTime, std::io::Error>) -> Option<u64> {
-    t.ok().and_then(|t| {
-        let t = t.duration_since(UNIX_EPOCH);
-        t.ok().map(|t| t.as_secs())
-    })
-}
+//! 共通関数など
 
 #[macro_export]
 #[allow(unused_macros)]
@@ -19,6 +12,24 @@ macro_rules! LOG_RESULT {
         }
         result
     }};
+}
+
+// 単体テスト時だけログ出力する
+#[macro_export]
+#[allow(unused_macros)]
+#[cfg(test)]
+macro_rules! UT_LOG {
+    ($($arg:tt)*) => {
+        println!($($arg)*);
+    };
+}
+#[macro_export]
+#[allow(unused_macros)]
+#[cfg(not(test))]
+macro_rules! UT_LOG {
+    ($($arg:tt)*) => {
+        // 本番では何もしない
+    };
 }
 
 pub trait ErrorExt {

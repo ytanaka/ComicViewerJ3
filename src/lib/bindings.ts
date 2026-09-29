@@ -48,7 +48,10 @@ export const commands = {
 	renameFile: (tabId: number, fileId: string, name: string) => typedError<FileOpResult, string>(__TAURI_INVOKE("rename_file", { tabId, fileId, name })),
 	/**  削除 */
 	removeFiles: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("remove_files", { tabId, fileIds, taskId })),
-	/**  ファイル／ディレクトリの情報取得 */
+	/**
+	 *  ファイル／ディレクトリの情報取得
+	 *  途中経過と最終結果は [`GetFilesPropertyNotifyEvent`] でUIに通知される
+	 */
 	getFilesProperty: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds, taskId })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
 	searchNextFilename: (tabId: number, startIndex: number, romaji: string, reverse: boolean) => typedError<FileSearchResult, string>(__TAURI_INVOKE("search_next_filename", { tabId, startIndex, romaji, reverse })),
@@ -68,7 +71,7 @@ export const commands = {
 };
 
 /* Types */
-/**  アプリ初期化時にRustからUIに渡す情報 */
+/**  アプリ初期化時にRustからUIに渡す定数情報 */
 export type AppConstants = {
 	/**  ファイル更新イベントのID */
 	event_name_file_updaet: string,
@@ -76,6 +79,7 @@ export type AppConstants = {
 	event_name_file_delete_progress: string,
 };
 
+/**  Rust側で保持するアプリ設定 */
 export type AppPreferences = {
 	/**  ファイル名検索するとき */
 	debug_filename_search_sleep_ms: number,
@@ -102,11 +106,16 @@ export type AppPreferences = {
 	default: AppPreferences | null,
 };
 
-/**  create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合) */
+/**
+ *  [`create_tab()`](crate::commands::tabs::create_tab) 、`clone_*()` コマンドの失敗情報
+ * 
+ *  (指定されたディレクトリがないなど、システムエラーでない場合)
+ */
 export type CreateTabError = {
 	msg: string,
 };
 
+/**  width, height を持つ構造体 */
 export type Dimension = {
 	width: number,
 	height: number,
@@ -129,7 +138,7 @@ export type FileInfoUI = {
 	metadata: Either<string, FileMetadata>,
 };
 
-/**  詳細ファイル情報のメタデータ */
+/**  [`FileInfoUI`] に含まれるメタデータ */
 export type FileMetadata = {
 	size: number | null,
 	modified: number | null,
@@ -137,7 +146,13 @@ export type FileMetadata = {
 	created: number | null,
 };
 
-/**  ファイル操作の結果 */
+/**
+ *  ファイル操作(
+ *  [`create_file()`](crate::commands::fs::create_file),
+ *  [`create_directory()`](crate::commands::fs::create_directory),
+ *  [`rename_file()`](crate::commands::fs::rename_file),
+ *  )の結果
+ */
 export type FileOpResult = 
 /**  成功 */
 { type: "Success" } | 
@@ -145,13 +160,19 @@ export type FileOpResult =
 { type: "InvalidFilename" } | 
 /**  すでに存在している */
 { type: "AlreadyExists" } | 
-/**  システムエラー以外の失敗 (リネームですでに存在しているなど) */
+/**  システムエラー以外の失敗 */
 { type: "Fail"; error_msg: string };
 
-/**  ファイル検索結果 */
+/**  ファイル検索([`search_next_filename()`](crate::commands::search::search_next_filename))の結果 */
 export type FileSearchResult = 
 /**  見つかった */
-{ type: "Success"; index: number; name: string; match_str: string } | 
+{ type: "Success"; 
+/**  ファイルのインデックス (ソートされたファイル一覧の中の) */
+index: number; 
+/**  ファイル名 */
+name: string; 
+/**  ファイル名の中のマッチした部分 */
+match_str: string } | 
 /**  形態素解析が終わっていない */
 { type: "FailNoMatch" } | 
 /**  見つからなかった */
@@ -159,13 +180,13 @@ export type FileSearchResult =
 /**  状態が変わったのでキャンセル */
 { type: "Canceled" };
 
-/**  ファイル更新をUIに通知する */
+/**  ファイル更新をUIに通知する (タブ作成後からタブ削除までの間の変更を通知する) */
 export type FileUpdateNotifyEvent = {
 	tab_id: number,
 	file_id: number | null,
 };
 
-/**  ファイル名ソート時の文字比較方法 */
+/**  ファイル名ソート時の文字比較方法 ([`AppPreferences`]の要素) */
 export type FilenameCmpType = 
 /**  Unicode文字コード順 */
 { type: "Unicode" } | 
@@ -174,7 +195,7 @@ export type FilenameCmpType =
 /**  自然 */
 { type: "Icu" };
 
-/**  ディレクトリの状態取得結果を通知する */
+/**  ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の結果を通知するイベント構造体 */
 export type GetFilesPropertyNotifyEvent = {
 	task_id: number,
 	event_time_ms: number,
@@ -195,7 +216,7 @@ export type GetFilesPropertyNotifyEvent = {
 	error_msg: string | null,
 };
 
-/**  get_thumbnail(), get_resized_img() の結果 */
+/**  [`get_resized_img()`](crate::commands::images::get_resized_img) コマンドの結果 */
 export type GetResizedImgResult = 
 /**  処理済み画像ファイル名 */
 { type: "Ok"; filename: string } | 
@@ -204,7 +225,7 @@ export type GetResizedImgResult =
 /**  その他 (画像ではない、ファイルが読めないなど) */
 { type: "Fail"; error_msg: string };
 
-/**  get_thumbnail(), get_resized_img() の結果 */
+/**  [`get_thumbnail()`](crate::commands::images::get_thumbnail) コマンドの結果 */
 export type GetThumbnailResult = 
 /**  サムネイル画像ファイル名 */
 { type: "Ok"; filename: string } | 
@@ -215,22 +236,23 @@ export type GetThumbnailResult =
 /**  その他 (画像ではない、ファイルが読めないなど) */
 { type: "Fail"; error_msg: string };
 
-/**  プログラム起動結果 */
+/**  プログラム起動 ([`invoke_program()`](crate::commands::app::invoke_program)) の結果 */
 export type InvokeProgramResult = "Success" | { Fail: string };
 
-/**  画像リサイズ時の画質設定 */
+/**  画像リサイズ時の画質設定 ([`AppPreferences`]の要素) */
 export type ResizeImageConfig = {
 	unsharp_sigma: number | null,
 	unsharp_threshold: number,
 };
 
+/**  ファイル一覧のソート条件 (どの要素でソートするか＋昇順/降順) */
 export type SortCondition = {
 	sort_type: SortType,
 	/**  昇順: true */
 	asc: boolean,
 };
 
-/**  ファイルのソート条件 */
+/**  [`SortCondition`] の要素 */
 export type SortType = 
 /**  名前でソート */
 { type: "Name" } | 
@@ -241,6 +263,7 @@ export type SortType =
 /**  更新日時でソート */
 { type: "Time" };
 
+/**  UIへ渡すタブ情報 */
 export type TabInfoUI = {
 	id: number,
 	path: string,

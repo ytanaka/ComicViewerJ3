@@ -3,7 +3,7 @@ use std::{
     fs::{self, File},
     path::Path,
     sync::Arc,
-    time::SystemTime,
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 use crate::{
@@ -13,7 +13,6 @@ use crate::{
     },
     state::app_state::AppState,
     types::{Either, FileInfoOS, FileMetadata, SortCondition},
-    util::to_unix_time,
 };
 
 pub fn read_dir(path: impl AsRef<Path>) -> anyhow::Result<Vec<FileInfoOS>> {
@@ -69,4 +68,11 @@ pub fn sort_by_name(state: &AppState, list: &mut [FileInfoOS]) {
     };
     let mut sjis_cache = SJIS_CACHE.lock().unwrap();
     list.sort_by(|a, b| cmp_file(a, b, &sort, cmp.as_ref(), &mut sjis_cache, cmp_by_digit));
+}
+
+fn to_unix_time(t: Result<SystemTime, std::io::Error>) -> Option<u64> {
+    t.ok().and_then(|t| {
+        let t = t.duration_since(UNIX_EPOCH);
+        t.ok().map(|t| t.as_secs())
+    })
 }

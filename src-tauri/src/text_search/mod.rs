@@ -1,3 +1,5 @@
+//! ファイル名のあいまい検索をするためのライブラリ
+
 pub mod migemo;
 pub mod reverse_migemo;
 pub mod romaji_cnv;

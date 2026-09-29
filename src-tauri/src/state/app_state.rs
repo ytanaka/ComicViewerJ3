@@ -1,3 +1,5 @@
+//! <https://docs.rs/tauri/2.12.0/tauri/struct.State.html> でRustコマンドに渡される構造体
+
 use std::{
     ops::Deref,
     sync::{

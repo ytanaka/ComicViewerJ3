@@ -1,11 +1,11 @@
 //! RustとUIのあいだでやり取りする構造体の宣言
 //!
-//! XyzUI 構造体はRustからUIへ渡す型
-//! UI側で内部の number を別の型の type 宣言(TabId,FileIdなど)に置き換えて Xyz に変換して使用する
+//! `XyzUI` 構造体はRustからUIへ渡す型  
+//! UI側で内部の `number` を別の型の type 宣言(`TabId`,`FileId`など)に置き換えて `Xyz` に変換して使用する
 //!
-//! XyzOS はRust側で使用する型。XyzUI と対になっている。
+//! `XyzOS` はRust側で使用する型。`XyzUI` と対になっている。
 //!
-//! Xyz はUI,Rust側共通で使用する型。
+//! `Xyz` はUI,Rust側共通で使用する型。
 
 use std::{ffi::OsStr, fmt, num::NonZero, sync::Arc};
 
@@ -53,7 +53,7 @@ impl<A, B> Either<A, B> {
 // =====================================================================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-/// アプリ初期化時にRustからUIに渡す情報
+/// アプリ初期化時にRustからUIに渡す定数情報
 pub struct AppConstants {
     /// ファイル更新イベントのID
     pub event_name_file_updaet: String,
@@ -71,7 +71,7 @@ impl AppConstants {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-/// プログラム起動結果
+/// プログラム起動 ([`invoke_program()`](crate::commands::app::invoke_program)) の結果
 pub enum InvokeProgramResult {
     Success,
     Fail(String),
@@ -86,6 +86,7 @@ pub enum InvokeProgramResult {
 // Rust の u64 を JS の number にするために、specta_typescript::Number を指定する (tauri_specta でエラーになる)
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+/// UIへ渡すタブ情報
 pub struct TabInfoUI {
     #[specta(type = specta_typescript::Number)]
     pub id: TabId,
@@ -93,7 +94,9 @@ pub struct TabInfoUI {
     pub path: String,
 }
 
-/// create_tab*() の失敗情報 (指定されたディレクトリがないなど、システムエラーでない場合)
+/// [`create_tab()`](crate::commands::tabs::create_tab) 、`clone_*()` コマンドの失敗情報
+///
+/// (指定されたディレクトリがないなど、システムエラーでない場合)
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct CreateTabError {
     pub msg: String,
@@ -110,7 +113,7 @@ pub struct DirEntryUI {
     pub name: Arc<str>,
 }
 
-/// ファイルのソート条件
+/// [`SortCondition`] の要素
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
 pub enum SortType {
@@ -124,6 +127,7 @@ pub enum SortType {
     Time,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+/// ファイル一覧のソート条件 (どの要素でソートするか＋昇順/降順)
 pub struct SortCondition {
     pub sort_type: SortType,
     /// 昇順: true
@@ -177,7 +181,7 @@ impl FileInfoOS {
     }
 }
 
-/// 詳細ファイル情報のメタデータ
+/// [`FileInfoUI`] に含まれるメタデータ
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 pub struct FileMetadata {
     #[specta(type = Option<specta_typescript::Number>)]
@@ -199,7 +203,11 @@ pub struct FileMetadata {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
-/// ファイル操作の結果
+/// ファイル操作(
+/// [`create_file()`](crate::commands::fs::create_file),
+/// [`create_directory()`](crate::commands::fs::create_directory),
+/// [`rename_file()`](crate::commands::fs::rename_file),
+/// )の結果
 pub enum FileOpResult {
     /// 成功
     Success,
@@ -207,7 +215,7 @@ pub enum FileOpResult {
     InvalidFilename,
     /// すでに存在している
     AlreadyExists,
-    /// システムエラー以外の失敗 (リネームですでに存在しているなど)
+    /// システムエラー以外の失敗
     Fail { error_msg: String },
 }
 
@@ -216,6 +224,7 @@ pub enum FileOpResult {
 // =====================================================================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+/// width, height を持つ構造体
 pub struct Dimension {
     pub width: u32,
     pub height: u32,
@@ -248,7 +257,7 @@ where
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
-/// get_thumbnail(), get_resized_img() の結果
+/// [`get_thumbnail()`](crate::commands::images::get_thumbnail) コマンドの結果
 pub enum GetThumbnailResult {
     /// サムネイル画像ファイル名
     Ok { filename: String },
@@ -261,7 +270,7 @@ pub enum GetThumbnailResult {
 }
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
-/// get_thumbnail(), get_resized_img() の結果
+/// [`get_resized_img()`](crate::commands::images::get_resized_img) コマンドの結果
 pub enum GetResizedImgResult {
     /// 処理済み画像ファイル名
     Ok { filename: String },
@@ -275,15 +284,18 @@ pub enum GetResizedImgResult {
 // migemo.rs
 // =====================================================================================================================
 
-/// ファイル検索結果
+/// ファイル検索([`search_next_filename()`](crate::commands::search::search_next_filename))の結果
 #[derive(Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
 pub enum FileSearchResult {
     /// 見つかった
     Success {
-        index: i32,        // ファイルのインデックス
-        name: String,      // ファイル名
-        match_str: String, // ファイル名の中のマッチした部分
+        /// ファイルのインデックス (ソートされたファイル一覧の中の)
+        index: i32,
+        /// ファイル名
+        name: String,
+        /// ファイル名の中のマッチした部分
+        match_str: String,
     },
     /// 形態素解析が終わっていない
     FailNoMatch,
@@ -321,6 +333,7 @@ impl std::fmt::Debug for FileSearchResult {
 // =====================================================================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+/// Rust側で保持するアプリ設定
 pub struct AppPreferences {
     /// ファイル名検索するとき
     pub debug_filename_search_sleep_ms: i32,
@@ -394,7 +407,7 @@ impl AppPreferences {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 #[serde(tag = "type")]
-/// ファイル名ソート時の文字比較方法
+/// ファイル名ソート時の文字比較方法 ([`AppPreferences`]の要素)
 pub enum FilenameCmpType {
     /// Unicode文字コード順
     #[default]
@@ -405,7 +418,7 @@ pub enum FilenameCmpType {
     Icu,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-/// 画像リサイズ時の画質設定
+/// 画像リサイズ時の画質設定 ([`AppPreferences`]の要素)
 pub struct ResizeImageConfig {
     pub unsharp_sigma: f32,
     pub unsharp_threshold: i32,
@@ -425,7 +438,7 @@ impl Default for ResizeImageConfig {
 
 pub const EVENT_NAME_FILE_UPDATE_NOTIFY: &str = "file-update-notify";
 
-/// ファイル更新をUIに通知する
+/// ファイル更新をUIに通知する (タブ作成後からタブ削除までの間の変更を通知する)
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 pub struct FileUpdateNotifyEvent {
     #[specta(type = specta_typescript::Number)]
@@ -440,7 +453,7 @@ pub const EVENT_NAME_GET_FILES_PROPERTY_NOTIFY: &str = "get-files-property-notif
 pub const EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY: &str = "file-delete-progress-notify";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
-/// ディレクトリの状態取得結果を通知する
+/// ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の結果を通知するイベント構造体
 pub struct GetFilesPropertyNotifyEvent {
     pub task_id: TaskId,
 

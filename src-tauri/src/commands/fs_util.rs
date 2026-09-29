@@ -1,3 +1,5 @@
+//! [`fs`](super::fs) で使用する関数
+
 use std::path::PathBuf;
 
 use anyhow::anyhow;

@@ -1,3 +1,4 @@
+//! Unicode char -> Shift_JIS の変換キャッシュ  
 use encoding_rs::SHIFT_JIS;
 use std::{
     char,
@@ -8,9 +9,9 @@ const PAGE_COUNT: usize = 0x110000 / 0x100; // UTF32のうち使われている�
 const UNINITIALIZED: u16 = 0xFFFF; // キャッシュされていない
 const NOT_SJIS: u16 = 0xFFFE; // キャッシュ済み (SJISでない)
 
-/// Unicode char -> Shift_JIS の変換キャッシュ
 /// ※ Unicode は 0x0 - 0x10FFFF の範囲
 ///
+/// ```text
 /// キャッシュのデータ構造
 ///   pages
 ///     ├─ 0x00 → None
@@ -19,7 +20,8 @@ const NOT_SJIS: u16 = 0xFFFE; // キャッシュ済み (SJISでない)
 ///     ├─ 0x30 → [256個のu16]
 ///     ├─ 0x31 → None
 ///     ├─ ...
-///
+/// ```
+/// ```text
 /// アルゴリズム
 ///   get(c: char)
 ///     ├─ U+0000..U+007F (ASCII)
@@ -29,13 +31,13 @@ const NOT_SJIS: u16 = 0xFFFE; // キャッシュ済み (SJISでない)
 ///          char_index = c & 0xFF (下位8ビット)
 ///          pages[page_index][char_index]
 ///              未計算なら、c => SJIS変換 => u16変換 してキャッシュに保存
-///
+/// ```
 pub struct SjisCache {
     pages: Vec<Option<Box<[u16; 256]>>>,
 }
 
 impl SjisCache {
-    pub fn new() -> Self {
+    fn new() -> Self {
         Self {
             pages: vec![None; PAGE_COUNT],
         }
@@ -43,8 +45,9 @@ impl SjisCache {
 
     /// Unicode char を Shift_JIS の u16 に変換する。
     ///
-    /// None: Shift_JIS に変換できない
-    /// Some: Shift_JIS の1～2バイトを u16 に格納
+    /// # Returns
+    /// * `None`: Shift_JIS に変換できない
+    /// * `Some`: Shift_JIS の1～2バイトを u16 に格納
     pub fn get(&mut self, c: char) -> Option<u16> {
         let cp = c as u32;
 
@@ -92,6 +95,7 @@ impl SjisCache {
     }
 }
 
+/// [`SjisCache`] を使うときはこれを使う
 pub static SJIS_CACHE: LazyLock<Mutex<SjisCache>> = LazyLock::new(|| Mutex::new(SjisCache::new()));
 
 // =============================================================================================
