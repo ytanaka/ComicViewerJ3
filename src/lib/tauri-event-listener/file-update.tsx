@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { listen as tauri_listen } from '@tauri-apps/api/event';
 
 import { FileUpdateNotifyEvent } from '../bindings';
 import { useTabStore } from '@/store/tab/store';
@@ -8,53 +7,12 @@ import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { setQueryData_getFileInfo1 } from '@/services/tab-file-info';
 import { removeQueries_tab } from '@/services/tab';
 import { useAppConstantsStore } from '@/store/app-constants';
+import { TauriEventListener } from './util';
 
 // タブ内ファイルの更新イベントリスナー
+const listener = new TauriEventListener(async (event: FileUpdateNotifyEvent) => {
+  console.log("handle event: ", event);
 
-const queue: FileUpdateNotifyEvent[] = [];
-let processing = false;
-
-async function processQueue() {
-  if (processing) return;
-  processing = true;
-
-  while (queue.length > 0) {
-    const event = queue.shift();
-    if (event) await handleEvent(event);
-  }
-
-  processing = false;
-}
-
-let initializing = false;
-
-export function TauriFileUpdateEventListener() {
-  const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_updaet);
-  useEffect(() => {
-    if (!EVENT_NAME) return;
-    let unlistenFn: () => void;
-
-    const start = async () => {
-      if (initializing) return;
-      initializing = true;
-      unlistenFn = await tauri_listen<FileUpdateNotifyEvent>(EVENT_NAME, async event => {
-        console.log('TauriFileUpdateEventListener: receive event: ', event);
-        queue.push(event.payload);
-        processQueue();
-      });
-      initializing = false;
-      console.info('TauriFileUpdateEventListener: start listen');
-    };
-    start();
-
-    return () => {
-      if (unlistenFn) unlistenFn();
-    };
-  }, [EVENT_NAME]);
-  return <></>;
-}
-
-async function handleEvent(event: FileUpdateNotifyEvent) {
   const tabId = event.tab_id as TabId;
   const fileId = event.file_id as FileId;
 
@@ -88,4 +46,17 @@ async function handleEvent(event: FileUpdateNotifyEvent) {
       useTabStore.getState().invalidateTabForRefresh(tabId);
     }
   }
+});
+
+export function TauriFileUpdateEventListener() {
+  const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_updaet);
+
+  useEffect(() => {
+    if (!EVENT_NAME) return;
+    listener.startListen(EVENT_NAME);
+    return () => {
+      listener.endListen();
+    };
+  }, [EVENT_NAME]);
+  return <></>;
 }
