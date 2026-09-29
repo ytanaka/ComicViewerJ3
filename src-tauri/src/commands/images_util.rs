@@ -12,6 +12,7 @@ use anyhow::Context;
 use sha2::Digest;
 use sha2::Sha256;
 
+use crate::state::app_state::AppState;
 use crate::types::ResizeImageConfig;
 use crate::types::{Dimension, FileMetadata};
 
@@ -44,13 +45,23 @@ fn get_imgcache_dir(app: &tauri::AppHandle, subdir: &str) -> anyhow::Result<Path
 // return (サムネイルファイル名、セーブ時の一時ファイル名)
 pub fn get_thubmnail_fullpath(
     app: &AppHandle,
+    state: &AppState,
     dir: impl AsRef<Path>,
     name: &OsStr,
     metadata: &FileMetadata,
     size: &Dimension,
 ) -> anyhow::Result<(PathBuf, PathBuf)> {
+    // ファイル名のソート順が変わると、ディレクトリに対するサムネイル画像が変わる場合がある
+    let pref = state.preferences.read().unwrap();
+    let pref_str = format!(
+        "{}-{:?}-{}",
+        pref.filename_sort_strength, pref.filename_cmp, pref.filename_cmp_by_digit
+    );
+
     // "16進文字列.jpg" を取得
     let mut hasher = Sha256::new();
+    hasher.update(pref_str.as_bytes());
+    hasher.update(vec![0]);
     hasher.update(dir.as_ref().to_string_lossy().as_bytes());
     hasher.update(vec![0]);
     hasher.update(name.to_string_lossy().as_bytes());

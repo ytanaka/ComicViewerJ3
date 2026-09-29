@@ -101,7 +101,7 @@ fn get_thumbnail_impl(
     };
 
     // 生成するサムネイル画像のフルパス取得
-    let (dst_path, dst_tmp_path) = get_thubmnail_fullpath(app, &dir, &file.name, &meta, size)?;
+    let (dst_path, dst_tmp_path) = get_thubmnail_fullpath(app,state, &dir, &file.name, &meta, size)?;
     if dst_path.exists() {
         // すでに存在するなら、更新日時を最新にしておく
         if let Err(e) = touch_file(&dst_path) {
