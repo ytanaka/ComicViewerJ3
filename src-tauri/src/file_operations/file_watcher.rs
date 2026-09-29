@@ -1,3 +1,5 @@
+//! ファイル変更監視
+
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
@@ -17,6 +19,8 @@ use crate::{
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
+
+/// 監視実行クラス (1つのタブに1つ)
 pub struct FileWatcher {
     watcher: Option<RecommendedWatcher>,
 }
@@ -148,10 +152,10 @@ fn paths_str(paths: &[PathBuf]) -> String {
         .join(", ")
 }
 
-pub fn file_notify_tab<E: EventEmitter>(app: &AppContext<E>, tab_id: TabId) -> anyhow::Result<()> {
+fn file_notify_tab<E: EventEmitter>(app: &AppContext<E>, tab_id: TabId) -> anyhow::Result<()> {
     file_notify_impl(app, tab_id, None)
 }
-pub fn file_notify_1file<E: EventEmitter>(
+fn file_notify_1file<E: EventEmitter>(
     app: &AppContext<E>,
     tab_id: TabId,
     file_id: FileId,

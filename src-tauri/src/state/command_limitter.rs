@@ -1,9 +1,10 @@
+//! Rustコマンドの同時実行数を制限する
+
 use std::{
     cmp::max,
     sync::{Arc, Mutex},
 };
 
-/// Rustコマンドの同時実行数を制限する
 pub struct CommandLimitter {
     state: Arc<Mutex<State>>,
 }

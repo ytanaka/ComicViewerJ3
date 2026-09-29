@@ -1,5 +1,6 @@
 //! 共通関数など
 
+/// Rustコマンドの結果をログに出力する
 #[macro_export]
 #[allow(unused_macros)]
 macro_rules! LOG_RESULT {
@@ -14,7 +15,7 @@ macro_rules! LOG_RESULT {
     }};
 }
 
-// 単体テスト時だけログ出力する
+/// 単体テスト時だけログ出力する
 #[macro_export]
 #[allow(unused_macros)]
 #[cfg(test)]
@@ -23,6 +24,7 @@ macro_rules! UT_LOG {
         println!($($arg)*);
     };
 }
+/// 単体テスト時だけログ出力する
 #[macro_export]
 #[allow(unused_macros)]
 #[cfg(not(test))]

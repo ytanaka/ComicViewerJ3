@@ -1,3 +1,5 @@
+//! [`AppHandle`](https://docs.rs/tauri/2.12.0/tauri/struct.AppHandle.html) 関連のライブラリ
+
 /// 単体テストで tauri::* の型を参照すると(間接的でも)Windowsで以下のエラーになる
 ///
 /// error: test failed, to rerun pass `--lib`

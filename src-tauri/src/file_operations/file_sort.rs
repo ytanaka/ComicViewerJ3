@@ -1,3 +1,5 @@
+//! ファイル名ソート
+
 use std::{borrow::Cow, cmp::Ordering, ffi::OsStr, path::Path};
 
 use icu::locale::locale;
@@ -11,6 +13,7 @@ use crate::{
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+/// アプリ設定に応じてファイル名の比較をする
 pub fn cmp_file(
     f1: &FileInfoOS,
     f2: &FileInfoOS,
@@ -67,10 +70,12 @@ pub fn cmp_file(
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+/// ファイル名比較を実行するための trait ([`FilenameCmpType`]参照)
 pub trait FilenameCmp {
     fn cmp(&self, f1: &OsStr, f2: &OsStr, sjis_cache: &mut SjisCache) -> Ordering;
 }
 
+/// アプリ設定の[`FilenameCmpType`]に応じて[`FilenameCmp`]の実体を作成する
 pub fn mk_filename_cmp(state: &AppState) -> Box<dyn FilenameCmp> {
     let pref = state.preferences.get().unwrap().read().unwrap();
     match pref.filename_cmp {

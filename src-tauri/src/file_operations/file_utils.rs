@@ -1,3 +1,5 @@
+//! ファイル操作ライブラリ
+
 use std::{
     ffi::OsStr,
     fs::{self, File},
@@ -15,6 +17,7 @@ use crate::{
     types::{Either, FileInfoOS, FileMetadata, SortCondition},
 };
 
+/// ディレクトリを指定してファイル一覧を取得
 pub fn read_dir(path: impl AsRef<Path>) -> anyhow::Result<Vec<FileInfoOS>> {
     let mut ret = Vec::new();
     for entry in fs::read_dir(path)? {
@@ -37,6 +40,7 @@ pub fn read_dir(path: impl AsRef<Path>) -> anyhow::Result<Vec<FileInfoOS>> {
     Ok(ret)
 }
 
+/// ファイルのメタデータを取得
 pub fn read_metadata(dir: impl AsRef<Path>, filename: &OsStr) -> Either<String, FileMetadata> {
     match dir.as_ref().join(filename).metadata() {
         Err(err) => Either::Left(err.to_string()),
@@ -53,12 +57,14 @@ pub fn read_metadata(dir: impl AsRef<Path>, filename: &OsStr) -> Either<String, 
     }
 }
 
+/// ファイル日付を更新
 pub fn touch_file(file: impl AsRef<Path>) -> anyhow::Result<()> {
     let f = File::options().write(true).open(file)?;
     f.set_modified(SystemTime::now())?;
     Ok(())
 }
 
+/// ファイル一覧を名前でソート (アプリ設定を見て)
 pub fn sort_by_name(state: &AppState, list: &mut [FileInfoOS]) {
     let cmp = mk_filename_cmp(state);
     let cmp_by_digit = state.preferences.read().unwrap().filename_cmp_by_digit;

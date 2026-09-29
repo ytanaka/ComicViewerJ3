@@ -35,7 +35,7 @@ pub async fn get_image_size(
         get_image_size_impl(&state, tab_id, file_id).map_err(|e| e.to_full_string())
     })
 }
-pub fn get_image_size_impl(
+fn get_image_size_impl(
     state: &AppState,
     tab_id: TabId,
     file_id: String,
@@ -85,7 +85,7 @@ pub async fn get_thumbnail(
         result.map_err(|e| e.to_full_string())
     })
 }
-pub fn get_thumbnail_impl(
+fn get_thumbnail_impl(
     app: &AppHandle,
     state: &AppState,
     tab_id: TabId,
@@ -213,7 +213,7 @@ pub async fn get_resized_img(
         result.map_err(|e| e.to_full_string())
     })
 }
-pub fn get_resized_img_impl(
+fn get_resized_img_impl(
     app: &AppHandle,
     state: &AppState,
     tab_id: TabId,

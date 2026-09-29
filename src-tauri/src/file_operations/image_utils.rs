@@ -1,3 +1,5 @@
+//! 画像関連ライブラリ
+
 use std::{collections::HashSet, path::Path};
 
 use fast_image_resize as fir;
@@ -5,6 +7,7 @@ use image::{ImageReader, RgbaImage};
 
 use crate::types::{Dimension, ResizeImageConfig};
 
+/// 画像ファイルかどうかを拡張子から判定
 pub fn is_picture_ext<P: AsRef<Path>>(p: P) -> bool {
     // 静的に保持する拡張子セット
     static EXTENSIONS: &[&str] = &[
@@ -29,14 +32,14 @@ pub fn is_picture_ext<P: AsRef<Path>>(p: P) -> bool {
         .unwrap_or(false)
 }
 
-// 画像のサイズ取得
+/// 画像ファイルを読んで画像サイズ取得
 pub fn get_img_size(path: impl AsRef<Path>) -> anyhow::Result<Dimension> {
     let reader = ImageReader::open(path)?;
     let dim = reader.into_dimensions()?;
     Ok(Dimension::new(dim.0, dim.1))
 }
 
-// アスペクト比を考慮して画像のサイズを計算する
+/// アスペクト比を考慮して画像のサイズを計算する
 pub fn calc_resize(src: &Dimension, target: &Dimension, limit_ratio: u32) -> Dimension {
     let width = src.width as f64;
     let height = src.height as f64;
