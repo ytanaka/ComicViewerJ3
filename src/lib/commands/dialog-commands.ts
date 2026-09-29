@@ -61,10 +61,14 @@ export const dialogCommands = {
   },
 
   // ---------------------- file operation progress ----------------------
-  showDeleteProgressDialog(tab: TabInfo, files: DirEntry[], taskId: TaskId, prepare: GetFilesPropertyNotifyEvent): Promise<boolean> {
+  showDeleteProgressDialog(
+    tab: TabInfo,
+    files: DirEntry[],
+    taskId: TaskId,
+    prepare: GetFilesPropertyNotifyEvent
+  ): Promise<boolean> {
     return new Promise<boolean>(resolve => {
       useFileDeleteProgressStore.getState().showDialog(tab, files, taskId, resolve, prepare);
     });
   },
-
 };

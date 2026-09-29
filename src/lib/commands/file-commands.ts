@@ -52,7 +52,11 @@ export const fileCommands = {
       const taskId = getNextTaskId();
       const dialogResult = dialogCommands.showPrepareDeleteDialog(tab, sel, taskId);
       const result = await rustcmds.getFilesProperty(tab.id, fileIds, taskId);
-      handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [len=${fileIds.length}], ${taskId})`, 'ファイル情報取得失敗');
+      handleRustCmdResult(
+        result,
+        `rustcmds.getFilesProperty(${tab.id}, [len=${fileIds.length}], ${taskId})`,
+        'ファイル情報取得失敗'
+      );
       if (result.status === 'error') {
         return;
       }
@@ -72,7 +76,11 @@ export const fileCommands = {
       const taskId = getNextTaskId();
       const dialogResult = dialogCommands.showDeleteProgressDialog(tab, sel, taskId, prepareEvent);
       const result = await rustcmds.removeFiles(tab.id, fileIds, taskId);
-      handleRustCmdResult(result, `rustcmds.removeFiles(${tab.id}, [len=${fileIds.length}], ${taskId})`, 'ファイル削除失敗');
+      handleRustCmdResult(
+        result,
+        `rustcmds.removeFiles(${tab.id}, [len=${fileIds.length}], ${taskId})`,
+        'ファイル削除失敗'
+      );
 
       // ダイアログが閉じるのを待つ
       await dialogResult;
@@ -113,7 +121,11 @@ export const fileCommands = {
     const taskId = getNextTaskId();
     const dialogResult = dialogCommands.showFilePropertyDialog(tab, sel[0], taskId);
     const result = await rustcmds.getFilesProperty(tab.id, [sel[0].file_id], taskId);
-    handleRustCmdResult(result, `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}], ${taskId})`, 'ファイル情報取得失敗');
+    handleRustCmdResult(
+      result,
+      `rustcmds.getFilesProperty(${tab.id}, [${sel[0].file_id}], ${taskId})`,
+      'ファイル情報取得失敗'
+    );
 
     // ダイアログが閉じるのを待つ
     await dialogResult;

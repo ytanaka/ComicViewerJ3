@@ -51,7 +51,7 @@ export function DebugPanel() {
               min={0}
               max={100}
               step={10}
-              onChange={(e) => {
+              onChange={e => {
                 const n = Number(e.target.value);
                 if (pref) {
                   savePref.mutate({ ...pref, debug_filename_search_sleep_ms: n });
@@ -74,7 +74,7 @@ export function DebugPanel() {
               min={0}
               max={10000}
               step={100}
-              onChange={(e) => {
+              onChange={e => {
                 const n = Number(e.target.value);
                 if (pref) {
                   savePref.mutate({ ...pref, debug_remove_files_sleep_ms: n });

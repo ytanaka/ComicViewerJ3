@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tauri::State;
 
 use crate::{
-    commands::{fs_util_move::move_paths, fs_util::cnv_file_ids_to_path},
+    commands::{fs_util::cnv_file_ids_to_path, fs_util_move::move_paths},
     state::{
         app_state::AppState,
         clipboard::{self, AppClipboard},

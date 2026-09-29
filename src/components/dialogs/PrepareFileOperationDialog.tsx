@@ -49,7 +49,11 @@ export function PrepareFileOperationDialog() {
       case 'property':
         return `${files[0]?.name} のプロパティ`;
       case 'prepare_remove':
-        return !showOkButton() ? '削除対象を検査中' : files.length === 1 ? `削除しますか？ (${files[0].name})` : `削除しますか？ (${files.length}個のアイテム)`;
+        return !showOkButton()
+          ? '削除対象を検査中'
+          : files.length === 1
+            ? `削除しますか？ (${files[0].name})`
+            : `削除しますか？ (${files.length}個のアイテム)`;
       default:
         return '???';
     }
@@ -59,28 +63,23 @@ export function PrepareFileOperationDialog() {
     <AlertDialog
       open={show}
       onOpenChange={open => {
-        if (!open) handleOkCancel(false)
+        if (!open) handleOkCancel(false);
       }}
     >
       <AlertDialogContent className="max-w-3xl!">
         <AlertDialogHeader>
-          <AlertDialogTitle className='max-w-full w-full' >{getTitle()}</AlertDialogTitle>
+          <AlertDialogTitle className="max-w-full w-full">{getTitle()}</AlertDialogTitle>
           <AlertDialogDescription className="max-w-full w-full overflow-x-auto">
             <MainContentPanel />
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          {type !== 'property' &&
-            <AlertDialogCancel
-              onClick={() => handleOkCancel(false)}
-            >Cancel</AlertDialogCancel>
-          }
-          {showOkButton() &&
-            <AlertDialogAction
-              autoFocus={true}
-              onClick={() => handleOkCancel(true)}
-            >Ok</AlertDialogAction>
-          }
+          {type !== 'property' && <AlertDialogCancel onClick={() => handleOkCancel(false)}>Cancel</AlertDialogCancel>}
+          {showOkButton() && (
+            <AlertDialogAction autoFocus={true} onClick={() => handleOkCancel(true)}>
+              Ok
+            </AlertDialogAction>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -97,7 +96,7 @@ function MainContentPanel() {
       return <PropertyPanel_file />;
     }
   } else {
-    return <PrepareDeletePanel />
+    return <PrepareDeletePanel />;
   }
 }
 function PropertyPanel_file() {
@@ -110,14 +109,17 @@ function PropertyPanel_file() {
         <>{fileInfo.metadata.Left}</>
       ) : fileInfo?.metadata.Right ? (
         <>
-          サイズ: {formatFileBytes(fileInfo.metadata.Right.size ?? 0)} ({fileInfo.metadata.Right.size?.toLocaleString()}) バイト<br />
-          更新日時: {unixTime2str(fileInfo.metadata.Right.modified)}<br />
+          サイズ: {formatFileBytes(fileInfo.metadata.Right.size ?? 0)} ({fileInfo.metadata.Right.size?.toLocaleString()}
+          ) バイト
+          <br />
+          更新日時: {unixTime2str(fileInfo.metadata.Right.modified)}
+          <br />
         </>
       ) : (
         <></>
       )}
     </>
-  )
+  );
 }
 function PropertyPanel_dir() {
   const tab = usePrepareFileOperationStore(state => state.tab);
@@ -129,7 +131,8 @@ function PropertyPanel_dir() {
         <>{fileInfo.metadata.Left}</>
       ) : fileInfo?.metadata.Right ? (
         <>
-          更新日時: {unixTime2str(fileInfo.metadata.Right.modified)}<br />
+          更新日時: {unixTime2str(fileInfo.metadata.Right.modified)}
+          <br />
         </>
       ) : (
         <></>
@@ -137,7 +140,7 @@ function PropertyPanel_dir() {
       <br />
       <EventNotifyPanel />
     </>
-  )
+  );
 }
 function EventNotifyPanel() {
   const event = usePrepareFileOperationStore(state => state.event);
@@ -150,23 +153,34 @@ function EventNotifyPanel() {
       ファイル数: {progress?.files.toLocaleString()}
       <br />
       ディレクトリ数: {progress?.dires.toLocaleString()}
-      {progress?.symlinks !== 0 && <><br />リンク数: {progress?.symlinks.toLocaleString()}</>}
-      {error_msg &&
+      {progress?.symlinks !== 0 && (
+        <>
+          <br />
+          リンク数: {progress?.symlinks.toLocaleString()}
+        </>
+      )}
+      {error_msg && (
         <>
           <br />
           <br />
           {error_msg}
         </>
-      }
+      )}
     </>
-  )
+  );
 }
 function PrepareDeletePanel() {
   const progress = usePrepareFileOperationStore(state => state.event?.progress);
   return (
     <>
       <EventNotifyPanel />
-      {progress?.symlinks !== 0 && <><br /><br />リンクが含まれているので削除できません</>}
+      {progress?.symlinks !== 0 && (
+        <>
+          <br />
+          <br />
+          リンクが含まれているので削除できません
+        </>
+      )}
     </>
-  )
+  );
 }

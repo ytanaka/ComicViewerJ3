@@ -1,4 +1,4 @@
-import { mkDefaultSortCondition, mkFileSelection, mkImageViewMode,  UiTab } from '@/store/tab/types';
+import { mkDefaultSortCondition, mkFileSelection, mkImageViewMode, UiTab } from '@/store/tab/types';
 import { FileSearchResult } from '../bindings';
 import { useTabStore } from '@/store/tab/store';
 import { useSearchResultStore } from '@/store/file-search-result-store';

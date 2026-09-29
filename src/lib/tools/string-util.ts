@@ -77,7 +77,7 @@ export function formatFileBytes(bytes: number) {
     return `${bytes}バイト`;
   }
 
-  const units = ["kB", "MB", "GB", "TB", "PB"];
+  const units = ['kB', 'MB', 'GB', 'TB', 'PB'];
   let value = bytes;
   let unitIndex = -1;
 

@@ -22,7 +22,6 @@ export type TabId = number & { readonly __brand: unique symbol };
 export type FileId = number & { readonly __brand: unique symbol };
 export type TaskId = number & { readonly __brand: unique symbol };
 
-
 // UIの中では number でなく TabId, FileId を使うので、ラッパー関数を作る
 export const rustcmds = {
   init: commands.init,
@@ -80,7 +79,11 @@ export const rustcmds = {
     return commands.renameFile(tabId, fileId.toString(), name);
   },
   removeFiles: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
-    return commands.removeFiles(tabId, fileIds.map(id => id.toString()), taskId);
+    return commands.removeFiles(
+      tabId,
+      fileIds.map(id => id.toString()),
+      taskId
+    );
   },
   getFilesProperty: (tabId: number, fileIds: FileId[], taskId: TaskId) => {
     return commands.getFilesProperty(

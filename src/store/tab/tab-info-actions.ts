@@ -1,9 +1,4 @@
-import {
-  _useTabStore_setExistTabFields,
-  FileViewMode,
-  getNextDummyTabId,
-  mkDefaultSortCondition,
-} from './types';
+import { _useTabStore_setExistTabFields, FileViewMode, getNextDummyTabId, mkDefaultSortCondition } from './types';
 import { TabStore } from './store';
 import { TabId, TabInfo } from '@/lib/bindings-wrapper';
 import { SortCondition } from '@/lib/bindings';

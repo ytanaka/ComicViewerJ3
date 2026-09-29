@@ -7,7 +7,7 @@ import { useUiVolatileStore } from './ui-volatile-store';
 
 // Rustの get_files_property() を呼んだ後に通知されるデータを格納する
 export interface PrepareFileOperationStore {
-  tab: TabInfo | null,
+  tab: TabInfo | null;
   files: DirEntry[];
   type: PrepareFileOperationDialogType | null;
   taskId: TaskId | null;
@@ -15,7 +15,13 @@ export interface PrepareFileOperationStore {
 
   event: GetFilesPropertyNotifyEvent | null;
 
-  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: PrepareFileOperationDialogType, resolve: (value: boolean) => void) => void;
+  showDialog: (
+    tab: TabInfo,
+    files: DirEntry[],
+    taskId: TaskId,
+    type: PrepareFileOperationDialogType,
+    resolve: (value: boolean) => void
+  ) => void;
   setNotifyEvent: (ev: GetFilesPropertyNotifyEvent) => void;
 }
 
@@ -28,11 +34,17 @@ export const usePrepareFileOperationStore = create<PrepareFileOperationStore>()(
 
   event: null,
 
-  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, type: PrepareFileOperationDialogType, resolve: (value: boolean) => void) => {
+  showDialog: (
+    tab: TabInfo,
+    files: DirEntry[],
+    taskId: TaskId,
+    type: PrepareFileOperationDialogType,
+    resolve: (value: boolean) => void
+  ) => {
     useUiVolatileStore.getState().setField('showPrepareFileOperationDialog', true);
 
     set(() => {
-      return { tab, files, taskId, type, resolve, event: null, };
+      return { tab, files, taskId, type, resolve, event: null };
     });
   },
 

@@ -26,28 +26,31 @@ export function FileDeleteProgressDialog() {
   function getProgress() {
     const pre = dialogState.prepareEvent;
     if (!event || !pre) return 0;
-    return Math.floor(event.progress.files / pre.progress.files * 100);
+    return Math.floor((event.progress.files / pre.progress.files) * 100);
   }
 
-  const handleOkCancel = useCallback((b: boolean) => {
-    setField('showFileDeleteProgressDialog', false);
-    if (dialogState.resolve) {
-      dialogState.resolve(b);
-    }
-  }, [dialogState, setField]);
+  const handleOkCancel = useCallback(
+    (b: boolean) => {
+      setField('showFileDeleteProgressDialog', false);
+      if (dialogState.resolve) {
+        dialogState.resolve(b);
+      }
+    },
+    [dialogState, setField]
+  );
 
   useEffect(() => {
     if (event?.head.finished !== true) return;
     if (error_msg) return;
 
     handleOkCancel(true);
-  }, [event?.head.finished, error_msg, handleOkCancel])
+  }, [event?.head.finished, error_msg, handleOkCancel]);
 
   return (
     <AlertDialog
       open={show}
       onOpenChange={open => {
-        if (!open) handleOkCancel(false)
+        if (!open) handleOkCancel(false);
       }}
     >
       <AlertDialogContent className="max-w-3xl!">
@@ -57,21 +60,18 @@ export function FileDeleteProgressDialog() {
 
         <Progress value={getProgress()} />
         <AlertDialogDescription>
-          削除サイズ: {formatFileBytes(event?.progress.size ?? 0)}({event?.progress.size}バイト)<br />
-          削除ファイル: {event?.progress.files}<br />
-          削除ディレクトリ: {event?.progress.dires}<br />
+          削除サイズ: {formatFileBytes(event?.progress.size ?? 0)}({event?.progress.size}バイト)
+          <br />
+          削除ファイル: {event?.progress.files}
+          <br />
+          削除ディレクトリ: {event?.progress.dires}
+          <br />
         </AlertDialogDescription>
 
-        {error_msg &&
-          <AlertDialogDescription>
-            {error_msg}
-          </AlertDialogDescription>
-        }
+        {error_msg && <AlertDialogDescription>{error_msg}</AlertDialogDescription>}
 
         <AlertDialogFooter>
-          <AlertDialogCancel
-            onClick={() => handleOkCancel(false)}
-          >Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={() => handleOkCancel(false)}>Cancel</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

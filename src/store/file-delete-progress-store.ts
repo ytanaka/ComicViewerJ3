@@ -6,7 +6,7 @@ import { useUiVolatileStore } from './ui-volatile-store';
 
 // Rustの remove_files() を呼んだ後に通知されるデータを格納する
 export interface FileDeleteProgressStore {
-  tab: TabInfo | null,
+  tab: TabInfo | null;
   files: DirEntry[];
   taskId: TaskId | null;
   resolve: ((value: boolean) => void) | null;
@@ -14,7 +14,13 @@ export interface FileDeleteProgressStore {
   prepareEvent: GetFilesPropertyNotifyEvent | null;
   event: RemoveFilesNotifyEvent | null;
 
-  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, resolve: (value: boolean) => void, prepareEvent: GetFilesPropertyNotifyEvent) => void;
+  showDialog: (
+    tab: TabInfo,
+    files: DirEntry[],
+    taskId: TaskId,
+    resolve: (value: boolean) => void,
+    prepareEvent: GetFilesPropertyNotifyEvent
+  ) => void;
   setNotifyEvent: (ev: RemoveFilesNotifyEvent) => void;
 }
 
@@ -27,7 +33,13 @@ export const useFileDeleteProgressStore = create<FileDeleteProgressStore>()((set
   prepareEvent: null,
   event: null,
 
-  showDialog: (tab: TabInfo, files: DirEntry[], taskId: TaskId, resolve: (value: boolean) => void, prepareEvent: GetFilesPropertyNotifyEvent) => {
+  showDialog: (
+    tab: TabInfo,
+    files: DirEntry[],
+    taskId: TaskId,
+    resolve: (value: boolean) => void,
+    prepareEvent: GetFilesPropertyNotifyEvent
+  ) => {
     useUiVolatileStore.getState().setField('showFileDeleteProgressDialog', true);
 
     set(() => {
