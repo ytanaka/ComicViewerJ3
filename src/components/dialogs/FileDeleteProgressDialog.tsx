@@ -13,7 +13,7 @@ import {
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
-import { formatFileBytes } from '@/lib/tools/string-util';
+import { FileProgressPanel } from './utils/FileProgressPanel';
 
 export function FileDeleteProgressDialog() {
   const show = useUiVolatileStore(state => state.showFileDeleteProgressDialog);
@@ -60,15 +60,8 @@ export function FileDeleteProgressDialog() {
 
         <Progress value={getProgress()} />
         <AlertDialogDescription>
-          削除サイズ: {formatFileBytes(event?.progress.size ?? 0)}({event?.progress.size}バイト)
-          <br />
-          削除ファイル: {event?.progress.files}
-          <br />
-          削除ディレクトリ: {event?.progress.dires}
-          <br />
+          <FileProgressPanel header={event?.head} progress={event?.progress} />
         </AlertDialogDescription>
-
-        {error_msg && <AlertDialogDescription>{error_msg}</AlertDialogDescription>}
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => handleOkCancel(false)}>Cancel</AlertDialogCancel>

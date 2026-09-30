@@ -1,10 +1,10 @@
 use std::sync::{Arc, RwLock};
 
-use crate::types::FileCopyMoveConfirmResponse;
+use crate::types::FilePasteConfirmResponse;
 
 pub struct AppTask {
     pub canceled: bool,
-    pub copy_move_response: Option<FileCopyMoveConfirmResponse>,
+    pub copy_move_response: Option<FilePasteConfirmResponse>,
 }
 impl AppTask {
     pub fn new() -> Arc<RwLock<Self>> {
@@ -34,7 +34,7 @@ impl AppTaskWrapper {
         }
     }
 
-    pub fn set_response(&mut self, response: FileCopyMoveConfirmResponse) {
+    pub fn set_response(&mut self, response: FilePasteConfirmResponse) {
         if let Some(t) = &self.task {
             t.write().unwrap().copy_move_response = Some(response);
         }

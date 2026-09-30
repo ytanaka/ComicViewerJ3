@@ -27,6 +27,8 @@ export interface UiVolatileStore {
   showPrepareFileOperationDialog: boolean;
   // 削除ダイアログ
   showFileDeleteProgressDialog: boolean;
+  // Ctrl+Vの経過表示
+  showFilePasteProgressDialog: boolean;
 }
 
 type UiVolatileStore_and_Action = UiVolatileStore & {
@@ -44,6 +46,7 @@ export const useUiVolatileStore = create<UiVolatileStore_and_Action>()(set => ({
   showInputDialog: false,
   showPrepareFileOperationDialog: false,
   showFileDeleteProgressDialog: false,
+  showFilePasteProgressDialog: false,
 
   setField: (key, value) => set({ [key]: value }),
 }));

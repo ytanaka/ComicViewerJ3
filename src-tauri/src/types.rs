@@ -72,7 +72,8 @@ pub struct AppConstants {
     pub event_name_file_updaet: String,
     pub event_name_get_files_property: String,
     pub event_name_file_delete_progress: String,
-    pub event_name_file_copy_move_confirm: String,
+    pub event_name_file_paste_confirm: String,
+    pub event_name_file_paste_progress_notify: String,
 }
 impl Default for AppConstants {
     fn default() -> Self {
@@ -80,7 +81,9 @@ impl Default for AppConstants {
             event_name_file_updaet: EVENT_NAME_FILE_UPDATE_NOTIFY.to_string(),
             event_name_get_files_property: EVENT_NAME_GET_FILES_PROPERTY_NOTIFY.to_string(),
             event_name_file_delete_progress: EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY.to_string(),
-            event_name_file_copy_move_confirm: EVENT_NAME_FILE_COPY_MOVE_CONFIRM.to_string(),
+            event_name_file_paste_confirm: EVENT_NAME_FILE_PASTE_CONFIRM.to_string(),
+            event_name_file_paste_progress_notify: EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY
+                .to_string(),
         }
     }
 }
@@ -568,7 +571,7 @@ pub struct FileUpdateNotifyEvent {
 pub const EVENT_NAME_GET_FILES_PROPERTY_NOTIFY: &str = "get-files-property-notify";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
-/// ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の結果を通知するイベント構造体
+/// ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の途中経過を通知するイベント構造体
 pub struct GetFilesPropertyNotifyEvent {
     pub task_id: TaskId,
     pub head: TaskEventHeader,
@@ -586,7 +589,7 @@ impl GetFilesPropertyNotifyEvent {
 pub const EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY: &str = "file-delete-progress-notify";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
-/// ファイル削除 ([`remove_files()`](crate::commands::fs::remove_files)) の結果を通知するイベント構造体
+/// ファイル削除 ([`remove_files()`](crate::commands::fs::remove_files)) の途中経過を通知するイベント構造体
 pub struct RemoveFilesNotifyEvent {
     pub task_id: TaskId,
     pub head: TaskEventHeader,
@@ -601,11 +604,28 @@ impl RemoveFilesNotifyEvent {
     }
 }
 
-pub const EVENT_NAME_FILE_COPY_MOVE_CONFIRM: &str = "file-copy-move-confirm";
+pub const EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY: &str = "file-paste-progress-notify";
+pub const EVENT_NAME_FILE_PASTE_CONFIRM: &str = "file-paste-confirm";
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
+/// ファイルコピー、移動 ([`file_paste_from_clipboard()`](crate::commands::fs_clipboard::file_paste_from_clipboard)) の途中経過を通知するイベント構造体
+pub struct FilePasteNotifyEvent {
+    pub task_id: TaskId,
+    pub head: TaskEventHeader,
+    pub progress: TaskEventFileProgress,
+}
+impl FilePasteNotifyEvent {
+    pub fn new(task_id: TaskId) -> Self {
+        Self {
+            task_id,
+            ..Default::default()
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// ファイルコピー、移動時の重複ファイル処理確認イベント
-pub struct FileCopyMoveConfirmEvent {
+pub struct FilePasteConfirmEvent {
     pub task_id: TaskId,
     /// 相対パス
     pub conflict_name: String,
@@ -615,14 +635,14 @@ pub struct FileCopyMoveConfirmEvent {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// [`FileCopyMoveConfirmEvent`] の応答
-pub struct FileCopyMoveConfirmResponse {
-    pub answer: FileCopyMoveConfilctAnswer,
+pub struct FilePasteConfirmResponse {
+    pub answer: FilePasteConfilctAnswer,
     pub always: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
-pub enum FileCopyMoveConfilctAnswer {
+pub enum FilePasteConfilctAnswer {
     /// リネーム (file, dir)
     Rename,
     /// マージ (コピー時の dir)

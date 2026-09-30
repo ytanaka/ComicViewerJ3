@@ -19,7 +19,7 @@ export const commands = {
 	/**  タスク中断 */
 	cancelTask: (taskId: number) => __TAURI_INVOKE<void>("cancel_task", { taskId }),
 	/**  ダミー */
-	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove }),
+	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent, copyMove: FilePasteNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove, copyMove }),
 	/**  タブ作成 (絶対パス) */
 	createTab: (path: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("create_tab", { path })),
 	/**  タブ作成 (指定タブと同じパス) */
@@ -81,7 +81,8 @@ export type AppConstants = {
 	event_name_file_updaet: string,
 	event_name_get_files_property: string,
 	event_name_file_delete_progress: string,
-	event_name_file_copy_move_confirm: string,
+	event_name_file_paste_confirm: string,
+	event_name_file_paste_progress_notify: string,
 };
 
 /**  Rust側で保持するアプリ設定 */
@@ -182,6 +183,13 @@ export type FileOpResult =
 /**  システムエラー以外の失敗 */
 { type: "Fail"; error_msg: string };
 
+/**  ファイルコピー、移動 ([`file_paste_from_clipboard()`](crate::commands::fs_clipboard::file_paste_from_clipboard)) の途中経過を通知するイベント構造体 */
+export type FilePasteNotifyEvent = {
+	task_id: number,
+	head: TaskEventHeader,
+	progress: TaskEventFileProgress,
+};
+
 /**  ファイル検索([`search_next_filename()`](crate::commands::search::search_next_filename))の結果 */
 export type FileSearchResult = 
 /**  見つかった */
@@ -214,7 +222,7 @@ export type FilenameCmpType =
 /**  自然 */
 { type: "Icu" };
 
-/**  ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の結果を通知するイベント構造体 */
+/**  ディレクトリの状態取得 ([`get_files_property()`](crate::commands::fs::get_files_property)) の途中経過を通知するイベント構造体 */
 export type GetFilesPropertyNotifyEvent = {
 	task_id: number,
 	head: TaskEventHeader,
@@ -244,7 +252,7 @@ export type GetThumbnailResult =
 /**  プログラム起動 ([`invoke_program()`](crate::commands::app::invoke_program)) の結果 */
 export type InvokeProgramResult = "Success" | { Fail: string };
 
-/**  ファイル削除 ([`remove_files()`](crate::commands::fs::remove_files)) の結果を通知するイベント構造体 */
+/**  ファイル削除 ([`remove_files()`](crate::commands::fs::remove_files)) の途中経過を通知するイベント構造体 */
 export type RemoveFilesNotifyEvent = {
 	task_id: number,
 	head: TaskEventHeader,

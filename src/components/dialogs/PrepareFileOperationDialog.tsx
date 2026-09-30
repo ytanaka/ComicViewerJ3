@@ -13,6 +13,7 @@ import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { getQueryData_getFileInfo1 } from '@/services/tab-file-info';
 import { formatFileBytes, unixTime2str } from '@/lib/tools/string-util';
 import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
+import { FileProgressPanel } from './utils/FileProgressPanel';
 
 // ダイアログの表示モード
 export type PrepareFileOperationDialogType = 'property' | 'prepare_remove';
@@ -125,6 +126,7 @@ function PropertyPanel_dir() {
   const tab = usePrepareFileOperationStore(state => state.tab);
   const file = usePrepareFileOperationStore(state => state.files[0]);
   const fileInfo = getQueryData_getFileInfo1(tab!.id, file.file_id);
+  const event = usePrepareFileOperationStore(state => state.event);
   return (
     <>
       {fileInfo?.metadata.Left ? (
@@ -138,43 +140,16 @@ function PropertyPanel_dir() {
         <></>
       )}
       <br />
-      <EventNotifyPanel />
-    </>
-  );
-}
-function EventNotifyPanel() {
-  const event = usePrepareFileOperationStore(state => state.event);
-  const progress = event?.progress;
-  const error_msg = event?.head.error_msg;
-  return (
-    <>
-      サイズ: {formatFileBytes(progress?.size ?? 0)} ({progress?.size.toLocaleString()} バイト)
-      <br />
-      ファイル数: {progress?.files.toLocaleString()}
-      <br />
-      ディレクトリ数: {progress?.dires.toLocaleString()}
-      {progress?.symlinks !== 0 && (
-        <>
-          <br />
-          リンク数: {progress?.symlinks.toLocaleString()}
-        </>
-      )}
-      {error_msg && (
-        <>
-          <br />
-          <br />
-          {error_msg}
-        </>
-      )}
+      <FileProgressPanel header={event?.head} progress={event?.progress} />
     </>
   );
 }
 function PrepareDeletePanel() {
-  const progress = usePrepareFileOperationStore(state => state.event?.progress);
+  const event = usePrepareFileOperationStore(state => state.event);
   return (
     <>
-      <EventNotifyPanel />
-      {progress?.symlinks !== 0 && (
+      <FileProgressPanel header={event?.head} progress={event?.progress} />
+      {event?.progress.symlinks !== 0 && (
         <>
           <br />
           <br />

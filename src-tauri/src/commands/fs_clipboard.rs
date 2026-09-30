@@ -5,7 +5,7 @@ use tauri::State;
 use crate::{
     commands::{fs_util::cnv_file_ids_to_path, fs_util_move::move_paths},
     state::{app_state::AppState, clipboard::AppClipboard},
-    types::{ClipboardPasteResult, CutOrCopy, FileCopyMoveConfirmResponse, TabId, TaskId},
+    types::{ClipboardPasteResult, CutOrCopy, FilePasteConfirmResponse, TabId, TaskId},
     LOG_RESULT,
 };
 
@@ -112,7 +112,7 @@ pub fn file_paste_from_clipboard_impl(
 pub fn file_paste_response(
     state: State<'_, Arc<AppState>>,
     task_id: TaskId,
-    response: FileCopyMoveConfirmResponse,
+    response: FilePasteConfirmResponse,
 ) {
     log::trace!("file_paste_clipboard({},...)", task_id);
     state.get_task(task_id).set_response(response);
