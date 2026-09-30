@@ -180,7 +180,7 @@ impl AppState {
     }
 
     pub fn add_task(&self, task_id: TaskId) -> (Receiver<TaskResponse>, Arc<RwLock<AppTask>>) {
-        let (rx, task) = AppTask::new();
+        let (rx, task) = AppTask::new(task_id);
         self.tasks.insert(task_id, Arc::downgrade(&task));
         self.tasks.retain(|_, v| v.upgrade().is_some()); // 不要になったタスクを消す
         (rx, task)

@@ -4,19 +4,20 @@ use std::{
     time::Duration,
 };
 
+use anyhow::anyhow;
 use tauri::Emitter;
 
 use crate::{
     commands::fs_util::{get_dst_path, resolv_conflict_name},
     state::task::TaskContext,
     types::{
-        FilePasteConfirmEvent, FilePasteNotifyEvent, TaskAnswer, TaskResponse,
+        FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse, TaskConfirm,
         EVENT_NAME_FILE_PASTE_CONFIRM, EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY,
     },
     util::pathvec_to_str,
 };
 
-pub type MovePathsTaskContext = TaskContext<FilePasteNotifyEvent>;
+pub type MovePathsTaskContext = TaskContext<FilePasteNotifyEvent, FilePasteAnswer>;
 
 /// ファイルを Ctrl+V で移動
 pub fn move_paths(
@@ -77,28 +78,28 @@ async fn move_paths_impl2(
             // 前回の回答が残っているか確認
             match ctx.answer {
                 // 前回常にスキップすると答えた
-                Some(TaskAnswer::Skip) => return Ok(()),
-                // 前回常にリネームすると答えた
+                Some(FilePasteAnswer::Skip) => return Ok(()),
+                // 前回常にリネームすると答えた (moveでMergeは来ないので無視)
                 Some(_) => {}
                 // 前回の答えがない...
                 None => {
                     // 問い合わせて回答を受け取る
-                    let response = ask_to_ui(ctx, &src_path, &dst_dir, true).await?;
+                    let response = ask_to_ui(ctx, &src_path, &dst_dir).await?;
                     match response.answer {
-                        TaskAnswer::Cancel => {
+                        FilePasteAnswer::Cancel => {
                             ctx.cancel_task();
                             return Ok(());
                         }
-                        TaskAnswer::Skip => {
+                        FilePasteAnswer::Skip => {
                             if response.always {
-                                ctx.answer = Some(TaskAnswer::Skip);
+                                ctx.answer = Some(FilePasteAnswer::Skip);
                             };
                             return Ok(());
                         }
                         _ => {
                             // 移動の場合はMergeがないので、Renameとみなす
                             if response.always {
-                                ctx.answer = Some(TaskAnswer::Rename);
+                                ctx.answer = Some(FilePasteAnswer::Rename);
                             }
                         }
                     };
@@ -125,27 +126,17 @@ async fn ask_to_ui(
     ctx: &mut MovePathsTaskContext,
     src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
-    is_file: bool,
-) -> anyhow::Result<TaskResponse> {
-    let ev = FilePasteConfirmEvent {
-        task_id: ctx.task_id,
-        mode: crate::types::MoveOrCopy::Move,
-        src_path: src_path.as_ref().to_string_lossy().to_string(),
-        dst_dir: dst_dir.as_ref().to_string_lossy().to_string(),
-        is_file,
-    };
+) -> anyhow::Result<FilePasteResponse> {
+    let ev = TaskConfirm::new_paste(ctx.task_id, "move", src_path, dst_dir);
     // UIにイベントを送る
-    log::trace!(
-        "send to ui FilePasteConfirmEvent: {} => {}",
-        src_path.as_ref().to_string_lossy(),
-        dst_dir.as_ref().to_string_lossy()
-    );
+    log::trace!("send to ui TaskConfirm: {}", ev.to_string());
     ctx.app.emit(EVENT_NAME_FILE_PASTE_CONFIRM, ev)?;
 
     // UIの応答を待つ
     let ret = ctx.rx.recv()?;
-    log::trace!("receive from ui: TaskResponse({:?})", ret.answer);
+    log::trace!("receive from ui TaskResponse: {}", ret.to_string());
 
+    let ret = FilePasteResponse::from(ret).ok_or(anyhow!("invalid TaskResponse"))?;
     Ok(ret)
 }
 fn emit_event_move_paths(ctx: &mut MovePathsTaskContext) -> anyhow::Result<()> {

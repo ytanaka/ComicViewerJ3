@@ -80,3 +80,11 @@ pub fn vec_to_str<T: Display>(v: &[T]) -> String {
 pub fn pathvec_to_str<P: AsRef<Path>>(v: &[P]) -> String {
     vec_to_str_generic(v, |s| s.as_ref().to_string_lossy().to_string())
 }
+
+pub fn parse_bool(s: &str) -> Option<bool> {
+    match s {
+        "true" => Some(true),
+        "false" => Some(false),
+        _ => None,
+    }
+}

@@ -10,17 +10,19 @@ use tauri::AppHandle;
 
 use crate::{
     state::app_state::AppState,
-    types::{TabId, TaskAnswer, TaskId, TaskResponse},
+    types::{TabId, TaskId, TaskResponse},
 };
 
 pub struct AppTask {
+    pub task_id: TaskId,
     pub canceled: bool,
     pub tx: Sender<TaskResponse>,
 }
 impl AppTask {
-    pub fn new() -> (Receiver<TaskResponse>, Arc<RwLock<Self>>) {
+    pub fn new(task_id: TaskId) -> (Receiver<TaskResponse>, Arc<RwLock<Self>>) {
         let (tx, rx) = mpsc::channel::<TaskResponse>();
         let task = Arc::new(RwLock::new(Self {
+            task_id,
             canceled: false,
             tx,
         }));
@@ -39,11 +41,7 @@ impl AppTaskWrapper {
         if let Some(t) = &self.task {
             let mut t = t.write().unwrap();
             t.canceled = true;
-            t.tx.send(TaskResponse {
-                answer: TaskAnswer::Cancel,
-                always: true,
-            })
-            .unwrap();
+            t.tx.send(TaskResponse::new_dummy(t.task_id)).unwrap();
         }
     }
     pub fn is_task_canceled(&self) -> bool {
@@ -60,7 +58,7 @@ impl AppTaskWrapper {
     }
 }
 
-pub struct TaskContext<E> {
+pub struct TaskContext<E, A> {
     pub app: AppHandle,
     pub state: Arc<AppState>,
     pub task_id: TaskId,
@@ -68,12 +66,12 @@ pub struct TaskContext<E> {
     pub tab_id: TabId,
     pub event: E,
     pub rx: Receiver<TaskResponse>,
-    pub answer: Option<TaskAnswer>,
+    pub answer: Option<A>,
 
     event_emit_time_ms: u128,
 }
 
-impl<E> TaskContext<E> {
+impl<E, A> TaskContext<E, A> {
     pub fn new(
         app: AppHandle,
         state: Arc<AppState>,
@@ -81,7 +79,7 @@ impl<E> TaskContext<E> {
         tab_id: TabId,
         event: E,
     ) -> Self {
-        let (rx,task) = state.add_task(task_id);
+        let (rx, task) = state.add_task(task_id);
         Self {
             app,
             state,

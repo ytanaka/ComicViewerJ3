@@ -7,12 +7,14 @@
 //!
 //! `Xyz` はUI,Rust側共通で使用する型。
 
-use std::{ffi::OsStr, fmt, num::NonZero, sync::Arc};
+use std::{ffi::OsStr, fmt, num::NonZero, path::Path, sync::Arc};
 
 use anyhow::anyhow;
 use image::ImageBuffer;
 use serde::{Deserialize, Serialize};
 use specta::Type;
+
+use crate::{types::FilePasteAnswer::Rename, util::parse_bool};
 
 // =====================================================================================================================
 
@@ -626,38 +628,100 @@ impl FilePasteNotifyEvent {
         }
     }
 }
+pub struct FilePasteResponse {
+    pub answer: FilePasteAnswer,
+    pub always: bool,
+}
+impl FilePasteResponse {
+    pub fn from(r: TaskResponse) -> Option<Self> {
+        if r.t != TaskType::Paste {
+            return None;
+        }
+        let arg0 = r.args.get(0).and_then(|s| FilePasteAnswer::parse(&s));
+        let arg1 = r.args.get(0).and_then(|s| parse_bool(&s));
+        match (arg0, arg1) {
+            (Some(a), Some(b)) => Some(Self {
+                answer: a,
+                always: b,
+            }),
+            _ => None,
+        }
+    }
+}
+pub enum FilePasteAnswer {
+    Rename,
+    Merge,
+    Skip,
+    Cancel,
+}
+impl FilePasteAnswer {
+    pub fn parse(s: &str) -> Option<Self> {
+        let ret = match s {
+            "rename" => FilePasteAnswer::Rename,
+            "merge" => FilePasteAnswer::Merge,
+            "skip" => FilePasteAnswer::Skip,
+            "cancel" => FilePasteAnswer::Cancel,
+            _ => return None,
+        };
+        Some(ret)
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-/// ファイルコピー、移動時の重複ファイル処理確認イベント
-pub struct FilePasteConfirmEvent {
+/// RustからUIへTask関連問い合わせイベント
+pub struct TaskConfirm {
+    pub t: TaskType,
     pub task_id: TaskId,
-    pub mode: MoveOrCopy,
-    /// 元パス
-    pub src_path: String,
-    /// 先パス
-    pub dst_dir: String,
-    /// ファイルか
-    pub is_file: bool,
+    pub args: Vec<String>,
+}
+impl TaskConfirm {
+    pub fn to_string(&self) -> String {
+        format!("task_id:{},{:?}", self.task_id, self.t)
+    }
+    pub fn new_paste(
+        task_id: TaskId,
+        move_or_copy: &str,
+        src_path: impl AsRef<Path>,
+        dst_dir: impl AsRef<Path>,
+    ) -> Self {
+        Self {
+            t: TaskType::Paste,
+            task_id,
+            args: vec![
+                move_or_copy.to_string(),
+                src_path.as_ref().to_string_lossy().to_string(),
+                dst_dir.as_ref().to_string_lossy().to_string(),
+            ],
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// Task問い合わせの応答
 pub struct TaskResponse {
-    pub answer: TaskAnswer,
-    pub always: bool,
+    pub task_id: TaskId,
+    pub t: TaskType,
+    pub args: Vec<String>,
+}
+impl TaskResponse {
+    pub fn to_string(&self) -> String {
+        format!("task_id:{},{:?}", self.task_id, self.t)
+    }
+    pub fn new_dummy(task_id: TaskId) -> Self {
+        Self {
+            task_id,
+            t: TaskType::Dummy,
+            args: Vec::new(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-#[serde(tag = "type")]
-pub enum TaskAnswer {
-    /// リネーム (file, dir)
-    Rename,
-    /// マージ (コピー時の dir)
-    Merge,
-    /// スキップ (file, dir)
-    Skip,
-    /// キャンセル
-    Cancel,
+pub enum TaskType {
+    /// cancel_task() が呼ばれたとき、タスクの Receiver 待ちをしているスレッドを起こすためにRust内部で使う
+    Dummy,
+    OkCancel,
+    Paste,
 }
 
 // =====================================================================================================================

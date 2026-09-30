@@ -141,7 +141,7 @@ async fn rename_file_impl(
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-type RemoveFilesTaskContext = TaskContext<RemoveFilesNotifyEvent>;
+type RemoveFilesTaskContext = TaskContext<RemoveFilesNotifyEvent, ()>;
 
 #[tauri::command]
 #[specta::specta]
@@ -201,9 +201,9 @@ async fn remove_files_impl1(
         ctx.event.head.finished = true;
         ctx.event.head.canceled = ctx.is_canceled();
         ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
-        let _ = emit_event_remove_files(&mut ctx).err().map(|e| {
+        if let Err(e) = emit_event_remove_files(&mut ctx) {
             log::error!("remove_files: notify error task_id={}, {}", ctx.task_id, e);
-        });
+        };
     });
     Ok(())
 }
@@ -290,7 +290,7 @@ fn emit_event_remove_files(ctx: &mut RemoveFilesTaskContext) -> anyhow::Result<(
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-type GetFilesPropertyTaskContext = TaskContext<GetFilesPropertyNotifyEvent>;
+type GetFilesPropertyTaskContext = TaskContext<GetFilesPropertyNotifyEvent, ()>;
 
 #[tauri::command]
 #[specta::specta]
@@ -347,13 +347,13 @@ async fn get_files_property_impl1(
         ctx.event.head.finished = true;
         ctx.event.head.canceled = ctx.is_canceled();
         ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
-        let _ = emit_event_get_files_property(&mut ctx).err().map(|e| {
+        if let Err(e) = emit_event_get_files_property(&mut ctx) {
             log::error!(
                 "get_files_property: notify error task_id={}, {}",
                 ctx.task_id,
                 e
             );
-        });
+        };
     });
     Ok(())
 }
