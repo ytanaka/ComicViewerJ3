@@ -11,7 +11,7 @@ import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { dialogCommands } from './dialog-commands';
 import { usePrepareFileOperationStore } from '@/store/tauri-event/prepare-file-operation-store';
 import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
-import { CutOrCopy } from '../bindings';
+import { MoveOrCopy } from '../bindings';
 
 function st() {
   return useTabStore.getState();
@@ -94,13 +94,13 @@ export const fileCommands = {
       }
     }
   },
-  async cut() {
-    await fileCommands.cut_or_copy({ type: 'Cut' });
+  async move() {
+    await fileCommands.move_or_copy({ type: 'Move' });
   },
   async copy() {
-    await fileCommands.cut_or_copy({ type: 'Copy' });
+    await fileCommands.move_or_copy({ type: 'Copy' });
   },
-  async cut_or_copy(mode: CutOrCopy) {
+  async move_or_copy(mode: MoveOrCopy) {
     const { tab, sel } = getSelectedFiles();
     if (!tab || !sel) return;
     if (sel.length === 0) return;
@@ -119,9 +119,25 @@ export const fileCommands = {
 
     const taskId = getNextTaskId();
     const result = await rustcmds.filePasteFromClipboard(taskId, tab.id);
-    handleRustCmdResult(result, `rustcmds.filePasteFromClipboard(${tab.id})`, 'ファイル貼り付け');
-
-    // TODO 通知受け取り
+    let isCopy: boolean | null = null;
+    handleRustCmdResult(result, `rustcmds.filePasteFromClipboard(${tab.id})`, 'ファイル貼り付け', async (data) => {
+      switch (data.type) {
+        case 'NoFiles':
+          break;
+        case 'InvalidPath':
+          await dialogCommands.showOkCancelDialog('不正なパスです', data.path);
+          break;
+        case 'ProgressCopy':
+          isCopy = true;
+          break;
+        case 'ProgressMove':
+          isCopy = false;
+          break;
+      }
+    });
+    if (isCopy !== null) {
+      await dialogCommands.showPasteProgresDialog(tab, taskId, isCopy);
+    }
   },
 
   async rename() {

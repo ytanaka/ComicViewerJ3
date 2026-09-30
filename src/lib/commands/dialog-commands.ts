@@ -5,6 +5,7 @@ import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { DirEntry, TabInfo, TaskId } from '../bindings-wrapper';
 import { GetFilesPropertyNotifyEvent } from '../bindings';
 import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
+import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
 
 export const dialogCommands = {
   // 現在ダイアログが開いているか判定
@@ -60,7 +61,7 @@ export const dialogCommands = {
     });
   },
 
-  // ---------------------- file operation progress ----------------------
+  // ---------------------- file delete progress ----------------------
   showDeleteProgressDialog(
     tab: TabInfo,
     files: DirEntry[],
@@ -71,4 +72,15 @@ export const dialogCommands = {
       useFileDeleteProgressStore.getState().showDialog(tab, files, taskId, resolve, prepare);
     });
   },
+
+  // ---------------------- file paste progress ----------------------
+  showPasteProgresDialog(
+    tab: TabInfo,
+    taskId: TaskId,
+    isCopy: boolean,
+  ): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      useFilePasteProgressStore.getState().showDialog(tab, taskId, isCopy, resolve);
+    });
+  }
 };

@@ -139,7 +139,7 @@ export const menuItems = {
 
   // -------------------- Edit --------------------
   copyFile: M('コピー', fileCommands.copy, 'Ctrl//C', isSelectedAnyFile),
-  cutFile: M('切り取り', fileCommands.cut, 'Ctrl//X', isSelectedAnyFile),
+  cutFile: M('切り取り', fileCommands.move, 'Ctrl//X', isSelectedAnyFile),
   pasteFile: M('貼り付け', fileCommands.paste, 'Ctrl//V', hasTab),
 
   deleteFile: M('削除', fileCommands.delete, 'Delete', isSelectedAnyFile),

@@ -14,7 +14,7 @@ import {
   SortType,
   TabInfoUI,
   FileOpResult,
-  CutOrCopy,
+  MoveOrCopy,
 } from './bindings';
 import { logErr } from './tools/log';
 import { dialogCommands } from './commands/dialog-commands';
@@ -94,7 +94,7 @@ export const rustcmds = {
     );
   },
 
-  fileCutOrCopyToClipboard: (mode: CutOrCopy, tabId: TabId, fileIds: FileId[]) => {
+  fileCutOrCopyToClipboard: (mode: MoveOrCopy, tabId: TabId, fileIds: FileId[]) => {
     return commands.fileCutOrCopyToClipboard(
       mode,
       tabId,

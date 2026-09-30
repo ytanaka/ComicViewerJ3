@@ -1,6 +1,7 @@
 use std::{
     fs,
     path::{Path, PathBuf},
+    time::Duration,
 };
 
 use anyhow::anyhow;
@@ -103,6 +104,13 @@ async fn move_paths_impl2(
 
     // 移動!!!
     fs::rename(&src_path, dst_path)?;
+
+    let pref = ctx.state.preferences.read().unwrap();
+    let sleep = pref.debug_file_op_sleep_ms;
+    if 0 < sleep {
+        std::thread::sleep(Duration::from_millis(sleep as u64));
+    }
+
     Ok(())
 }
 async fn ask_to_ui(

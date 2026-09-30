@@ -443,7 +443,7 @@ pub struct AppPreferences {
     /// ファイル名検索するときスリープする
     pub debug_filename_search_sleep_ms: i32,
     /// ファイル削除時にスリープする
-    pub debug_remove_files_sleep_ms: i32,
+    pub debug_file_op_sleep_ms: i32,
 
     /// ファイル名ソート時の文字比較方法
     pub filename_cmp: FilenameCmpType,
@@ -473,7 +473,7 @@ impl Default for AppPreferences {
     fn default() -> Self {
         Self {
             debug_filename_search_sleep_ms: 0,
-            debug_remove_files_sleep_ms: 0,
+            debug_file_op_sleep_ms: 0,
             filename_cmp: FilenameCmpType::Icu,
             filename_sort_strength: "Identical".to_string(),
             filename_cmp_by_digit: false,

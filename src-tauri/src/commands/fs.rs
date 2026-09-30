@@ -250,7 +250,7 @@ async fn remove_files_impl3(
         emit_event_remove_files(app, ev)?;
 
         let pref = state.preferences.read().unwrap();
-        let sleep = pref.debug_remove_files_sleep_ms;
+        let sleep = pref.debug_file_op_sleep_ms;
         if 0 < sleep {
             std::thread::sleep(Duration::from_millis(sleep as u64));
         }

@@ -10,14 +10,14 @@ export function FilePasteProgressDialog() {
   const showFilePasteProgressDialog = useUiVolatileStore(state => state.showFilePasteProgressDialog);
   const setVolatileField = useUiVolatileStore(state => state.setField);
 
+  const isCopy = useFilePasteProgressStore(state => state.isCopy);
   const event = useFilePasteProgressStore(state => state.event);
-
 
   return (
     <Dialog open={showFilePasteProgressDialog} onOpenChange={b => setVolatileField('showFilePasteProgressDialog', b)}>
       <DialogContent>
         <DialogHeader>
-          {event?.is_copy ? 'コピー' : '移動'}中
+          {isCopy ? 'コピー' : '移動'}中
         </DialogHeader>
         <FileProgressPanel header={event?.head} progress={event?.progress} />
       </DialogContent>

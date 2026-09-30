@@ -67,7 +67,7 @@ export function DebugPanel() {
         <Separator />
 
         <Field>
-          <FieldLabel>ファイル削除時に1ファイル削除ごとにRust側でスリープを入れる</FieldLabel>
+          <FieldLabel>ファイルコピー、移動、削除時に1ファイルごとにRust側でスリープを入れる</FieldLabel>
           <InputGroup className="max-w-40">
             <InputGroupInput
               type="number"

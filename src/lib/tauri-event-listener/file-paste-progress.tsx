@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
 import { useAppConstantsStore } from '@/store/app-constants';
-import { RemoveFilesNotifyEvent } from '../bindings';
+import { FilePasteNotifyEvent } from '../bindings';
 import { TauriEventListener } from './util';
 import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
 
-const listener = new TauriEventListener(async (event: RemoveFilesNotifyEvent) => {
+const listener = new TauriEventListener(async (event: FilePasteNotifyEvent) => {
   const setNotifyEvent = useFilePasteProgressStore.getState().setNotifyEvent;
   setNotifyEvent(event);
 });
