@@ -60,7 +60,7 @@ where
 {
     let mut ret = String::new();
     for s in v.iter().map(cnv) {
-        if ret.len() != 0 {
+        if !ret.is_empty() {
             ret.push(',');
         }
         ret.push_str(&s);

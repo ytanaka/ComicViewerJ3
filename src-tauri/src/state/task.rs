@@ -42,7 +42,8 @@ impl AppTaskWrapper {
             t.tx.send(TaskResponse {
                 answer: TaskAnswer::Cancel,
                 always: true,
-            }).unwrap();
+            })
+            .unwrap();
         }
     }
     pub fn is_task_canceled(&self) -> bool {

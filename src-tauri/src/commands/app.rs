@@ -4,9 +4,14 @@ use std::{process::Command, sync::Arc};
 use tauri::{AppHandle, State, Window};
 
 use crate::{
-    LOG_RESULT, state::app_state::AppState, types::{
-        AppConstants, FilePasteConfirmEvent, FilePasteNotifyEvent, FileUpdateNotifyEvent, GetFilesPropertyNotifyEvent, InvokeProgramResult::{self, Fail, Success}, RemoveFilesNotifyEvent, TaskId, TaskResponse,
+    state::app_state::AppState,
+    types::{
+        AppConstants, FilePasteConfirmEvent, FilePasteNotifyEvent, FileUpdateNotifyEvent,
+        GetFilesPropertyNotifyEvent,
+        InvokeProgramResult::{self, Fail, Success},
+        RemoveFilesNotifyEvent, TaskId, TaskResponse,
     },
+    LOG_RESULT,
 };
 
 #[tauri::command]

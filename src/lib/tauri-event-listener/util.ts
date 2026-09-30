@@ -1,14 +1,14 @@
 import { listen as tauri_listen } from '@tauri-apps/api/event';
 
 export class TauriEventListener<T> {
-  private eventName: string | null = null;;
+  private eventName: string | null = null;
 
   private initializing = false;
   private processing: boolean = false;
   private queue: T[] = [];
 
   private unlistenFn: (() => void) | null = null;
-  private eventHandler: (t: T) => Promise<void>
+  private eventHandler: (t: T) => Promise<void>;
 
   constructor(eventHandler: (t: T) => Promise<void>) {
     this.eventHandler = eventHandler;

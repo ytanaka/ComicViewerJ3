@@ -1,7 +1,13 @@
-import { TaskEventFileProgress, TaskEventHeader } from "@/lib/bindings";
-import { formatFileBytes } from "@/lib/tools/string-util";
+import { TaskEventFileProgress, TaskEventHeader } from '@/lib/bindings';
+import { formatFileBytes } from '@/lib/tools/string-util';
 
-export function FileProgressPanel({ header, progress }: { header: TaskEventHeader | undefined, progress: TaskEventFileProgress | undefined }) {
+export function FileProgressPanel({
+  header,
+  progress,
+}: {
+  header: TaskEventHeader | undefined;
+  progress: TaskEventFileProgress | undefined;
+}) {
   return (
     <>
       サイズ: {formatFileBytes(progress?.size ?? 0)} ({progress?.size.toLocaleString()} バイト)

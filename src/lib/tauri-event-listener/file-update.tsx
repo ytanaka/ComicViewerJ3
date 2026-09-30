@@ -11,8 +11,6 @@ import { TauriEventListener } from './util';
 
 // タブ内ファイルの更新イベントリスナー
 const listener = new TauriEventListener(async (event: FileUpdateNotifyEvent) => {
-  console.log("handle event: ", event);
-
   const tabId = event.tab_id as TabId;
   const fileId = event.file_id as FileId;
 

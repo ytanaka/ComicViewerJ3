@@ -4,7 +4,6 @@ use std::{
     time::Duration,
 };
 
-use anyhow::anyhow;
 use tauri::Emitter;
 
 use crate::{

@@ -77,11 +77,7 @@ export const dialogCommands = {
   },
 
   // ---------------------- file paste progress ----------------------
-  showPasteProgresDialog(
-    tab: TabInfo,
-    taskId: TaskId,
-    isCopy: boolean,
-  ): Promise<boolean> {
+  showPasteProgresDialog(tab: TabInfo, taskId: TaskId, isCopy: boolean): Promise<boolean> {
     return new Promise<boolean>(resolve => {
       useFilePasteProgressStore.getState().showDialog(tab, taskId, isCopy, resolve);
     });
@@ -90,11 +86,9 @@ export const dialogCommands = {
     useFilePasteProgressStore.getState().closeDialog();
   },
 
-
   showFilePasteConfirmDialog(ev: FilePasteConfirmEvent): Promise<TaskResponse> {
     return new Promise<TaskResponse>(resolve => {
       useFilePasteConfirmDialogStore.getState().showDialog(ev, resolve);
     });
   },
-
 };

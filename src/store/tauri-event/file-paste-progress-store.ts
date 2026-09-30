@@ -8,19 +8,14 @@ import { useUiVolatileStore } from '../ui-volatile-store';
 export interface FilePasteProgressStore {
   tab: TabInfo | null; // TODO いるか？
   taskId: TaskId | null;
-  isCopy: boolean,
+  isCopy: boolean;
   resolve: ((value: boolean) => void) | null;
 
   event: FilePasteNotifyEvent | null;
 
-  showDialog: (
-    tab: TabInfo,
-    taskId: TaskId,
-    isCopy: boolean,
-    resolve: (value: boolean) => void,
-  ) => void;
+  showDialog: (tab: TabInfo, taskId: TaskId, isCopy: boolean, resolve: (value: boolean) => void) => void;
   closeDialog: () => void;
-  
+
   setNotifyEvent: (ev: FilePasteNotifyEvent) => void;
 }
 
@@ -33,12 +28,7 @@ export const useFilePasteProgressStore = create<FilePasteProgressStore>()((set, 
   prepareEvent: null,
   event: null,
 
-  showDialog: (
-    tab: TabInfo,
-    taskId: TaskId,
-    isCopy: boolean,
-    resolve: (value: boolean) => void,
-  ) => {
+  showDialog: (tab: TabInfo, taskId: TaskId, isCopy: boolean, resolve: (value: boolean) => void) => {
     useUiVolatileStore.getState().setField('showFilePasteProgressDialog', true);
 
     set(() => {
@@ -48,7 +38,6 @@ export const useFilePasteProgressStore = create<FilePasteProgressStore>()((set, 
   closeDialog: () => {
     useUiVolatileStore.getState().setField('showFilePasteProgressDialog', false);
   },
-  
 
   setNotifyEvent: (ev: FilePasteNotifyEvent) => {
     if (get().taskId !== ev.task_id) {

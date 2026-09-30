@@ -125,7 +125,7 @@ export const fileCommands = {
     const dialogResponse = dialogCommands.showPasteProgresDialog(tab, taskId, false);
     const result = await rustcmds.filePasteFromClipboard(taskId, tab.id);
     let isCopy: boolean | null = null;
-    handleRustCmdResult(result, `rustcmds.filePasteFromClipboard(${tab.id})`, 'ファイル貼り付け', async (data) => {
+    handleRustCmdResult(result, `rustcmds.filePasteFromClipboard(${tab.id})`, 'ファイル貼り付け', async data => {
       switch (data.type) {
         case 'NoFiles':
           break;

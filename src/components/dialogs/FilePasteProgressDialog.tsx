@@ -1,9 +1,9 @@
-import { useUiVolatileStore } from "@/store/ui-volatile-store";
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from "../ui/dialog";
-import { FileProgressPanel } from "./utils/FileProgressPanel";
-import { useFilePasteProgressStore } from "@/store/tauri-event/file-paste-progress-store";
-import { useCallback, useEffect } from "react";
-import { Button } from "../ui/button";
+import { useUiVolatileStore } from '@/store/ui-volatile-store';
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from '../ui/dialog';
+import { FileProgressPanel } from './utils/FileProgressPanel';
+import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
+import { useCallback, useEffect } from 'react';
+import { Button } from '../ui/button';
 
 // ファイルをコピー、移動している最中に表示するダイアログ
 // 途中で重複ファイルがあったときに問い合わせが来るので、AlertDialogで応答する。
@@ -42,14 +42,12 @@ export function FilePasteProgressDialog() {
       }}
     >
       <DialogContent>
-        <DialogHeader>
-          {isCopy ? 'コピー' : '移動'}中
-        </DialogHeader>
+        <DialogHeader>{isCopy ? 'コピー' : '移動'}中</DialogHeader>
 
         <FileProgressPanel header={event?.head} progress={event?.progress} />
 
         <DialogFooter>
-          <Button onClick={() => handleOkCancel(false)} >Cancel</Button>
+          <Button onClick={() => handleOkCancel(false)}>Cancel</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

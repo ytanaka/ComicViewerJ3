@@ -32,7 +32,7 @@ export function FilePasteConfirmDialog() {
   }
 
   function mkRes(t: TaskAnswer_type) {
-    return { answer: { type: t }, always }
+    return { answer: { type: t }, always };
   }
 
   return (
@@ -49,17 +49,22 @@ export function FilePasteConfirmDialog() {
 
         <div>
           <div>
-            元: {event?.src_path}<br />
-            先: {event?.dst_dir}<br />
+            元: {event?.src_path}
+            <br />
+            先: {event?.dst_dir}
+            <br />
           </div>
         </div>
 
         <AlertDialogFooter>
           <AlertDialogAction onClick={() => handleAnswer(mkRes('Cancel'))}>キャンセル</AlertDialogAction>
-          常に<Switch onCheckedChange={setAlways} />
+          常に
+          <Switch onCheckedChange={setAlways} />
           <AlertDialogAction onClick={() => handleAnswer(mkRes('Skip'))}>スキップ</AlertDialogAction>
           <AlertDialogAction onClick={() => handleAnswer(mkRes('Rename'))}>リネーム</AlertDialogAction>
-          <AlertDialogAction onClick={() => handleAnswer(mkRes('Merge'))} hidden={event?.mode.type !== 'Copy'}>マージ</AlertDialogAction>
+          <AlertDialogAction onClick={() => handleAnswer(mkRes('Merge'))} hidden={event?.mode.type !== 'Copy'}>
+            マージ
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

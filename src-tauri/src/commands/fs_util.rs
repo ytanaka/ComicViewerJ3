@@ -101,7 +101,7 @@ pub fn resolv_conflict_name(
     let src_filename = get_basename(src_path)?.to_string_lossy().to_string();
 
     loop {
-        let name2 = format!("コピー({}) {}", i, &src_filename);
+        let name2 = format!("コピー({}) {}", i, src_filename);
         let dst_path = dst_dir.as_ref().join(name2);
         if !dst_path.exists() {
             return Ok(dst_path);

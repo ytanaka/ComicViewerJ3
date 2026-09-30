@@ -77,10 +77,10 @@ export function DebugPanel() {
               onChange={e => {
                 const n = Number(e.target.value);
                 if (pref) {
-                  savePref.mutate({ ...pref, debug_remove_files_sleep_ms: n });
+                  savePref.mutate({ ...pref, debug_file_op_sleep_ms: n });
                 }
               }}
-              value={pref?.debug_remove_files_sleep_ms ?? 0}
+              value={pref?.debug_file_op_sleep_ms ?? 0}
             />
             <InputGroupAddon align="inline-end">(ms)</InputGroupAddon>
           </InputGroup>

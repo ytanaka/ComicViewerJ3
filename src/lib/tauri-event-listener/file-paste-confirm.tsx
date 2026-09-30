@@ -7,7 +7,7 @@ import { dialogCommands } from '../commands/dialog-commands';
 import { rustcmds, TaskId } from '../bindings-wrapper';
 
 const listener = new TauriEventListener(async (event: FilePasteConfirmEvent) => {
-  const res = await dialogCommands.showFilePasteConfirmDialog(event)
+  const res = await dialogCommands.showFilePasteConfirmDialog(event);
   await rustcmds.respondToTask(event.task_id as TaskId, res);
 });
 
