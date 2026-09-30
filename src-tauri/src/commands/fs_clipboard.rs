@@ -115,15 +115,12 @@ pub fn file_paste_from_clipboard_impl(
         MoveOrCopy::Move => {
             let tab = state.get_tab(tab_id)?;
             let tab = tab.read().unwrap();
-            let (rx, task) = state.add_task(task_id);
             let task_ctx: MovePathsTaskContext = TaskContext::new(
                 app,
                 state.clone(),
                 task_id,
-                task,
                 tab_id,
                 FilePasteNotifyEvent::new(task_id, false),
-                rx,
             );
             move_paths(task_ctx, paths, tab.get_path().to_path_buf())?;
             Ok(ClipboardPasteResult::ProgressMove)

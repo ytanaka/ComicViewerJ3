@@ -78,11 +78,10 @@ impl<E> TaskContext<E> {
         app: AppHandle,
         state: Arc<AppState>,
         task_id: TaskId,
-        task: Arc<RwLock<AppTask>>,
         tab_id: TabId,
         event: E,
-        rx: Receiver<TaskResponse>,
     ) -> Self {
+        let (rx,task) = state.add_task(task_id);
         Self {
             app,
             state,
