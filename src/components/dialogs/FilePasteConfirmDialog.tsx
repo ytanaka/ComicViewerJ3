@@ -10,10 +10,9 @@ import {
 } from '../ui/alert-dialog';
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { FilePasteConfirmEvent, TaskResponse } from '@/lib/bindings';
+import { TaskConfirm, TaskResponse } from '@/lib/bindings';
 import { useState } from 'react';
 import { Switch } from '../ui/switch';
-import { TaskAnswer_type } from '@/lib/bindings-wrapper';
 
 export function FilePasteConfirmDialog() {
   const show = useUiVolatileStore(state => state.showFilePasteConfirmDialog);
@@ -21,6 +20,9 @@ export function FilePasteConfirmDialog() {
 
   const dialogState = useFilePasteConfirmDialogStore(state => state);
   const event = dialogState.event;
+  const mode_copy = event?.args[0] === 'copy';
+  const src_path = event?.args[1];
+  const dst_dir = event?.args[2];
 
   const [always, setAlways] = useState(false);
 
@@ -31,8 +33,12 @@ export function FilePasteConfirmDialog() {
     }
   }
 
-  function mkRes(t: TaskAnswer_type) {
-    return { answer: { type: t }, always };
+  function mkRes(t: string): TaskResponse {
+    return {
+      task_id: event?.task_id ?? -999,
+      t: 'Paste',
+      args: [t, '' + always],
+    };
   }
 
   return (
@@ -49,9 +55,9 @@ export function FilePasteConfirmDialog() {
 
         <div>
           <div>
-            元: {event?.src_path}
+            元: {src_path}
             <br />
-            先: {event?.dst_dir}
+            先: {dst_dir}
             <br />
           </div>
         </div>
@@ -62,7 +68,7 @@ export function FilePasteConfirmDialog() {
           <Switch onCheckedChange={setAlways} />
           <AlertDialogAction onClick={() => handleAnswer(mkRes('Skip'))}>スキップ</AlertDialogAction>
           <AlertDialogAction onClick={() => handleAnswer(mkRes('Rename'))}>リネーム</AlertDialogAction>
-          <AlertDialogAction onClick={() => handleAnswer(mkRes('Merge'))} hidden={event?.mode.type !== 'Copy'}>
+          <AlertDialogAction onClick={() => handleAnswer(mkRes('Merge'))} hidden={!mode_copy}>
             マージ
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -72,16 +78,16 @@ export function FilePasteConfirmDialog() {
 }
 
 interface FilePasteConfirmDialogStore {
-  event: FilePasteConfirmEvent | null;
+  event: TaskConfirm | null;
   resolve: ((value: TaskResponse) => void) | null;
 
-  showDialog: (event: FilePasteConfirmEvent, resolve: (value: TaskResponse) => void) => void;
+  showDialog: (event: TaskConfirm, resolve: (value: TaskResponse) => void) => void;
 }
 export const useFilePasteConfirmDialogStore = create<FilePasteConfirmDialogStore>()(set => ({
   event: null,
   resolve: null,
 
-  showDialog: (event: FilePasteConfirmEvent, resolve: (value: TaskResponse) => void) => {
+  showDialog: (event: TaskConfirm, resolve: (value: TaskResponse) => void) => {
     useUiVolatileStore.getState().setField('showFilePasteConfirmDialog', true);
 
     set(() => {

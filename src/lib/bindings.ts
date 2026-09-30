@@ -21,7 +21,7 @@ export const commands = {
 	/**  コピー、移動時の確認に対する応答 */
 	respondToTask: (taskId: number, response: TaskResponse) => __TAURI_INVOKE<void>("respond_to_task", { taskId, response }),
 	/**  ダミー */
-	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent, copyMove: FilePasteNotifyEvent, confirm: FilePasteConfirmEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove, copyMove, confirm }),
+	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent, copyMove: FilePasteNotifyEvent, confirm: TaskConfirm) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove, copyMove, confirm }),
 	/**  タブ作成 (絶対パス) */
 	createTab: (path: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("create_tab", { path })),
 	/**  タブ作成 (指定タブと同じパス) */
@@ -83,7 +83,7 @@ export type AppConstants = {
 	event_name_file_updaet: string,
 	event_name_get_files_property: string,
 	event_name_file_delete_progress: string,
-	event_name_file_paste_confirm: string,
+	event_name_task_confirm: string,
 	event_name_file_paste_progress_notify: string,
 };
 
@@ -183,18 +183,6 @@ export type FileOpResult =
 { type: "AlreadyExists" } | 
 /**  システムエラー以外の失敗 */
 { type: "Fail"; error_msg: string };
-
-/**  ファイルコピー、移動時の重複ファイル処理確認イベント */
-export type FilePasteConfirmEvent = {
-	task_id: number,
-	mode: MoveOrCopy,
-	/**  元パス */
-	src_path: string,
-	/**  先パス */
-	dst_dir: string,
-	/**  ファイルか */
-	is_file: boolean,
-};
 
 /**  ファイルコピー、移動 ([`file_paste_from_clipboard()`](crate::commands::fs_clipboard::file_paste_from_clipboard)) の途中経過を通知するイベント構造体 */
 export type FilePasteNotifyEvent = {
@@ -306,15 +294,12 @@ export type TabInfoUI = {
 	path: string,
 };
 
-export type TaskAnswer = 
-/**  リネーム (file, dir) */
-{ type: "Rename" } | 
-/**  マージ (コピー時の dir) */
-{ type: "Merge" } | 
-/**  スキップ (file, dir) */
-{ type: "Skip" } | 
-/**  キャンセル */
-{ type: "Cancel" };
+/**  RustからUIへTask関連問い合わせイベント */
+export type TaskConfirm = {
+	t: TaskType,
+	task_id: number,
+	args: string[],
+};
 
 /**  タスクの処理経過情報の共通情報 */
 export type TaskEventFileProgress = {
@@ -344,9 +329,14 @@ export type TaskEventHeader = {
 
 /**  Task問い合わせの応答 */
 export type TaskResponse = {
-	answer: TaskAnswer,
-	always: boolean,
+	task_id: number,
+	t: TaskType,
+	args: string[],
 };
+
+export type TaskType = 
+/**  cancel_task() が呼ばれたとき、タスクの Receiver 待ちをしているスレッドを起こすためにRust内部で使う */
+"Dummy" | "OkCancel" | "Paste";
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {

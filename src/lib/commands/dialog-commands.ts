@@ -3,7 +3,7 @@ import { useOkCancelDialogStore } from '@/components/dialogs/OkCancelDialog';
 import { usePrepareFileOperationStore } from '@/store/tauri-event/prepare-file-operation-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { DirEntry, TabInfo, TaskId } from '../bindings-wrapper';
-import { FilePasteConfirmEvent, GetFilesPropertyNotifyEvent, TaskResponse } from '../bindings';
+import { GetFilesPropertyNotifyEvent, TaskConfirm, TaskResponse } from '../bindings';
 import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
 import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
 import { useFilePasteConfirmDialogStore } from '@/components/dialogs/FilePasteConfirmDialog';
@@ -86,7 +86,7 @@ export const dialogCommands = {
     useFilePasteProgressStore.getState().closeDialog();
   },
 
-  showFilePasteConfirmDialog(ev: FilePasteConfirmEvent): Promise<TaskResponse> {
+  showFilePasteConfirmDialog(ev: TaskConfirm): Promise<TaskResponse> {
     return new Promise<TaskResponse>(resolve => {
       useFilePasteConfirmDialogStore.getState().showDialog(ev, resolve);
     });

@@ -12,7 +12,7 @@ use crate::{
     state::task::TaskContext,
     types::{
         FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse, TaskConfirm,
-        EVENT_NAME_FILE_PASTE_CONFIRM, EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY,
+        EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY, EVENT_NAME_TASK_CONFIRM,
     },
     util::pathvec_to_str,
 };
@@ -130,7 +130,7 @@ async fn ask_to_ui(
     let ev = TaskConfirm::new_paste(ctx.task_id, "move", src_path, dst_dir);
     // UIにイベントを送る
     log::trace!("send to ui TaskConfirm: {}", ev.to_string());
-    ctx.app.emit(EVENT_NAME_FILE_PASTE_CONFIRM, ev)?;
+    ctx.app.emit(EVENT_NAME_TASK_CONFIRM, ev)?;
 
     // UIの応答を待つ
     let ret = ctx.rx.recv()?;

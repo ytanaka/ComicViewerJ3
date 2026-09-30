@@ -15,7 +15,6 @@ import {
   TabInfoUI,
   FileOpResult,
   MoveOrCopy,
-  TaskAnswer,
   TaskResponse,
 } from './bindings';
 import { logErr } from './tools/log';
@@ -204,7 +203,6 @@ function cnvOk<F, T>(
 
 export type SortType_type = SortType['type'];
 export type FilenameCmpType_type = FilenameCmpType['type'];
-export type TaskAnswer_type = TaskAnswer['type'];
 
 let nextTaskId = 101;
 export function getNextTaskId(): TaskId {

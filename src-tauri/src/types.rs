@@ -7,14 +7,20 @@
 //!
 //! `Xyz` はUI,Rust側共通で使用する型。
 
-use std::{ffi::OsStr, fmt, num::NonZero, path::Path, sync::Arc};
+use std::{
+    ffi::OsStr,
+    fmt::{self, Display},
+    num::NonZero,
+    path::Path,
+    sync::Arc,
+};
 
 use anyhow::anyhow;
 use image::ImageBuffer;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
-use crate::{types::FilePasteAnswer::Rename, util::parse_bool};
+use crate::util::parse_bool;
 
 // =====================================================================================================================
 
@@ -74,7 +80,7 @@ pub struct AppConstants {
     pub event_name_file_updaet: String,
     pub event_name_get_files_property: String,
     pub event_name_file_delete_progress: String,
-    pub event_name_file_paste_confirm: String,
+    pub event_name_task_confirm: String,
     pub event_name_file_paste_progress_notify: String,
 }
 impl Default for AppConstants {
@@ -83,7 +89,7 @@ impl Default for AppConstants {
             event_name_file_updaet: EVENT_NAME_FILE_UPDATE_NOTIFY.to_string(),
             event_name_get_files_property: EVENT_NAME_GET_FILES_PROPERTY_NOTIFY.to_string(),
             event_name_file_delete_progress: EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY.to_string(),
-            event_name_file_paste_confirm: EVENT_NAME_FILE_PASTE_CONFIRM.to_string(),
+            event_name_task_confirm: EVENT_NAME_TASK_CONFIRM.to_string(),
             event_name_file_paste_progress_notify: EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY
                 .to_string(),
         }
@@ -609,7 +615,6 @@ impl RemoveFilesNotifyEvent {
 }
 
 pub const EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY: &str = "file-paste-progress-notify";
-pub const EVENT_NAME_FILE_PASTE_CONFIRM: &str = "file-paste-confirm";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 /// ファイルコピー、移動 ([`file_paste_from_clipboard()`](crate::commands::fs_clipboard::file_paste_from_clipboard)) の途中経過を通知するイベント構造体
@@ -637,8 +642,8 @@ impl FilePasteResponse {
         if r.t != TaskType::Paste {
             return None;
         }
-        let arg0 = r.args.get(0).and_then(|s| FilePasteAnswer::parse(&s));
-        let arg1 = r.args.get(0).and_then(|s| parse_bool(&s));
+        let arg0 = r.args.get(0).and_then(|s| FilePasteAnswer::parse(s));
+        let arg1 = r.args.first().and_then(|s| parse_bool(s));
         match (arg0, arg1) {
             (Some(a), Some(b)) => Some(Self {
                 answer: a,
@@ -667,6 +672,8 @@ impl FilePasteAnswer {
     }
 }
 
+pub const EVENT_NAME_TASK_CONFIRM: &str = "task-confirm";
+
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// RustからUIへTask関連問い合わせイベント
 pub struct TaskConfirm {
@@ -674,10 +681,12 @@ pub struct TaskConfirm {
     pub task_id: TaskId,
     pub args: Vec<String>,
 }
-impl TaskConfirm {
-    pub fn to_string(&self) -> String {
-        format!("task_id:{},{:?}", self.task_id, self.t)
+impl Display for TaskConfirm {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "task_id:{},{:?}", self.task_id, self.t)
     }
+}
+impl TaskConfirm {
     pub fn new_paste(
         task_id: TaskId,
         move_or_copy: &str,
@@ -703,10 +712,12 @@ pub struct TaskResponse {
     pub t: TaskType,
     pub args: Vec<String>,
 }
-impl TaskResponse {
-    pub fn to_string(&self) -> String {
-        format!("task_id:{},{:?}", self.task_id, self.t)
+impl Display for TaskResponse {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "task_id:{},{:?}", self.task_id, self.t)
     }
+}
+impl TaskResponse {
     pub fn new_dummy(task_id: TaskId) -> Self {
         Self {
             task_id,
