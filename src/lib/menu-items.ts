@@ -138,9 +138,9 @@ export const menuItems = {
   exitApp: M('終了', windowCommands.exitApp, 'Ctrl//Q'),
 
   // -------------------- Edit --------------------
-  copyFile: M('コピー', fileCommands.copy, 'Ctrl//C', isSelectedAnyFile),
-  cutFile: M('切り取り', fileCommands.move, 'Ctrl//X', isSelectedAnyFile),
-  pasteFile: M('貼り付け', fileCommands.paste, 'Ctrl//V', hasTab),
+  copyFile: M('コピー', fileCommands.copyToClipboard, 'Ctrl//C', isSelectedAnyFile),
+  cutFile: M('切り取り', fileCommands.moveToClipboard, 'Ctrl//X', isSelectedAnyFile),
+  pasteFile: M('貼り付け', fileCommands.pasteFromClipboard, 'Ctrl//V', hasTab),
 
   deleteFile: M('削除', fileCommands.delete, 'Delete', isSelectedAnyFile),
   renameFile: M('名前変更', fileCommands.rename, 'F2', isSelected1File),

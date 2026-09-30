@@ -8,7 +8,7 @@ use crate::{
         fs_util_move::{move_paths, MovePathsTaskContext},
     },
     state::{app_state::AppState, clipboard::AppClipboard, task::TaskContext},
-    types::{ClipboardPasteResult, FilePasteNotifyEvent, MoveOrCopy, TabId, TaskId, TaskResponse},
+    types::{ClipboardPasteResult, FilePasteNotifyEvent, MoveOrCopy, TabId, TaskId},
     LOG_RESULT,
 };
 

@@ -21,7 +21,7 @@ export const commands = {
 	/**  コピー、移動時の確認に対する応答 */
 	respondToTask: (taskId: number, response: TaskResponse) => __TAURI_INVOKE<void>("respond_to_task", { taskId, response }),
 	/**  ダミー */
-	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent, copyMove: FilePasteNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove, copyMove }),
+	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent, copyMove: FilePasteNotifyEvent, confirm: FilePasteConfirmEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove, copyMove, confirm }),
 	/**  タブ作成 (絶対パス) */
 	createTab: (path: string) => typedError<Either<CreateTabError, TabInfoUI>, string>(__TAURI_INVOKE("create_tab", { path })),
 	/**  タブ作成 (指定タブと同じパス) */
@@ -92,7 +92,7 @@ export type AppPreferences = {
 	/**  ファイル名検索するときスリープする */
 	debug_filename_search_sleep_ms: number,
 	/**  ファイル削除時にスリープする */
-	debug_remove_files_sleep_ms: number,
+	debug_file_op_sleep_ms: number,
 	/**  ファイル名ソート時の文字比較方法 */
 	filename_cmp: FilenameCmpType,
 	/**  ファイル名ソート時、先頭の数字を数字として比較 */
@@ -183,6 +183,17 @@ export type FileOpResult =
 { type: "AlreadyExists" } | 
 /**  システムエラー以外の失敗 */
 { type: "Fail"; error_msg: string };
+
+/**  ファイルコピー、移動時の重複ファイル処理確認イベント */
+export type FilePasteConfirmEvent = {
+	task_id: number,
+	/**  元パス */
+	src_path: string,
+	/**  先パス */
+	dst_dir: string,
+	/**  ファイルか */
+	is_file: boolean,
+};
 
 /**  ファイルコピー、移動 ([`file_paste_from_clipboard()`](crate::commands::fs_clipboard::file_paste_from_clipboard)) の途中経過を通知するイベント構造体 */
 export type FilePasteNotifyEvent = {

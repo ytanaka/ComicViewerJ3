@@ -94,13 +94,13 @@ export const fileCommands = {
       }
     }
   },
-  async move() {
-    await fileCommands.move_or_copy({ type: 'Move' });
+  async moveToClipboard() {
+    await fileCommands.moveOrCopyToClipboard({ type: 'Move' });
   },
-  async copy() {
-    await fileCommands.move_or_copy({ type: 'Copy' });
+  async copyToClipboard() {
+    await fileCommands.moveOrCopyToClipboard({ type: 'Copy' });
   },
-  async move_or_copy(mode: MoveOrCopy) {
+  async moveOrCopyToClipboard(mode: MoveOrCopy) {
     const { tab, sel } = getSelectedFiles();
     if (!tab || !sel) return;
     if (sel.length === 0) return;
@@ -113,7 +113,8 @@ export const fileCommands = {
       `ファイル${mode.type}`
     );
   },
-  async paste() {
+
+  async pasteFromClipboard() {
     const { tab } = getSelectedFiles();
     if (!tab) return;
 

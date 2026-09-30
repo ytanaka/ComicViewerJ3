@@ -14,6 +14,7 @@ use crate::{
         FilePasteConfirmEvent, FilePasteNotifyEvent, TaskAnswer, TaskResponse,
         EVENT_NAME_FILE_PASTE_CONFIRM, EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY,
     },
+    util::pathvec_to_str,
 };
 
 pub type MovePathsTaskContext = TaskContext<FilePasteNotifyEvent>;
@@ -26,6 +27,11 @@ pub fn move_paths(
 ) -> anyhow::Result<()> {
     let mut ctx = ctx;
     tauri::async_runtime::spawn(async move {
+        log::debug!(
+            "spawn move_paths(...,{},{:?})",
+            pathvec_to_str(&src_paths),
+            dst_dir
+        );
         let ret = move_paths_impl1(&mut ctx, src_paths, dst_dir).await;
         match ret {
             Ok(_) => {
@@ -126,9 +132,18 @@ async fn ask_to_ui(
         is_file,
     };
     // UIにイベントを送る
+    log::trace!(
+        "send to ui FilePasteConfirmEvent: {} => {}",
+        src_path.as_ref().to_string_lossy(),
+        dst_dir.as_ref().to_string_lossy()
+    );
     ctx.app.emit(EVENT_NAME_FILE_PASTE_CONFIRM, ev)?;
+
     // UIの応答を待つ
-    Ok(ctx.rx.recv()?)
+    let ret = ctx.rx.recv()?;
+    log::trace!("receive from ui: TaskResponse({:?})", ret.answer);
+
+    Ok(ret)
 }
 fn emit_event_move_paths(ctx: &mut MovePathsTaskContext) -> anyhow::Result<()> {
     if !ctx.can_emit_event()? {

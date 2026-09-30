@@ -5,7 +5,7 @@ use tauri::{AppHandle, State, Window};
 
 use crate::{
     LOG_RESULT, state::app_state::AppState, types::{
-        AppConstants, FilePasteNotifyEvent, FileUpdateNotifyEvent, GetFilesPropertyNotifyEvent, InvokeProgramResult::{self, Fail, Success}, RemoveFilesNotifyEvent, TaskId, TaskResponse,
+        AppConstants, FilePasteConfirmEvent, FilePasteNotifyEvent, FileUpdateNotifyEvent, GetFilesPropertyNotifyEvent, InvokeProgramResult::{self, Fail, Success}, RemoveFilesNotifyEvent, TaskId, TaskResponse,
     },
 };
 
@@ -92,6 +92,7 @@ pub fn dummy(
     _prepare: GetFilesPropertyNotifyEvent,
     _remove: RemoveFilesNotifyEvent,
     _copy_move: FilePasteNotifyEvent,
+    _confirm: FilePasteConfirmEvent,
 ) {
     log::info!("command::dummy()");
 }

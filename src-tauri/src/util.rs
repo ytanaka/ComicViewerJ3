@@ -1,5 +1,7 @@
 //! 共通関数など
 
+use std::{fmt::Display, path::Path};
+
 /// Rustコマンドの結果をログに出力する
 #[macro_export]
 #[allow(unused_macros)]
@@ -48,4 +50,33 @@ impl<T: std::error::Error + ?Sized> ErrorExt for T {
         }
         s
     }
+}
+
+const MAX_VEC_STR: usize = 50;
+
+fn vec_to_str_generic<T, F>(v: &[T], cnv: F) -> String
+where
+    F: Fn(&T) -> String,
+{
+    let mut ret = String::new();
+    for s in v.iter().map(cnv) {
+        if ret.len() != 0 {
+            ret.push(',');
+        }
+        ret.push_str(&s);
+        if MAX_VEC_STR < ret.len() {
+            break;
+        }
+    }
+    if MAX_VEC_STR <= ret.len() {
+        ret = ret.chars().take(MAX_VEC_STR).collect();
+        ret.push_str("...");
+    }
+    format!("Vec[{}, {}]", v.len(), ret)
+}
+pub fn vec_to_str<T: Display>(v: &[T]) -> String {
+    vec_to_str_generic(v, |s| ToString::to_string(s))
+}
+pub fn pathvec_to_str<P: AsRef<Path>>(v: &[P]) -> String {
+    vec_to_str_generic(v, |s| s.as_ref().to_string_lossy().to_string())
 }
