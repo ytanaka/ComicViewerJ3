@@ -248,8 +248,8 @@ pub struct FileMetadata {
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
 /// ファイルのカットかコピーか
-pub enum CutOrCopy {
-    Cut,
+pub enum MoveOrCopy {
+    Move,
     Copy,
 }
 
@@ -275,10 +275,12 @@ pub enum FileOpResult {
 #[serde(tag = "type")]
 /// クリップボードからファイルをペーストした結果
 pub enum ClipboardPasteResult {
-    /// クリップボードにファイルがなかった
+    /// クリップボードにファイルがなかったので何もしない
     NoFiles,
+    /// 不正なパスなので何もしない
+    InvalidPath { path: String },
     /// Cutされた結果を移動中
-    ProgressCut,
+    ProgressMove,
     /// Copyされた結果をコピー中
     ProgressCopy,
 }
@@ -611,13 +613,15 @@ pub const EVENT_NAME_FILE_PASTE_CONFIRM: &str = "file-paste-confirm";
 /// ファイルコピー、移動 ([`file_paste_from_clipboard()`](crate::commands::fs_clipboard::file_paste_from_clipboard)) の途中経過を通知するイベント構造体
 pub struct FilePasteNotifyEvent {
     pub task_id: TaskId,
+    pub is_copy: bool,
     pub head: TaskEventHeader,
     pub progress: TaskEventFileProgress,
 }
 impl FilePasteNotifyEvent {
-    pub fn new(task_id: TaskId) -> Self {
+    pub fn new(task_id: TaskId, is_copy: bool) -> Self {
         Self {
             task_id,
+            is_copy,
             ..Default::default()
         }
     }
@@ -627,28 +631,32 @@ impl FilePasteNotifyEvent {
 /// ファイルコピー、移動時の重複ファイル処理確認イベント
 pub struct FilePasteConfirmEvent {
     pub task_id: TaskId,
-    /// 相対パス
-    pub conflict_name: String,
+    /// 元パス
+    pub src_path: String,
+    /// 先パス
+    pub dst_dir: String,
     /// ファイルか
     pub is_file: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-/// [`FileCopyMoveConfirmEvent`] の応答
-pub struct FilePasteConfirmResponse {
-    pub answer: FilePasteConfilctAnswer,
+/// Task問い合わせの応答
+pub struct TaskResponse {
+    pub answer: TaskAnswer,
     pub always: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
-pub enum FilePasteConfilctAnswer {
+pub enum TaskAnswer {
     /// リネーム (file, dir)
     Rename,
     /// マージ (コピー時の dir)
     Merge,
     /// スキップ (file, dir)
     Skip,
+    /// キャンセル
+    Cancel,
 }
 
 // =====================================================================================================================

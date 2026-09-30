@@ -20,6 +20,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         app::invoke_program,
         app::set_fullscreen,
         app::cancel_task,
+        app::respond_to_task,
         app::dummy,
         tabs::create_tab,
         tabs::clone_tab,

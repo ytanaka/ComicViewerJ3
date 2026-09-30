@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useAppConstantsStore } from '@/store/app-constants';
 import { RemoveFilesNotifyEvent } from '../bindings';
-import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
+import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
 import { TauriEventListener } from './util';
 
 const listener = new TauriEventListener(async (event: RemoveFilesNotifyEvent) => {

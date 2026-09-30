@@ -1,17 +1,30 @@
-use std::sync::{Arc, RwLock};
+use std::{
+    sync::{
+        mpsc::{self, Receiver, Sender},
+        Arc, RwLock,
+    },
+    time::{SystemTime, UNIX_EPOCH},
+};
 
-use crate::types::FilePasteConfirmResponse;
+use tauri::AppHandle;
+
+use crate::{
+    state::app_state::AppState,
+    types::{TabId, TaskAnswer, TaskId, TaskResponse},
+};
 
 pub struct AppTask {
     pub canceled: bool,
-    pub copy_move_response: Option<FilePasteConfirmResponse>,
+    pub tx: Sender<TaskResponse>,
 }
 impl AppTask {
-    pub fn new() -> Arc<RwLock<Self>> {
-        Arc::new(RwLock::new(Self {
+    pub fn new() -> (Receiver<TaskResponse>, Arc<RwLock<Self>>) {
+        let (tx, rx) = mpsc::channel::<TaskResponse>();
+        let task = Arc::new(RwLock::new(Self {
             canceled: false,
-            copy_move_response: None,
-        }))
+            tx,
+        }));
+        (rx, task)
     }
 }
 pub struct AppTaskWrapper {
@@ -34,9 +47,55 @@ impl AppTaskWrapper {
         }
     }
 
-    pub fn set_response(&mut self, response: FilePasteConfirmResponse) {
+    pub fn set_response(&mut self, response: TaskResponse) {
         if let Some(t) = &self.task {
-            t.write().unwrap().copy_move_response = Some(response);
+            t.write().unwrap().tx.send(response).unwrap();
         }
+    }
+}
+
+pub struct TaskContext<E> {
+    pub app: AppHandle,
+    pub state: Arc<AppState>,
+    pub task_id: TaskId,
+    pub task: Arc<RwLock<AppTask>>,
+    pub tab_id: TabId,
+    pub event: E,
+    pub rx: Receiver<TaskResponse>,
+    pub answer: Option<TaskAnswer>,
+
+    event_emit_time_ms: u128,
+}
+
+impl<E> TaskContext<E> {
+    pub fn new(
+        app: AppHandle,
+        state: Arc<AppState>,
+        task_id: TaskId,
+        task: Arc<RwLock<AppTask>>,
+        tab_id: TabId,
+        event: E,
+        rx: Receiver<TaskResponse>,
+    ) -> Self {
+        Self {
+            app,
+            state,
+            task_id,
+            task,
+            tab_id,
+            event,
+            rx,
+            answer: None,
+            event_emit_time_ms: 0,
+        }
+    }
+
+    pub fn is_canceled(&self) -> bool {
+        !self.state.has_tab(self.tab_id) || self.state.get_task(self.task_id).is_task_canceled()
+    }
+
+    pub fn can_emit_event(&self) -> anyhow::Result<bool> {
+        let now = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
+        Ok(100 < now - self.event_emit_time_ms)
     }
 }

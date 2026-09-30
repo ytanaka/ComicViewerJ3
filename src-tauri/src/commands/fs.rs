@@ -3,7 +3,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
     sync::Arc,
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::Duration,
 };
 
 use anyhow::{anyhow, Context};
@@ -11,11 +11,13 @@ use tauri::{AppHandle, Emitter, State};
 use walkdir::WalkDir;
 
 use crate::{
-    commands::fs_util::{cnv_file_ids_to_path, is_valid_filename, parse_file_id_str},
+    commands::fs_util::{
+        can_emit_event, cnv_file_ids_to_path, is_canceled, is_valid_filename, parse_file_id_str,
+    },
     state::app_state::AppState,
     types::{
-        FileOpResult, GetFilesPropertyNotifyEvent, RemoveFilesNotifyEvent, TabId, TaskEventHeader,
-        TaskId, EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, EVENT_NAME_GET_FILES_PROPERTY_NOTIFY,
+        FileOpResult, GetFilesPropertyNotifyEvent, RemoveFilesNotifyEvent, TabId, TaskId,
+        EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, EVENT_NAME_GET_FILES_PROPERTY_NOTIFY,
     },
     util::ErrorExt,
     LOG_RESULT,
@@ -396,19 +398,6 @@ async fn get_files_property_impl3(
     }
 
     Ok(())
-}
-fn is_canceled(state: &Arc<AppState>, tab_id: TabId, task_id: TaskId) -> bool {
-    !state.has_tab(tab_id) || state.get_task(task_id).is_task_canceled()
-}
-fn can_emit_event(head: &mut TaskEventHeader) -> anyhow::Result<bool> {
-    let t = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
-    if t - head.event_time_ms < 100 {
-        Ok(false)
-    } else {
-        head.event_time_ms = t;
-        head.event_count += 1;
-        Ok(true)
-    }
 }
 fn emit_event_get_files_property(
     app: &AppHandle,

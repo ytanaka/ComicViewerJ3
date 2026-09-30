@@ -4,6 +4,7 @@ use std::{
     ops::Deref,
     sync::{
         atomic::{AtomicU32, AtomicU64},
+        mpsc::Receiver,
         Arc, Mutex, OnceLock, RwLock, Weak,
     },
 };
@@ -25,7 +26,7 @@ use crate::{
         migemo::Migemo, reverse_migemo::ReverseMigemo, romaji_cnv::RomajiCnv,
         text_matcher::TextMatcher, vibrato::Vibrato,
     },
-    types::{AppPreferences, FileId, TabId, TaskId},
+    types::{AppPreferences, FileId, TabId, TaskId, TaskResponse},
 };
 
 // =====================================================================================================================
@@ -178,11 +179,11 @@ impl AppState {
         ret
     }
 
-    pub fn add_task(&self, task_id: TaskId) -> Arc<RwLock<AppTask>> {
-        let task = AppTask::new();
+    pub fn add_task(&self, task_id: TaskId) -> (Receiver<TaskResponse>, Arc<RwLock<AppTask>>) {
+        let (rx, task) = AppTask::new();
         self.tasks.insert(task_id, Arc::downgrade(&task));
         self.tasks.retain(|_, v| v.upgrade().is_some()); // 不要になったタスクを消す
-        task
+        (rx, task)
     }
     pub fn get_task(&self, task_id: TaskId) -> AppTaskWrapper {
         let task = self.tasks.get(&task_id).and_then(|t| t.upgrade());

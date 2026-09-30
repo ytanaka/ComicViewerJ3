@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { GetFilesPropertyNotifyEvent } from '@/lib/bindings';
 import { PrepareFileOperationDialogType } from '@/components/dialogs/PrepareFileOperationDialog';
 import { DirEntry, TabInfo, TaskId } from '@/lib/bindings-wrapper';
-import { useUiVolatileStore } from './ui-volatile-store';
+import { useUiVolatileStore } from '../ui-volatile-store';
 
 // Rustの get_files_property() を呼んだ後に通知されるデータを格納する
 export interface PrepareFileOperationStore {
@@ -50,7 +50,7 @@ export const usePrepareFileOperationStore = create<PrepareFileOperationStore>()(
 
   setNotifyEvent: (ev: GetFilesPropertyNotifyEvent) => {
     if (get().taskId !== ev.task_id) {
-      console.error(`invalid task_id: current task_id = ${get().taskId}`, ev);
+      console.error(`PrepareFileOperationStore: invalid task_id: current task_id = ${get().taskId}`, ev);
       return;
     }
     set(state => {

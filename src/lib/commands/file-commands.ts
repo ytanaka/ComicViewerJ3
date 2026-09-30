@@ -9,8 +9,8 @@ import {
 } from '../bindings-wrapper';
 import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { dialogCommands } from './dialog-commands';
-import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
-import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
+import { usePrepareFileOperationStore } from '@/store/tauri-event/prepare-file-operation-store';
+import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
 import { CutOrCopy } from '../bindings';
 
 function st() {

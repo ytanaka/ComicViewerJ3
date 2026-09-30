@@ -12,7 +12,7 @@ import {
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { getQueryData_getFileInfo1 } from '@/services/tab-file-info';
 import { formatFileBytes, unixTime2str } from '@/lib/tools/string-util';
-import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
+import { usePrepareFileOperationStore } from '@/store/tauri-event/prepare-file-operation-store';
 import { FileProgressPanel } from './utils/FileProgressPanel';
 
 // ダイアログの表示モード

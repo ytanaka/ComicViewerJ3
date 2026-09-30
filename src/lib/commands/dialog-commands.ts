@@ -1,10 +1,10 @@
 import { useInputDialogStore } from '@/components/dialogs/InputDialog';
 import { useOkCancelDialogStore } from '@/components/dialogs/OkCancelDialog';
-import { usePrepareFileOperationStore } from '@/store/prepare-file-operation-store';
+import { usePrepareFileOperationStore } from '@/store/tauri-event/prepare-file-operation-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { DirEntry, TabInfo, TaskId } from '../bindings-wrapper';
 import { GetFilesPropertyNotifyEvent } from '../bindings';
-import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
+import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
 
 export const dialogCommands = {
   // 現在ダイアログが開いているか判定

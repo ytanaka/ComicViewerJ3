@@ -18,6 +18,8 @@ export const commands = {
 	setFullscreen: (fullscreen: boolean) => __TAURI_INVOKE<void>("set_fullscreen", { fullscreen }),
 	/**  タスク中断 */
 	cancelTask: (taskId: number) => __TAURI_INVOKE<void>("cancel_task", { taskId }),
+	/**  コピー、移動時の確認に対する応答 */
+	respondToTask: (taskId: number, response: TaskResponse) => __TAURI_INVOKE<void>("respond_to_task", { taskId, response }),
 	/**  ダミー */
 	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent, copyMove: FilePasteNotifyEvent) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove, copyMove }),
 	/**  タブ作成 (絶対パス) */
@@ -54,7 +56,7 @@ export const commands = {
 	 */
 	getFilesProperty: (tabId: number, fileIds: string[], taskId: number) => typedError<null, string>(__TAURI_INVOKE("get_files_property", { tabId, fileIds, taskId })),
 	/**  ファイルを Ctrl+X,Ctrl+C */
-	fileCutOrCopyToClipboard: (mode: CutOrCopy, tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("file_cut_or_copy_to_clipboard", { mode, tabId, fileIds })),
+	fileCutOrCopyToClipboard: (mode: MoveOrCopy, tabId: number, fileIds: string[]) => typedError<null, string>(__TAURI_INVOKE("file_cut_or_copy_to_clipboard", { mode, tabId, fileIds })),
 	/**  ファイルを Ctrl+V */
 	filePasteFromClipboard: (taskId: number, tabId: number) => typedError<ClipboardPasteResult, string>(__TAURI_INVOKE("file_paste_from_clipboard", { taskId, tabId })),
 	/**  ローマ字入力からファイル名をあいまい検索 */
@@ -116,10 +118,12 @@ export type AppPreferences = {
 
 /**  クリップボードからファイルをペーストした結果 */
 export type ClipboardPasteResult = 
-/**  クリップボードにファイルがなかった */
+/**  クリップボードにファイルがなかったので何もしない */
 { type: "NoFiles" } | 
+/**  不正なパスなので何もしない */
+{ type: "InvalidPath"; path: string } | 
 /**  Cutされた結果を移動中 */
-{ type: "ProgressCut" } | 
+{ type: "ProgressMove" } | 
 /**  Copyされた結果をコピー中 */
 { type: "ProgressCopy" };
 
@@ -131,9 +135,6 @@ export type ClipboardPasteResult =
 export type CreateTabError = {
 	msg: string,
 };
-
-/**  ファイルのカットかコピーか */
-export type CutOrCopy = { type: "Cut" } | { type: "Copy" };
 
 /**  width, height を持つ構造体 */
 export type Dimension = {
@@ -186,6 +187,7 @@ export type FileOpResult =
 /**  ファイルコピー、移動 ([`file_paste_from_clipboard()`](crate::commands::fs_clipboard::file_paste_from_clipboard)) の途中経過を通知するイベント構造体 */
 export type FilePasteNotifyEvent = {
 	task_id: number,
+	is_copy: boolean,
 	head: TaskEventHeader,
 	progress: TaskEventFileProgress,
 };
@@ -252,6 +254,9 @@ export type GetThumbnailResult =
 /**  プログラム起動 ([`invoke_program()`](crate::commands::app::invoke_program)) の結果 */
 export type InvokeProgramResult = "Success" | { Fail: string };
 
+/**  ファイルのカットかコピーか */
+export type MoveOrCopy = { type: "Move" } | { type: "Copy" };
+
 /**  ファイル削除 ([`remove_files()`](crate::commands::fs::remove_files)) の途中経過を通知するイベント構造体 */
 export type RemoveFilesNotifyEvent = {
 	task_id: number,
@@ -289,6 +294,16 @@ export type TabInfoUI = {
 	path: string,
 };
 
+export type TaskAnswer = 
+/**  リネーム (file, dir) */
+{ type: "Rename" } | 
+/**  マージ (コピー時の dir) */
+{ type: "Merge" } | 
+/**  スキップ (file, dir) */
+{ type: "Skip" } | 
+/**  キャンセル */
+{ type: "Cancel" };
+
 /**  タスクの処理経過情報の共通情報 */
 export type TaskEventFileProgress = {
 	/**  トータルファイルサイズ */
@@ -313,6 +328,12 @@ export type TaskEventHeader = {
 	canceled: boolean,
 	/**  エラー発生時 (finished == true の場合) */
 	error_msg: string | null,
+};
+
+/**  Task問い合わせの応答 */
+export type TaskResponse = {
+	answer: TaskAnswer,
+	always: boolean,
 };
 
 /* Tauri Specta runtime */

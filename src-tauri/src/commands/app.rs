@@ -4,13 +4,9 @@ use std::{process::Command, sync::Arc};
 use tauri::{AppHandle, State, Window};
 
 use crate::{
-    state::app_state::AppState,
-    types::{
-        AppConstants, FilePasteNotifyEvent, FileUpdateNotifyEvent, GetFilesPropertyNotifyEvent,
-        InvokeProgramResult::{self, Fail, Success},
-        RemoveFilesNotifyEvent, TaskId,
+    LOG_RESULT, state::app_state::AppState, types::{
+        AppConstants, FilePasteNotifyEvent, FileUpdateNotifyEvent, GetFilesPropertyNotifyEvent, InvokeProgramResult::{self, Fail, Success}, RemoveFilesNotifyEvent, TaskId, TaskResponse,
     },
-    LOG_RESULT,
 };
 
 #[tauri::command]
@@ -78,6 +74,14 @@ async fn invoke_program_impl(
 pub fn cancel_task(state: State<'_, Arc<AppState>>, task_id: TaskId) {
     log::info!("command::cancel_task({})", task_id);
     state.get_task(task_id).cancel_task();
+}
+
+#[tauri::command]
+#[specta::specta]
+/// コピー、移動時の確認に対する応答
+pub fn respond_to_task(state: State<'_, Arc<AppState>>, task_id: TaskId, response: TaskResponse) {
+    log::trace!("respond_to_task({},...)", task_id);
+    state.get_task(task_id).set_response(response);
 }
 
 #[tauri::command]

@@ -12,7 +12,7 @@ import {
 } from '../ui/alert-dialog';
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
-import { useFileDeleteProgressStore } from '@/store/file-delete-progress-store';
+import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
 import { FileProgressPanel } from './utils/FileProgressPanel';
 
 export function FileDeleteProgressDialog() {

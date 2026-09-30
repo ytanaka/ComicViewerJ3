@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
-use tauri::State;
+use tauri::{AppHandle, State};
 
 use crate::{
-    commands::{fs_util::cnv_file_ids_to_path, fs_util_move::move_paths},
-    state::{app_state::AppState, clipboard::AppClipboard},
-    types::{ClipboardPasteResult, CutOrCopy, FilePasteConfirmResponse, TabId, TaskId},
+    commands::{
+        fs_util::cnv_file_ids_to_path,
+        fs_util_move::{move_paths, MovePathsTaskContext},
+    },
+    state::{app_state::AppState, clipboard::AppClipboard, task::TaskContext},
+    types::{ClipboardPasteResult, FilePasteNotifyEvent, MoveOrCopy, TabId, TaskId, TaskResponse},
     LOG_RESULT,
 };
 
@@ -14,7 +17,7 @@ use crate::{
 /// ファイルを Ctrl+X,Ctrl+C
 pub fn file_cut_or_copy_to_clipboard(
     state: State<'_, Arc<AppState>>,
-    mode: CutOrCopy,
+    mode: MoveOrCopy,
     tab_id: TabId,
     file_ids: Vec<String>,
 ) -> Result<(), String> {
@@ -34,7 +37,7 @@ pub fn file_cut_or_copy_to_clipboard(
 
 pub fn file_cut_or_copy_to_clipboard_impl(
     state: &Arc<AppState>,
-    mode: CutOrCopy,
+    mode: MoveOrCopy,
     tab_id: TabId,
     file_ids: &[String],
 ) -> anyhow::Result<()> {
@@ -52,15 +55,17 @@ pub fn file_cut_or_copy_to_clipboard_impl(
 #[specta::specta]
 /// ファイルを Ctrl+V
 pub fn file_paste_from_clipboard(
+    app: AppHandle,
     state: State<'_, Arc<AppState>>,
     task_id: TaskId,
     tab_id: TabId,
 ) -> Result<ClipboardPasteResult, String> {
     LOG_RESULT!(format!("file_paste_clipboard({},{})", task_id, tab_id), {
-        file_paste_from_clipboard_impl(&state, task_id, tab_id).map_err(|e| e.to_string())
+        file_paste_from_clipboard_impl(app, &state, task_id, tab_id).map_err(|e| e.to_string())
     })
 }
 pub fn file_paste_from_clipboard_impl(
+    app: AppHandle,
     state: &Arc<AppState>,
     task_id: TaskId,
     tab_id: TabId,
@@ -74,7 +79,7 @@ pub fn file_paste_from_clipboard_impl(
     };
 
     // デフォルトはコピーモード
-    let mut mode = CutOrCopy::Copy;
+    let mut mode = MoveOrCopy::Copy;
     {
         let mut app_clip = state.clipboard.lock().unwrap();
         match &*app_clip {
@@ -91,29 +96,37 @@ pub fn file_paste_from_clipboard_impl(
         }
     }
 
+    // パスの存在チェック
+    for p in &paths {
+        if !p.exists() {
+            return Ok(ClipboardPasteResult::InvalidPath {
+                path: p.to_string_lossy().to_string(),
+            });
+        }
+    }
+
+    // コピーか移動か
     match mode {
-        CutOrCopy::Copy => {
+        MoveOrCopy::Copy => {
             log::error!("copy not implemented: {:?}", paths);
             // TODO
             Ok(ClipboardPasteResult::ProgressCopy)
         }
-        CutOrCopy::Cut => {
+        MoveOrCopy::Move => {
             let tab = state.get_tab(tab_id)?;
             let tab = tab.read().unwrap();
-            move_paths(task_id, &paths, tab.get_path())?;
-            Ok(ClipboardPasteResult::ProgressCut)
+            let (rx, task) = state.add_task(task_id);
+            let task_ctx: MovePathsTaskContext = TaskContext::new(
+                app,
+                state.clone(),
+                task_id,
+                task,
+                tab_id,
+                FilePasteNotifyEvent::new(task_id, false),
+                rx,
+            );
+            move_paths(task_ctx, paths, tab.get_path().to_path_buf())?;
+            Ok(ClipboardPasteResult::ProgressMove)
         }
     }
-}
-
-#[tauri::command]
-#[specta::specta]
-/// コピー、移動時の確認に対する応答
-pub fn file_paste_response(
-    state: State<'_, Arc<AppState>>,
-    task_id: TaskId,
-    response: FilePasteConfirmResponse,
-) {
-    log::trace!("file_paste_clipboard({},...)", task_id);
-    state.get_task(task_id).set_response(response);
 }

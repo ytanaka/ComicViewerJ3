@@ -1,12 +1,17 @@
 //! [`fs`](super::fs) で使用する関数
 
-use std::{path::PathBuf, sync::Arc};
+use std::{
+    ffi::OsString,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use anyhow::anyhow;
 
 use crate::{
     state::app_state::AppState,
-    types::{FileId, FileInfoOS, TabId},
+    types::{FileId, FileInfoOS, TabId, TaskEventHeader, TaskId},
 };
 
 pub fn get_tab_path(state: &AppState, tab_id: TabId) -> anyhow::Result<PathBuf> {
@@ -60,4 +65,55 @@ pub fn cnv_file_ids_to_path(
         paths.push(tab.get_path().join(&*f.name));
     }
     Ok(paths)
+}
+
+pub fn is_canceled(state: &Arc<AppState>, tab_id: TabId, task_id: TaskId) -> bool {
+    !state.has_tab(tab_id) || state.get_task(task_id).is_task_canceled()
+}
+pub fn can_emit_event(head: &mut TaskEventHeader) -> anyhow::Result<bool> {
+    let t = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
+    if t - head.event_time_ms < 100 {
+        Ok(false)
+    } else {
+        head.event_time_ms = t;
+        head.event_count += 1;
+        Ok(true)
+    }
+}
+
+pub fn get_dst_path(
+    src_path: impl AsRef<Path>,
+    dst_dir: impl AsRef<Path>,
+) -> anyhow::Result<Option<PathBuf>> {
+    let src_name = get_basename(src_path)?;
+    let dst_path = dst_dir.as_ref().to_path_buf().join(src_name);
+    if dst_path.exists() {
+        Ok(None)
+    } else {
+        Ok(Some(dst_path))
+    }
+}
+pub fn resolv_conflict_name(
+    src_path: impl AsRef<Path>,
+    dst_dir: impl AsRef<Path>,
+) -> anyhow::Result<PathBuf> {
+    let mut i = 1;
+    let src_filename = get_basename(src_path)?.to_string_lossy().to_string();
+
+    loop {
+        let name2 = format!("コピー({}) {}", i, &src_filename);
+        let dst_path = dst_dir.as_ref().join(name2);
+        if !dst_path.exists() {
+            return Ok(dst_path);
+        }
+        i += 1;
+    }
+}
+
+fn get_basename(path: impl AsRef<Path>) -> anyhow::Result<OsString> {
+    let name = path
+        .as_ref()
+        .file_name()
+        .ok_or(anyhow!("不正なパス: {:?}", path.as_ref()))?;
+    Ok(name.to_os_string())
 }
