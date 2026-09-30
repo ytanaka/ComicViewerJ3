@@ -12,6 +12,7 @@ import { dialogCommands } from './dialog-commands';
 import { usePrepareFileOperationStore } from '@/store/tauri-event/prepare-file-operation-store';
 import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
 import { MoveOrCopy } from '../bindings';
+import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
 
 function st() {
   return useTabStore.getState();
@@ -90,7 +91,6 @@ export const fileCommands = {
       const lastEvent = useFileDeleteProgressStore.getState().event;
       if (!(await dialogResult) || lastEvent?.head.finished !== true) {
         await rustcmds.cancelTask(taskId);
-        return;
       }
     }
   },
@@ -136,8 +136,13 @@ export const fileCommands = {
           break;
       }
     });
-    if (isCopy !== null) {
-      await dialogCommands.showPasteProgresDialog(tab, taskId, isCopy);
+    if (isCopy === null) return;
+
+    const dialogResponse = await dialogCommands.showPasteProgresDialog(tab, taskId, isCopy);
+
+    const lastEvent = useFilePasteProgressStore.getState().event;
+    if (!dialogResponse || lastEvent?.head.finished !== true) {
+      await rustcmds.cancelTask(taskId);
     }
   },
 

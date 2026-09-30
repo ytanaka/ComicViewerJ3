@@ -37,7 +37,12 @@ impl AppTaskWrapper {
 
     pub fn cancel_task(&mut self) {
         if let Some(t) = &self.task {
-            t.write().unwrap().canceled = true;
+            let mut t = t.write().unwrap();
+            t.canceled = true;
+            t.tx.send(TaskResponse {
+                answer: TaskAnswer::Cancel,
+                always: true,
+            }).unwrap();
         }
     }
     pub fn is_task_canceled(&self) -> bool {

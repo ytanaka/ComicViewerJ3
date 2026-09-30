@@ -19,6 +19,7 @@ export interface FilePasteProgressStore {
     isCopy: boolean,
     resolve: (value: boolean) => void,
   ) => void;
+  
   setNotifyEvent: (ev: FilePasteNotifyEvent) => void;
 }
 
