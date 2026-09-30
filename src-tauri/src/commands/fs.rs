@@ -11,10 +11,8 @@ use tauri::{AppHandle, Emitter, State};
 use walkdir::WalkDir;
 
 use crate::{
-    commands::fs_util::{
-        can_emit_event, cnv_file_ids_to_path, is_canceled, is_valid_filename, parse_file_id_str,
-    },
-    state::app_state::AppState,
+    commands::fs_util::{cnv_file_ids_to_path, is_valid_filename, parse_file_id_str},
+    state::{app_state::AppState, task::TaskContext},
     types::{
         FileOpResult, GetFilesPropertyNotifyEvent, RemoveFilesNotifyEvent, TabId, TaskId,
         EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, EVENT_NAME_GET_FILES_PROPERTY_NOTIFY,
@@ -143,6 +141,8 @@ async fn rename_file_impl(
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+type RemoveFilesTaskContext = TaskContext<RemoveFilesNotifyEvent>;
+
 #[tauri::command]
 #[specta::specta]
 /// 削除
@@ -153,6 +153,14 @@ pub async fn remove_files(
     file_ids: Vec<String>,
     task_id: TaskId,
 ) -> Result<(), String> {
+    let state: &Arc<AppState> = &state;
+    let ctx = TaskContext::new(
+        app,
+        state.clone(),
+        task_id,
+        tab_id,
+        RemoveFilesNotifyEvent::new(task_id),
+    );
     LOG_RESULT!(
         format!(
             "remove_file(tab:{}, file:[len={}], task:{})",
@@ -161,76 +169,59 @@ pub async fn remove_files(
             task_id
         ),
         {
-            remove_files_impl1(app, &state, tab_id, &file_ids, task_id)
+            remove_files_impl1(ctx, &file_ids)
                 .await
                 .map_err(|e| e.to_string())
         }
     )
 }
 async fn remove_files_impl1(
-    app: AppHandle,
-    state: &Arc<AppState>,
-    tab_id: TabId,
+    ctx: RemoveFilesTaskContext,
     file_ids: &[String],
-    task_id: TaskId,
 ) -> anyhow::Result<()> {
-    let paths = cnv_file_ids_to_path(state, tab_id, file_ids)?;
-    let task = state.add_task(task_id);
+    let paths = cnv_file_ids_to_path(&ctx.state, ctx.tab_id, file_ids)?;
 
-    let state2 = state.clone();
     tauri::async_runtime::spawn(async move {
-        let _task = task; // タスクが終わるまで state から消えないように保持する
-        let mut ev = RemoveFilesNotifyEvent::new(task_id);
-        let ret = remove_files_impl2(&app, &state2, tab_id, task_id, paths, &mut ev).await;
+        let mut ctx = ctx;
+        let ret = remove_files_impl2(&mut ctx, paths).await;
 
         match ret {
             Ok(_) => {
-                ev.head.error_msg = None;
+                ctx.event.head.error_msg = None;
             }
             Err(e) => {
-                ev.head.error_msg = Some(e.to_full_string());
+                ctx.event.head.error_msg = Some(e.to_full_string());
                 log::error!(
                     "remove_files: error task_id={}, {}",
-                    task_id,
+                    ctx.task_id,
                     e.to_full_string()
                 );
             }
         }
-        ev.head.finished = true;
-        ev.head.canceled = is_canceled(&state2, tab_id, task_id);
-        ev.head.event_time_ms = 0; // 最後なので必ず通知させる
-        let _ = emit_event_remove_files(&app, &mut ev).err().map(|e| {
-            log::error!("remove_files: notify error task_id={}, {}", task_id, e);
+        ctx.event.head.finished = true;
+        ctx.event.head.canceled = ctx.is_canceled();
+        ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
+        let _ = emit_event_remove_files(&mut ctx).err().map(|e| {
+            log::error!("remove_files: notify error task_id={}, {}", ctx.task_id, e);
         });
     });
     Ok(())
 }
 async fn remove_files_impl2(
-    app: &AppHandle,
-    state: &Arc<AppState>,
-    tab_id: TabId,
-    task_id: TaskId,
+    ctx: &mut RemoveFilesTaskContext,
     paths: Vec<PathBuf>,
-    ev: &mut RemoveFilesNotifyEvent,
 ) -> anyhow::Result<()> {
     for path in paths {
-        if is_canceled(state, tab_id, task_id) {
+        if ctx.is_canceled() {
             break;
         }
-        remove_files_impl3(app, state, tab_id, task_id, path, ev).await?;
+        remove_files_impl3(ctx, path).await?;
     }
     Ok(())
 }
-async fn remove_files_impl3(
-    app: &AppHandle,
-    state: &Arc<AppState>,
-    tab_id: TabId,
-    task_id: TaskId,
-    path: PathBuf,
-    ev: &mut RemoveFilesNotifyEvent,
-) -> anyhow::Result<()> {
+async fn remove_files_impl3(ctx: &mut RemoveFilesTaskContext, path: PathBuf) -> anyhow::Result<()> {
     for walk in WalkDir::new(path).contents_first(true) {
-        if is_canceled(state, tab_id, task_id) {
+        if ctx.is_canceled() {
             return Ok(());
         }
 
@@ -240,16 +231,16 @@ async fn remove_files_impl3(
             return Err(anyhow!("リンクは削除できません: {:?}", f.path()));
         } else if meta.is_dir() {
             rm_dir(f.path()).context(format!("{}", f.path().to_string_lossy()))?;
-            ev.progress.dires += 1;
+            ctx.event.progress.dires += 1;
         } else {
             rm_file(f.path()).context(format!("{}", f.path().to_string_lossy()))?;
-            ev.progress.files += 1;
-            ev.progress.size += meta.len();
+            ctx.event.progress.files += 1;
+            ctx.event.progress.size += meta.len();
         }
 
-        emit_event_remove_files(app, ev)?;
+        emit_event_remove_files(ctx)?;
 
-        let pref = state.preferences.read().unwrap();
+        let pref = ctx.state.preferences.read().unwrap();
         let sleep = pref.debug_file_op_sleep_ms;
         if 0 < sleep {
             std::thread::sleep(Duration::from_millis(sleep as u64));
@@ -289,8 +280,18 @@ fn get_alt_path(path: impl AsRef<Path>, err: &std::io::Error) -> Option<PathBuf>
     }
     None
 }
+fn emit_event_remove_files(ctx: &mut RemoveFilesTaskContext) -> anyhow::Result<()> {
+    if !ctx.can_emit_event()? {
+        return Ok(());
+    }
+    ctx.app
+        .emit(EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, ctx.event.clone())?;
+    Ok(())
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
+type GetFilesPropertyTaskContext = TaskContext<GetFilesPropertyNotifyEvent>;
+
 #[tauri::command]
 #[specta::specta]
 /// ファイル／ディレクトリの情報取得
@@ -302,6 +303,14 @@ pub async fn get_files_property(
     file_ids: Vec<String>,
     task_id: TaskId,
 ) -> Result<(), String> {
+    let state: &Arc<AppState> = &state;
+    let ctx = TaskContext::new(
+        app,
+        state.clone(),
+        task_id,
+        tab_id,
+        GetFilesPropertyNotifyEvent::new(task_id),
+    );
     LOG_RESULT!(
         format!(
             "get_files_property(tab:{},file:[len={}], task:{})",
@@ -310,44 +319,38 @@ pub async fn get_files_property(
             task_id,
         ),
         {
-            get_files_property_impl1(app, &state, tab_id, &file_ids, task_id)
+            get_files_property_impl1(ctx, &file_ids)
                 .await
                 .map_err(|e| e.to_string())
         }
     )
 }
 async fn get_files_property_impl1(
-    app: AppHandle,
-    state: &Arc<AppState>,
-    tab_id: TabId,
+    ctx: GetFilesPropertyTaskContext,
     file_ids: &[String],
-    task_id: TaskId,
 ) -> anyhow::Result<()> {
-    let paths = cnv_file_ids_to_path(state, tab_id, file_ids)?;
-    let task = state.add_task(task_id);
+    let paths = cnv_file_ids_to_path(&ctx.state, ctx.tab_id, file_ids)?;
 
-    let state2 = state.clone();
     tauri::async_runtime::spawn(async move {
-        let _task = task; // タスクが終わるまで state から消えないように保持する
-        let mut ev = GetFilesPropertyNotifyEvent::new(task_id);
-        let ret = get_files_property_impl2(&app, &state2, tab_id, task_id, paths, &mut ev).await;
+        let mut ctx = ctx;
+        let ret = get_files_property_impl2(&mut ctx, paths).await;
 
         match ret {
             Ok(_) => {
-                ev.head.error_msg = None;
+                ctx.event.head.error_msg = None;
             }
             Err(e) => {
-                ev.head.error_msg = Some(e.to_string());
-                log::error!("get_files_property: error task_id={}, {}", task_id, e);
+                ctx.event.head.error_msg = Some(e.to_string());
+                log::error!("get_files_property: error task_id={}, {}", ctx.task_id, e);
             }
         }
-        ev.head.finished = true;
-        ev.head.canceled = is_canceled(&state2, tab_id, task_id);
-        ev.head.event_time_ms = 0; // 最後なので必ず通知させる
-        let _ = emit_event_get_files_property(&app, &mut ev).err().map(|e| {
+        ctx.event.head.finished = true;
+        ctx.event.head.canceled = ctx.is_canceled();
+        ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
+        let _ = emit_event_get_files_property(&mut ctx).err().map(|e| {
             log::error!(
                 "get_files_property: notify error task_id={}, {}",
-                task_id,
+                ctx.task_id,
                 e
             );
         });
@@ -355,64 +358,47 @@ async fn get_files_property_impl1(
     Ok(())
 }
 async fn get_files_property_impl2(
-    app: &AppHandle,
-    state: &Arc<AppState>,
-    tab_id: TabId,
-    task_id: TaskId,
+    ctx: &mut GetFilesPropertyTaskContext,
     paths: Vec<PathBuf>,
-    result_event: &mut GetFilesPropertyNotifyEvent,
 ) -> anyhow::Result<()> {
     for path in paths {
-        if is_canceled(state, tab_id, task_id) {
+        if ctx.is_canceled() {
             break;
         }
-        get_files_property_impl3(app, state, tab_id, task_id, path, result_event).await?;
+        get_files_property_impl3(ctx, path).await?;
     }
     Ok(())
 }
 async fn get_files_property_impl3(
-    app: &AppHandle,
-    state: &Arc<AppState>,
-    tab_id: TabId,
-    task_id: TaskId,
+    ctx: &mut GetFilesPropertyTaskContext,
     path: PathBuf,
-    result_event: &mut GetFilesPropertyNotifyEvent,
 ) -> anyhow::Result<()> {
     for walk in WalkDir::new(path) {
-        if is_canceled(state, tab_id, task_id) {
+        if ctx.is_canceled() {
             return Ok(());
         }
 
         let f = walk?;
         let meta = f.metadata()?;
         if meta.is_symlink() {
-            result_event.progress.symlinks += 1;
+            ctx.event.progress.symlinks += 1;
         } else if meta.is_dir() {
-            result_event.progress.dires += 1;
+            ctx.event.progress.dires += 1;
         } else {
-            result_event.progress.files += 1;
-            result_event.progress.size += meta.len();
+            ctx.event.progress.files += 1;
+            ctx.event.progress.size += meta.len();
         }
 
-        emit_event_get_files_property(app, result_event)?;
+        emit_event_get_files_property(ctx)?;
     }
 
     Ok(())
 }
-fn emit_event_get_files_property(
-    app: &AppHandle,
-    ev: &mut GetFilesPropertyNotifyEvent,
-) -> anyhow::Result<()> {
-    if !can_emit_event(&mut ev.head)? {
+fn emit_event_get_files_property(ctx: &mut GetFilesPropertyTaskContext) -> anyhow::Result<()> {
+    if !ctx.can_emit_event()? {
         return Ok(());
     }
-    app.emit(EVENT_NAME_GET_FILES_PROPERTY_NOTIFY, ev.clone())?;
-    Ok(())
-}
-fn emit_event_remove_files(app: &AppHandle, ev: &mut RemoveFilesNotifyEvent) -> anyhow::Result<()> {
-    if !can_emit_event(&mut ev.head)? {
-        return Ok(());
-    }
-    app.emit(EVENT_NAME_FILE_DELETE_PROGRESS_NOTIFY, ev.clone())?;
+    ctx.app
+        .emit(EVENT_NAME_GET_FILES_PROPERTY_NOTIFY, ctx.event.clone())?;
     Ok(())
 }

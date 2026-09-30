@@ -4,14 +4,13 @@ use std::{
     ffi::OsString,
     path::{Path, PathBuf},
     sync::Arc,
-    time::{SystemTime, UNIX_EPOCH},
 };
 
 use anyhow::anyhow;
 
 use crate::{
     state::app_state::AppState,
-    types::{FileId, FileInfoOS, TabId, TaskEventHeader, TaskId},
+    types::{FileId, FileInfoOS, TabId},
 };
 
 pub fn get_tab_path(state: &AppState, tab_id: TabId) -> anyhow::Result<PathBuf> {
@@ -65,20 +64,6 @@ pub fn cnv_file_ids_to_path(
         paths.push(tab.get_path().join(&*f.name));
     }
     Ok(paths)
-}
-
-pub fn is_canceled(state: &Arc<AppState>, tab_id: TabId, task_id: TaskId) -> bool {
-    !state.has_tab(tab_id) || state.get_task(task_id).is_task_canceled()
-}
-pub fn can_emit_event(head: &mut TaskEventHeader) -> anyhow::Result<bool> {
-    let t = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
-    if t - head.event_time_ms < 100 {
-        Ok(false)
-    } else {
-        head.event_time_ms = t;
-        head.event_count += 1;
-        Ok(true)
-    }
 }
 
 pub fn get_dst_path(
