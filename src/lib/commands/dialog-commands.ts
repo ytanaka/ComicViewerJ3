@@ -3,9 +3,10 @@ import { useOkCancelDialogStore } from '@/components/dialogs/OkCancelDialog';
 import { usePrepareFileOperationStore } from '@/store/tauri-event/prepare-file-operation-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { DirEntry, TabInfo, TaskId } from '../bindings-wrapper';
-import { GetFilesPropertyNotifyEvent } from '../bindings';
+import { FilePasteConfirmEvent, GetFilesPropertyNotifyEvent, TaskResponse } from '../bindings';
 import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
 import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
+import { useFilePasteConfirmDialogStore } from '@/components/dialogs/FilePasteConfirmDialog';
 
 export const dialogCommands = {
   // 現在ダイアログが開いているか判定
@@ -16,7 +17,9 @@ export const dialogCommands = {
       useUiVolatileStore.getState().showOkCancelDialog ||
       useUiVolatileStore.getState().showInputDialog ||
       useUiVolatileStore.getState().showPrepareFileOperationDialog ||
-      useUiVolatileStore.getState().showFileDeleteProgressDialog
+      useUiVolatileStore.getState().showFileDeleteProgressDialog ||
+      useUiVolatileStore.getState().showFilePasteProgressDialog ||
+      useUiVolatileStore.getState().showFilePasteConfirmDialog
     );
   },
 
@@ -82,5 +85,16 @@ export const dialogCommands = {
     return new Promise<boolean>(resolve => {
       useFilePasteProgressStore.getState().showDialog(tab, taskId, isCopy, resolve);
     });
-  }
+  },
+  closePasteProgresDialog() {
+    useFilePasteProgressStore.getState().closeDialog();
+  },
+
+
+  showFilePasteConfirmDialog(ev: FilePasteConfirmEvent): Promise<TaskResponse> {
+    return new Promise<TaskResponse>(resolve => {
+      useFilePasteConfirmDialogStore.getState().showDialog(ev, resolve);
+    });
+  },
+
 };

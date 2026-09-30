@@ -23,6 +23,7 @@ import { TauriFileDeleteProgressEventListener } from './lib/tauri-event-listener
 import { TauriFilePasteProgressEventListener } from './lib/tauri-event-listener/file-paste-progress';
 import { TauriFilePasteConfirmEventListener } from './lib/tauri-event-listener/file-paste-confirm';
 import { FilePasteProgressDialog } from './components/dialogs/FilePasteProgressDialog';
+import { FilePasteConfirmDialog } from './components/dialogs/FilePasteConfirmDialog';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -51,6 +52,7 @@ function App() {
         <PrepareFileOperationDialog />
         <FileDeleteProgressDialog />
         <FilePasteProgressDialog />
+        <FilePasteConfirmDialog />
 
         <TauriFilePasteProgressEventListener />
         <TauriFilePasteConfirmEventListener />

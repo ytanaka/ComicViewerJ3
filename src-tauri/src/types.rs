@@ -631,6 +631,7 @@ impl FilePasteNotifyEvent {
 /// ファイルコピー、移動時の重複ファイル処理確認イベント
 pub struct FilePasteConfirmEvent {
     pub task_id: TaskId,
+    pub mode: MoveOrCopy,
     /// 元パス
     pub src_path: String,
     /// 先パス

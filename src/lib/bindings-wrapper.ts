@@ -15,6 +15,8 @@ import {
   TabInfoUI,
   FileOpResult,
   MoveOrCopy,
+  TaskAnswer,
+  TaskResponse,
 } from './bindings';
 import { logErr } from './tools/log';
 import { dialogCommands } from './commands/dialog-commands';
@@ -32,6 +34,9 @@ export const rustcmds = {
 
   cancelTask: (taskId: TaskId) => {
     return commands.cancelTask(taskId);
+  },
+  respondToTask: (taskId: TaskId, response: TaskResponse) => {
+    return commands.respondToTask(taskId, response);
   },
 
   createTab: (path: string) => {
@@ -171,7 +176,7 @@ export function mkAppPreferencesDefault(): AppPreferences {
   // この関数が呼ばれるのは rustcmds.loadPreferences() がエラーを返した時なので、実際には呼ばれないはず
   return {
     debug_filename_search_sleep_ms: 0,
-    debug_remove_files_sleep_ms: 0,
+    debug_file_op_sleep_ms: 0,
     filename_sort_strength: 'Identical',
     filename_cmp: { type: 'Icu' },
     filename_cmp_by_digit: false,
@@ -199,6 +204,7 @@ function cnvOk<F, T>(
 
 export type SortType_type = SortType['type'];
 export type FilenameCmpType_type = FilenameCmpType['type'];
+export type TaskAnswer_type = TaskAnswer['type'];
 
 let nextTaskId = 101;
 export function getNextTaskId(): TaskId {

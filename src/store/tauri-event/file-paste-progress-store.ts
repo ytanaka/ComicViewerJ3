@@ -19,6 +19,7 @@ export interface FilePasteProgressStore {
     isCopy: boolean,
     resolve: (value: boolean) => void,
   ) => void;
+  closeDialog: () => void;
   
   setNotifyEvent: (ev: FilePasteNotifyEvent) => void;
 }
@@ -44,6 +45,10 @@ export const useFilePasteProgressStore = create<FilePasteProgressStore>()((set, 
       return { tab, taskId, isCopy, resolve, event: null };
     });
   },
+  closeDialog: () => {
+    useUiVolatileStore.getState().setField('showFilePasteProgressDialog', false);
+  },
+  
 
   setNotifyEvent: (ev: FilePasteNotifyEvent) => {
     if (get().taskId !== ev.task_id) {

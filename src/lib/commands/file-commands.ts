@@ -119,6 +119,10 @@ export const fileCommands = {
     if (!tab) return;
 
     const taskId = getNextTaskId();
+
+    // 途中経過ダイアログを表示してからペースト開始
+    // ※ 先に表示しておかないと、Rustから重複ファイルの確認が先に来てしまうから
+    const dialogResponse = dialogCommands.showPasteProgresDialog(tab, taskId, false);
     const result = await rustcmds.filePasteFromClipboard(taskId, tab.id);
     let isCopy: boolean | null = null;
     handleRustCmdResult(result, `rustcmds.filePasteFromClipboard(${tab.id})`, 'ファイル貼り付け', async (data) => {
@@ -136,9 +140,14 @@ export const fileCommands = {
           break;
       }
     });
-    if (isCopy === null) return;
+    if (isCopy === null) {
+      // ペーストしなかったら、ダイアログを閉じる
+      dialogCommands.closePasteProgresDialog();
+      return;
+    }
 
-    const dialogResponse = await dialogCommands.showPasteProgresDialog(tab, taskId, isCopy);
+    // ダイアログが閉じるのを待つ
+    await dialogResponse;
 
     const lastEvent = useFilePasteProgressStore.getState().event;
     if (!dialogResponse || lastEvent?.head.finished !== true) {

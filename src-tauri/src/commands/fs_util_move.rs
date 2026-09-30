@@ -59,7 +59,7 @@ async fn move_paths_impl1(
 ) -> anyhow::Result<()> {
     for src_path in src_paths {
         if ctx.is_canceled() {
-            return Err(anyhow!("キャンセルされました"));
+            return Ok(());
         }
         move_paths_impl2(ctx, src_path, &dst_dir).await?;
     }
@@ -86,7 +86,10 @@ async fn move_paths_impl2(
                     // 問い合わせて回答を受け取る
                     let response = ask_to_ui(ctx, &src_path, &dst_dir, true).await?;
                     match response.answer {
-                        TaskAnswer::Cancel => return Err(anyhow!("キャンセルされました")),
+                        TaskAnswer::Cancel => {
+                            ctx.cancel_task();
+                            return Ok(());
+                        }
                         TaskAnswer::Skip => {
                             if response.always {
                                 ctx.answer = Some(TaskAnswer::Skip);
@@ -127,6 +130,7 @@ async fn ask_to_ui(
 ) -> anyhow::Result<TaskResponse> {
     let ev = FilePasteConfirmEvent {
         task_id: ctx.task_id,
+        mode: crate::types::MoveOrCopy::Move,
         src_path: src_path.as_ref().to_string_lossy().to_string(),
         dst_dir: dst_dir.as_ref().to_string_lossy().to_string(),
         is_file,

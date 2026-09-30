@@ -187,6 +187,7 @@ export type FileOpResult =
 /**  ファイルコピー、移動時の重複ファイル処理確認イベント */
 export type FilePasteConfirmEvent = {
 	task_id: number,
+	mode: MoveOrCopy,
 	/**  元パス */
 	src_path: string,
 	/**  先パス */

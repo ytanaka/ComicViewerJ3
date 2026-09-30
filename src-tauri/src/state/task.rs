@@ -103,4 +103,8 @@ impl<E> TaskContext<E> {
         let now = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
         Ok(100 < now - self.event_emit_time_ms)
     }
+
+    pub fn cancel_task(&mut self) {
+        self.state.get_task(self.task_id).cancel_task();
+    }
 }
