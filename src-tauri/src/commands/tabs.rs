@@ -22,6 +22,7 @@ use crate::{
     types::{
         CreateTabError, DirEntryUI, Either, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI,
     },
+    util::vec_to_str,
     LOG_RESULT,
 };
 
@@ -74,11 +75,11 @@ async fn log_create_tab_result(
     let result = result.await;
     match &result {
         Err(e) => {
-            log::trace!("{comment}: Err({e})");
+            log::trace!("commands::{comment}: Err({e})");
         }
         Ok(r) => match &r.data {
             Either::Left(err) => {
-                log::debug!("{comment}: Ok(msg:{})", err.msg);
+                log::debug!("commands::{comment}: Ok(msg:{})", err.msg);
             }
             Either::Right(result) => {
                 let msg = match (result.1, result.2) {
@@ -86,7 +87,7 @@ async fn log_create_tab_result(
                     _ => "[]".to_string(),
                 };
                 log::trace!(
-                    "{comment}: Ok({}, {msg}) total tabs = {}, {}ms",
+                    "commands::{comment}: Ok({}, {msg}) total tabs = {}, {}ms",
                     result.0.id,
                     state.tabs.len(),
                     t0.elapsed().as_millis(),
@@ -365,7 +366,7 @@ fn remove_tab_impl(state: &AppState, tab_id: TabId) -> Result<(), String> {
 #[specta::specta]
 /// タブ一覧
 pub fn get_tabs(state: State<'_, Arc<AppState>>) -> Vec<TabInfoUI> {
-    log::trace!("get_tabs()");
+    log::trace!("commands::get_tabs()");
     get_tabs_impl(&state)
 }
 fn get_tabs_impl(state: &AppState) -> Vec<TabInfoUI> {
@@ -406,19 +407,12 @@ pub async fn get_file_infos(
     tab_id: TabId,
     file_ids: Vec<String>,
 ) -> Result<Vec<FileInfoUI>, String> {
-    let mut arg: String = "".to_string();
-    if !file_ids.is_empty() {
-        arg = format!(
-            "{}:{}-{}",
-            file_ids.len(),
-            file_ids[0],
-            file_ids[file_ids.len() - 1]
-        );
-    }
-    log::trace!("get_file_infos({}, [{}]) start", tab_id, arg);
-    get_file_infos_impl(&state, tab_id, file_ids)
-        .await
-        .map_err(|e| e.to_string())
+    let comment = format!("get_file_infos({}, [{}])", tab_id, vec_to_str(&file_ids));
+    LOG_RESULT!(comment, {
+        get_file_infos_impl(&state, tab_id, file_ids)
+            .await
+            .map_err(|e| e.to_string())
+    })
 }
 async fn get_file_infos_impl(
     state: &AppState,

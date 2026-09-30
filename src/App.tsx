@@ -47,12 +47,12 @@ function App() {
 
         <PreferencesDialog />
         <BookmarkManager />
-        <OkCancelDialog />
-        <InputDialog />
         <PrepareFileOperationDialog />
         <FileDeleteProgressDialog />
         <FilePasteProgressDialog />
         <FilePasteConfirmDialog />
+        <InputDialog />
+        <OkCancelDialog />
 
         <TauriFilePasteProgressEventListener />
         <TauriTaskConfirmEventListener />

@@ -84,7 +84,7 @@ pub fn cancel_task(state: State<'_, Arc<AppState>>, task_id: TaskId) {
 #[specta::specta]
 /// コピー、移動時の確認に対する応答
 pub fn respond_to_task(state: State<'_, Arc<AppState>>, task_id: TaskId, response: TaskResponse) {
-    log::trace!("respond_to_task({},...)", task_id);
+    log::trace!("respond_to_task({},{})", task_id, response);
     state.get_task(task_id).set_response(response);
 }
 

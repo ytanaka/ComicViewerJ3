@@ -129,12 +129,12 @@ async fn ask_to_ui(
 ) -> anyhow::Result<FilePasteResponse> {
     let ev = TaskConfirm::new_paste(ctx.task_id, "move", src_path, dst_dir);
     // UIにイベントを送る
-    log::trace!("send to ui TaskConfirm: {}", ev.to_string());
+    log::trace!("send to ui TaskConfirm: {}", ev);
     ctx.app.emit(EVENT_NAME_TASK_CONFIRM, ev)?;
 
     // UIの応答を待つ
     let ret = ctx.rx.recv()?;
-    log::trace!("receive from ui TaskResponse: {}", ret.to_string());
+    log::trace!("receive from ui TaskResponse: {}", ret);
 
     let ret = FilePasteResponse::from(ret).ok_or(anyhow!("invalid TaskResponse"))?;
     Ok(ret)

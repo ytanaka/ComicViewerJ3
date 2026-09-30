@@ -20,7 +20,7 @@ use image::ImageBuffer;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
-use crate::util::parse_bool;
+use crate::util::{parse_bool, vec_to_str};
 
 // =====================================================================================================================
 
@@ -642,8 +642,8 @@ impl FilePasteResponse {
         if r.t != TaskType::Paste {
             return None;
         }
-        let arg0 = r.args.get(0).and_then(|s| FilePasteAnswer::parse(s));
-        let arg1 = r.args.first().and_then(|s| parse_bool(s));
+        let arg0 = r.args.first().and_then(|s| FilePasteAnswer::parse(s));
+        let arg1 = r.args.get(1).and_then(|s| parse_bool(s));
         match (arg0, arg1) {
             (Some(a), Some(b)) => Some(Self {
                 answer: a,
@@ -662,10 +662,10 @@ pub enum FilePasteAnswer {
 impl FilePasteAnswer {
     pub fn parse(s: &str) -> Option<Self> {
         let ret = match s {
-            "rename" => FilePasteAnswer::Rename,
-            "merge" => FilePasteAnswer::Merge,
-            "skip" => FilePasteAnswer::Skip,
-            "cancel" => FilePasteAnswer::Cancel,
+            "Rename" => FilePasteAnswer::Rename,
+            "Merge" => FilePasteAnswer::Merge,
+            "Skip" => FilePasteAnswer::Skip,
+            "Cancel" => FilePasteAnswer::Cancel,
             _ => return None,
         };
         Some(ret)
@@ -683,7 +683,13 @@ pub struct TaskConfirm {
 }
 impl Display for TaskConfirm {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "task_id:{},{:?}", self.task_id, self.t)
+        write!(
+            f,
+            "task_id:{},{:?},{}",
+            self.task_id,
+            self.t,
+            vec_to_str(&self.args)
+        )
     }
 }
 impl TaskConfirm {
@@ -714,7 +720,13 @@ pub struct TaskResponse {
 }
 impl Display for TaskResponse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "task_id:{},{:?}", self.task_id, self.t)
+        write!(
+            f,
+            "task_id:{},{:?},{}",
+            self.task_id,
+            self.t,
+            vec_to_str(&self.args)
+        )
     }
 }
 impl TaskResponse {

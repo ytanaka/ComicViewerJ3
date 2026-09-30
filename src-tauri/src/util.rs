@@ -10,8 +10,8 @@ macro_rules! LOG_RESULT {
         let msg2 = $msg; // ここで代入しないと、$msg に format!("{}", String) を渡せない
         let result = { $block };
         match &result {
-            Ok(_) => log::trace!("{}: Ok", msg2),
-            Err(e) => log::trace!("{}: Err({})", msg2, e),
+            Ok(_) => log::trace!("commands::{}: Ok", msg2),
+            Err(e) => log::trace!("commands::{}: Err({})", msg2, e),
         }
         result
     }};
@@ -72,7 +72,7 @@ where
         ret = ret.chars().take(MAX_VEC_STR).collect();
         ret.push_str("...");
     }
-    format!("Vec[{}, {}]", v.len(), ret)
+    format!("vec[{}: {}]", v.len(), ret)
 }
 pub fn vec_to_str<T: Display>(v: &[T]) -> String {
     vec_to_str_generic(v, |s| ToString::to_string(s))

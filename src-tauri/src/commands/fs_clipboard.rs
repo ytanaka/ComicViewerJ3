@@ -23,7 +23,7 @@ pub fn file_cut_or_copy_to_clipboard(
 ) -> Result<(), String> {
     LOG_RESULT!(
         format!(
-            "file_cut_clipboard({:?},{},[{}])",
+            "file_cut_or_copy_to_clipboard({:?},{},[{}])",
             mode,
             tab_id,
             file_ids.len()
@@ -60,9 +60,10 @@ pub fn file_paste_from_clipboard(
     task_id: TaskId,
     tab_id: TabId,
 ) -> Result<ClipboardPasteResult, String> {
-    LOG_RESULT!(format!("file_paste_clipboard({},{})", task_id, tab_id), {
-        file_paste_from_clipboard_impl(app, &state, task_id, tab_id).map_err(|e| e.to_string())
-    })
+    LOG_RESULT!(
+        format!("file_paste_from_clipboard({},{})", task_id, tab_id),
+        { file_paste_from_clipboard_impl(app, &state, task_id, tab_id).map_err(|e| e.to_string()) }
+    )
 }
 pub fn file_paste_from_clipboard_impl(
     app: AppHandle,
