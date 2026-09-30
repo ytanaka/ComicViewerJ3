@@ -128,6 +128,7 @@ export const fileCommands = {
     handleRustCmdResult(result, `rustcmds.filePasteFromClipboard(${tab.id})`, 'ファイル貼り付け', async data => {
       switch (data.type) {
         case 'NoFiles':
+          await dialogCommands.showOkCancelDialog('クリップボードにファイルはありません', "");
           break;
         case 'InvalidPath':
           await dialogCommands.showOkCancelDialog('不正なパスです', data.path);

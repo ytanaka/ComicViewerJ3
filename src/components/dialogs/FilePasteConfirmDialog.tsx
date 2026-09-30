@@ -13,6 +13,7 @@ import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { TaskConfirm, TaskResponse } from '@/lib/bindings';
 import { useState } from 'react';
 import { Switch } from '../ui/switch';
+import { Label } from '../ui/label';
 
 export function FilePasteConfirmDialog() {
   const show = useUiVolatileStore(state => state.showFilePasteConfirmDialog);
@@ -63,9 +64,11 @@ export function FilePasteConfirmDialog() {
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogAction onClick={() => handleAnswer(mkRes('Cancel'))}>キャンセル</AlertDialogAction>
-          常に
-          <Switch onCheckedChange={setAlways} />
+          <AlertDialogAction onClick={() => handleAnswer(mkRes('Cancel'))} autoFocus={true} className="mr-7" >キャンセル</AlertDialogAction>
+          <div className='flex items-center'>
+            <Label htmlFor='sw_always'>常に</Label>
+            <Switch id="sw_always" className="ml-2" onCheckedChange={setAlways} />
+          </div>
           <AlertDialogAction onClick={() => handleAnswer(mkRes('Skip'))}>スキップ</AlertDialogAction>
           <AlertDialogAction onClick={() => handleAnswer(mkRes('Rename'))}>リネーム</AlertDialogAction>
           <AlertDialogAction onClick={() => handleAnswer(mkRes('Merge'))} hidden={!mode_copy}>
