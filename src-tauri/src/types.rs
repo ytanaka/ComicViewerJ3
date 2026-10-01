@@ -705,10 +705,12 @@ impl FilePasteAnswer {
 pub enum TaskConfirmType {
     /// cancel_task() が呼ばれたとき、タスクの Receiver 待ちをしているスレッドを起こすためにRust内部で使う
     Dummy,
+    
     /// OkCancelダイアログを表示する
     /// * TaskConfirm.args[タイトル, メッセージ]
     /// * TaskResponse.args[OKされたかどうか: "true", "false"]
     OkCancel,
+    
     /// ファイル上書き確認
     /// * TaskConfirm.args["move"|"copy", 元ファイル, 先ディレクトリ]
     /// * TaskResponse.args[FilePasteAnswer, 全てが選択された: "true", "false"]
