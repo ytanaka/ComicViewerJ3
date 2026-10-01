@@ -262,14 +262,14 @@ fn rm_file(path: impl AsRef<Path>) -> anyhow::Result<()> {
     }
     Ok(())
 }
-fn get_alt_path(path: impl AsRef<Path>, err: &std::io::Error) -> Option<PathBuf> {
+fn get_alt_path(_path: impl AsRef<Path>, _err: &std::io::Error) -> Option<PathBuf> {
     // Windows で "text.txt " のようなファイルを削除するための特別なパスを作る
     #[cfg(target_os = "windows")]
     {
-        if err.kind() == std::io::ErrorKind::NotFound {
+        if _err.kind() == std::io::ErrorKind::NotFound {
             use std::ffi::OsString;
             let mut path2 = OsString::from(r"\\?\");
-            path2.push(path.as_ref().as_os_str());
+            path2.push(_path.as_ref().as_os_str());
             return Some(PathBuf::from(path2));
         }
     }
