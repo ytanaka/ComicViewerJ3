@@ -24,17 +24,6 @@ export function getPathBasename(s: string): string {
   return parts[parts.length - 1];
 }
 
-export function errToStr(e: unknown) {
-  if (e instanceof Error) {
-    return `${e.name}: ${e.message}`;
-  }
-  try {
-    return JSON.stringify(e);
-  } catch {
-    return String(e);
-  }
-}
-
 export function getFileExtension(filename: string) {
   const index = filename.lastIndexOf('.');
   if (index === -1 || index === 0 || index === filename.length - 1) {
