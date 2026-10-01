@@ -11,18 +11,38 @@ use crate::{
     commands::fs_util::{get_copy_move_dst_path, resolv_conflict_name},
     state::task::TaskContext,
     types::{
-        FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse, MoveOrCopy::Move,
+        FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse,
+        MoveOrCopy::{self, Copy, Move},
         OkCancelResponse, TaskConfirm, EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY,
         EVENT_NAME_TASK_CONFIRM,
     },
     util::pathvec_to_str,
 };
 
-pub type MovePathsTaskContext = TaskContext<FilePasteNotifyEvent, FilePasteAnswer>;
+// =====================================================================================================================
+
+pub type MoveCopyTaskContext = TaskContext<FilePasteNotifyEvent, FilePasteAnswer>;
+
+// =====================================================================================================================
+//
+//    ###            ###         ############         ###            ###      ##################
+//    ###            ###         ############         ###            ###      ##################
+//    ######      ######      ###            ###      ###            ###      ###
+//    ######      ######      ###            ###      ###            ###      ###
+//    ###   ######   ###      ###            ###      ###            ###      ###############
+//    ###   ######   ###      ###            ###      ###            ###      ###############
+//    ###            ###      ###            ###      ###            ###      ###
+//    ###            ###      ###            ###      ###            ###      ###
+//    ###            ###      ###            ###         ###      ###         ###
+//    ###            ###      ###            ###         ###      ###         ###
+//    ###            ###         ############               ######            ##################
+//    ###            ###         ############               ######            ##################
+//
+// =====================================================================================================================
 
 /// ファイルを Ctrl+V で移動
 pub fn move_paths(
-    ctx: MovePathsTaskContext,
+    ctx: MoveCopyTaskContext,
     src_paths: Vec<PathBuf>,
     dst_dir: PathBuf,
 ) -> anyhow::Result<()> {
@@ -54,25 +74,12 @@ pub fn move_paths(
     Ok(())
 }
 async fn move_paths_impl1(
-    ctx: &mut MovePathsTaskContext,
+    ctx: &mut MoveCopyTaskContext,
     src_paths: Vec<PathBuf>,
     dst_dir: PathBuf,
 ) -> anyhow::Result<()> {
     // 実行確認
-    let mut msg = String::new();
-    for p in src_paths.iter().take(5) {
-        if !msg.is_empty() {
-            msg.push_str("\n");
-        }
-        msg.push_str(&p.to_string_lossy());
-    }
-    if 5 < src_paths.len() {
-        msg.push_str("\n.....");
-        msg.push_str(&format!("\n合計 {}", src_paths.len()));
-    }
-    let res = ask_to_ui_ok_cancel(ctx, "移動確認", &msg).await?;
-    if !res.ok {
-        ctx.cancel_task();
+    if !confirm_exec(ctx, Move, &src_paths).await? {
         return Ok(());
     }
 
@@ -86,7 +93,7 @@ async fn move_paths_impl1(
     Ok(())
 }
 async fn move_paths_impl2(
-    ctx: &mut MovePathsTaskContext,
+    ctx: &mut MoveCopyTaskContext,
     src_path: PathBuf,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
@@ -151,8 +158,137 @@ async fn move_paths_impl2(
 
     Ok(())
 }
+
+// =====================================================================================================================
+//
+//       ############            ############         ###############          ###         ###
+//       ############            ############         ###############          ###         ###
+//    ###            ###      ###            ###      ###            ###          ###   ###
+//    ###            ###      ###            ###      ###            ###          ###   ###
+//    ###                     ###            ###      ###            ###             ###
+//    ###                     ###            ###      ###            ###             ###
+//    ###                     ###            ###      ###############                ###
+//    ###                     ###            ###      ###############                ###
+//    ###            ###      ###            ###      ###                            ###
+//    ###            ###      ###            ###      ###                            ###
+//       ############            ############         ###                            ###
+//       ############            ############         ###                            ###
+//
+// =====================================================================================================================
+
+/// ファイルを Ctrl+V でコピー
+pub fn copy_paths(
+    ctx: MoveCopyTaskContext,
+    src_paths: Vec<PathBuf>,
+    dst_dir: PathBuf,
+) -> anyhow::Result<()> {
+    let mut ctx = ctx;
+    tauri::async_runtime::spawn(async move {
+        log::debug!(
+            "spawn copy_paths(...,{},{:?})",
+            pathvec_to_str(&src_paths),
+            dst_dir
+        );
+        let ret = copy_paths_impl1(&mut ctx, src_paths, dst_dir).await;
+        match ret {
+            Ok(_) => {
+                ctx.event.head.error_msg = None;
+            }
+            Err(e) => {
+                ctx.event.head.error_msg = Some(e.to_string());
+                log::error!("copy_paths: error task_id={}, {}", ctx.task_id, e);
+            }
+        }
+        ctx.event.head.finished = true;
+        ctx.event.head.canceled = ctx.is_canceled();
+        ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
+        let _ = emit_event_paste_progress(&mut ctx).err().map(|e| {
+            log::error!("copy_paths: notify error task_id={}, {}", ctx.task_id, e);
+        });
+    });
+
+    Ok(())
+}
+
+async fn copy_paths_impl1(
+    ctx: &mut MoveCopyTaskContext,
+    src_paths: Vec<PathBuf>,
+    dst_dir: PathBuf,
+) -> anyhow::Result<()> {
+    // 実行確認
+    if !confirm_exec(ctx, Copy, &src_paths).await? {
+        return Ok(());
+    }
+
+    // 全部コピーする
+    for src_path in src_paths {
+        if ctx.is_canceled() {
+            return Ok(());
+        }
+        copy_paths_impl2(ctx, src_path, &dst_dir).await?;
+    }
+    Ok(())
+}
+
+async fn copy_paths_impl2(
+    ctx: &mut MoveCopyTaskContext,
+    src_path: PathBuf,
+    dst_dir: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    todo!()
+}
+
+// =====================================================================================================================
+//
+//    ###            ###         ###############          ###            ###
+//    ###            ###         ###############          ###            ###
+//    ###            ###               ###                ###            ###
+//    ###            ###               ###                ###            ###
+//    ###            ###               ###                ###            ###
+//    ###            ###               ###                ###            ###
+//    ###            ###               ###                ###            ###
+//    ###            ###               ###                ###            ###
+//    ###            ###               ###                ###            ###
+//    ###            ###               ###                ###            ###
+//       ############                  ###                ###            ##################
+//       ############                  ###                ###            ##################
+//
+// =====================================================================================================================
+
+async fn confirm_exec(
+    ctx: &mut MoveCopyTaskContext,
+    mode: MoveOrCopy,
+    src_paths: &Vec<PathBuf>,
+) -> anyhow::Result<bool> {
+    // 実行確認
+    let mut msg = String::new();
+    for p in src_paths.iter().take(5) {
+        if !msg.is_empty() {
+            msg.push_str("\n");
+        }
+        msg.push_str(&p.to_string_lossy());
+    }
+    if 5 < src_paths.len() {
+        msg.push_str("\n.....");
+        msg.push_str(&format!("\n合計 {}", src_paths.len()));
+    }
+
+    let title = match mode {
+        Move => "移動確認",
+        Copy => "コピー確認",
+    };
+
+    let res = ask_to_ui_ok_cancel(ctx, title, &msg).await?;
+    if res.ok {
+        Ok(true)
+    } else {
+        ctx.cancel_task();
+        return Ok(false);
+    }
+}
+
 async fn ask_to_ui_paste_confilct(
-    ctx: &mut MovePathsTaskContext,
+    ctx: &mut MoveCopyTaskContext,
     src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<FilePasteResponse> {
@@ -168,7 +304,7 @@ async fn ask_to_ui_paste_confilct(
     let ret = FilePasteResponse::from(ret).ok_or(anyhow!("invalid TaskResponse"))?;
     Ok(ret)
 }
-fn emit_event_paste_progress(ctx: &mut MovePathsTaskContext) -> anyhow::Result<()> {
+fn emit_event_paste_progress(ctx: &mut MoveCopyTaskContext) -> anyhow::Result<()> {
     if !ctx.can_emit_event()? {
         return Ok(());
     }

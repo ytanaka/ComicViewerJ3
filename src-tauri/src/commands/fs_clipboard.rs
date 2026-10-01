@@ -5,7 +5,7 @@ use tauri::{AppHandle, State};
 use crate::{
     commands::{
         fs_util::cnv_file_ids_to_path,
-        fs_util_move::{move_paths, MovePathsTaskContext},
+        fs_util_move::{copy_paths, move_paths, MoveCopyTaskContext},
     },
     state::{app_state::AppState, clipboard::AppClipboard, task::TaskContext},
     types::{ClipboardPasteResult, FilePasteNotifyEvent, MoveOrCopy, TabId, TaskId},
@@ -107,23 +107,23 @@ pub fn file_paste_from_clipboard_impl(
         }
     }
 
+    let tab = state.get_tab(tab_id)?;
+    let tab = tab.read().unwrap();
+    let task_ctx: MoveCopyTaskContext = TaskContext::new(
+        app,
+        state.clone(),
+        task_id,
+        tab_id,
+        FilePasteNotifyEvent::new(task_id, false),
+    );
+
     // コピーか移動か
     match mode {
         MoveOrCopy::Copy => {
-            log::error!("copy not implemented: {:?}", paths);
-            // TODO
+            copy_paths(task_ctx, paths, tab.get_path().to_path_buf())?;
             Ok(ClipboardPasteResult::ProgressCopy)
         }
         MoveOrCopy::Move => {
-            let tab = state.get_tab(tab_id)?;
-            let tab = tab.read().unwrap();
-            let task_ctx: MovePathsTaskContext = TaskContext::new(
-                app,
-                state.clone(),
-                task_id,
-                tab_id,
-                FilePasteNotifyEvent::new(task_id, false),
-            );
             move_paths(task_ctx, paths, tab.get_path().to_path_buf())?;
             Ok(ClipboardPasteResult::ProgressMove)
         }

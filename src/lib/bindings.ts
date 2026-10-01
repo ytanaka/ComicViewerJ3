@@ -312,7 +312,7 @@ export type TaskConfirmType =
 "OkCancel" | 
 /**
  *  ファイル上書き確認
- *  * TaskConfirm.args["move" or "copy", 元ファイル, 先ディレクトリ]
+ *  * TaskConfirm.args["move"|"copy", 元ファイル, 先ディレクトリ]
  *  * TaskResponse.args[FilePasteAnswer, 全てが選択された: "true", "false"]
  */
 "Paste";
