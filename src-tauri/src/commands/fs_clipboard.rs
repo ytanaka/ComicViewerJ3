@@ -114,7 +114,7 @@ pub fn file_paste_from_clipboard_impl(
         state.clone(),
         task_id,
         tab_id,
-        FilePasteNotifyEvent::new(task_id, false),
+        FilePasteNotifyEvent::new(task_id, &mode),
     );
 
     // コピーか移動か

@@ -8,12 +8,11 @@ import { useUiVolatileStore } from '../ui-volatile-store';
 export interface FilePasteProgressStore {
   tab: TabInfo | null; // TODO いるか？
   taskId: TaskId | null;
-  isCopy: boolean;
   resolve: ((value: boolean) => void) | null;
 
   event: FilePasteNotifyEvent | null;
 
-  showDialog: (tab: TabInfo, taskId: TaskId, isCopy: boolean, resolve: (value: boolean) => void) => void;
+  showDialog: (tab: TabInfo, taskId: TaskId, resolve: (value: boolean) => void) => void;
   closeDialog: () => void;
 
   setNotifyEvent: (ev: FilePasteNotifyEvent) => void;
@@ -22,17 +21,16 @@ export interface FilePasteProgressStore {
 export const useFilePasteProgressStore = create<FilePasteProgressStore>()((set, get) => ({
   tab: null,
   taskId: null,
-  isCopy: false,
   resolve: null,
 
   prepareEvent: null,
   event: null,
 
-  showDialog: (tab: TabInfo, taskId: TaskId, isCopy: boolean, resolve: (value: boolean) => void) => {
+  showDialog: (tab: TabInfo, taskId: TaskId, resolve: (value: boolean) => void) => {
     useUiVolatileStore.getState().setField('showFilePasteProgressDialog', true);
 
     set(() => {
-      return { tab, taskId, isCopy, resolve, event: null };
+      return { tab, taskId,  resolve, event: null };
     });
   },
   closeDialog: () => {

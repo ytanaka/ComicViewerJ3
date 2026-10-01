@@ -636,10 +636,10 @@ pub struct FilePasteNotifyEvent {
     pub progress: TaskEventFileProgress,
 }
 impl FilePasteNotifyEvent {
-    pub fn new(task_id: TaskId, is_copy: bool) -> Self {
+    pub fn new(task_id: TaskId, mode: &MoveOrCopy) -> Self {
         Self {
             task_id,
-            is_copy,
+            is_copy: *mode == MoveOrCopy::Copy,
             ..Default::default()
         }
     }

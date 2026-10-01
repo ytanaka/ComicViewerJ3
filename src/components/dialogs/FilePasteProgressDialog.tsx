@@ -4,6 +4,8 @@ import { FileProgressPanel } from './utils/FileProgressPanel';
 import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
 import { useCallback, useEffect } from 'react';
 import { Button } from '../ui/button';
+import { Progress } from '../ui/progress';
+import { TaskEventFileProgress } from '@/lib/bindings';
 
 // ファイルをコピー、移動している最中に表示するダイアログ
 // 途中で重複ファイルがあったときに問い合わせが来るので、AlertDialogで応答する。
@@ -15,8 +17,17 @@ export function FilePasteProgressDialog() {
   const dialogState = useFilePasteProgressStore(state => state);
   const event = dialogState.event;
   const error_msg = event?.head.error_msg;
-  const isCopy = dialogState.isCopy;
-  const endProgress = dialogState.event?.progress.files ?? 0 !== 0;
+  const isCopy = event?.is_copy === true;
+  const endPrepare = event?.progress.files ?? 0 !== 0;
+
+  let title;
+  if (endPrepare) {
+    if (isCopy) title = 'コピー中';
+    else title = '移動中';
+  } else {
+    if (isCopy) title = 'コピー準備中';
+    else title = '移動準備中';
+  }
 
   const handleOkCancel = useCallback(
     (b: boolean) => {
@@ -27,6 +38,15 @@ export function FilePasteProgressDialog() {
     },
     [dialogState, setField]
   );
+
+  function getProgress() {
+    if (!endPrepare || !event) return 0;
+    const FILE_OVERHEAD = 8 * 1024; // 0バイトのファイルをコピーするのにもオーバーヘッドがあるとみなす
+    function sum(p: TaskEventFileProgress) {
+      return p.size + (p.dires + p.files) * FILE_OVERHEAD + FILE_OVERHEAD; // divide by zero を防ぐ
+    }
+    return sum(event.progress) / sum(event.prepare_progress) * 100;
+  }
 
   useEffect(() => {
     if (event?.head.finished !== true) return;
@@ -43,10 +63,13 @@ export function FilePasteProgressDialog() {
       }}
     >
       <DialogContent>
-        <DialogHeader>{isCopy ? 'コピー' : '移動'}中</DialogHeader>
+        <DialogHeader>{title}</DialogHeader>
 
-        {endProgress ? (
-          <FileProgressPanel header={event?.head} progress={event?.progress} />
+        {endPrepare ? (
+          <>
+            {isCopy && <Progress value={getProgress()} />}
+            <FileProgressPanel header={event?.head} progress={event?.progress} />
+          </>
         ) : (
           <FileProgressPanel header={event?.head} progress={event?.prepare_progress} />
         )}
@@ -58,4 +81,6 @@ export function FilePasteProgressDialog() {
     </Dialog>
   );
 }
+
+
 
