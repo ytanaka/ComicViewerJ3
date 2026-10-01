@@ -16,12 +16,17 @@ export const sortCommands = {
 
     toast('ソート中', { id: 'sorting', duration: 700 });
     const result = await rustcmds.sortFiles(tab.info.id, cond);
-    handleRustCmdResult(result, `rustcmds.sortFiles(${tab.info.id},${cond.sort_type.type}:${cond.asc})`, 'ファイル名ソート失敗', data => {
-      if (!data) {
-        toast.error('このディレクトリではまだソートの準備ができていません', { id: 'sort-not-yet-ready' });
-      } else {
-        useTabStore.getState().setSortCondition(tab.info.id, cond);
+    handleRustCmdResult(
+      result,
+      `rustcmds.sortFiles(${tab.info.id},${cond.sort_type.type}:${cond.asc})`,
+      'ファイル名ソート失敗',
+      data => {
+        if (!data) {
+          toast.error('このディレクトリではまだソートの準備ができていません', { id: 'sort-not-yet-ready' });
+        } else {
+          useTabStore.getState().setSortCondition(tab.info.id, cond);
+        }
       }
-    });
+    );
   },
 };
