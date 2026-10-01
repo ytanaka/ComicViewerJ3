@@ -1,5 +1,6 @@
 use std::{
-    fs,
+    fs::{self, File},
+    io::{Read, Write},
     path::{Path, PathBuf},
 };
 
@@ -8,7 +9,7 @@ use tauri::Emitter;
 use walkdir::WalkDir;
 
 use crate::{
-    commands::fs_util::{get_file_name, get_parent, resolv_conflict_name},
+    commands::fs_util::{get_file_name, get_parent, resolv_conflict_name, tmp_file},
     state::task::TaskContext,
     types::{
         FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse,
@@ -372,7 +373,7 @@ async fn copy_paths_impl3(
 ) -> anyhow::Result<()> {
     let meta = src_path.as_ref().metadata()?;
     if meta.is_dir() {
-        copy_paths_dir(ctx, src_path, dst_path).await?;
+        copy_paths_dir(dst_path).await?;
         ctx.event.progress.dires += 1;
     } else {
         copy_paths_file(ctx, src_path, dst_path).await?;
@@ -386,13 +387,10 @@ async fn copy_paths_impl3(
 
     Ok(())
 }
-async fn copy_paths_dir(
-    ctx: &mut MoveCopyTaskContext,
-    src_path: impl AsRef<Path>,
-    dst_path: impl AsRef<Path>,
-) -> anyhow::Result<()> {
-    log::debug!("CP DIR: {:?} => {:?}", src_path.as_ref(), dst_path.as_ref());
-    // TODO
+async fn copy_paths_dir(dst_path: impl AsRef<Path>) -> anyhow::Result<()> {
+    if !dst_path.as_ref().exists() {
+        fs::create_dir(dst_path)?;
+    }
     Ok(())
 }
 async fn copy_paths_file(
@@ -405,7 +403,42 @@ async fn copy_paths_file(
         src_path.as_ref(),
         dst_path.as_ref()
     );
-    // TODO
+
+    // ファイルコピー
+    let tmp_dst_path = tmp_file(&dst_path)?;
+    copy_paths_file2(ctx, &src_path, &tmp_dst_path).await?;
+    if ctx.is_canceled() {
+        fs::remove_file(tmp_dst_path)?;
+        return Ok(());
+    }
+    fs::rename(&tmp_dst_path, &dst_path)?;
+
+    // 更新日時を合わせる
+    let src_meta = &src_path.as_ref().metadata()?;
+    let f = File::options().write(true).open(&dst_path)?;
+    f.set_modified(src_meta.modified()?)?;
+    Ok(())
+}
+async fn copy_paths_file2(
+    ctx: &mut MoveCopyTaskContext,
+    src_path: impl AsRef<Path>,
+    dst_path: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    let mut src_f = File::open(&src_path)?;
+    let mut dst_f = File::create(&dst_path)?;
+    let mut buffer = [0u8; 1024 * 1024];
+
+    loop {
+        let n = src_f.read(&mut buffer)?;
+        if n == 0 {
+            break;
+        }
+        dst_f.write_all(&buffer[..n])?;
+
+        if ctx.is_canceled() {
+            break;
+        }
+    }
     Ok(())
 }
 // =====================================================================================================================

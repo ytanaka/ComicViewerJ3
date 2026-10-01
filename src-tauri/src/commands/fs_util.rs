@@ -103,3 +103,13 @@ pub fn get_parent(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
         .ok_or(anyhow!("不正なパス: {:?}", path.as_ref()))?;
     Ok(parent.to_path_buf())
 }
+
+/// 渡されたファイル名の後ろに "_tmp_XXXX" をつけてユニークな一時ファイル名を作る
+pub fn tmp_file(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
+    let name = get_file_name(&path)?;
+    let dir = get_parent(&path)?;
+
+    let tmp = tempfile::Builder::new().prefix(&name).tempfile_in(&dir)?;
+
+    Ok(tmp.path().to_path_buf())
+}
