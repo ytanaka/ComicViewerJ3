@@ -260,6 +260,14 @@ pub enum MoveOrCopy {
     Move,
     Copy,
 }
+impl Display for MoveOrCopy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            MoveOrCopy::Copy => write!(f, "copy"),
+            MoveOrCopy::Move => write!(f, "move"),
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "type")]
@@ -685,7 +693,7 @@ pub enum TaskConfirmType {
     /// * TaskResponse.args[OKされたかどうか: "true", "false"]
     OkCancel,
     /// ファイル上書き確認
-    /// * TaskConfirm.args["move" or "copy", 元ファイル, 先ディレクトリ]
+    /// * TaskConfirm.args["move"|"copy", 元ファイル, 先ディレクトリ]
     /// * TaskResponse.args[FilePasteAnswer, 全てが選択された: "true", "false"]
     Paste,
 }
@@ -713,7 +721,7 @@ impl Display for TaskConfirm {
 impl TaskConfirm {
     pub fn new_paste(
         task_id: TaskId,
-        move_or_copy: &str,
+        mode: MoveOrCopy,
         src_path: impl AsRef<Path>,
         dst_dir: impl AsRef<Path>,
     ) -> Self {
@@ -721,7 +729,7 @@ impl TaskConfirm {
             t: TaskConfirmType::Paste,
             task_id,
             args: vec![
-                move_or_copy.to_string(),
+                mode.to_string(),
                 src_path.as_ref().to_string_lossy().to_string(),
                 dst_dir.as_ref().to_string_lossy().to_string(),
             ],

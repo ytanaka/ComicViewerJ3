@@ -11,8 +11,9 @@ use crate::{
     commands::fs_util::{get_copy_move_dst_path, resolv_conflict_name},
     state::task::TaskContext,
     types::{
-        FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse, OkCancelResponse, TaskConfirm,
-        EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY, EVENT_NAME_TASK_CONFIRM,
+        FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse, MoveOrCopy::Move,
+        OkCancelResponse, TaskConfirm, EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY,
+        EVENT_NAME_TASK_CONFIRM,
     },
     util::pathvec_to_str,
 };
@@ -155,7 +156,7 @@ async fn ask_to_ui_paste_confilct(
     src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<FilePasteResponse> {
-    let ev = TaskConfirm::new_paste(ctx.task_id, "move", src_path, dst_dir);
+    let ev = TaskConfirm::new_paste(ctx.task_id, Move, src_path, dst_dir);
     // UIにイベントを送る
     log::trace!("send to ui TaskConfirm: {}", ev);
     ctx.app.emit(EVENT_NAME_TASK_CONFIRM, ev)?;
