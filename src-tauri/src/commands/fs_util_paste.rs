@@ -206,7 +206,6 @@ pub fn copy_paths(
 
     Ok(())
 }
-
 async fn copy_paths_impl1(
     ctx: &mut MoveCopyTaskContext,
     src_paths: Vec<PathBuf>,
@@ -234,6 +233,7 @@ async fn copy_paths_impl1(
     }
     Ok(())
 }
+/// コピー元検査
 async fn copy_paths_prepare(
     ctx: &mut MoveCopyTaskContext,
     path: impl AsRef<Path>,
@@ -261,12 +261,19 @@ async fn copy_paths_prepare(
 
     Ok(())
 }
+/// * `src_path`: クリップボードから渡されたパス (ファイル or ディレクトリ)
+/// * `dst_dir`: タブのカレントディレクトリ
+
+/// * `src_path`: コピー元パス (ファイル or ディレクトリ)
+/// * `dst_dir`: コピー先ディレクトリ
 async fn copy_paths_impl2(
     ctx: &mut MoveCopyTaskContext,
     src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
     let src_parent = get_parent(&src_path)?;
+    // TODO
+
     for walk in WalkDir::new(&src_path) {
         if ctx.is_canceled() {
             return Ok(());
@@ -294,6 +301,7 @@ async fn copy_paths_impl2(
     }
     Ok(())
 }
+//// 元、先にシンボリックリンクが含まれていないか、元、先がファイル同士とディレクトリ同士になっているか確認
 fn check_src_dst_metadata(
     src_path: impl AsRef<Path>,
     dst_path: impl AsRef<Path>,
@@ -324,6 +332,12 @@ fn check_src_dst_metadata(
 fn err_cp_symlink(path: impl AsRef<Path>) -> anyhow::Error {
     anyhow!("このアプリではリンクはコピーできません {:?}", path.as_ref())
 }
+/// コピー先がすでに存在するとき、どう対処するか決める
+///
+/// # Return
+/// * `Some(すでに存在するパス)`: 上書きする
+/// * `Some(新しいパス)`: リネームする
+/// * `None`: スキップ
 async fn resolve_copy_path_confilct(
     ctx: &mut MoveCopyTaskContext,
     src_path: impl AsRef<Path>,
@@ -365,7 +379,13 @@ async fn resolve_copy_path_confilct(
     };
     Ok(Some(ret))
 }
-
+/// コピーする
+///
+/// # Parameter
+/// * `src_path`: コピー元ファイル or ディレクトリ
+/// * `dst_path`: コピー先ファイル or ディレクトリ (すでに存在するときは上書きする)
+///
+/// src_path と dst_path は両方ファイル or 両方ディレクトリ
 async fn copy_paths_impl3(
     ctx: &mut MoveCopyTaskContext,
     src_path: impl AsRef<Path>,
