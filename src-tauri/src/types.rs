@@ -630,6 +630,9 @@ pub struct FilePasteNotifyEvent {
     pub task_id: TaskId,
     pub is_copy: bool,
     pub head: TaskEventHeader,
+    /// ファイルコピー時の準備状況 (移動時は無視する)
+    pub prepare_progress: TaskEventFileProgress,
+    /// ファイルコピー／移動時の経過
     pub progress: TaskEventFileProgress,
 }
 impl FilePasteNotifyEvent {
@@ -661,6 +664,7 @@ impl FilePasteResponse {
         }
     }
 }
+#[derive(Clone, Copy)]
 pub enum FilePasteAnswer {
     Rename,
     Merge,

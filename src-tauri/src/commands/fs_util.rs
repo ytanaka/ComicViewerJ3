@@ -66,49 +66,41 @@ pub fn cnv_file_ids_to_path(
     Ok(paths)
 }
 
-/// コピー／移動先のフルパスを取得
-///
+/// コピー／移動元と先の衝突を解決するパスを取得する
 /// # Parameter
-/// * `src_path`: 元のファイル／ディレクトリのフルパス
-/// * `dst_dir`: 先のディレクトリのフルパス
-///
+/// * `src_path`: 元フルパス
+/// * `dst_path`: 先フルパス
 /// # Return
-/// * `Ok(None)`: 先のディレクトリにすでに同名のなにかが存在する
-/// * `Ok(Some(path))`: コピー／移動先のフルパス
-///
-pub fn get_copy_move_dst_path(
-    src_path: impl AsRef<Path>,
-    dst_dir: impl AsRef<Path>,
-) -> anyhow::Result<Option<PathBuf>> {
-    let src_name = get_basename(src_path)?;
-    let dst_path = dst_dir.as_ref().to_path_buf().join(src_name);
-    if dst_path.exists() {
-        Ok(None)
-    } else {
-        Ok(Some(dst_path))
-    }
-}
+/// `src_path` のファイル名を改変して、`dst_path` のファイル名を置き換えたフルパス (存在しないフルパスを返す)
 pub fn resolv_conflict_name(
     src_path: impl AsRef<Path>,
-    dst_dir: impl AsRef<Path>,
+    dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<PathBuf> {
     let mut i = 1;
     let src_filename = get_basename(src_path)?.to_string_lossy().to_string();
+    let dst_dir = get_parent(dst_path)?;
 
     loop {
         let name2 = format!("コピー({}) {}", i, src_filename);
-        let dst_path = dst_dir.as_ref().join(name2);
-        if !dst_path.exists() {
-            return Ok(dst_path);
+        let dst_path2 = dst_dir.join(name2);
+        if !dst_path2.exists() {
+            return Ok(dst_path2);
         }
         i += 1;
     }
 }
 
-fn get_basename(path: impl AsRef<Path>) -> anyhow::Result<OsString> {
+pub fn get_basename(path: impl AsRef<Path>) -> anyhow::Result<OsString> {
     let name = path
         .as_ref()
         .file_name()
         .ok_or(anyhow!("不正なパス: {:?}", path.as_ref()))?;
     Ok(name.to_os_string())
+}
+pub fn get_parent(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
+    let parent = path
+        .as_ref()
+        .parent()
+        .ok_or(anyhow!("不正なパス: {:?}", path.as_ref()))?;
+    Ok(parent.to_path_buf())
 }

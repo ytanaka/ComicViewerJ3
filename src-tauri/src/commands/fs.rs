@@ -240,11 +240,7 @@ async fn remove_files_impl3(ctx: &mut RemoveFilesTaskContext, path: PathBuf) -> 
 
         emit_event_remove_files(ctx)?;
 
-        let pref = ctx.state.preferences.read().unwrap();
-        let sleep = pref.debug_file_op_sleep_ms;
-        if 0 < sleep {
-            std::thread::sleep(Duration::from_millis(sleep as u64));
-        }
+        ctx.debug_sleep();
     }
 
     Ok(())

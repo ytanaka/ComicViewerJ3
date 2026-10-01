@@ -15,7 +15,7 @@ export function FileProgressPanel({
 
   return (
     <>
-      {!!size && (
+      {size !== undefined && (
         <>
           サイズ: {formatFileBytes(size)} ({size.toLocaleString()} バイト)
         </>

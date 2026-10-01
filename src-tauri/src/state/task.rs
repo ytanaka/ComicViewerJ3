@@ -3,7 +3,7 @@ use std::{
         mpsc::{self, Receiver, Sender},
         Arc, RwLock,
     },
-    time::{SystemTime, UNIX_EPOCH},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
 use tauri::AppHandle;
@@ -106,5 +106,13 @@ impl<E, A> TaskContext<E, A> {
 
     pub fn cancel_task(&mut self) {
         self.state.get_task(self.task_id).cancel_task();
+    }
+
+    pub fn debug_sleep(&self) {
+        let pref = self.state.preferences.read().unwrap();
+        let sleep = pref.debug_file_op_sleep_ms;
+        if 0 < sleep {
+            std::thread::sleep(Duration::from_millis(sleep as u64));
+        }
     }
 }

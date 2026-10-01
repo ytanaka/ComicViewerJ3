@@ -16,6 +16,7 @@ export function FilePasteProgressDialog() {
   const event = dialogState.event;
   const error_msg = event?.head.error_msg;
   const isCopy = dialogState.isCopy;
+  const endProgress = dialogState.event?.progress.files ?? 0 !== 0;
 
   const handleOkCancel = useCallback(
     (b: boolean) => {
@@ -44,7 +45,11 @@ export function FilePasteProgressDialog() {
       <DialogContent>
         <DialogHeader>{isCopy ? 'コピー' : '移動'}中</DialogHeader>
 
-        <FileProgressPanel header={event?.head} progress={event?.progress} />
+        {endProgress ? (
+          <FileProgressPanel header={event?.head} progress={event?.progress} />
+        ) : (
+          <FileProgressPanel header={event?.head} progress={event?.prepare_progress} />
+        )}
 
         <DialogFooter>
           <Button onClick={() => handleOkCancel(false)}>Cancel</Button>
@@ -53,3 +58,4 @@ export function FilePasteProgressDialog() {
     </Dialog>
   );
 }
+

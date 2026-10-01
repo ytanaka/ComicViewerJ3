@@ -189,6 +189,9 @@ export type FilePasteNotifyEvent = {
 	task_id: number,
 	is_copy: boolean,
 	head: TaskEventHeader,
+	/**  ファイルコピー時の準備状況 */
+	prepare_progress: TaskEventFileProgress,
+	/**  ファイルコピー／移動時の経過 */
 	progress: TaskEventFileProgress,
 };
 

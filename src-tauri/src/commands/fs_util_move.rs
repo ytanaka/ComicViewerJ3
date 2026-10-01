@@ -1,14 +1,14 @@
 use std::{
     fs,
     path::{Path, PathBuf},
-    time::Duration,
 };
 
 use anyhow::anyhow;
 use tauri::Emitter;
+use walkdir::WalkDir;
 
 use crate::{
-    commands::fs_util::{get_copy_move_dst_path, resolv_conflict_name},
+    commands::fs_util::{get_basename, get_parent, resolv_conflict_name},
     state::task::TaskContext,
     types::{
         FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse,
@@ -88,54 +88,55 @@ async fn move_paths_impl1(
         if ctx.is_canceled() {
             return Ok(());
         }
-        move_paths_impl2(ctx, src_path, &dst_dir).await?;
+        let src_name = get_basename(&src_path)?;
+        let dst_path = dst_dir.join(src_name);
+        move_paths_impl2(ctx, src_path, &dst_path).await?;
     }
     Ok(())
 }
 async fn move_paths_impl2(
     ctx: &mut MoveCopyTaskContext,
     src_path: PathBuf,
-    dst_dir: impl AsRef<Path>,
+    dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
-    let dst_path = match get_copy_move_dst_path(&src_path, &dst_dir)? {
-        // 移動先に同じ名前がないのでOK
-        Some(p) => p,
+    let dst_path = if !dst_path.as_ref().exists() {
+        dst_path.as_ref().to_path_buf()
+    } else {
         // 移動先に同じ名前がある...
-        None => {
-            // 前回の回答が残っているか確認
-            match ctx.answer {
-                // 前回常にスキップすると答えた
-                Some(FilePasteAnswer::Skip) => return Ok(()),
-                // 前回常にリネームすると答えた (moveでMergeは来ないので無視)
-                Some(_) => {}
-                // 前回の答えがない...
-                None => {
-                    // 問い合わせて回答を受け取る
-                    let response = ask_to_ui_paste_confilct(ctx, &src_path, &dst_dir).await?;
-                    match response.answer {
-                        FilePasteAnswer::Cancel => {
-                            ctx.cancel_task();
-                            return Ok(());
+        // 前回の回答が残っているか確認
+        match ctx.answer {
+            // 前回常にスキップすると答えた
+            Some(FilePasteAnswer::Skip) => return Ok(()),
+            // 前回常にリネームすると答えた (moveでMergeは来ないので無視)
+            Some(_) => {}
+            // 前回の答えがない...
+            None => {
+                // 問い合わせて回答を受け取る
+                let dst_dir = get_parent(&dst_path)?;
+                let response = ask_to_ui_paste_confilct(ctx, &src_path, &dst_dir).await?;
+                match response.answer {
+                    FilePasteAnswer::Cancel => {
+                        ctx.cancel_task();
+                        return Ok(());
+                    }
+                    FilePasteAnswer::Skip => {
+                        if response.always {
+                            ctx.answer = Some(FilePasteAnswer::Skip);
+                        };
+                        return Ok(());
+                    }
+                    _ => {
+                        // 移動の場合はMergeがないので、Renameとみなす
+                        if response.always {
+                            ctx.answer = Some(FilePasteAnswer::Rename);
                         }
-                        FilePasteAnswer::Skip => {
-                            if response.always {
-                                ctx.answer = Some(FilePasteAnswer::Skip);
-                            };
-                            return Ok(());
-                        }
-                        _ => {
-                            // 移動の場合はMergeがないので、Renameとみなす
-                            if response.always {
-                                ctx.answer = Some(FilePasteAnswer::Rename);
-                            }
-                        }
-                    };
-                }
+                    }
+                };
             }
-
-            // 別の名前にする
-            resolv_conflict_name(&src_path, &dst_dir)?
         }
+
+        // 別の名前にする
+        resolv_conflict_name(&src_path, &dst_path)?
     };
 
     // 移動!!!
@@ -149,12 +150,7 @@ async fn move_paths_impl2(
     }
     emit_event_paste_progress(ctx)?;
 
-    // デバッグ用スリープ
-    let pref = ctx.state.preferences.read().unwrap();
-    let sleep = pref.debug_file_op_sleep_ms;
-    if 0 < sleep {
-        std::thread::sleep(Duration::from_millis(sleep as u64));
-    }
+    ctx.debug_sleep();
 
     Ok(())
 }
@@ -220,6 +216,14 @@ async fn copy_paths_impl1(
         return Ok(());
     }
 
+    // 準備
+    for path in &src_paths {
+        if ctx.is_canceled() {
+            return Ok(());
+        }
+        copy_paths_prepare(ctx, path).await?;
+    }
+
     // 全部コピーする
     for src_path in src_paths {
         if ctx.is_canceled() {
@@ -229,15 +233,171 @@ async fn copy_paths_impl1(
     }
     Ok(())
 }
+async fn copy_paths_prepare(
+    ctx: &mut MoveCopyTaskContext,
+    path: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    for walk in WalkDir::new(path) {
+        if ctx.is_canceled() {
+            return Ok(());
+        }
 
+        let f = walk?;
+        let meta = f.metadata()?;
+        if meta.is_symlink() {
+            return Err(err_cp_symlink(f.path()));
+        } else if meta.is_dir() {
+            ctx.event.prepare_progress.dires += 1;
+        } else {
+            ctx.event.prepare_progress.files += 1;
+            ctx.event.prepare_progress.size += meta.len();
+        }
+
+        emit_event_paste_progress(ctx)?;
+
+        ctx.debug_sleep();
+    }
+
+    Ok(())
+}
 async fn copy_paths_impl2(
     ctx: &mut MoveCopyTaskContext,
     src_path: PathBuf,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
-    todo!()
+    for walk in WalkDir::new(&src_path) {
+        if ctx.is_canceled() {
+            return Ok(());
+        }
+
+        let f = walk?;
+        let suffix = f.path().strip_prefix(&src_path)?;
+        let mut dst_path = dst_dir.as_ref().join(suffix);
+
+        check_src_dst_metadata(&src_path, &dst_path)?;
+
+        if dst_path.exists() {
+            dst_path = match resolve_copy_path_confilct(ctx, &src_path, &dst_path).await? {
+                None => return Ok(()),
+                Some(p) => p,
+            }
+        };
+
+        copy_paths_impl3(ctx, f.path().to_path_buf(), dst_path).await?;
+    }
+    Ok(())
+}
+fn check_src_dst_metadata(
+    src_path: impl AsRef<Path>,
+    dst_path: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    let src_meta = src_path.as_ref().metadata()?;
+    if let Ok(dst_meta) = dst_path.as_ref().metadata() {
+        if dst_meta.is_symlink() {
+            return Err(err_cp_symlink(dst_path));
+        }
+        if src_meta.is_symlink() {
+            return Err(err_cp_symlink(src_path));
+        }
+        if src_meta.is_file() && dst_meta.is_dir() {
+            return Err(anyhow!(
+                "ファイルのコピー先に同名のディレクトリがあります {:?}",
+                src_path.as_ref()
+            ));
+        }
+        if src_meta.is_dir() && dst_meta.is_file() {
+            return Err(anyhow!(
+                "ディレクトリのコピー先に同名のファイルがあります {:?}",
+                src_path.as_ref()
+            ));
+        }
+    }
+    Ok(())
+}
+fn err_cp_symlink(path: impl AsRef<Path>) -> anyhow::Error {
+    return anyhow!("このアプリではリンクはコピーできません {:?}", path.as_ref());
+}
+async fn resolve_copy_path_confilct(
+    ctx: &mut MoveCopyTaskContext,
+    src_path: impl AsRef<Path>,
+    dst_path: impl AsRef<Path>,
+) -> anyhow::Result<Option<PathBuf>> {
+    // 前回の回答が残っているか確認
+    let ret = match ctx.answer {
+        // 前回常にスキップすると答えた
+        Some(FilePasteAnswer::Skip) => return Ok(None),
+        // 前回常にリネームすると答えた
+        Some(FilePasteAnswer::Rename) => {
+            // 別の名前にする
+            resolv_conflict_name(&src_path, &dst_path)?
+        }
+        // 前回常にマージすると答えた
+        Some(FilePasteAnswer::Merge) => {
+            // ファイルなら上書き、ディレクトリなら何もしない
+            dst_path.as_ref().to_path_buf()
+        }
+        // 前回の答えがない...
+        _ => {
+            // 問い合わせて回答を受け取る
+            let dst_dir = get_parent(&dst_path)?;
+            let response = ask_to_ui_paste_confilct(ctx, &src_path, &dst_dir).await?;
+            if response.always {
+                ctx.answer = Some(response.answer);
+            }
+            let ret = match response.answer {
+                FilePasteAnswer::Cancel => {
+                    ctx.cancel_task();
+                    return Ok(None);
+                }
+                FilePasteAnswer::Skip => return Ok(None),
+                FilePasteAnswer::Rename => resolv_conflict_name(&src_path, &dst_path)?,
+                FilePasteAnswer::Merge => dst_path.as_ref().to_path_buf(),
+            };
+            ret
+        }
+    };
+    Ok(Some(ret))
 }
 
+async fn copy_paths_impl3(
+    ctx: &mut MoveCopyTaskContext,
+    src_path: PathBuf,
+    dst_path: PathBuf,
+) -> anyhow::Result<()> {
+    let meta = src_path.metadata()?;
+    if meta.is_dir() {
+        copy_paths_dir(ctx, src_path, dst_path).await?;
+        ctx.event.progress.dires += 1;
+    } else {
+        copy_paths_file(ctx, src_path, dst_path).await?;
+        ctx.event.progress.files += 1;
+        ctx.event.progress.size += meta.len();
+    }
+
+    emit_event_paste_progress(ctx)?;
+
+    Ok(())
+}
+async fn copy_paths_dir(
+    ctx: &mut MoveCopyTaskContext,
+    src_path: impl AsRef<Path>,
+    dst_path: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    log::debug!("CP DIR: {:?} => {:?}", src_path.as_ref(), dst_path.as_ref());
+    todo!()
+}
+async fn copy_paths_file(
+    ctx: &mut MoveCopyTaskContext,
+    src_path: impl AsRef<Path>,
+    dst_path: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    log::debug!(
+        "CP FILE: {:?} => {:?}",
+        src_path.as_ref(),
+        dst_path.as_ref()
+    );
+    todo!()
+}
 // =====================================================================================================================
 //
 //    ###            ###         ###############          ###            ###
