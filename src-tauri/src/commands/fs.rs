@@ -3,7 +3,6 @@ use std::{
     fs,
     path::{Path, PathBuf},
     sync::Arc,
-    time::Duration,
 };
 
 use anyhow::{anyhow, Context};

@@ -3,12 +3,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use tauri::Emitter;
 use walkdir::WalkDir;
 
 use crate::{
-    commands::fs_util::{get_basename, get_parent, resolv_conflict_name},
+    commands::fs_util::{get_file_name, get_parent, resolv_conflict_name},
     state::task::TaskContext,
     types::{
         FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse,
@@ -88,7 +88,7 @@ async fn move_paths_impl1(
         if ctx.is_canceled() {
             return Ok(());
         }
-        let src_name = get_basename(&src_path)?;
+        let src_name = get_file_name(&src_path)?;
         let dst_path = dst_dir.join(src_name);
         move_paths_impl2(ctx, src_path, &dst_path).await?;
     }
@@ -262,28 +262,34 @@ async fn copy_paths_prepare(
 }
 async fn copy_paths_impl2(
     ctx: &mut MoveCopyTaskContext,
-    src_path: PathBuf,
+    src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
+    let src_parent = get_parent(&src_path)?;
     for walk in WalkDir::new(&src_path) {
         if ctx.is_canceled() {
             return Ok(());
         }
 
         let f = walk?;
-        let suffix = f.path().strip_prefix(&src_path)?;
+        let src_path = f.path();
+
+        let suffix = src_path.strip_prefix(&src_parent).context(format!(
+            "BUG: strip_prefix error: {:?}, {:?}",
+            src_path, src_parent
+        ))?;
         let mut dst_path = dst_dir.as_ref().join(suffix);
 
-        check_src_dst_metadata(&src_path, &dst_path)?;
+        check_src_dst_metadata(src_path, &dst_path)?;
 
         if dst_path.exists() {
-            dst_path = match resolve_copy_path_confilct(ctx, &src_path, &dst_path).await? {
+            dst_path = match resolve_copy_path_confilct(ctx, src_path, &dst_path).await? {
                 None => return Ok(()),
                 Some(p) => p,
             }
         };
 
-        copy_paths_impl3(ctx, f.path().to_path_buf(), dst_path).await?;
+        copy_paths_impl3(ctx, src_path, dst_path).await?;
     }
     Ok(())
 }
@@ -302,13 +308,13 @@ fn check_src_dst_metadata(
         if src_meta.is_file() && dst_meta.is_dir() {
             return Err(anyhow!(
                 "ファイルのコピー先に同名のディレクトリがあります {:?}",
-                src_path.as_ref()
+                src_path.as_ref().to_string_lossy(),
             ));
         }
         if src_meta.is_dir() && dst_meta.is_file() {
             return Err(anyhow!(
                 "ディレクトリのコピー先に同名のファイルがあります {:?}",
-                src_path.as_ref()
+                src_path.as_ref().to_string_lossy(),
             ));
         }
     }
@@ -361,10 +367,10 @@ async fn resolve_copy_path_confilct(
 
 async fn copy_paths_impl3(
     ctx: &mut MoveCopyTaskContext,
-    src_path: PathBuf,
-    dst_path: PathBuf,
+    src_path: impl AsRef<Path>,
+    dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
-    let meta = src_path.metadata()?;
+    let meta = src_path.as_ref().metadata()?;
     if meta.is_dir() {
         copy_paths_dir(ctx, src_path, dst_path).await?;
         ctx.event.progress.dires += 1;
@@ -376,6 +382,8 @@ async fn copy_paths_impl3(
 
     emit_event_paste_progress(ctx)?;
 
+    ctx.debug_sleep();
+
     Ok(())
 }
 async fn copy_paths_dir(
@@ -384,7 +392,8 @@ async fn copy_paths_dir(
     dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
     log::debug!("CP DIR: {:?} => {:?}", src_path.as_ref(), dst_path.as_ref());
-    todo!()
+    // TODO
+    Ok(())
 }
 async fn copy_paths_file(
     ctx: &mut MoveCopyTaskContext,
@@ -396,7 +405,8 @@ async fn copy_paths_file(
         src_path.as_ref(),
         dst_path.as_ref()
     );
-    todo!()
+    // TODO
+    Ok(())
 }
 // =====================================================================================================================
 //

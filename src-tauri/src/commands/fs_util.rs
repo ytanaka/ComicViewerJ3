@@ -1,7 +1,6 @@
 //! [`fs`](super::fs) で使用する関数
 
 use std::{
-    ffi::OsString,
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -77,7 +76,7 @@ pub fn resolv_conflict_name(
     dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<PathBuf> {
     let mut i = 1;
-    let src_filename = get_basename(src_path)?.to_string_lossy().to_string();
+    let src_filename = get_file_name(src_path)?.to_string_lossy().to_string();
     let dst_dir = get_parent(dst_path)?;
 
     loop {
@@ -90,12 +89,12 @@ pub fn resolv_conflict_name(
     }
 }
 
-pub fn get_basename(path: impl AsRef<Path>) -> anyhow::Result<OsString> {
+pub fn get_file_name(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
     let name = path
         .as_ref()
         .file_name()
         .ok_or(anyhow!("不正なパス: {:?}", path.as_ref()))?;
-    Ok(name.to_os_string())
+    Ok(PathBuf::from(name))
 }
 pub fn get_parent(path: impl AsRef<Path>) -> anyhow::Result<PathBuf> {
     let parent = path
