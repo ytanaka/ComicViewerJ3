@@ -57,12 +57,13 @@ async fn move_paths_impl1(
     src_paths: Vec<PathBuf>,
     dst_dir: PathBuf,
 ) -> anyhow::Result<()> {
+    // 実行確認
     let mut msg = String::new();
     for p in src_paths.iter().take(5) {
         if !msg.is_empty() {
             msg.push_str("\n");
-            msg.push_str(&p.to_string_lossy());
         }
+        msg.push_str(&p.to_string_lossy());
     }
     if 5 < src_paths.len() {
         msg.push_str("\n.....");
@@ -74,6 +75,7 @@ async fn move_paths_impl1(
         return Ok(());
     }
 
+    // 全部移動する
     for src_path in src_paths {
         if ctx.is_canceled() {
             return Ok(());
