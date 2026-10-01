@@ -8,7 +8,7 @@ use anyhow::anyhow;
 use tauri::Emitter;
 
 use crate::{
-    commands::fs_util::{get_dst_path, resolv_conflict_name},
+    commands::fs_util::{get_copy_move_dst_path, resolv_conflict_name},
     state::task::TaskContext,
     types::{
         FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse, TaskConfirm,
@@ -45,7 +45,7 @@ pub fn move_paths(
         ctx.event.head.finished = true;
         ctx.event.head.canceled = ctx.is_canceled();
         ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
-        let _ = emit_event_move_paths(&mut ctx).err().map(|e| {
+        let _ = emit_event_paste_progress(&mut ctx).err().map(|e| {
             log::error!("move_paths: notify error task_id={}, {}", ctx.task_id, e);
         });
     });
@@ -70,7 +70,7 @@ async fn move_paths_impl2(
     src_path: PathBuf,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
-    let dst_path = match get_dst_path(&src_path, &dst_dir)? {
+    let dst_path = match get_copy_move_dst_path(&src_path, &dst_dir)? {
         // 移動先に同じ名前がないのでOK
         Some(p) => p,
         // 移動先に同じ名前がある...
@@ -84,7 +84,7 @@ async fn move_paths_impl2(
                 // 前回の答えがない...
                 None => {
                     // 問い合わせて回答を受け取る
-                    let response = ask_to_ui(ctx, &src_path, &dst_dir).await?;
+                    let response = ask_to_ui_paste_confilct(ctx, &src_path, &dst_dir).await?;
                     match response.answer {
                         FilePasteAnswer::Cancel => {
                             ctx.cancel_task();
@@ -113,7 +113,9 @@ async fn move_paths_impl2(
 
     // 移動!!!
     fs::rename(&src_path, dst_path)?;
+    emit_event_paste_progress(ctx)?;
 
+    // デバッグ用スリープ
     let pref = ctx.state.preferences.read().unwrap();
     let sleep = pref.debug_file_op_sleep_ms;
     if 0 < sleep {
@@ -122,7 +124,7 @@ async fn move_paths_impl2(
 
     Ok(())
 }
-async fn ask_to_ui(
+async fn ask_to_ui_paste_confilct(
     ctx: &mut MovePathsTaskContext,
     src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
@@ -139,7 +141,7 @@ async fn ask_to_ui(
     let ret = FilePasteResponse::from(ret).ok_or(anyhow!("invalid TaskResponse"))?;
     Ok(ret)
 }
-fn emit_event_move_paths(ctx: &mut MovePathsTaskContext) -> anyhow::Result<()> {
+fn emit_event_paste_progress(ctx: &mut MovePathsTaskContext) -> anyhow::Result<()> {
     if !ctx.can_emit_event()? {
         return Ok(());
     }

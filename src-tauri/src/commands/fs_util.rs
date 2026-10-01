@@ -66,7 +66,17 @@ pub fn cnv_file_ids_to_path(
     Ok(paths)
 }
 
-pub fn get_dst_path(
+/// コピー／移動先のフルパスを取得
+///
+/// # Parameter
+/// * `src_path`: 元のファイル／ディレクトリのフルパス
+/// * `dst_dir`: 先のディレクトリのフルパス
+///
+/// # Return
+/// * `Ok(None)`: 先のディレクトリにすでに同名のなにかが存在する
+/// * `Ok(Some(path))`: コピー／移動先のフルパス
+///
+pub fn get_copy_move_dst_path(
     src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<Option<PathBuf>> {

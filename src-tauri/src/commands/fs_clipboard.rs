@@ -44,7 +44,6 @@ pub fn file_cut_or_copy_to_clipboard_impl(
     let paths = cnv_file_ids_to_path(state, tab_id, file_ids)?;
     let mut clip = arboard::Clipboard::new()?;
     clip.set().file_list(&paths)?;
-    // TODO 文字列もコピー
 
     let mut app_clip = state.clipboard.lock().unwrap();
     *app_clip = Some(AppClipboard::new(mode, paths));
