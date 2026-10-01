@@ -5,7 +5,7 @@ use tauri::{AppHandle, State};
 use crate::{
     commands::{
         fs_util::cnv_file_ids_to_path,
-        fs_util_move::{copy_paths, move_paths, MoveCopyTaskContext},
+        fs_util_paste::{copy_paths, move_paths, MoveCopyTaskContext},
     },
     state::{app_state::AppState, clipboard::AppClipboard, task::TaskContext},
     types::{ClipboardPasteResult, FilePasteNotifyEvent, MoveOrCopy, TabId, TaskId},
