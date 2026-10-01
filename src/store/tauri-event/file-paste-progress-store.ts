@@ -30,7 +30,7 @@ export const useFilePasteProgressStore = create<FilePasteProgressStore>()((set, 
     useUiVolatileStore.getState().setField('showFilePasteProgressDialog', true);
 
     set(() => {
-      return { tab, taskId,  resolve, event: null };
+      return { tab, taskId, resolve, event: null };
     });
   },
   closeDialog: () => {

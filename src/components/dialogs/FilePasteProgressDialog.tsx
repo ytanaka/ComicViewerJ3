@@ -45,7 +45,7 @@ export function FilePasteProgressDialog() {
     function sum(p: TaskEventFileProgress) {
       return p.size + (p.dires + p.files) * FILE_OVERHEAD + FILE_OVERHEAD; // divide by zero を防ぐ
     }
-    return sum(event.progress) / sum(event.prepare_progress) * 100;
+    return (sum(event.progress) / sum(event.prepare_progress)) * 100;
   }
 
   useEffect(() => {
@@ -81,6 +81,3 @@ export function FilePasteProgressDialog() {
     </Dialog>
   );
 }
-
-
-

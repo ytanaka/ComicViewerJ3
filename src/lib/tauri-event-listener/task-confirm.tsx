@@ -12,7 +12,7 @@ const listener = new TauriEventListener(async (event: TaskConfirm) => {
     res = await dialogCommands.showFilePasteConfirmDialog(event);
   } else if (event.t == 'OkCancel') {
     const ret = await dialogCommands.showOkCancelDialog(event.args[0], event.args[1]);
-    res = { t: 'OkCancel', task_id: event.task_id, args: ["" + ret] };
+    res = { t: 'OkCancel', task_id: event.task_id, args: ['' + ret] };
   } else {
     res = { t: 'Dummy', task_id: event.task_id, args: [] };
   }

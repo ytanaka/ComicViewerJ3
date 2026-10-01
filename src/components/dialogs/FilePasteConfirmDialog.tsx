@@ -64,14 +64,34 @@ export function FilePasteConfirmDialog() {
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogAction onClick={() => handleAnswer(mkRes('Cancel'))} autoFocus={true} className="mr-7" >キャンセル</AlertDialogAction>
-          <div className='flex items-center' title='ONにすると、この選択を覚えておいて再度尋ねないようにします'>
-            <Label htmlFor='sw_always'>常に</Label>
+          <AlertDialogAction onClick={() => handleAnswer(mkRes('Cancel'))} autoFocus={true} className="mr-7">
+            キャンセル
+          </AlertDialogAction>
+
+          <div className="flex items-center" title="ONにすると、この選択を覚えておいて再度尋ねないようにします">
+            <Label htmlFor="sw_always">常に</Label>
             <Switch id="sw_always" className="ml-2" onCheckedChange={setAlways} />
           </div>
-          <AlertDialogAction title='同じ名前のファイル、ディレクトリは何もしない' onClick={() => handleAnswer(mkRes('Skip'))}>スキップ</AlertDialogAction>
-          <AlertDialogAction title='同じ名前のファイル、ディレクトリは別名にする' onClick={() => handleAnswer(mkRes('Rename'))}>リネーム</AlertDialogAction>
-          <AlertDialogAction title='同じ名前のファイルは上書き' onClick={() => handleAnswer(mkRes('Merge'))} hidden={mode_copy}>
+
+          <AlertDialogAction
+            title="同じ名前のファイル、ディレクトリは何もしない"
+            onClick={() => handleAnswer(mkRes('Skip'))}
+          >
+            スキップ
+          </AlertDialogAction>
+
+          <AlertDialogAction
+            title="同じ名前のファイル、ディレクトリは別名にする"
+            onClick={() => handleAnswer(mkRes('Rename'))}
+          >
+            リネーム
+          </AlertDialogAction>
+
+          <AlertDialogAction
+            title="同じ名前のファイルは上書き"
+            onClick={() => handleAnswer(mkRes('Merge'))}
+            hidden={mode_copy}
+          >
             マージ
           </AlertDialogAction>
         </AlertDialogFooter>

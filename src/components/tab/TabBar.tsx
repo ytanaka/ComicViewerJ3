@@ -73,7 +73,9 @@ function TabButton({ tab, index, isSelected }: { tab: UiTab; index: number; isSe
         className={`block truncate text-left w-full max-w-full rounded-b-none ${isSelected ? '' : 'font-light'}`}
         style={isSelected ? { direction: 'rtl' } : {}} // カレントタブの場合だけ先頭を ・・・ で省略する
       >
-        <span style={{ direction: 'ltr', unicodeBidi: 'isolate' }}> {/* これを入れないと、"abc!" が "!abc" になってしまう */}
+        <span
+          style={{ direction: 'ltr', unicodeBidi: 'isolate' }} // これを入れないと、"abc!" が "!abc" になってしまう
+        >
           {isSelected ? tab.info.path : getPathBasename(tab.info.path)}
         </span>
       </Button>

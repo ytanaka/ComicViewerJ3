@@ -322,7 +322,7 @@ fn check_src_dst_metadata(
     Ok(())
 }
 fn err_cp_symlink(path: impl AsRef<Path>) -> anyhow::Error {
-    return anyhow!("このアプリではリンクはコピーできません {:?}", path.as_ref());
+    anyhow!("このアプリではリンクはコピーできません {:?}", path.as_ref())
 }
 async fn resolve_copy_path_confilct(
     ctx: &mut MoveCopyTaskContext,
@@ -461,13 +461,13 @@ async fn copy_paths_file2(
 async fn confirm_exec(
     ctx: &mut MoveCopyTaskContext,
     mode: MoveOrCopy,
-    src_paths: &Vec<PathBuf>,
+    src_paths: &[PathBuf],
 ) -> anyhow::Result<bool> {
     // 実行確認
     let mut msg = String::new();
     for p in src_paths.iter().take(5) {
         if !msg.is_empty() {
-            msg.push_str("\n");
+            msg.push('\n');
         }
         msg.push_str(&p.to_string_lossy());
     }
@@ -486,7 +486,7 @@ async fn confirm_exec(
         Ok(true)
     } else {
         ctx.cancel_task();
-        return Ok(false);
+        Ok(false)
     }
 }
 
