@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
-use tauri::{AppHandle, State};
+use anyhow::anyhow;
+use tauri::{AppHandle, Emitter, State};
 
 use crate::{
     LOG_RESULT, commands::{
         fs_util::cnv_file_ids_to_path, fs_util_move::{MovePathsTaskContext, move_paths},
-    }, state::{app_state::AppState, clipboard::AppClipboard, task::TaskContext}, types::{ClipboardPasteResult, FilePasteNotifyEvent, MoveOrCopy, TabId, TaskId}, util::vec_to_str,
+    }, state::{app_state::AppState, clipboard::AppClipboard, task::TaskContext}, types::{ClipboardPasteResult, EVENT_NAME_TASK_CONFIRM, FilePasteNotifyEvent, MoveOrCopy, OkCancelResponse, TabId, TaskConfirm, TaskId}, util::vec_to_str,
 };
 
 #[tauri::command]

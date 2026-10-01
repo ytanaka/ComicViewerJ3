@@ -296,10 +296,26 @@ export type TabInfoUI = {
 
 /**  RustからUIへTask関連問い合わせイベント */
 export type TaskConfirm = {
-	t: TaskType,
+	t: TaskConfirmType,
 	task_id: number,
 	args: string[],
 };
+
+export type TaskConfirmType = 
+/**  cancel_task() が呼ばれたとき、タスクの Receiver 待ちをしているスレッドを起こすためにRust内部で使う */
+"Dummy" | 
+/**
+ *  OkCancelダイアログを表示する
+ *  * TaskConfirm.args[タイトル, メッセージ]
+ *  * TaskResponse.args[OKされたかどうか: "true", "false"]
+ */
+"OkCancel" | 
+/**
+ *  ファイル上書き確認
+ *  * TaskConfirm.args["move" or "copy", 元ファイル, 先ディレクトリ]
+ *  * TaskResponse.args[FilePasteAnswer, 全てが選択された: "true", "false"]
+ */
+"Paste";
 
 /**  タスクの処理経過情報の共通情報 */
 export type TaskEventFileProgress = {
@@ -330,13 +346,9 @@ export type TaskEventHeader = {
 /**  Task問い合わせの応答 */
 export type TaskResponse = {
 	task_id: number,
-	t: TaskType,
+	t: TaskConfirmType,
 	args: string[],
 };
-
-export type TaskType = 
-/**  cancel_task() が呼ばれたとき、タスクの Receiver 待ちをしているスレッドを起こすためにRust内部で使う */
-"Dummy" | "OkCancel" | "Paste";
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {

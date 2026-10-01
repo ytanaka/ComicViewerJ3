@@ -639,7 +639,7 @@ pub struct FilePasteResponse {
 }
 impl FilePasteResponse {
     pub fn from(r: TaskResponse) -> Option<Self> {
-        if r.t != TaskType::Paste {
+        if r.t != TaskConfirmType::Paste {
             return None;
         }
         let arg0 = r.args.first().and_then(|s| FilePasteAnswer::parse(s));
@@ -672,12 +672,30 @@ impl FilePasteAnswer {
     }
 }
 
+// =====================================================================================================================
+// Task
+// =====================================================================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+pub enum TaskConfirmType {
+    /// cancel_task() が呼ばれたとき、タスクの Receiver 待ちをしているスレッドを起こすためにRust内部で使う
+    Dummy,
+    /// OkCancelダイアログを表示する
+    /// * TaskConfirm.args[タイトル, メッセージ]
+    /// * TaskResponse.args[OKされたかどうか: "true", "false"]
+    OkCancel,
+    /// ファイル上書き確認
+    /// * TaskConfirm.args["move" or "copy", 元ファイル, 先ディレクトリ]
+    /// * TaskResponse.args[FilePasteAnswer, 全てが選択された: "true", "false"]
+    Paste,
+}
+
 pub const EVENT_NAME_TASK_CONFIRM: &str = "task-confirm";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// RustからUIへTask関連問い合わせイベント
 pub struct TaskConfirm {
-    pub t: TaskType,
+    pub t: TaskConfirmType,
     pub task_id: TaskId,
     pub args: Vec<String>,
 }
@@ -700,7 +718,7 @@ impl TaskConfirm {
         dst_dir: impl AsRef<Path>,
     ) -> Self {
         Self {
-            t: TaskType::Paste,
+            t: TaskConfirmType::Paste,
             task_id,
             args: vec![
                 move_or_copy.to_string(),
@@ -709,13 +727,20 @@ impl TaskConfirm {
             ],
         }
     }
+    pub fn new_ok_cancel(task_id: TaskId, title: &str, msg: &str) -> Self {
+        Self {
+            t: TaskConfirmType::OkCancel,
+            task_id,
+            args: vec![title.to_string(), msg.to_string()],
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// Task問い合わせの応答
 pub struct TaskResponse {
     pub task_id: TaskId,
-    pub t: TaskType,
+    pub t: TaskConfirmType,
     pub args: Vec<String>,
 }
 impl Display for TaskResponse {
@@ -733,18 +758,25 @@ impl TaskResponse {
     pub fn new_dummy(task_id: TaskId) -> Self {
         Self {
             task_id,
-            t: TaskType::Dummy,
+            t: TaskConfirmType::Dummy,
             args: Vec::new(),
         }
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
-pub enum TaskType {
-    /// cancel_task() が呼ばれたとき、タスクの Receiver 待ちをしているスレッドを起こすためにRust内部で使う
-    Dummy,
-    OkCancel,
-    Paste,
+pub struct OkCancelResponse {
+    pub ok: bool,
+}
+impl OkCancelResponse {
+    pub fn from(r: TaskResponse) -> Option<Self> {
+        if r.t != TaskConfirmType::OkCancel {
+            return None;
+        }
+        match r.args.first().and_then(|s| parse_bool(s)) {
+            Some(ok) => Some(Self { ok }),
+            _ => None,
+        }
+    }
 }
 
 // =====================================================================================================================

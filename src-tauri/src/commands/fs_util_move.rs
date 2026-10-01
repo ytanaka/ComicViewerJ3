@@ -11,7 +11,7 @@ use crate::{
     commands::fs_util::{get_copy_move_dst_path, resolv_conflict_name},
     state::task::TaskContext,
     types::{
-        FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse, TaskConfirm,
+        FilePasteAnswer, FilePasteNotifyEvent, FilePasteResponse, OkCancelResponse, TaskConfirm,
         EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY, EVENT_NAME_TASK_CONFIRM,
     },
     util::pathvec_to_str,
@@ -57,6 +57,23 @@ async fn move_paths_impl1(
     src_paths: Vec<PathBuf>,
     dst_dir: PathBuf,
 ) -> anyhow::Result<()> {
+    let mut msg = String::new();
+    for p in src_paths.iter().take(5) {
+        if !msg.is_empty() {
+            msg.push_str("\n");
+            msg.push_str(&p.to_string_lossy());
+        }
+    }
+    if 5 < src_paths.len() {
+        msg.push_str("\n.....");
+        msg.push_str(&format!("\n合計 {}", src_paths.len()));
+    }
+    let res = ask_to_ui_ok_cancel(ctx, "移動確認", &msg).await?;
+    if !res.ok {
+        ctx.cancel_task();
+        return Ok(());
+    }
+
     for src_path in src_paths {
         if ctx.is_canceled() {
             return Ok(());
@@ -155,4 +172,22 @@ fn emit_event_paste_progress(ctx: &mut MovePathsTaskContext) -> anyhow::Result<(
     ctx.app
         .emit(EVENT_NAME_FILE_PASTE_PROGRESS_NOTIFY, ctx.event.clone())?;
     Ok(())
+}
+
+async fn ask_to_ui_ok_cancel<E, A>(
+    ctx: &mut TaskContext<E, A>,
+    title: &str,
+    msg: &str,
+) -> anyhow::Result<OkCancelResponse> {
+    let ev = TaskConfirm::new_ok_cancel(ctx.task_id, title, msg);
+    // UIにイベントを送る
+    log::trace!("send to ui TaskConfirm: {}", ev);
+    ctx.app.emit(EVENT_NAME_TASK_CONFIRM, ev)?;
+
+    // UIの応答を待つ
+    let ret = ctx.rx.recv()?;
+    log::trace!("receive from ui TaskResponse: {}", ret);
+
+    let ret = OkCancelResponse::from(ret).ok_or(anyhow!("invalid TaskResponse"))?;
+    Ok(ret)
 }

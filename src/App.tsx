@@ -21,7 +21,7 @@ import { TauriGetFilesPropertyEventListener } from './lib/tauri-event-listener/g
 import { FileDeleteProgressDialog } from './components/dialogs/FileDeleteProgressDialog';
 import { TauriFileDeleteProgressEventListener } from './lib/tauri-event-listener/file-delete-progress';
 import { TauriFilePasteProgressEventListener } from './lib/tauri-event-listener/file-paste-progress';
-import { TauriTaskConfirmEventListener } from './lib/tauri-event-listener/file-paste-confirm';
+import { TauriTaskConfirmEventListener } from './lib/tauri-event-listener/task-confirm';
 import { FilePasteProgressDialog } from './components/dialogs/FilePasteProgressDialog';
 import { FilePasteConfirmDialog } from './components/dialogs/FilePasteConfirmDialog';
 
