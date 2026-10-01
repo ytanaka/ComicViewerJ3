@@ -114,7 +114,7 @@ async fn move_paths_impl2(
             None => {
                 // 問い合わせて回答を受け取る
                 let dst_dir = get_parent(&dst_path)?;
-                let response = ask_to_ui_paste_confilct(ctx, &src_path, &dst_dir).await?;
+                let response = ask_to_ui_paste_confilct(ctx, Move, &src_path, &dst_dir).await?;
                 match response.answer {
                     FilePasteAnswer::Cancel => {
                         ctx.cancel_task();
@@ -347,7 +347,7 @@ async fn resolve_copy_path_confilct(
         _ => {
             // 問い合わせて回答を受け取る
             let dst_dir = get_parent(&dst_path)?;
-            let response = ask_to_ui_paste_confilct(ctx, &src_path, &dst_dir).await?;
+            let response = ask_to_ui_paste_confilct(ctx, Copy, &src_path, &dst_dir).await?;
             if response.always {
                 ctx.answer = Some(response.answer);
             }
@@ -492,10 +492,11 @@ async fn confirm_exec(
 
 async fn ask_to_ui_paste_confilct(
     ctx: &mut MoveCopyTaskContext,
+    mode: MoveOrCopy,
     src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<FilePasteResponse> {
-    let ev = TaskConfirm::new_paste(ctx.task_id, Move, src_path, dst_dir);
+    let ev = TaskConfirm::new_paste(ctx.task_id, mode, src_path, dst_dir);
     // UIにイベントを送る
     log::trace!("send to ui TaskConfirm: {}", ev);
     ctx.app.emit(EVENT_NAME_TASK_CONFIRM, ev)?;

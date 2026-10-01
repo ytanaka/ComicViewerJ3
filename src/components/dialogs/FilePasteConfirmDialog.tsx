@@ -51,7 +51,7 @@ export function FilePasteConfirmDialog() {
     >
       <AlertDialogContent className="max-w-3xl!">
         <AlertDialogHeader>
-          <AlertDialogTitle>確認</AlertDialogTitle>
+          <AlertDialogTitle>{mode_copy ? 'コピー' : '移動'}確認</AlertDialogTitle>
         </AlertDialogHeader>
 
         <div>
@@ -90,7 +90,7 @@ export function FilePasteConfirmDialog() {
           <AlertDialogAction
             title="同じ名前のファイルは上書き"
             onClick={() => handleAnswer(mkRes('Merge'))}
-            hidden={mode_copy}
+            hidden={!mode_copy}
           >
             マージ
           </AlertDialogAction>
