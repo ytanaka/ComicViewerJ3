@@ -46,7 +46,7 @@ export function BookmarkManager() {
     const dirEntries = getQueryData_getDirEntries(tab.info.id);
     return {
       dir: tab.info.path,
-      name: enableName ? (dirEntries?.[tab.selection.focusIndex].name ?? '') : '',
+      name: enableName ? (dirEntries?.[tab.selection.focusIndex]?.name ?? '') : '',
       mode: tab.fileViewMode,
       thumbnailSize: tab.thumbnailSize,
     };

@@ -18,7 +18,7 @@ export const sortCommands = {
     const t = new DelayedToast(100, () => toast('ソート中', { id: 'sorting' }));
     try {
       const result = await rustcmds.sortFiles(tab.info.id, cond);
-      handleRustCmdResult(result, `rustcmds.sortFiles(${tab.info.id},${cond})`, 'ファイル名ソート失敗', data => {
+      handleRustCmdResult(result, `rustcmds.sortFiles(${tab.info.id},${cond.sort_type.type}:${cond.asc})`, 'ファイル名ソート失敗', data => {
         if (!data) {
           toast.error('このディレクトリではまだソートの準備ができていません', { id: 'sort-not-yet-ready' });
         } else {
