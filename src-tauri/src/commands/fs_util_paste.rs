@@ -66,7 +66,7 @@ pub fn move_paths(
         }
         ctx.event.head.finished = true;
         ctx.event.head.canceled = ctx.is_canceled();
-        ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
+        ctx.force_emit_next_event(); // 最後なので必ず通知させる
         let _ = emit_event_paste_progress(&mut ctx).err().map(|e| {
             log::error!("move_paths: notify error task_id={}, {}", ctx.task_id, e);
         });
@@ -198,7 +198,7 @@ pub fn copy_paths(
         }
         ctx.event.head.finished = true;
         ctx.event.head.canceled = ctx.is_canceled();
-        ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
+        ctx.force_emit_next_event(); // 最後なので必ず通知させる
         let _ = emit_event_paste_progress(&mut ctx).err().map(|e| {
             log::error!("copy_paths: notify error task_id={}, {}", ctx.task_id, e);
         });

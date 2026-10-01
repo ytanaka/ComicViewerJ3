@@ -334,10 +334,6 @@ export type TaskEventFileProgress = {
 
 /**  Rust側で継続的に処理するタスクの進捗状況を通知するイベントの共通ヘッダー */
 export type TaskEventHeader = {
-	/**  Rust内部使用 */
-	event_time_ms: number,
-	/**  Rust内部使用 */
-	event_count: number,
 	/**  最後の通知かどうか */
 	finished: boolean,
 	/**  キャンセルされたかどうか (finished == true の場合) */

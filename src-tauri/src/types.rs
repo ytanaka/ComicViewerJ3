@@ -808,12 +808,6 @@ impl OkCancelResponse {
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq, Default)]
 /// Rust側で継続的に処理するタスクの進捗状況を通知するイベントの共通ヘッダー
 pub struct TaskEventHeader {
-    #[specta(type =specta_typescript::Number)]
-    /// Rust内部使用
-    pub event_time_ms: u128,
-    /// Rust内部使用
-    pub event_count: u32,
-
     /// 最後の通知かどうか
     pub finished: bool,
 

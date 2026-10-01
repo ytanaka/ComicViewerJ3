@@ -99,9 +99,13 @@ impl<E, A> TaskContext<E, A> {
         self.state.get_task(self.task_id).is_task_canceled()
     }
 
-    pub fn can_emit_event(&self) -> anyhow::Result<bool> {
+    pub fn can_emit_event(&mut self) -> anyhow::Result<bool> {
         let now = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
-        Ok(100 < now - self.event_emit_time_ms)
+        let ret = 100 < now - self.event_emit_time_ms;
+        if ret {
+            self.event_emit_time_ms = now;
+        }
+        Ok(ret)
     }
 
     pub fn cancel_task(&mut self) {
@@ -114,5 +118,9 @@ impl<E, A> TaskContext<E, A> {
         if 0 < sleep {
             std::thread::sleep(Duration::from_millis(sleep as u64));
         }
+    }
+
+    pub fn force_emit_next_event(&mut self) {
+        self.event_emit_time_ms = 0;
     }
 }

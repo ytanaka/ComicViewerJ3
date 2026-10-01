@@ -199,7 +199,7 @@ async fn remove_files_impl1(
         }
         ctx.event.head.finished = true;
         ctx.event.head.canceled = ctx.is_canceled();
-        ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
+        ctx.force_emit_next_event(); // 最後なので必ず通知させる
         if let Err(e) = emit_event_remove_files(&mut ctx) {
             log::error!("remove_files: notify error task_id={}, {}", ctx.task_id, e);
         };
@@ -341,7 +341,7 @@ async fn get_files_property_impl1(
         }
         ctx.event.head.finished = true;
         ctx.event.head.canceled = ctx.is_canceled();
-        ctx.event.head.event_time_ms = 0; // 最後なので必ず通知させる
+        ctx.force_emit_next_event(); // 最後なので必ず通知させる
         if let Err(e) = emit_event_get_files_property(&mut ctx) {
             log::error!(
                 "get_files_property: notify error task_id={}, {}",
