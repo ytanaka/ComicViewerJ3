@@ -8,17 +8,34 @@ export function FileProgressPanel({
   header: TaskEventHeader | undefined;
   progress: TaskEventFileProgress | undefined;
 }) {
+  const size = progress?.size;
+  const files = progress?.files;
+  const dirs = progress?.dires;
+  const symlinks = progress?.symlinks;
+
   return (
     <>
-      サイズ: {formatFileBytes(progress?.size ?? 0)} ({progress?.size.toLocaleString()} バイト)
-      <br />
-      ファイル数: {progress?.files.toLocaleString()}
-      <br />
-      ディレクトリ数: {progress?.dires.toLocaleString()}
-      {progress?.symlinks !== 0 && (
+      {!!size && (
+        <>
+          サイズ: {formatFileBytes(size)} ({size.toLocaleString()} バイト)
+        </>
+      )}
+      {!!files && (
         <>
           <br />
-          リンク数: {progress?.symlinks.toLocaleString()}
+          ファイル数: {files.toLocaleString()}
+        </>
+      )}
+      {!!dirs && (
+        <>
+          <br />
+          ディレクトリ数: {dirs.toLocaleString()}
+        </>
+      )}
+      {!!symlinks && (
+        <>
+          <br />
+          リンク数: {symlinks.toLocaleString()}
         </>
       )}
       {header?.error_msg && (

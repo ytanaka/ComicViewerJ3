@@ -199,11 +199,13 @@ export const fileCommands = {
   },
 };
 
-function getSelectedFiles(): { tab: TabInfo | undefined; sel: DirEntry[] | undefined } {
-  const EMPTY = { tab: undefined, sel: undefined };
+type SelectedFiles = { tab: TabInfo | undefined; sel: DirEntry[] | undefined };
+function getSelectedFiles(): SelectedFiles {
+  const EMPTY: SelectedFiles = { tab: undefined, sel: undefined };
 
   const tab = st().getCurrentTab();
   if (!tab) return EMPTY;
+  EMPTY.tab = tab.info;
 
   const sel = tab.selection;
   if (!sel.selectionIndexes.has(sel.focusIndex)) return EMPTY;

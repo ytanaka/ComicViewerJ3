@@ -3,13 +3,9 @@ use std::sync::Arc;
 use tauri::{AppHandle, State};
 
 use crate::{
-    commands::{
-        fs_util::cnv_file_ids_to_path,
-        fs_util_move::{move_paths, MovePathsTaskContext},
-    },
-    state::{app_state::AppState, clipboard::AppClipboard, task::TaskContext},
-    types::{ClipboardPasteResult, FilePasteNotifyEvent, MoveOrCopy, TabId, TaskId},
-    LOG_RESULT,
+    LOG_RESULT, commands::{
+        fs_util::cnv_file_ids_to_path, fs_util_move::{MovePathsTaskContext, move_paths},
+    }, state::{app_state::AppState, clipboard::AppClipboard, task::TaskContext}, types::{ClipboardPasteResult, FilePasteNotifyEvent, MoveOrCopy, TabId, TaskId}, util::vec_to_str,
 };
 
 #[tauri::command]
@@ -23,10 +19,10 @@ pub fn file_cut_or_copy_to_clipboard(
 ) -> Result<(), String> {
     LOG_RESULT!(
         format!(
-            "file_cut_or_copy_to_clipboard({:?},{},[{}])",
+            "file_cut_or_copy_to_clipboard({:?},{},{})",
             mode,
             tab_id,
-            file_ids.len()
+            vec_to_str(&file_ids)
         ),
         {
             file_cut_or_copy_to_clipboard_impl(&state, mode, tab_id, &file_ids)

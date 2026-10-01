@@ -94,7 +94,9 @@ impl<E, A> TaskContext<E, A> {
     }
 
     pub fn is_canceled(&self) -> bool {
-        !self.state.has_tab(self.tab_id) || self.state.get_task(self.task_id).is_task_canceled()
+        // ※ ファイルが削除、作成されるとUIに通知され、現在のタブが再作成される。
+        //    そうなってもタスクが中断してほしくないので、タブの有無をチェックしない
+        self.state.get_task(self.task_id).is_task_canceled()
     }
 
     pub fn can_emit_event(&self) -> anyhow::Result<bool> {

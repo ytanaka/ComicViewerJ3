@@ -112,7 +112,14 @@ async fn move_paths_impl2(
     };
 
     // 移動!!!
+    let src_is_file = src_path.is_file();
     fs::rename(&src_path, dst_path)?;
+
+    if src_is_file {
+        ctx.event.progress.files += 1;
+    } else {
+        ctx.event.progress.dires += 1;
+    }
     emit_event_paste_progress(ctx)?;
 
     // デバッグ用スリープ
