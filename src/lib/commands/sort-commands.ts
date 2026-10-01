@@ -1,7 +1,6 @@
 import { useTabStore } from '@/store/tab/store';
 import { handleRustCmdResult, rustcmds, SortType_type } from '../bindings-wrapper';
 import { toast } from 'sonner';
-import { DelayedToast } from '../tools/delayed-toast';
 
 export const sortCommands = {
   async sortFiles(type: SortType_type) {
@@ -15,18 +14,14 @@ export const sortCommands = {
       cond.asc = true;
     }
 
-    const t = new DelayedToast(100, () => toast('ソート中', { id: 'sorting' }));
-    try {
-      const result = await rustcmds.sortFiles(tab.info.id, cond);
-      handleRustCmdResult(result, `rustcmds.sortFiles(${tab.info.id},${cond.sort_type.type}:${cond.asc})`, 'ファイル名ソート失敗', data => {
-        if (!data) {
-          toast.error('このディレクトリではまだソートの準備ができていません', { id: 'sort-not-yet-ready' });
-        } else {
-          useTabStore.getState().setSortCondition(tab.info.id, cond);
-        }
-      });
-    } finally {
-      t.dismiss();
-    }
+    toast('ソート中', { id: 'sorting', duration: 700 });
+    const result = await rustcmds.sortFiles(tab.info.id, cond);
+    handleRustCmdResult(result, `rustcmds.sortFiles(${tab.info.id},${cond.sort_type.type}:${cond.asc})`, 'ファイル名ソート失敗', data => {
+      if (!data) {
+        toast.error('このディレクトリではまだソートの準備ができていません', { id: 'sort-not-yet-ready' });
+      } else {
+        useTabStore.getState().setSortCondition(tab.info.id, cond);
+      }
+    });
   },
 };
