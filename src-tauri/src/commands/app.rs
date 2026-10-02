@@ -1,5 +1,5 @@
 //! アプリ全体
-use std::{os::windows::process::CommandExt, process::Command, sync::Arc};
+use std::{process::Command, sync::Arc};
 
 use tauri::{AppHandle, State, Window};
 
@@ -76,6 +76,7 @@ async fn invoke_program_impl(
 ) -> anyhow::Result<InvokeProgramResult> {
     #[cfg(target_os = "windows")]
     {
+        use std::os::windows::process::CommandExt;
         let mut flags = 0;
         if _nowindow != 0 {
             flags = CREATE_NO_WINDOW;
