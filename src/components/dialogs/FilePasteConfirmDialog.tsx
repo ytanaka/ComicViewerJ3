@@ -92,7 +92,7 @@ export function FilePasteConfirmDialog() {
             onClick={() => handleAnswer(mkRes('Merge'))}
             hidden={!mode_copy}
           >
-            マージ
+            上書き
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 use tauri::Emitter;
 use walkdir::WalkDir;
 
@@ -261,44 +261,56 @@ async fn copy_paths_prepare(
 
     Ok(())
 }
+enum DirOrFile {
+    Dir,
+    File,
+}
 /// * `src_path`: クリップボードから渡されたパス (ファイル or ディレクトリ)
 /// * `dst_dir`: タブのカレントディレクトリ
-
-/// * `src_path`: コピー元パス (ファイル or ディレクトリ)
-/// * `dst_dir`: コピー先ディレクトリ
 async fn copy_paths_impl2(
     ctx: &mut MoveCopyTaskContext,
     src_path: impl AsRef<Path>,
     dst_dir: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
-    let src_parent = get_parent(&src_path)?;
-    // TODO
+    // async fn の再帰呼び出しでエラーになったのでループさせる
+    let mut stack: Vec<(PathBuf, PathBuf)> = Vec::new();
+    stack.push((
+        src_path.as_ref().to_path_buf(),
+        dst_dir.as_ref().to_path_buf(),
+    ));
 
-    for walk in WalkDir::new(&src_path) {
-        if ctx.is_canceled() {
-            return Ok(());
-        }
+    while let Some((src_path, dst_dir)) = stack.pop() {
+        let src_name = get_file_name(&src_path)?;
+        let mut dst_path = dst_dir.join(&src_name);
 
-        let f = walk?;
-        let src_path = f.path();
+        // シンボリックリンクになっていないか、ファイル同士、ディレクトリ同士か確認
+        // src_dir 例: /a/b/c.txt
+        // dst_dir 例: /x/y/c.txt
+        check_src_dst_metadata(&src_path, &dst_path)?;
 
-        let suffix = src_path.strip_prefix(&src_parent).context(format!(
-            "BUG: strip_prefix error: {:?}, {:?}",
-            src_path, src_parent
-        ))?;
-        let mut dst_path = dst_dir.as_ref().join(suffix);
-
-        check_src_dst_metadata(src_path, &dst_path)?;
-
+        // dst_path が存在するなら、上書きかリネームか判定する
         if dst_path.exists() {
-            dst_path = match resolve_copy_path_confilct(ctx, src_path, &dst_path).await? {
+            // リネームされるなら、dst_path は別の名前になる
+            dst_path = match resolve_copy_path_confilct(ctx, &src_path, &dst_path).await? {
                 None => return Ok(()),
                 Some(p) => p,
             }
         };
 
-        copy_paths_impl3(ctx, src_path, dst_path).await?;
+        if matches!(
+            copy_paths_impl3(ctx, &src_path, &dst_path).await?,
+            DirOrFile::Dir
+        ) {
+            // ディレクトリをコピー処理したら、その子をループで処理する
+            for entry in fs::read_dir(&src_path)? {
+                stack.push((
+                    entry?.path().to_path_buf(), // 例: /a/b/ccc/d.txt
+                    dst_path.clone(), // 例: /b/b/Copy(2)_ccc (resolve_copy_path_confilct でリネームした場合)
+                ))
+            }
+        }
     }
+
     Ok(())
 }
 //// 元、先にシンボリックリンクが含まれていないか、元、先がファイル同士とディレクトリ同士になっているか確認
@@ -360,8 +372,7 @@ async fn resolve_copy_path_confilct(
         // 前回の答えがない...
         _ => {
             // 問い合わせて回答を受け取る
-            let dst_dir = get_parent(&dst_path)?;
-            let response = ask_to_ui_paste_confilct(ctx, Copy, &src_path, &dst_dir).await?;
+            let response = ask_to_ui_paste_confilct(ctx, Copy, &src_path, &dst_path).await?;
             if response.always {
                 ctx.answer = Some(response.answer);
             }
@@ -390,22 +401,24 @@ async fn copy_paths_impl3(
     ctx: &mut MoveCopyTaskContext,
     src_path: impl AsRef<Path>,
     dst_path: impl AsRef<Path>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<DirOrFile> {
     let meta = src_path.as_ref().metadata()?;
-    if meta.is_dir() {
+    let ret = if meta.is_dir() {
         copy_paths_dir(dst_path).await?;
         ctx.event.progress.dires += 1;
+        DirOrFile::Dir
     } else {
         copy_paths_file(ctx, src_path, dst_path).await?;
         ctx.event.progress.files += 1;
         ctx.event.progress.size += meta.len();
-    }
+        DirOrFile::File
+    };
 
     emit_event_paste_progress(ctx)?;
 
     ctx.debug_sleep();
 
-    Ok(())
+    Ok(ret)
 }
 async fn copy_paths_dir(dst_path: impl AsRef<Path>) -> anyhow::Result<()> {
     if !dst_path.as_ref().exists() {
