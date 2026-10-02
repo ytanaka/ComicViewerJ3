@@ -25,7 +25,8 @@ export function FilePasteProgressDialog() {
     if (isCopy) title = 'コピー中';
     else title = '移動中';
   } else {
-    if (isCopy) title = 'コピー準備中';
+    if (!event) title = '準備中';
+    else if (isCopy) title = 'コピー準備中';
     else title = '移動準備中';
   }
 
