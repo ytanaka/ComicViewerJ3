@@ -31,38 +31,47 @@ export function FilePasteConfirmDialog() {
     if (!show) return;
     Promise.resolve().then(() => {
       setAlways(false);
-    })
+    });
   }, [show]);
 
-  const handleAnswer = useCallback((res: TaskResponse) => {
-    setField('showFilePasteConfirmDialog', false);
-    if (dialogState.resolve) {
-      dialogState.resolve(res);
-    }
-  }, [dialogState, setField]);
+  const handleAnswer = useCallback(
+    (res: TaskResponse) => {
+      setField('showFilePasteConfirmDialog', false);
+      if (dialogState.resolve) {
+        dialogState.resolve(res);
+      }
+    },
+    [dialogState, setField]
+  );
 
-  const mkRes = useCallback((t: string): TaskResponse => {
-    return {
-      task_id: event?.task_id ?? -999,
-      t: 'Paste',
-      args: [t, '' + always],
-    };
-  }, [always, event?.task_id]);
+  const mkRes = useCallback(
+    (t: string): TaskResponse => {
+      return {
+        task_id: event?.task_id ?? -999,
+        t: 'Paste',
+        args: [t, '' + always],
+      };
+    },
+    [always, event?.task_id]
+  );
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 's') {
-      handleAnswer(mkRes('Skip'));
-    } else if (e.key === 'r') {
-      handleAnswer(mkRes('Rename'));
-    } else if (e.key === 'w') {
-      handleAnswer(mkRes('Merge'));
-    } else if (e.key === 'a') {
-      setAlways(prev => (!prev));
-    } else {
-      return;
-    }
-    e.preventDefault();
-  }, [handleAnswer, mkRes]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 's') {
+        handleAnswer(mkRes('Skip'));
+      } else if (e.key === 'r') {
+        handleAnswer(mkRes('Rename'));
+      } else if (e.key === 'w') {
+        handleAnswer(mkRes('Merge'));
+      } else if (e.key === 'a') {
+        setAlways(prev => !prev);
+      } else {
+        return;
+      }
+      e.preventDefault();
+    },
+    [handleAnswer, mkRes]
+  );
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);

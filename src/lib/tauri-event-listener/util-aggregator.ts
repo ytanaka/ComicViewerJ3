@@ -1,12 +1,18 @@
 export class EventAggregator<T> {
   private eventHandler: (t: T) => Promise<void>;
+  private canIgnoreNewEvent: (pendingEvent: T, arriveEvent: T) => boolean;
 
   private delayMs: number;
   private pending: T | null;
   private timer: number | null;
 
-  constructor(delayMs: number, eventHandler: (t: T) => Promise<void>) {
+  constructor(
+    delayMs: number,
+    eventHandler: (t: T) => Promise<void>,
+    canIgnoreNewEvent: (pendingEvent: T, arriveEvent: T) => boolean
+  ) {
     this.eventHandler = eventHandler;
+    this.canIgnoreNewEvent = canIgnoreNewEvent;
 
     this.delayMs = delayMs;
     this.pending = null;
@@ -22,7 +28,7 @@ export class EventAggregator<T> {
     }
 
     // 保留中と同じイベントなら無視
-    if (this.isSameEvent(this.pending, event)) {
+    if (this.canIgnoreNewEvent(this.pending, event)) {
       return false;
     }
 
@@ -50,11 +56,7 @@ export class EventAggregator<T> {
     }, this.delayMs);
   }
 
-  private isSameEvent(a: T, b: T) {
-    return JSON.stringify(a) === JSON.stringify(b);
-  }
-
   async process(event: T) {
-    await this.eventHandler(event)
+    await this.eventHandler(event);
   }
 }
