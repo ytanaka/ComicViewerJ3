@@ -68,7 +68,7 @@ export function FilePasteConfirmDialog() {
             キャンセル
           </AlertDialogAction>
 
-          <div className="flex items-center" title="ONにすると、この選択を覚えておいて再度尋ねないようにします">
+          <div className="flex items-center" title="ONにすると、この処理中は再度尋ねない">
             <Label htmlFor="sw_always">常に</Label>
             <Switch id="sw_always" className="ml-2" onCheckedChange={setAlways} />
           </div>
