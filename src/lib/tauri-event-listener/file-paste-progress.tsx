@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useAppConstantsStore } from '@/store/app-constants';
 import { FilePasteNotifyEvent } from '../bindings';
-import { TauriEventListener } from './util';
+import { TauriEventListener } from './util-listener';
 import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
 
 const listener = new TauriEventListener(async (event: FilePasteNotifyEvent) => {

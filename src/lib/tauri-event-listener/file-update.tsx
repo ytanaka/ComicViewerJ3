@@ -7,7 +7,7 @@ import { getQueryData_getDirEntries } from '@/services/tab-dir-entry';
 import { setQueryData_getFileInfo1 } from '@/services/tab-file-info';
 import { removeQueries_tab } from '@/services/tab';
 import { useAppConstantsStore } from '@/store/app-constants';
-import { TauriEventListener } from './util';
+import { TauriEventListener } from './util-listener';
 
 // タブ内ファイルの更新イベントリスナー
 const listener = new TauriEventListener(async (event: FileUpdateNotifyEvent) => {
@@ -44,6 +44,9 @@ const listener = new TauriEventListener(async (event: FileUpdateNotifyEvent) => 
       useTabStore.getState().invalidateTabForRefresh(tabId);
     }
   }
+}, {
+  ignoreSameEvent: true,
+  delayMs: 500
 });
 
 export function TauriFileUpdateEventListener() {

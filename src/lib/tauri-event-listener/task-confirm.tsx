@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useAppConstantsStore } from '@/store/app-constants';
-import { TauriEventListener } from './util';
+import { TauriEventListener } from './util-listener';
 import { dialogCommands } from '../commands/dialog-commands';
 import { rustcmds, TaskId } from '../bindings-wrapper';
 import { TaskConfirm, TaskResponse } from '../bindings';
