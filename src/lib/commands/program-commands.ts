@@ -73,7 +73,7 @@ export const programCommands = {
     }
 
     async function invokeFn() {
-      const result = await rustcmds.invokeProgram(tab?.path ?? '', prog, args);
+      const result = await rustcmds.invokeProgram(tab?.path ?? '', prog, args, p.windowsNoWindow ? 1 : 0);
       handleRustCmdResult(result, `rustcmds.invokeProgram()`, `(${p.name})起動`);
     }
 

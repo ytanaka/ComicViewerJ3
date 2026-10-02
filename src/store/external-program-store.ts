@@ -21,6 +21,7 @@ export interface ExternalProgram {
   command: string;
   maxSelectionLimit: number;
   debugPrompt: boolean;
+  windowsNoWindow: boolean;
 }
 
 export const useExternalProgramStore = create<ExternalProgramState>()(
@@ -87,84 +88,87 @@ export function getExternalProgramExamples(): ExternalProgram[] {
     return getExternalProgramExamples_windows();
   }
 }
+type MkExternalProgram = {
+  name: string;
+  command: string;
+  maxSelectionLimit?: number;
+  debugPrompt?: boolean;
+  windowsNoWindow?: boolean;
+};
+function mkPrg({
+  name,
+  command,
+  maxSelectionLimit = 0,
+  debugPrompt = true,
+  windowsNoWindow = false,
+}: MkExternalProgram): ExternalProgram {
+  return {
+    name: name,
+    command: command,
+    debugPrompt: debugPrompt,
+    maxSelectionLimit: maxSelectionLimit,
+    windowsNoWindow: windowsNoWindow,
+  };
+}
 function getExternalProgramExamples_windows(): ExternalProgram[] {
   return [
-    {
+    mkPrg({
       name: 'メモ帳で開く',
       command: 'notepad.exe\n${files}',
-      debugPrompt: true,
       maxSelectionLimit: 1,
-    },
-    {
+    }),
+    mkPrg({
       name: 'Visual Studio Codeで選択されたファイル／ディレクトリを開く',
       command: 'code.cmd\n${files}',
-      debugPrompt: true,
       maxSelectionLimit: 1,
-    },
-    {
+      windowsNoWindow: true,
+    }),
+    mkPrg({
       name: 'Windows Terminalでカレントディレクトリを開く',
       command: 'wt.exe\n-d\n${dir}\n--profile\nGit Bash',
-      debugPrompt: true,
-      maxSelectionLimit: 0,
-    },
-    {
+    }),
+    mkPrg({
       name: 'エクスプローラーでカレントディレクトリを開く',
       command: 'explorer.exe\n${dir}',
-      debugPrompt: true,
-      maxSelectionLimit: 0,
-    },
-    {
+    }),
+    mkPrg({
       name: 'Git GUI を開く',
       command: 'git-gui.exe',
-      debugPrompt: true,
-      maxSelectionLimit: 0,
-    },
-    {
+    }),
+    mkPrg({
       name: 'gitk を開く',
       command: 'gitk.exe',
-      debugPrompt: true,
-      maxSelectionLimit: 0,
-    },
+    }),
   ];
 }
 
 function getExternalProgramExamples_linux(): ExternalProgram[] {
   return [
-    {
+    mkPrg({
       name: 'geditで開く',
       command: 'gedit\n${files}',
-      debugPrompt: true,
       maxSelectionLimit: 1,
-    },
-    {
+    }),
+    mkPrg({
       name: 'Visual Studio Codeで選択されたファイル／ディレクトリを開く',
       command: 'code\n${files}',
-      debugPrompt: true,
       maxSelectionLimit: 1,
-    },
-    {
+    }),
+    mkPrg({
       name: 'Gnome Terminalでカレントディレクトリを開く',
       command: 'gnome-terminal\n--working-directory=${dir}',
-      debugPrompt: true,
-      maxSelectionLimit: 0,
-    },
-    {
+    }),
+    mkPrg({
       name: '"ファイル"でカレントディレクトリを開く',
       command: 'nautilus\n${dir}',
-      debugPrompt: true,
-      maxSelectionLimit: 0,
-    },
-    {
+    }),
+    mkPrg({
       name: 'Git GUI を開く',
       command: 'git\ngui',
-      debugPrompt: true,
-      maxSelectionLimit: 0,
-    },
-    {
+    }),
+    mkPrg({
       name: 'gitk を開く',
       command: 'gitk',
-      debugPrompt: true,
-      maxSelectionLimit: 0,
-    },
+    }),
   ];
 }

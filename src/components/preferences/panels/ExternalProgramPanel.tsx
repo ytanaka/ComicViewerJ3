@@ -1,13 +1,5 @@
 import { MouseEventHandler, ReactNode } from 'react';
 
-import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field';
-import { Separator } from '@/components/ui/separator';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-
-import { ExternalProgram, getExternalProgramExamples, useExternalProgramStore } from '@/store/external-program-store';
 import { Switch } from '@/components/ui/switch';
 import {
   DropdownMenu,
@@ -16,6 +8,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Kbd } from '@/components/ui/kbd';
+
+import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field';
+import { Separator } from '@/components/ui/separator';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { ExternalProgram, getExternalProgramExamples, useExternalProgramStore } from '@/store/external-program-store';
+import { getPlatform } from '@/hooks/use-platform';
 
 export function ExternalProgramPanel() {
   const list = useExternalProgramStore(state => state.list);
@@ -93,6 +94,17 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
             <div>起動前に確認する</div>
             <Switch className="ml-2" checked={program.debugPrompt} onCheckedChange={e => upd('debugPrompt', e)} />
           </div>
+
+          {getPlatform() === 'windows' && (
+            <div className="flex m-1">
+              <div>cmdウィンドウを隠す</div>
+              <Switch
+                className="ml-2"
+                checked={program.windowsNoWindow}
+                onCheckedChange={e => upd('windowsNoWindow', e)}
+              />
+            </div>
+          )}
 
           <div className="flex items-center m-1">
             <div>選択ファイル数制限</div>

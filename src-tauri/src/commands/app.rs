@@ -1,5 +1,5 @@
 //! アプリ全体
-use std::{process::Command, sync::Arc};
+use std::{os::windows::process::CommandExt, process::Command, sync::Arc};
 
 use tauri::{AppHandle, State, Window};
 
@@ -10,6 +10,7 @@ use crate::{
         InvokeProgramResult::{self, Fail, Success},
         RemoveFilesNotifyEvent, TaskConfirm, TaskId, TaskResponse,
     },
+    util::vec_to_str,
     LOG_RESULT,
 };
 
@@ -50,25 +51,56 @@ pub async fn invoke_program(
     current_dir: String,
     program: String,
     args: Vec<String>,
+    windows_create_no_window: u32, // bool にするとなぜかUI側の呼び出しでパラメーターが見つからないというエラーになる (tauri-specta のバグ？)
 ) -> Result<InvokeProgramResult, String> {
-    LOG_RESULT!(format!("invoke_program({}, {:?})", program, args), {
-        invoke_program_impl(current_dir, program, args)
-            .await
-            .map_err(|e| e.to_string())
-    })
+    LOG_RESULT!(
+        format!(
+            "invoke_program({}, {}, {})",
+            program,
+            vec_to_str(&args),
+            windows_create_no_window
+        ),
+        {
+            invoke_program_impl(current_dir, program, args, windows_create_no_window)
+                .await
+                .map_err(|e| e.to_string())
+        }
+    )
 }
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 async fn invoke_program_impl(
     current_dir: String,
     program: String,
     args: Vec<String>,
+    _nowindow: u32,
 ) -> anyhow::Result<InvokeProgramResult> {
-    match Command::new(program)
-        .args(args)
-        .current_dir(current_dir)
-        .spawn()
+    #[cfg(target_os = "windows")]
     {
-        Ok(_) => Ok(Success),
-        Err(e) => Ok(Fail(e.to_string())), // 起動できないのはシステムエラーではない
+        let mut flags = 0;
+        if _nowindow != 0 {
+            flags = CREATE_NO_WINDOW;
+        }
+        match Command::new(program)
+            .args(args)
+            .creation_flags(flags)
+            .current_dir(current_dir)
+            .spawn()
+        {
+            Ok(_) => Ok(Success),
+            Err(e) => Ok(Fail(e.to_string())), // 起動できないのはシステムエラーではない
+        }
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        match Command::new(program)
+            .args(args)
+            .current_dir(current_dir)
+            .spawn()
+        {
+            Ok(_) => Ok(Success),
+            Err(e) => Ok(Fail(e.to_string())), // 起動できないのはシステムエラーではない
+        }
     }
 }
 
