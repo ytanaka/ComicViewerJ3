@@ -11,7 +11,7 @@ import {
 
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { TaskConfirm, TaskResponse } from '@/lib/bindings';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
 
@@ -27,20 +27,47 @@ export function FilePasteConfirmDialog() {
 
   const [always, setAlways] = useState(false);
 
-  function handleAnswer(res: TaskResponse) {
+  useEffect(() => {
+    if (!show) return;
+    Promise.resolve().then(() => {
+      setAlways(false);
+    })
+  }, [show]);
+
+  const handleAnswer = useCallback((res: TaskResponse) => {
     setField('showFilePasteConfirmDialog', false);
     if (dialogState.resolve) {
       dialogState.resolve(res);
     }
-  }
+  }, [dialogState, setField]);
 
-  function mkRes(t: string): TaskResponse {
+  const mkRes = useCallback((t: string): TaskResponse => {
     return {
       task_id: event?.task_id ?? -999,
       t: 'Paste',
       args: [t, '' + always],
     };
-  }
+  }, [always, event?.task_id]);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 's') {
+      handleAnswer(mkRes('Skip'));
+    } else if (e.key === 'r') {
+      handleAnswer(mkRes('Rename'));
+    } else if (e.key === 'w') {
+      handleAnswer(mkRes('Merge'));
+    } else if (e.key === 'a') {
+      setAlways(prev => (!prev));
+    } else {
+      return;
+    }
+    e.preventDefault();
+  }, [handleAnswer, mkRes]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
     <AlertDialog
@@ -69,22 +96,22 @@ export function FilePasteConfirmDialog() {
           </AlertDialogAction>
 
           <div className="flex items-center" title="ONにすると、この処理中は再度尋ねない">
-            <Label htmlFor="sw_always">常に</Label>
-            <Switch id="sw_always" className="ml-2" onCheckedChange={setAlways} />
+            <Label htmlFor="sw_always">常に(A)</Label>
+            <Switch id="sw_always" className="ml-2" checked={always} onCheckedChange={setAlways} />
           </div>
 
           <AlertDialogAction
             title="同じ名前のファイル、ディレクトリは何もしない"
             onClick={() => handleAnswer(mkRes('Skip'))}
           >
-            スキップ
+            スキップ(S)
           </AlertDialogAction>
 
           <AlertDialogAction
             title="同じ名前のファイル、ディレクトリは別名にする"
             onClick={() => handleAnswer(mkRes('Rename'))}
           >
-            リネーム
+            リネーム(R)
           </AlertDialogAction>
 
           <AlertDialogAction
@@ -92,7 +119,7 @@ export function FilePasteConfirmDialog() {
             onClick={() => handleAnswer(mkRes('Merge'))}
             hidden={!mode_copy}
           >
-            上書き
+            上書き(W)
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
