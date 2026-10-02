@@ -275,8 +275,8 @@ async fn copy_paths_impl2(
     // async fn の再帰呼び出しでエラーになったのでループさせる
     let mut stack: Vec<(PathBuf, PathBuf)> = Vec::new();
     stack.push((
-        src_path.as_ref().to_path_buf(),
-        dst_dir.as_ref().to_path_buf(),
+        src_path.as_ref().to_path_buf(), // src: ファイル or ディレクトリ
+        dst_dir.as_ref().to_path_buf(),  // dst: 必ずディレクトリ
     ));
 
     while let Some((src_path, dst_dir)) = stack.pop() {
@@ -284,8 +284,8 @@ async fn copy_paths_impl2(
         let mut dst_path = dst_dir.join(&src_name);
 
         // シンボリックリンクになっていないか、ファイル同士、ディレクトリ同士か確認
-        // src_dir 例: /a/b/c.txt
-        // dst_dir 例: /x/y/c.txt
+        // src_path 例: /a/b/c.txt
+        // dst_path 例: /x/y/z/c.txt
         check_src_dst_metadata(&src_path, &dst_path)?;
 
         // dst_path が存在するなら、上書きかリネームか判定する
@@ -304,8 +304,8 @@ async fn copy_paths_impl2(
             // ディレクトリをコピー処理したら、その子をループで処理する
             for entry in fs::read_dir(&src_path)? {
                 stack.push((
-                    entry?.path().to_path_buf(), // 例: /a/b/ccc/d.txt
-                    dst_path.clone(), // 例: /b/b/Copy(2)_ccc (resolve_copy_path_confilct でリネームした場合)
+                    entry?.path().to_path_buf(), // 例: /a/b/c/d.txt
+                    dst_path.clone(), // 例: /x/y/z/Copy(2)_c (resolve_copy_path_confilct で "c" がすでに存在したためリネームした場合)
                 ))
             }
         }
@@ -431,12 +431,6 @@ async fn copy_paths_file(
     src_path: impl AsRef<Path>,
     dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
-    log::debug!(
-        "CP FILE: {:?} => {:?}",
-        src_path.as_ref(),
-        dst_path.as_ref()
-    );
-
     // ファイルコピー
     let tmp_dst_path = tmp_file(&dst_path)?;
     copy_paths_file2(ctx, &src_path, &tmp_dst_path).await?;
