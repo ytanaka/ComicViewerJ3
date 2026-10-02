@@ -13,6 +13,7 @@ import { usePrepareFileOperationStore } from '@/store/tauri-event/prepare-file-o
 import { useFileDeleteProgressStore } from '@/store/tauri-event/file-delete-progress-store';
 import { MoveOrCopy } from '../bindings';
 import { useFilePasteProgressStore } from '@/store/tauri-event/file-paste-progress-store';
+import { UiTab } from '@/store/tab/types';
 
 function st() {
   return useTabStore.getState();
@@ -44,8 +45,8 @@ export const fileCommands = {
   },
 
   async delete() {
-    const { tab, sel } = getSelectedFiles();
-    if (!tab || !sel) return;
+    const { tab, sel, uiTab, dirEntries } = getSelectedFiles();
+    if (!tab || !sel || !uiTab || !dirEntries) return;
     if (sel.length === 0) return;
     const fileIds = sel.map(ent => ent.file_id);
 
@@ -69,6 +70,20 @@ export const fileCommands = {
         await rustcmds.cancelTask(taskId);
         return;
       }
+    }
+
+    // 削除後カーソル位置が動かないようにする
+    if (sel.length === 1) {
+      const focus = uiTab.selection.focusIndex;
+      let newFocus;
+      if (dirEntries.length - 1 <= focus) {
+        newFocus = dirEntries.length - 2; // フォーカスが末尾の場合は1つ前を選択
+      } else {
+        newFocus = focus + 1; // そうでなければ1つ後ろを選択
+      }
+      newFocus = Math.max(0, newFocus);
+      useTabStore.getState().pushHistory(tab.id, tab.path, dirEntries[newFocus].name);
+      console.log("PPPPPPPPPPPPPPPPPPP", tab.path, dirEntries[newFocus].name)
     }
 
     // 削除実行
@@ -199,9 +214,14 @@ export const fileCommands = {
   },
 };
 
-type SelectedFiles = { tab: TabInfo | undefined; sel: DirEntry[] | undefined };
+type SelectedFiles = {
+  tab: TabInfo | undefined;
+  sel: DirEntry[] | undefined,
+  uiTab: UiTab | undefined,
+  dirEntries: DirEntry[] | undefined
+};
 function getSelectedFiles(): SelectedFiles {
-  const EMPTY: SelectedFiles = { tab: undefined, sel: undefined };
+  const EMPTY: SelectedFiles = { tab: undefined, sel: undefined, uiTab: undefined, dirEntries: undefined };
 
   const tab = st().getCurrentTab();
   if (!tab) return EMPTY;
@@ -220,5 +240,5 @@ function getSelectedFiles(): SelectedFiles {
     if (e) ret.push(e);
   }
 
-  return { tab: tab.info, sel: ret };
+  return { tab: tab.info, sel: ret, uiTab: tab, dirEntries };
 }
