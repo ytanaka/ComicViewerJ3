@@ -150,7 +150,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     const handleMove = () => {
       showCursor(true);
 
-      if (timer.current) clearTimeout(timer.current);
+      if (timer.current) window.clearTimeout(timer.current);
       timer.current = window.setTimeout(() => {
         showCursor(false);
       }, 1000);
@@ -162,7 +162,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     return () => {
       window.removeEventListener('mousemove', handleMove);
       document.body.style.cursor = 'default';
-      if (timer.current) clearTimeout(timer.current);
+      if (timer.current) window.clearTimeout(timer.current);
     };
   }, []);
 

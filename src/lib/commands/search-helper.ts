@@ -29,7 +29,7 @@ export const searchHelper = {
     searchTab = tab;
 
     // デバウンス：0.3秒入力が止まるまで検索しない
-    if (debounceTimer) clearTimeout(debounceTimer);
+    if (debounceTimer) window.clearTimeout(debounceTimer);
 
     debounceTimer = window.setTimeout(() => {
       if (searchTab !== emptyTab) {

@@ -313,7 +313,7 @@ async fn copy_paths_impl2(
 
     Ok(())
 }
-//// 元、先にシンボリックリンクが含まれていないか、元、先がファイル同士とディレクトリ同士になっているか確認
+/// 元、先にシンボリックリンクが含まれていないか、元、先がファイル同士とディレクトリ同士になっているか確認
 fn check_src_dst_metadata(
     src_path: impl AsRef<Path>,
     dst_path: impl AsRef<Path>,

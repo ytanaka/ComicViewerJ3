@@ -18,10 +18,10 @@ export function SearchResult({ tabInfo }: { tabInfo: TabInfo }) {
   // 一定時間経過で消えるようにする (useSearchResultStore の値は変化しないので useState を使う)
   const [, setRefresh] = useState(0);
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setRefresh(state => state + 1);
     }, 300);
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timer);
   });
 
   // Popover 表示中は Esc が Popover 内部で消費されてしまうので、ここで処理する

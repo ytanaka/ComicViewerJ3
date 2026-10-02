@@ -41,10 +41,10 @@ export class EventAggregator<T> {
 
   private startTimer() {
     if (this.timer !== null) {
-      clearTimeout(this.timer);
+      window.clearTimeout(this.timer);
     }
 
-    this.timer = setTimeout(async () => {
+    this.timer = window.setTimeout(async () => {
       this.timer = null;
 
       if (this.pending !== null) {
