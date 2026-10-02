@@ -93,12 +93,14 @@ function getCurrentDirFiles(): { tab?: TabInfo; files?: DirEntry[] } {
   const tab = st().getCurrentTab();
   if (!tab) return {};
 
-  const sel = tab.selection;
-  const focusIndex = sel.focusIndex;
-  if (!sel.selectionIndexes.has(focusIndex)) return {};
-
   const dirEntries = getQueryData_getDirEntries(tab.info.id);
   if (dirEntries === undefined) return {};
+
+  const sel = tab.selection;
+  const focusIndex = sel.focusIndex;
+  if (sel.selectionIndexes.size !== 0) {
+    if (!sel.selectionIndexes.has(focusIndex)) return {};
+  }
 
   const files: DirEntry[] = [];
   sel.selectionIndexes.forEach(i => {

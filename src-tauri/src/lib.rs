@@ -42,6 +42,7 @@ pub fn run() {
     app_builder = app_builder.plugin(
         tauri_plugin_log::Builder::new()
             .level(tauri_plugin_log::log::LevelFilter::Trace)
+            .max_file_size(5 * 1024 * 1024)
             .filter(|metadata| {
                 metadata.target().starts_with("comicviewerj") || metadata.level() < log::Level::Info
             })
