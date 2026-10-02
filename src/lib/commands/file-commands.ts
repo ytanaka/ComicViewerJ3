@@ -83,7 +83,6 @@ export const fileCommands = {
       }
       newFocus = Math.max(0, newFocus);
       useTabStore.getState().pushHistory(tab.id, tab.path, dirEntries[newFocus].name);
-      console.log("PPPPPPPPPPPPPPPPPPP", tab.path, dirEntries[newFocus].name)
     }
 
     // 削除実行
