@@ -13,23 +13,24 @@ export class EventAggregator<T> {
     this.timer = null;
   }
 
-  async emit(event: T) {
+  async emit(event: T): Promise<boolean> {
     // 保留中のイベントがないなら保留する
     if (this.pending === null) {
       this.pending = event;
       this.startTimer();
-      return;
+      return true;
     }
 
     // 保留中と同じイベントなら無視
     if (this.isSameEvent(this.pending, event)) {
-      return;
+      return false;
     }
 
     // 別イベントが来たら、現在の保留イベントを処理して、新しいイベントを保留する
     await this.process(this.pending);
     this.pending = event;
     this.startTimer();
+    return true;
   }
 
   private startTimer() {

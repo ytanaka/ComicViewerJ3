@@ -44,10 +44,7 @@ const listener = new TauriEventListener(async (event: FileUpdateNotifyEvent) => 
       useTabStore.getState().invalidateTabForRefresh(tabId);
     }
   }
-}, {
-  ignoreSameEvent: true,
-  delayMs: 500
-});
+}, { delayMs: 500 });
 
 export function TauriFileUpdateEventListener() {
   const EVENT_NAME = useAppConstantsStore(state => state.val?.event_name_file_updaet);
