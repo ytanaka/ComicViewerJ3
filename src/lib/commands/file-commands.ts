@@ -64,6 +64,9 @@ export const fileCommands = {
         return;
       }
 
+      // ダイアログが閉じるのを待つ
+      await dialogResult;
+
       // 検査中にキャンセルされた
       const lastEvent = usePrepareFileOperationStore.getState().event;
       if (!(await dialogResult) || lastEvent?.head.finished !== true) {
