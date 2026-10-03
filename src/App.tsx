@@ -24,6 +24,7 @@ import { TauriFilePasteProgressEventListener } from './lib/tauri-event-listener/
 import { TauriTaskConfirmEventListener } from './lib/tauri-event-listener/task-confirm';
 import { FilePasteProgressDialog } from './components/dialogs/FilePasteProgressDialog';
 import { FilePasteConfirmDialog } from './components/dialogs/FilePasteConfirmDialog';
+import { AppInit } from './components/util/AppInit';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -38,6 +39,8 @@ function App() {
       style={{ fontFamily: fontFamily, fontSize: 0 < fontSize ? fontSize : undefined }}
     >
       <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <AppInit />
+
         <HotKeys />
         <Menu />
         <Toolbar />

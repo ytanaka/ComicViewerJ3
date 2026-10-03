@@ -17,6 +17,7 @@ import { ImageView } from './image-view/ImageView';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { windowCommands } from '@/lib/commands/window-commands';
 import { isPictureFileExtension } from '@/lib/tools/string-util';
+import { getApplicationName } from '../util/AppInit';
 
 function st() {
   return useTabStore.getState();
@@ -88,7 +89,7 @@ function TabContent() {
   // タイトルバー更新
   useEffect(() => {
     const setTitle = async () => {
-      await getCurrentWindow().setTitle(tab.path);
+      await getCurrentWindow().setTitle(`${tab.path} - ${getApplicationName()}`);
     };
     setTitle();
   }, [tab.path]);
