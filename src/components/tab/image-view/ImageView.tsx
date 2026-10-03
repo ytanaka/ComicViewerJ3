@@ -107,14 +107,15 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const { data: img1 } = useResizedImage(tab.id, ent(focusIndex + 1), zoomedDivSize);
   const { data: img2 } = useResizedImage(tab.id, ent(focusIndex + 2), zoomedDivSize);
   const { data: img3 } = useResizedImage(tab.id, ent(focusIndex + 3), zoomedDivSize);
-  useResizedImage(tab.id, originalSize ? undefined : dirEntries?.[focusIndex - 1], zoomedDivSize);
-  useResizedImage(tab.id, originalSize ? undefined : dirEntries?.[focusIndex - 2], zoomedDivSize);
+  const { data: imgx1 } = useResizedImage(tab.id, ent(focusIndex - 1), zoomedDivSize);
+  const { data: imgx2 } = useResizedImage(tab.id, ent(focusIndex - 2), zoomedDivSize);
 
   // 最終表示画像取得 (i: 0-3) 原寸表示時は、リサイズしない画像ファイル名を返す
   function getResizedImage(i: number) {
     const imgs = [img0, img1, img2, img3];
+    const imgsx = [undefined, imgx1, imgx2];
     if (originalSize) return originalImages?.[focusIndex + i];
-    const result = imgs[i];
+    const result = 0 <= i ? imgs[i] : imgsx[i * -1];
     if (result?.type === 'Ok') return result.filename;
     return undefined;
   }
@@ -252,6 +253,24 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
       hidden={true}
     />
   );
+  const imgViewCellx1 = (
+    <ImageViewCell
+      key={`${tab.id}/${focusIndex - 1}`}
+      tab={tab}
+      originalImage={originalImages?.[focusIndex - 1]}
+      resizedImage={getResizedImage(-1)}
+      hidden={true}
+    />
+  );
+  const imgViewCellx2 = (
+    <ImageViewCell
+      key={`${tab.id}/${focusIndex - 2}`}
+      tab={tab}
+      originalImage={originalImages?.[focusIndex - 2]}
+      resizedImage={getResizedImage(-2)}
+      hidden={true}
+    />
+  );
 
   return (
     <div ref={divRef} className="flex w-full h-full max-w-full max-h-full">
@@ -289,6 +308,8 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
             )}
             {imgViewCell2}
             {imgViewCell3}
+            {imgViewCellx1}
+            {imgViewCellx2}
             {showInfo && (
               <div className="opacity-70 absolute left-0 top-0 border-2 whitespace-nowrap text-black bg-white dark:text-white dark:bg-black rounded-br-md">
                 {getImageInfoString()}
