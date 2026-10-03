@@ -67,7 +67,10 @@ pub async fn invoke_program(
         }
     )
 }
+
+#[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
+
 async fn invoke_program_impl(
     current_dir: String,
     program: String,
