@@ -67,6 +67,8 @@ export interface UiState {
   // イベントハンドラーが古いイベント (e.timeStamp) を受け取ったら無視する閾値 (0チェックしない)
   // WSLで実行するときに timeStamp がおかしいことの対処
   timeoutMsEventTimeStamp: number;
+  // DevToolsを有効にする
+  enableDevTools: boolean;
 
   // FileListのヘッダーサイズ
   fileListHeaderSizes: number[];
@@ -98,6 +100,7 @@ export const useUiStore = create<UiState_and_Action>()(
       fileSearchInputTimeoutMs: 2000,
       fileSearchResultDisplayTimeoutMs: 2000,
       timeoutMsEventTimeStamp: 100,
+      enableDevTools: false,
 
       fileListHeaderSizes: [35, 500, 100, 120, 180],
       hideMouseCursorWhenFullscreen: true,

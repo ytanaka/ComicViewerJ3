@@ -25,6 +25,7 @@ import { TauriTaskConfirmEventListener } from './lib/tauri-event-listener/task-c
 import { FilePasteProgressDialog } from './components/dialogs/FilePasteProgressDialog';
 import { FilePasteConfirmDialog } from './components/dialogs/FilePasteConfirmDialog';
 import { AppInit } from './components/util/AppInit';
+import { DisableTauriShortcut } from './components/util/DisableTauriShortcut';
 
 function App() {
   const { resolvedTheme } = useTheme();
@@ -35,11 +36,13 @@ function App() {
 
   return (
     <div
+      onContextMenu={(e) => e.preventDefault()}
       className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm"
       style={{ fontFamily: fontFamily, fontSize: 0 < fontSize ? fontSize : undefined }}
     >
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <AppInit />
+        <DisableTauriShortcut />
 
         <HotKeys />
         <Menu />
