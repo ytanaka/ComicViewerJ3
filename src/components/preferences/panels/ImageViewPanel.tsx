@@ -6,12 +6,21 @@ import { useUiStore } from '@/store/ui-store';
 
 export function ImageViewPanel() {
   const hideMouseCursorWhenFullscreen = useUiStore(state => state.hideMouseCursorWhenFullscreen);
+  const changeImageViewModeAtChildDirectory = useUiStore(state => state.changeImageViewModeAtChildDirectory);
   const setField = useUiStore(state => state.setField);
 
   return (
     <FieldSet className="flex-1">
       <FieldLegend>画像表示画面</FieldLegend>
       <FieldGroup>
+        <Separator />
+        <Field>
+          <FieldLabel>サムネイルモードで子ディレクトリに入ると、画像表示モードにする</FieldLabel>
+          <Switch
+            checked={changeImageViewModeAtChildDirectory}
+            onCheckedChange={b => setField('changeImageViewModeAtChildDirectory', b)}
+          />
+        </Field>
         <Separator />
         <Field>
           <FieldLabel>フルスクリーン時にマウスカーソルを非表示にする</FieldLabel>

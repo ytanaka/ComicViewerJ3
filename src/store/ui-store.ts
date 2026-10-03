@@ -74,6 +74,9 @@ export interface UiState {
   // フルスクリーン時にマウスカーソルを消す
   hideMouseCursorWhenFullscreen: boolean;
 
+  // サムネイルモード時に子ディレクトリに入ると画像を表示する
+  changeImageViewModeAtChildDirectory: boolean;
+
   // OSの機能で起動できるファイルの拡張子
   invokeByOsExt: string[];
 }
@@ -98,6 +101,7 @@ export const useUiStore = create<UiState_and_Action>()(
 
       fileListHeaderSizes: [35, 500, 100, 120, 180],
       hideMouseCursorWhenFullscreen: true,
+      changeImageViewModeAtChildDirectory: false,
 
       invokeByOsExt: DEFAULT_INVOKE_EXT_LIST,
 

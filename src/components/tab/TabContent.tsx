@@ -144,6 +144,7 @@ function TabContent() {
     useTabStore.getState().clearJustChildDirMoved(tab.id);
 
     if (fileViewMode != FileViewMode.Thumbnail) return;
+    if (!useUiStore.getState().changeImageViewModeAtChildDirectory) return;
     if (imageView) return;
     const focus = useTabStore.getState().getCurrentTab()?.selection.focusIndex;
     if (focus === undefined) return;
