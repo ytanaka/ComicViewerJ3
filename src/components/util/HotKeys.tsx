@@ -1,7 +1,8 @@
 import { dialogCommands } from '@/lib/commands/dialog-commands';
 import { searchHelper } from '@/lib/commands/search-helper';
-import { getAllMenuItems } from '@/lib/menu-items';
+import { AppHotkey, getAllMenuItems } from '@/lib/menu-items';
 import { useEffect } from 'react';
+import { Kbd, KbdGroup } from '../ui/kbd';
 
 export function HotKeys() {
   useEffect(() => {
@@ -33,4 +34,44 @@ export function HotKeys() {
   });
 
   return <></>;
+}
+
+export function HotKeyKbdGroup({ k }: { k: AppHotkey }) {
+  return (
+    <KbdGroup>
+      {k.alt && (
+        <>
+          <Kbd>Alt</Kbd>
+          <span>+</span>
+        </>
+      )}
+      {k.shift && (
+        <>
+          <Kbd>Shift</Kbd>
+          <span>+</span>
+        </>
+      )}
+      {k.ctrl && (
+        <>
+          <Kbd>Ctrl</Kbd>
+          <span>+</span>
+        </>
+      )}
+      <Kbd>{getDisplayKeyString(k.key)}</Kbd>
+    </KbdGroup>
+
+  )
+}
+function getDisplayKeyString(key: string) {
+  switch (key) {
+    case 'arrowright':
+      return '→';
+    case 'arrowleft':
+      return '←';
+    case 'arrowup':
+      return '↑';
+    case 'arrowdown':
+      return '↓';
+  }
+  return key.toUpperCase();
 }

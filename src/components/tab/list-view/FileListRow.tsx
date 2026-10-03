@@ -7,6 +7,7 @@ import { SearchResult } from '../SearchResult';
 import { DirEntry, FileInfo, TabInfo } from '@/lib/bindings-wrapper';
 import { useFileInfo1Query } from '@/services/tab-file-info';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';
+import { ItemContextMenu } from '../ItemContextMenu';
 
 function Icon({ dirEntry }: { dirEntry: DirEntry }) {
   return (
@@ -47,7 +48,7 @@ function Modified({ fileInfo }: { fileInfo: FileInfo | undefined }) {
 }
 
 export function FileListRow({
-  tab: tabInfo,
+  tab,
   fileIndex,
   dirEntry,
   ...props
@@ -56,25 +57,26 @@ export function FileListRow({
   fileIndex: number;
   dirEntry: DirEntry;
 } & React.HTMLAttributes<HTMLTableRowElement>) {
-  const isSelected = useTabStore(state => state.getTab(tabInfo.id)?.selection.selectionIndexes.has(fileIndex));
-  const isFocused = useTabStore(state => state.getTab(tabInfo.id)?.selection.focusIndex === fileIndex);
-  const { data: fileInfo } = useFileInfo1Query(tabInfo, dirEntry.file_id);
+  const isSelected = useTabStore(state => state.getTab(tab.id)?.selection.selectionIndexes.has(fileIndex));
+  const isFocused = useTabStore(state => state.getTab(tab.id)?.selection.focusIndex === fileIndex);
+  const { data: fileInfo } = useFileInfo1Query(tab, dirEntry.file_id);
   const errorMsg = fileInfo?.metadata.Left;
 
   // マウスクリック
   function handleClick(e: React.MouseEvent) {
-    tabFiles_handleMouseClick(e, tabInfo, fileIndex);
+    tabFiles_handleMouseClick(e, tab, fileIndex);
   }
   function handleDoubleClick(e: React.MouseEvent) {
-    tabFiles_handleMouseDoubleClick(e, tabInfo, fileIndex);
+    tabFiles_handleMouseDoubleClick(e, tab, fileIndex);
   }
 
-  if (fileIndex === 0) console.debug(`<FileListRow>[${fileIndex}] tabId:${tabInfo.id}`);
+  if (fileIndex === 0) console.debug(`<FileListRow>[${fileIndex}] tabId:${tab.id}`);
 
   let bg = fileIndex % 2 == 0 ? '' : 'bg-gray-200 dark:bg-gray-900';
   if (isSelected) bg = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
-  return (
+
+  const rowComponent = (
     <tr
       title={errorMsg}
       className={`${bg} ${border}`}
@@ -84,9 +86,13 @@ export function FileListRow({
     >
       <Icon dirEntry={dirEntry} />
       <Name dirEntry={dirEntry} />
-      <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tabInfo} />}</FileExt>
+      <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tab} />}</FileExt>
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </tr>
+  );
+
+  return (
+    <ItemContextMenu tab={tab} fileIndex={fileIndex} render={rowComponent} />
   );
 }

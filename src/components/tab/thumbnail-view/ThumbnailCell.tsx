@@ -13,6 +13,7 @@ import { unixTime2str } from '@/lib/tools/string-util';
 import { FileIconByFileInfo } from '../FileIconByFileInfo';
 import { SearchResult } from '../SearchResult';
 import { THUMBNAIL_SIZE_DEFAULT } from '@/store/ui-store';
+import { ItemContextMenu } from '../ItemContextMenu';
 
 export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; fileIndex: number; dirEntry: DirEntry }) {
   const isSelected = useTabStore(state => state.getTab(tab.id)?.selection.selectionIndexes.has(fileIndex));
@@ -48,7 +49,7 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
   const select_style = 'dark:bg-blue-700 bg-blue-300 dark:text-white text-black';
   const border = isFocused && 'outline-dashed outline dark:outline-white outline-black';
 
-  return (
+  const cellComponent = (
     <div
       className={cn(THUMBNAIL_CELL_CLASSNAME, border, 'overflow-clip', isSelected && select_style)}
       onClick={handleClick}
@@ -88,5 +89,9 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
         {isSelected && <SearchResult tabInfo={tab} />}
       </div>
     </div>
+  );
+
+  return (
+    <ItemContextMenu tab={tab} fileIndex={fileIndex} render={cellComponent} />
   );
 }

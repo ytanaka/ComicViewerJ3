@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 
-import { Kbd, KbdGroup } from '@/components/ui/kbd';
 import {
   Menubar,
   MenubarContent,
@@ -19,46 +18,14 @@ import { useFocusStore } from '@/store/focus-store';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { useTabStore } from '@/store/tab/store';
 import { getProgramMenu, useExternalProgramStore } from '@/store/external-program-store';
+import { HotKeyKbdGroup } from '../util/HotKeys';
 
 function MyHotkey({ k }: { k: AppHotkey }) {
   return (
     <MenubarShortcut>
-      <KbdGroup>
-        {k.alt && (
-          <>
-            <Kbd>Alt</Kbd>
-            <span>+</span>
-          </>
-        )}
-        {k.shift && (
-          <>
-            <Kbd>Shift</Kbd>
-            <span>+</span>
-          </>
-        )}
-        {k.ctrl && (
-          <>
-            <Kbd>Ctrl</Kbd>
-            <span>+</span>
-          </>
-        )}
-        <Kbd>{getDisplayKeyString(k.key)}</Kbd>
-      </KbdGroup>
+      <HotKeyKbdGroup k={k} />
     </MenubarShortcut>
   );
-}
-function getDisplayKeyString(key: string) {
-  switch (key) {
-    case 'arrowright':
-      return '→';
-    case 'arrowleft':
-      return '←';
-    case 'arrowup':
-      return '↑';
-    case 'arrowdown':
-      return '↓';
-  }
-  return key.toUpperCase();
 }
 
 function MyMenuItem({ m }: { m: AppMenuItem }) {
