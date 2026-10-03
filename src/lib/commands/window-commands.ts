@@ -12,7 +12,7 @@ export const windowCommands = {
   // アプリ終了
   async exitApp() {
     const window = getCurrentWindow();
-    await this.setFullscreen(false);
+    await windowCommands.setFullscreen(false);
     await window.close();
     await rustcmds.exitApp();
   },

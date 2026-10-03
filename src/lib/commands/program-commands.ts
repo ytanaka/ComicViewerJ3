@@ -17,7 +17,7 @@ export const programCommands = {
     if (!tab || !files) return false;
 
     if (files.length === 1) {
-      await this.invoke(tab, files[0], confirm);
+      await programCommands.invoke(tab, files[0], confirm);
       return true;
     }
     return false;

@@ -48,7 +48,7 @@ export const tabCommands = {
     if (!_checkMaxTabs()) return;
     const currentTab = st().getCurrentTab();
     if (!currentTab) {
-      await this.addTab_homeDir();
+      await tabCommands.addTab_homeDir();
     } else {
       if (await _addTab(await rustcmds.cloneTab(currentTab.info.id))) {
         const newTab = st().getCurrentTab();
@@ -96,7 +96,7 @@ export const tabCommands = {
     let index = st().currentTabIndex + inc;
     if (index < 0) index = st().tabs.length - 1;
     else if (st().tabs.length <= index) index = 0;
-    this.setCurrentTabIndex(index);
+    tabCommands.setCurrentTabIndex(index);
   },
 
   // 親ディレクトリへ移動
