@@ -1,3 +1,4 @@
+import { rustcmds } from "@/lib/bindings-wrapper";
 import { useUiStore } from "@/store/ui-store"
 import { useEffect } from "react"
 
@@ -10,9 +11,13 @@ export function DisableTauriShortcut() {
         e.key === "F12" ||
         (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i")
 
-      if (!enableDevTools && devtoolsShortcut) {
+      if (devtoolsShortcut) {
         e.preventDefault()
         e.stopPropagation()
+
+        if (enableDevTools) {
+          rustcmds.openDevTools();
+        }
       }
     }
 

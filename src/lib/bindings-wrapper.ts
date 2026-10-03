@@ -30,6 +30,7 @@ export const rustcmds = {
   exitApp: commands.exitApp,
   setFullscreen: commands.setFullscreen,
   invokeProgram: commands.invokeProgram,
+  openDevTools: commands.openDevTools,
 
   cancelTask: (taskId: TaskId) => {
     return commands.cancelTask(taskId);

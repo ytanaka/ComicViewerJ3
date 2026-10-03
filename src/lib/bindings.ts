@@ -20,6 +20,8 @@ export const commands = {
 	cancelTask: (taskId: number) => __TAURI_INVOKE<void>("cancel_task", { taskId }),
 	/**  コピー、移動時の確認に対する応答 */
 	respondToTask: (taskId: number, response: TaskResponse) => __TAURI_INVOKE<void>("respond_to_task", { taskId, response }),
+	/**  DevToolsを開く */
+	openDevTools: () => __TAURI_INVOKE<void>("open_dev_tools"),
 	/**  ダミー */
 	dummy: (fileNotify: FileUpdateNotifyEvent, prepare: GetFilesPropertyNotifyEvent, remove: RemoveFilesNotifyEvent, copyMove: FilePasteNotifyEvent, confirm: TaskConfirm) => __TAURI_INVOKE<void>("dummy", { fileNotify, prepare, remove, copyMove, confirm }),
 	/**  タブ作成 (絶対パス) */
