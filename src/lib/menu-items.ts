@@ -7,7 +7,7 @@ import { windowCommands } from './commands/window-commands';
 import { FileViewMode } from '@/store/tab/types';
 import { searchCommands } from './commands/search-commands';
 import { imageCommands } from './commands/image-commands';
-import { zoomLevelNormalize } from './tools/image-zoom';
+import { normalizeZoomLevel } from './tools/image-zoom';
 import { programCommands } from './commands/program-commands';
 import { fileCommands } from './commands/file-commands';
 
@@ -101,11 +101,11 @@ function isImageDual() {
 }
 function notImageZoomMax() {
   const lv = st().getCurrentTab()?.imageViewMode.zoomLevel ?? 0;
-  return zoomLevelNormalize(lv + 1) !== lv;
+  return normalizeZoomLevel(lv + 1) !== lv;
 }
 function notImageZoomMin() {
   const lv = st().getCurrentTab()?.imageViewMode.zoomLevel ?? 0;
-  return zoomLevelNormalize(lv - 1) !== lv;
+  return normalizeZoomLevel(lv - 1) !== lv;
 }
 function notImageFitScreen() {
   const tab = st().getCurrentTab();
@@ -195,6 +195,8 @@ export const menuItems = {
   toggleImageInfo: M('画像情報表示ON/OFF', imageCommands.toggleShowInfo, '### i', isImageView),
   imageZoomIn: M('画像拡大', () => imageCommands.incZoom(1), '### +', notImageZoomMax),
   imageZoomOut: M('画像縮小', () => imageCommands.incZoom(-1), '### -', notImageZoomMin),
+  imageRotateRight: M('画像回転 時計廻り', () => imageCommands.rotateRight(1), '### Alt+PageDown', isImageView),
+  imageRotateLeft: M('画像回転 反時計廻り', () => imageCommands.rotateRight(-1), '### Alt+PageUp', isImageView),
   imageFit: M('画像を画面にフィットさせて表示', imageCommands.fitWindow, '### Enter', notImageFitScreen),
   imageZoomOriginal: M('画像をオリジナルサイズで表示', imageCommands.originalSize, '### 0', notImageOriginalSize),
   imageDualView: M('2枚表示切替', imageCommands.toggleDualView, '### Space'),

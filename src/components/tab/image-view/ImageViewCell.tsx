@@ -1,6 +1,8 @@
 import { Dimension } from '@/lib/bindings';
 import { DirEntry, TabInfo } from '@/lib/bindings-wrapper';
+import { rotateLevel2Deg } from '@/lib/tools/image-rotate';
 import { removeQueries_resizedImage } from '@/services/tab-resized-image';
+import { useTabStore } from '@/store/tab/store';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { useState } from 'react';
 
@@ -15,6 +17,9 @@ export interface ImageViewCellProps {
 }
 
 export function ImageViewCell(props: ImageViewCellProps) {
+  const rotateLevel = useTabStore(state => state.getTab(props.tab.id)?.imageViewMode.rotateLevel);
+  const rotateDeg = rotateLevel2Deg(rotateLevel ?? 0);
+
   function getAssetUrl(path: string | undefined) {
     if (!path) return undefined;
     return convertFileSrc(path);
@@ -48,6 +53,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
         draggable={false}
         style={{
           ...props.size,
+          rotate: `${rotateDeg}deg`,
           imageRendering: 'pixelated',
           display: !readyResizedImage ? 'none' : undefined,
           visibility: !readyResizedImage ? 'hidden' : undefined,
@@ -61,6 +67,7 @@ export function ImageViewCell(props: ImageViewCellProps) {
           draggable={false}
           style={{
             ...props.size,
+            rotate: `${rotateDeg}deg`,
             imageRendering: 'smooth',
             display: readyResizedImage ? 'none' : undefined,
             visibility: readyResizedImage ? 'hidden' : undefined,

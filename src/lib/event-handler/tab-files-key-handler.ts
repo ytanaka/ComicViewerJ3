@@ -84,7 +84,8 @@ export function tabFiles_handleKeyDown(e: KeyboardEvent): boolean {
     let index = newIndex;
     index = Math.min(index, dirEntries.length - 1);
     index = Math.max(index, 0);
-    if (tab.imageViewMode.enable && index === focusIndex) {
+
+    if (NO_MOD && tab.imageViewMode.enable && index === focusIndex) {
       toast.info('これ以上移動できません', {
         id: 'mo-more-files',
         duration: 1000,

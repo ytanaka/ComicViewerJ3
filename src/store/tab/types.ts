@@ -48,7 +48,7 @@ export interface ImageViewMode {
   dualImage: boolean;
   reverseDualImage: boolean;
   zoomLevel: number;
-  rotate: number;
+  rotateLevel: number; // 0: 0deg, 1: 90deg, 2: 180deg, 3: 270deg
   useOriginalSize: boolean;
   showInfo: boolean;
 }
@@ -96,7 +96,7 @@ export function mkImageViewMode(): ImageViewMode {
     dualImage: false,
     reverseDualImage: false,
     zoomLevel: 0,
-    rotate: 0,
+    rotateLevel: 0,
     useOriginalSize: false,
     showInfo: false,
   };

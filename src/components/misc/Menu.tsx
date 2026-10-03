@@ -192,6 +192,9 @@ function MenuImageView() {
         <MyMenuItem m={menuItems.imageFit} />
         <MyMenuItem m={menuItems.imageZoomOriginal} />
         <MenubarSeparator />
+        <MyMenuItem m={menuItems.imageRotateRight} />
+        <MyMenuItem m={menuItems.imageRotateLeft} />
+        <MenubarSeparator />
         <MyMenuItem m={menuItems.imageDualView} />
         <MyMenuItem m={menuItems.imageReverseDualView} />
         <MenubarSeparator />

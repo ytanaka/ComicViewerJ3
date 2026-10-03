@@ -18,6 +18,8 @@ import {
   ScanSearch,
   Square,
   Bookmark,
+  RotateCcw,
+  RotateCw,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -79,20 +81,20 @@ function ButtonsFileView() {
       <B icon={<FolderOpen />} m={menuItems.openDir} />
       <B icon={<Settings />} m={menuItems.preference} />
       <B icon={<Bookmark />} m={menuItems.bookmark} />
-      <Separator orientation="vertical" className="m-1" />
+      <Separator orientation="vertical" className="m-2" />
 
       <B icon={<Scissors />} m={menuItems.cutFile} />
       <B icon={<Copy />} m={menuItems.copyFile} />
       <B icon={<ClipboardPaste />} m={menuItems.pasteFile} />
-      <Separator orientation="vertical" className="m-1" />
+      <Separator orientation="vertical" className="m-2" />
 
       <B icon={<Trash2 />} m={menuItems.deleteFile} />
       <B icon={<TextCursorInput />} m={menuItems.renameFile} />
-      <Separator orientation="vertical" className="m-1" />
+      <Separator orientation="vertical" className="m-2" />
 
       <B icon={<Rows3 />} m={menuItems.changeToListViewMode} />
       <B icon={<Grid2x2 />} m={menuItems.changeToThumbnailViewMode} />
-      <Separator orientation="vertical" className="m-1" />
+      <Separator orientation="vertical" className="m-2" />
     </>
   );
 }
@@ -103,7 +105,10 @@ function ButtonsImageView() {
       <B icon={<ZoomIn />} m={menuItems.imageZoomIn} />
       <B icon={<ZoomOut />} m={menuItems.imageZoomOut} />
       <B icon={<SearchX />} m={menuItems.imageZoomOriginal} />
-      <Separator orientation="vertical" className="m-1" />
+      <Separator orientation="vertical" className="m-2" />
+      <B icon={<RotateCcw />} m={menuItems.imageRotateLeft} />
+      <B icon={<RotateCw />} m={menuItems.imageRotateRight} />
+      <Separator orientation="vertical" className="m-2" />
 
       <B
         icon={
@@ -123,7 +128,7 @@ function ButtonsImageView() {
         }
         m={menuItems.imageReverseDualView}
       />
-      <Separator orientation="vertical" className="m-1" />
+      <Separator orientation="vertical" className="m-2" />
 
       <B icon={<Fullscreen />} m={menuItems.changeFullscreen} />
     </>

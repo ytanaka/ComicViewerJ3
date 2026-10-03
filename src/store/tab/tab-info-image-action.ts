@@ -1,15 +1,17 @@
 import { _useTabStore_setExistTabFields, mkImageViewMode } from './types';
 import { TabStore } from './store';
 import { StateCreator } from 'zustand';
-import { zoomLevelNormalize } from '@/lib/tools/image-zoom';
+import { normalizeZoomLevel } from '@/lib/tools/image-zoom';
 import { useUiVolatileStore } from '../ui-volatile-store';
 import { windowCommands } from '@/lib/commands/window-commands';
 import { TabId } from '@/lib/bindings-wrapper';
+import { normalizeRotateLevel } from '@/lib/tools/image-rotate';
 
 export interface ImageViewModeActions {
   setImageView: (tabId: TabId, b: boolean) => void;
   setDualImage: (tabId: TabId, b: boolean, reverse: boolean) => void;
   setZoomLevel: (tabId: TabId, n: number) => void;
+  setRotateLevel: (tabId: TabId, n: number) => void;
   setUseOriginalSize: (tabId: TabId, b: boolean) => void;
   setShowImageInfo: (tabId: TabId, b: boolean) => void;
 }
@@ -51,7 +53,6 @@ export const createImageViewModeActions: StateCreator<
           tab.imageViewMode = {
             ...mkImageViewMode(),
             enable: true,
-            rotate: 0,
             dualImage: b,
             reverseDualImage: reverse,
             showInfo: tab.imageViewMode.showInfo,
@@ -63,7 +64,20 @@ export const createImageViewModeActions: StateCreator<
     setZoomLevel: (tabId: TabId, n: number) => {
       set(state => {
         _useTabStore_setExistTabFields(state, tabId, tab => {
-          tab.imageViewMode.zoomLevel = zoomLevelNormalize(n);
+          tab.imageViewMode.zoomLevel = normalizeZoomLevel(n);
+        });
+      });
+    },
+
+    setRotateLevel: (tabId: TabId, n: number) => {
+      set(state => {
+        _useTabStore_setExistTabFields(state, tabId, tab => {
+          tab.imageViewMode = {
+            ...mkImageViewMode(),
+            enable: true,
+            rotateLevel: normalizeRotateLevel(n),
+            showInfo: tab.imageViewMode.showInfo,
+          };
         });
       });
     },

@@ -13,7 +13,7 @@ export function zoomDimension(level: number, size: Dimension | undefined): Dimen
 }
 
 export function zoomLevel2ZoomRatio(level: number): number {
-  const lv = zoomLevelNormalize(level);
+  const lv = normalizeZoomLevel(level);
   if (lv < 0) {
     return zoomLevelsMinus[lv * -1];
   } else {
@@ -21,7 +21,7 @@ export function zoomLevel2ZoomRatio(level: number): number {
   }
 }
 
-export function zoomLevelNormalize(level: number): number {
+export function normalizeZoomLevel(level: number): number {
   let lv = level;
   if (lv < 0) {
     lv *= -1;

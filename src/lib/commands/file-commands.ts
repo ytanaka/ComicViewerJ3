@@ -218,9 +218,9 @@ export const fileCommands = {
 
 type SelectedFiles = {
   tab: TabInfo | undefined;
-  sel: DirEntry[] | undefined,
-  uiTab: UiTab | undefined,
-  dirEntries: DirEntry[] | undefined
+  sel: DirEntry[] | undefined;
+  uiTab: UiTab | undefined;
+  dirEntries: DirEntry[] | undefined;
 };
 function getSelectedFiles(): SelectedFiles {
   const EMPTY: SelectedFiles = { tab: undefined, sel: undefined, uiTab: undefined, dirEntries: undefined };

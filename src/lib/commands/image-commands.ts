@@ -1,5 +1,4 @@
 import { useTabStore } from '@/store/tab/store';
-import { zoomLevelNormalize } from '../tools/image-zoom';
 import { useUiVolatileStore } from '@/store/ui-volatile-store';
 import { windowCommands } from './window-commands';
 import { useScrollToFocusStore } from '@/store/scroll-to-focus-store';
@@ -25,7 +24,14 @@ export const imageCommands = {
     let newLevel = tab.imageViewMode.zoomLevel;
     newLevel += n;
     if (n === 0) newLevel = 0;
-    st().setZoomLevel(tab.info.id, zoomLevelNormalize(newLevel));
+    st().setZoomLevel(tab.info.id, newLevel);
+  },
+
+  rotateRight(n: number) {
+    const tab = st().getCurrentTab();
+    if (!tab) return;
+
+    st().setRotateLevel(tab.info.id, tab.imageViewMode.rotateLevel + n);
   },
 
   originalSize() {
