@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
 import { DEFAULT_INVOKE_EXT_LIST, useUiStore } from '@/store/ui-store';
+import { getPlatform } from '@/hooks/use-platform';
 
 export function InvokeAppPanel() {
   const invokeByOsExt = useUiStore(state => state.invokeByOsExt);
@@ -46,15 +47,20 @@ export function InvokeAppPanel() {
         <FieldDescription>
           拡張子をスペース区切りで指定。
           <br />
-          ここで指定した拡張子のファイルをダブルクリックすると、OSに関連付けられたアプリが起動します。
+          ここで指定した拡張子のファイルをダブルクリックか<Kbd>Enter</Kbd>で、OSに関連付けられたアプリが起動します。
           <br />
         </FieldDescription>
         <FieldDescription>
-          ※ ここで指定しなくても<Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>で起動できます。(確認ダイアログが出ます)
+          ※ ここで指定しなくても<Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>で起動できます。(その場合は確認ダイアログが出ます)
           <br />
           ※
           画像ファイルの拡張子を指定すれば、アプリの内蔵ビューアーでなくOSに関連付けられたビューアーが起動するようになります。
-          <br />※ Windowsで exe, bat, cmd などを指定すると危険なプログラムが警告なしに起動するので注意してください。
+          {getPlatform() === 'windows' && (
+            <>
+              <br />※ Windowsで exe, bat, cmd などを指定すると危険なプログラムが警告なしに起動するので注意してください。
+            </>
+          )}
+
         </FieldDescription>
       </FieldGroup>
     </FieldSet>

@@ -1,4 +1,4 @@
-import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 
@@ -21,6 +21,9 @@ export function ImageViewPanel() {
             checked={changeImageViewModeAtChildDirectory}
             onCheckedChange={b => setField('changeImageViewModeAtChildDirectory', b)}
           />
+          <FieldDescription>
+            ディレクトリに入ったとき画像ファイルが選択された状態になっていたら、自動で画像表示モードにします。
+          </FieldDescription>
         </Field>
 
         <Separator />
