@@ -7,9 +7,13 @@ import { getTauriVersion } from '@tauri-apps/api/app';
 import { getVersion } from '@tauri-apps/api/app';
 
 let APP_NAME = 'ComicViewerJ3';
+let APP_VERSION = '';
 
 export function getApplicationName() {
   return APP_NAME;
+}
+export function getApplicationVersion() {
+  return APP_VERSION;
 }
 
 export function AppInit() {
@@ -27,6 +31,8 @@ export function AppInit() {
       } else {
         APP_NAME = 'ComicViewerJ3(DEBUG)';
       }
+
+      APP_VERSION = await getVersion();
     }
     p();
   }, []);

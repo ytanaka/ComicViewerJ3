@@ -38,10 +38,10 @@ export function InvokeAppPanel() {
         </Field>
         <div className="flex m-0 p-0">
           <Button className="w-fit ml-2" onClick={handleClickSave}>
-            保存
+            設定保存
           </Button>
           <Button className="w-fit ml-2" onClick={handleClickDefault}>
-            デフォルト
+            デフォルトに戻す
           </Button>
         </div>
         <FieldDescription>
