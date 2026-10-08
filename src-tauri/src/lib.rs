@@ -78,9 +78,14 @@ pub fn run() {
             log::info!("app start: {}", app.package_info().name);
             Ok(())
         })
-        .on_window_event(|_window, event| {
+        .on_window_event(|window, event| {
             if let WindowEvent::CloseRequested { .. } = event {
                 log::info!("app closing");
+                // アプリ終了時にフルスクリーンを解除しておく。
+                // そうしないと、次期起動時に画面サイズがフルスクリーンと同じになってしまう
+                if let Err(e) = window.set_fullscreen(false) {
+                    log::error!("set_fullscreen error: {}", e);
+                }
             }
         })
         .manage(Arc::new(AppState::default()))
