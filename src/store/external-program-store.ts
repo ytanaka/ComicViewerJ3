@@ -22,6 +22,7 @@ export interface ExternalProgram {
   maxSelectionLimit: number;
   debugPrompt: boolean;
   windowsNoWindow: boolean;
+  memo: string;
 }
 
 export const useExternalProgramStore = create<ExternalProgramState>()(
@@ -94,6 +95,7 @@ type MkExternalProgram = {
   maxSelectionLimit?: number;
   debugPrompt?: boolean;
   windowsNoWindow?: boolean;
+  memo?: string;
 };
 function mkPrg({
   name,
@@ -101,13 +103,15 @@ function mkPrg({
   maxSelectionLimit = 0,
   debugPrompt = true,
   windowsNoWindow = false,
+  memo = '',
 }: MkExternalProgram): ExternalProgram {
   return {
-    name: name,
-    command: command,
-    debugPrompt: debugPrompt,
-    maxSelectionLimit: maxSelectionLimit,
-    windowsNoWindow: windowsNoWindow,
+    name,
+    command,
+    debugPrompt,
+    maxSelectionLimit,
+    windowsNoWindow,
+    memo,
   };
 }
 function getExternalProgramExamples_windows(): ExternalProgram[] {
@@ -116,28 +120,34 @@ function getExternalProgramExamples_windows(): ExternalProgram[] {
       name: 'メモ帳で開く',
       command: 'notepad.exe\n${files}',
       maxSelectionLimit: 1,
+      memo: '※ メモ帳の起動引数にはファイル名を1つだけ指定できます',
+    }),
+    mkPrg({
+      name: 'エクスプローラーでカレントディレクトリを開く',
+      command: 'explorer.exe\n${dir}',
+      memo: 'このアプリはドラッグアンドドロップや\n別ドライブ間のファイル移動に対応していないので、\nエクスプローラーを起動してそこから実行してください',
+    }),
+    mkPrg({
+      name: 'Windows Terminalでカレントディレクトリを開く',
+      command: 'wt.exe\n-d\n${dir}\n--profile\nWindows PowerShell',
+      memo: 'Windows Terminal がインストールされていること。\n--profile の後の設定で起動するシェルの種類を指定可能',
     }),
     mkPrg({
       name: 'Visual Studio Codeで選択されたファイル／ディレクトリを開く',
       command: 'code.cmd\n${files}',
       maxSelectionLimit: 1,
       windowsNoWindow: true,
-    }),
-    mkPrg({
-      name: 'Windows Terminalでカレントディレクトリを開く',
-      command: 'wt.exe\n-d\n${dir}\n--profile\nGit Bash',
-    }),
-    mkPrg({
-      name: 'エクスプローラーでカレントディレクトリを開く',
-      command: 'explorer.exe\n${dir}',
+      memo: 'Visual Studio Code はプログラミング用のエディターです。\n※ code.cmd を起動するとcmdウインドウが出てしまうので設定で隠す',
     }),
     mkPrg({
       name: 'Git GUI を開く',
       command: 'git-gui.exe',
+      memo: '※ Git (https://git-scm.com/) がインストールされていること',
     }),
     mkPrg({
       name: 'gitk を開く',
       command: 'gitk.exe',
+      memo: '※ Git (https://git-scm.com/) がインストールされていること',
     }),
   ];
 }

@@ -119,18 +119,25 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
             <div className="opacity-65">(0は制限なし)</div>
           </div>
 
-          <div className="m-1">
-            <Textarea value={program.command} onChange={e => upd('command', e.target.value)} />
+          <div className='m-1'>
+            プログラム引数
+            <div className="m-1">
+              <Textarea value={program.command} onChange={e => upd('command', e.target.value)} />
+            </div>
           </div>
+          <FieldDescription className='ml-4'>
+            プログラム引数の <code>{'${files}'}</code> は選択ファイルに置き換え
+            <br />
+            プログラム引数の <code>{'${dir}'}</code> は現在のタブのディレクトリに置き換え
+            <br />
+            改行で引数を区切る
+          </FieldDescription>
         </div>
 
-        <FieldDescription>
-          プログラム引数の <code>{'${files}'}</code> は選択ファイルに置き換え
-          <br />
-          プログラム引数の <code>{'${dir}'}</code> は現在のタブのディレクトリに置き換え
-          <br />
-          改行で引数を区切る
-        </FieldDescription>
+        <div className='m-1'>
+          備考
+          <Textarea value={program.memo} onChange={e => upd('memo', e.target.value)} />
+        </div>
       </PopoverContent>
     </Popover>
   );
