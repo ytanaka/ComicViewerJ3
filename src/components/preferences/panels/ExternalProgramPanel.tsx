@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { ExternalProgram, getExternalProgramExamples, useExternalProgramStore } from '@/store/external-program-store';
 import { getPlatform } from '@/hooks/use-platform';
+import { ArrowDown, ArrowUp, SquarePen, Trash } from 'lucide-react';
 
 export function ExternalProgramPanel() {
   const list = useExternalProgramStore(state => state.list);
@@ -36,9 +37,9 @@ export function ExternalProgramPanel() {
               <div key={i} className="flex">
                 <div className="pr-2">{i}: </div>
                 <EditButton index={i} program={p} />
-                <B click={() => remove(i)}>削除</B>
-                <B click={() => swap(i, i - 1)}>↑</B>
-                <B click={() => swap(i, i + 1)}>↓</B>
+                <B click={() => remove(i)}><Trash /></B>
+                <B click={() => swap(i, i - 1)}><ArrowUp /></B>
+                <B click={() => swap(i, i + 1)}><ArrowDown /></B>
                 <div className="pl-2">{p.name}</div>
               </div>
             );
@@ -82,7 +83,7 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
 
   return (
     <Popover>
-      <PopoverTrigger render={<Button size="xs">編集</Button>} />
+      <PopoverTrigger render={<Button size="xs"><SquarePen /></Button>} />
       <PopoverContent className="min-w-max p-3">
         <div className="flex flex-col">
           <div className="flex items-center m-1">
@@ -128,6 +129,7 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
           <br />
           プログラム引数の <code>{'${dir}'}</code> は現在のタブのディレクトリに置き換え
           <br />
+          改行で引数を区切る
         </FieldDescription>
       </PopoverContent>
     </Popover>

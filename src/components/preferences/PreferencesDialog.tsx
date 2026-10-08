@@ -46,7 +46,7 @@ const allPanelList = [
   {
     id: 'fileList',
     label: 'ファイル一覧表示',
-    icon: Settings2,
+    icon: Settings,
     node: FileListPanel,
   },
   {

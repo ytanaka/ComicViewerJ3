@@ -89,9 +89,9 @@ export function FileListPanel() {
           <Switch checked={pref?.filename_cmp_by_digit ?? false} onCheckedChange={handleChange_filename_cmp_digit} />
         </Field>
         <FieldDescription>
-          オン: <code>img1.txt → img2.txt → img10.txt</code>
+          オン: <code>img1.txt → img2.txt → img10.txt のようにソートされる</code>
           <br />
-          オフ: <code>img1.txt → img10.txt → img2.txt</code>
+          オフ: <code>img1.txt → img10.txt → img2.txt のようにソートされる</code>
         </FieldDescription>
       </FieldGroup>
     </FieldSet>
