@@ -47,7 +47,7 @@ export function bookmark_eventhandler(e: KeyboardEvent, newBookmark: Bookmark): 
     bookmarkCommands.add(newBookmark);
     return true;
   } else if (ALT_ONLY && e.key === 'd') {
-    bookmarkCommands.remove();
+    bookmarkCommands.removeAtFocus();
     return true;
   } else if (ALT_ONLY && e.key === 'ArrowDown') {
     bookmarkCommands.moveFocusUpDown(1);
@@ -70,9 +70,12 @@ export const bookmarkCommands = {
     useBookmarkStore.getState().addBookmark(newBookmark);
   },
 
-  remove() {
-    const focusIndex = bk().focusIndex;
-    useBookmarkStore.getState().removeBookmark(focusIndex);
+  removeAtFocus() {
+    bookmarkCommands.removeAt(bk().focusIndex);
+  },
+
+  removeAt(index: number) {
+    useBookmarkStore.getState().removeBookmark(index);
   },
 
   moveFocusUpDown(i: number) {

@@ -11,6 +11,7 @@ import { Bookmark, useBookmarkStore } from '@/store/bookmark-store';
 import { bookmark_eventhandler, bookmarkCommands } from './event-handler';
 import { ChevronsRight, Grid2X2, Rows3, Square, SquareX } from 'lucide-react';
 import { FileViewMode } from '@/store/tab/types';
+import { Kbd } from '../ui/kbd';
 
 export function BookmarkManager() {
   const showBookmarkManager = useUiVolatileStore(state => state.showBookmarkManager);
@@ -84,7 +85,7 @@ export function BookmarkManager() {
           <div className="flex m-2 justify-center items-center">
             <MyButton name="追加" keyChar="A" onClick={() => bookmarkCommands.add(mkNewBk())} />
             <div className="flex flex-1 border flex-row">
-              <Item bk={mkNewBk()} />
+              <BookmarkItem index={-1} bk={mkNewBk()}  />
               <Button size="xs" tabIndex={-1} variant="ghost" onClick={handleNameToggle}>
                 {enableName ? <SquareX /> : <Square />}{' '}
               </Button>
@@ -107,7 +108,7 @@ export function BookmarkManager() {
                     bookmarkCommands.newTab();
                   }}
                 >
-                  <Item bk={b} />
+                  <BookmarkItem index={i} bk={b} />
                 </li>
               );
             })}
@@ -116,7 +117,7 @@ export function BookmarkManager() {
           <div className="flex m-2">
             <MyButton name="上へ移動" keyChar="↑" onClick={() => bookmarkCommands.moveFocusUpDown(-1)} />
             <MyButton name="下へ移動" keyChar="↓" onClick={() => bookmarkCommands.moveFocusUpDown(1)} />
-            <MyButton name="削除" keyChar="D" onClick={bookmarkCommands.remove} />
+            <MyButton name="削除" keyChar="D" onClick={bookmarkCommands.removeAtFocus} />
           </div>
         </div>
       </DialogContent>
@@ -137,18 +138,23 @@ function MyButton({ name, keyChar, onClick }: { name: string; keyChar: string; o
       title={`Alt+${keyChar}`}
     >
       {name}
-      <span className="font-thin">({keyChar})</span>
+      <Kbd>Alt+{keyChar}</Kbd>
     </Button>
   );
 }
 
-function Item({ bk }: { bk: Bookmark }) {
+function BookmarkItem({ index, bk }: { index: number, bk: Bookmark }) {
   return (
     <div className="flex">
       {bk.mode === FileViewMode.List ? <Rows3 className="opacity-50" /> : <Grid2X2 className="opacity-50" />}
-      <span className="ml-2 mr-2">{bk.dir}</span>
-      <ChevronsRight className="opacity-50" />
-      <span className="ml-2">{bk.name}</span>
+      <div className='flex-1 flex'>
+        <span className="ml-2 mr-2">{bk.dir}</span>
+        <ChevronsRight className="opacity-50" />
+        <span className="ml-2">{bk.name}</span>
+      </div>
+      <Button hidden={index < 0} size="xs" tabIndex={-1} variant="ghost" onClick={() => bookmarkCommands.removeAt(index)} >
+        <SquareX />
+      </Button>
     </div>
   );
 }
