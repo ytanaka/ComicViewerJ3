@@ -12,6 +12,7 @@ export function FileSearchPanel() {
   return (
     <FieldSet className="flex-1">
       <FieldLegend>ファイル検索設定</FieldLegend>
+      <Separator />
       <FieldDescription>
         ファイル一覧が表示されている画面でローマ字入力すると、ファイル名検索をすることができます。
         <br />

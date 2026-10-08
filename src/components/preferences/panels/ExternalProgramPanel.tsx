@@ -28,6 +28,10 @@ export function ExternalProgramPanel() {
     <FieldSet className="flex-1">
       <FieldLegend>外部アプリ起動</FieldLegend>
       <FieldGroup>
+        <FieldDescription>
+          選択したディレクトリやファイルを渡してアプリを起動します
+        </FieldDescription>
+        <Separator />
         <div className="flex m-0">
           <AddButton />
         </div>

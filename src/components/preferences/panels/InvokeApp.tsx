@@ -31,6 +31,9 @@ export function InvokeAppPanel() {
     <FieldSet className="flex-1">
       <FieldLegend>アプリ起動</FieldLegend>
       <FieldGroup>
+        <FieldDescription>
+          拡張子に対応したアプリを起動します
+        </FieldDescription>
         <Separator />
         <Field>
           <FieldLabel>起動可能なファイル拡張子</FieldLabel>

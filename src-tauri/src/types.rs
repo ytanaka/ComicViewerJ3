@@ -494,7 +494,7 @@ impl Default for AppPreferences {
             filename_sort_strength: "Identical".to_string(),
             filename_cmp_by_digit: false,
 
-            thumbnail_expiration_days: 30,
+            thumbnail_expiration_days: 7,
             thumbnail_command_limit: std::thread::available_parallelism()
                 .unwrap_or(NonZero::new(4).unwrap())
                 .get() as u32,
