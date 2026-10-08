@@ -37,9 +37,10 @@ export function ExternalProgramPanel() {
               <div key={i} className="flex">
                 <div className="pr-2">{i}: </div>
                 <EditButton index={i} program={p} />
-                <B click={() => remove(i)}><Trash /></B>
                 <B click={() => swap(i, i - 1)}><ArrowUp /></B>
                 <B click={() => swap(i, i + 1)}><ArrowDown /></B>
+                <div className='ml-2' />
+                <B click={() => remove(i)}><Trash color='orangered' /></B>
                 <div className="pl-2">{p.name}</div>
               </div>
             );
