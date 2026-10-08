@@ -74,9 +74,9 @@ export function FilePasteConfirmDialog() {
   );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', (e) => { if (show) handleKeyDown(e) });
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  }, [handleKeyDown, show]);
 
   return (
     <AlertDialog
