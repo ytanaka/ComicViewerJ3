@@ -13,7 +13,6 @@ export function ImageViewPanel() {
     <FieldSet className="flex-1">
       <FieldLegend>画像表示画面</FieldLegend>
       <FieldGroup>
-
         <Separator />
         <Field>
           <FieldLabel>サムネイルモードで子ディレクトリに入ると、画像表示モードにする</FieldLabel>
@@ -34,7 +33,6 @@ export function ImageViewPanel() {
             onCheckedChange={b => setField('hideMouseCursorWhenFullscreen', b)}
           />
         </Field>
-
       </FieldGroup>
     </FieldSet>
   );

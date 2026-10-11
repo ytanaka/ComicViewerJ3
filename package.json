@@ -15,7 +15,7 @@
     "rust:clippy": "cd src-tauri && cargo clippy -- -D warnings",
     "rust:bindings": "cd src-tauri && cargo test export_bindings --lib -- --ignored",
     "rust:doc": "cd src-tauri && cargo doc --no-deps",
-    "check": "pnpm lint && pnpm format && pnpm rust:fmt && pnpm rust:clippy",
+    "check": "pnpm lint && pnpm tsc --noEmit && pnpm format && pnpm rust:fmt && pnpm rust:clippy",
     "tauri": "tauri"
   },
   "dependencies": {

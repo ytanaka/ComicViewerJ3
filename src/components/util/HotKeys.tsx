@@ -59,8 +59,7 @@ export function HotKeyKbdGroup({ k }: { k: AppHotkey }) {
       )}
       <Kbd>{getDisplayKeyString(k.key)}</Kbd>
     </KbdGroup>
-
-  )
+  );
 }
 function getDisplayKeyString(key: string) {
   switch (key) {

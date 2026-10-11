@@ -36,7 +36,7 @@ function App() {
 
   return (
     <div
-      onContextMenu={(e) => e.preventDefault()}
+      onContextMenu={e => e.preventDefault()}
       className="h-screen w-screen flex flex-col bg-white text-black dark:bg-black dark:text-white text-sm"
       style={{ fontFamily: fontFamily, fontSize: 0 < fontSize ? fontSize : undefined }}
     >

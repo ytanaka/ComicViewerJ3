@@ -28,9 +28,7 @@ export function ExternalProgramPanel() {
     <FieldSet className="flex-1">
       <FieldLegend>外部アプリ起動</FieldLegend>
       <FieldGroup>
-        <FieldDescription>
-          選択したディレクトリやファイルを渡してアプリを起動します
-        </FieldDescription>
+        <FieldDescription>選択したディレクトリやファイルを渡してアプリを起動します</FieldDescription>
         <Separator />
         <div className="flex m-0">
           <AddButton />
@@ -41,10 +39,16 @@ export function ExternalProgramPanel() {
               <div key={i} className="flex">
                 <div className="pr-2">{i}: </div>
                 <EditButton index={i} program={p} />
-                <B click={() => swap(i, i - 1)}><ArrowUp /></B>
-                <B click={() => swap(i, i + 1)}><ArrowDown /></B>
-                <div className='ml-2' />
-                <B click={() => remove(i)}><Trash color='orangered' /></B>
+                <B click={() => swap(i, i - 1)}>
+                  <ArrowUp />
+                </B>
+                <B click={() => swap(i, i + 1)}>
+                  <ArrowDown />
+                </B>
+                <div className="ml-2" />
+                <B click={() => remove(i)}>
+                  <Trash color="orangered" />
+                </B>
                 <div className="pl-2">{p.name}</div>
               </div>
             );
@@ -88,7 +92,13 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
 
   return (
     <Popover>
-      <PopoverTrigger render={<Button size="xs"><SquarePen /></Button>} />
+      <PopoverTrigger
+        render={
+          <Button size="xs">
+            <SquarePen />
+          </Button>
+        }
+      />
       <PopoverContent className="min-w-max p-3">
         <div className="flex flex-col">
           <div className="flex items-center m-1">
@@ -124,13 +134,13 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
             <div className="opacity-65">(0は制限なし)</div>
           </div>
 
-          <div className='m-1'>
+          <div className="m-1">
             プログラム引数
             <div className="m-1">
               <Textarea value={program.command} onChange={e => upd('command', e.target.value)} />
             </div>
           </div>
-          <FieldDescription className='ml-4'>
+          <FieldDescription className="ml-4">
             プログラム引数の <code>{'${files}'}</code> は選択ファイルに置き換え
             <br />
             プログラム引数の <code>{'${dir}'}</code> は現在のタブのディレクトリに置き換え
@@ -139,7 +149,7 @@ function EditButton({ index, program }: { index: number; program: ExternalProgra
           </FieldDescription>
         </div>
 
-        <div className='m-1'>
+        <div className="m-1">
           備考
           <Textarea value={program.memo} onChange={e => upd('memo', e.target.value)} />
         </div>

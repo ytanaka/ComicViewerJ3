@@ -21,7 +21,6 @@ export function DebugPanel2() {
     <FieldSet className="flex-1">
       <FieldLegend>デバッグ設定</FieldLegend>
       <FieldGroup>
-
         <Separator />
         <Field>
           <FieldLabel>イベントハンドラーが古いイベント (e.timeStamp) を受け取ったら無視する閾値</FieldLabel>
@@ -35,12 +34,8 @@ export function DebugPanel2() {
         <Separator />
         <Field>
           <FieldLabel>DevToolsを有効にする</FieldLabel>
-          <Switch
-            checked={enableDevTools}
-            onCheckedChange={b => setField('enableDevTools', b)}
-          />
+          <Switch checked={enableDevTools} onCheckedChange={b => setField('enableDevTools', b)} />
         </Field>
-
       </FieldGroup>
     </FieldSet>
   );

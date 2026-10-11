@@ -32,12 +32,26 @@ export function AboutPanel() {
 
   return (
     <div className="select-none">
-      <h1 className='m-2 text-xl' onClick={handleTitleClick}>{getApplicationName()} Ver.{getApplicationVersion()}</h1>
+      <h1 className="m-2 text-xl" onClick={handleTitleClick}>
+        {getApplicationName()} Ver.{getApplicationVersion()}
+      </h1>
       <FieldSeparator />
       <div className="flex flex-col items-start pt-4 pl-4">
-        <LinkButton onClick={openExplorer(appConfigDir)} label="設定ファイル ディレクトリ" title="アプリの設定ファイルがあるディレクトリを開きます" />
-        <LinkButton onClick={openExplorer(appCacheDir)} label="キャッシュ ディレクトリ" title="サムネイル画像キャッシュなどがあるディレクトリを開きます" />
-        <LinkButton onClick={openExplorer(appLogDir)} label="ログ ディレクトリ" title="アプリのデバッグ用ログファイルがあるディレクトリを開きます" />
+        <LinkButton
+          onClick={openExplorer(appConfigDir)}
+          label="設定ファイル ディレクトリ"
+          title="アプリの設定ファイルがあるディレクトリを開きます"
+        />
+        <LinkButton
+          onClick={openExplorer(appCacheDir)}
+          label="キャッシュ ディレクトリ"
+          title="サムネイル画像キャッシュなどがあるディレクトリを開きます"
+        />
+        <LinkButton
+          onClick={openExplorer(appLogDir)}
+          label="ログ ディレクトリ"
+          title="アプリのデバッグ用ログファイルがあるディレクトリを開きます"
+        />
       </div>
       <div className="m-2">
         {debugPreferenceOn && <span className="m-3">現在のデバッグ設定: ON</span>}

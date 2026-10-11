@@ -85,7 +85,7 @@ export function BookmarkManager() {
           <div className="flex m-2 justify-center items-center">
             <MyButton name="追加" keyChar="A" onClick={() => bookmarkCommands.add(mkNewBk())} />
             <div className="flex flex-1 border flex-row">
-              <BookmarkItem index={-1} bk={mkNewBk()}  />
+              <BookmarkItem index={-1} bk={mkNewBk()} />
               <Button size="xs" tabIndex={-1} variant="ghost" onClick={handleNameToggle}>
                 {enableName ? <SquareX /> : <Square />}{' '}
               </Button>
@@ -143,16 +143,22 @@ function MyButton({ name, keyChar, onClick }: { name: string; keyChar: string; o
   );
 }
 
-function BookmarkItem({ index, bk }: { index: number, bk: Bookmark }) {
+function BookmarkItem({ index, bk }: { index: number; bk: Bookmark }) {
   return (
     <div className="flex">
       {bk.mode === FileViewMode.List ? <Rows3 className="opacity-50" /> : <Grid2X2 className="opacity-50" />}
-      <div className='flex-1 flex'>
+      <div className="flex-1 flex">
         <span className="ml-2 mr-2">{bk.dir}</span>
         <ChevronsRight className="opacity-50" />
         <span className="ml-2">{bk.name}</span>
       </div>
-      <Button hidden={index < 0} size="xs" tabIndex={-1} variant="ghost" onClick={() => bookmarkCommands.removeAt(index)} >
+      <Button
+        hidden={index < 0}
+        size="xs"
+        tabIndex={-1}
+        variant="ghost"
+        onClick={() => bookmarkCommands.removeAt(index)}
+      >
         <SquareX />
       </Button>
     </div>

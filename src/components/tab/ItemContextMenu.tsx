@@ -1,11 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuShortcut, ContextMenuTrigger } from '@/components/ui/context-menu';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
 
-import { TabInfo } from "@/lib/bindings-wrapper";
-import { useTabStore } from "@/store/tab/store";
-import { AppHotkey, AppMenuItem, menuItems } from "@/lib/menu-items";
-import { HotKeyKbdGroup } from "../util/HotKeys";
+import { TabInfo } from '@/lib/bindings-wrapper';
+import { useTabStore } from '@/store/tab/store';
+import { AppHotkey, AppMenuItem, menuItems } from '@/lib/menu-items';
+import { HotKeyKbdGroup } from '../util/HotKeys';
 
 function MyHotkey({ k }: { k: AppHotkey }) {
   return (
@@ -25,7 +32,15 @@ function MyMenuItem({ m }: { m: AppMenuItem }) {
   );
 }
 
-export function ItemContextMenu({ tab, fileIndex, render }: { tab: TabInfo, fileIndex: number, render: React.JSX.Element }) {
+export function ItemContextMenu({
+  tab,
+  fileIndex,
+  render,
+}: {
+  tab: TabInfo;
+  fileIndex: number;
+  render: React.JSX.Element;
+}) {
   const moveFocusNormal = useTabStore(state => state.moveFocusNormal);
   return (
     <ContextMenu onOpenChange={() => moveFocusNormal(tab.id, fileIndex)}>

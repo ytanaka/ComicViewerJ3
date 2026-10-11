@@ -92,7 +92,5 @@ export function FileListRow({
     </tr>
   );
 
-  return (
-    <ItemContextMenu tab={tab} fileIndex={fileIndex} render={rowComponent} />
-  );
+  return <ItemContextMenu tab={tab} fileIndex={fileIndex} render={rowComponent} />;
 }

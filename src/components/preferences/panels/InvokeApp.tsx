@@ -31,9 +31,7 @@ export function InvokeAppPanel() {
     <FieldSet className="flex-1">
       <FieldLegend>アプリ起動</FieldLegend>
       <FieldGroup>
-        <FieldDescription>
-          拡張子に対応したアプリを起動します
-        </FieldDescription>
+        <FieldDescription>拡張子に対応したアプリを起動します</FieldDescription>
         <Separator />
         <Field>
           <FieldLabel>起動可能なファイル拡張子</FieldLabel>
@@ -55,15 +53,13 @@ export function InvokeAppPanel() {
         </FieldDescription>
         <FieldDescription>
           ※ ここで指定しなくても<Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>で起動できます。(その場合は確認ダイアログが出ます)
-          <br />
-          ※
+          <br />※
           画像ファイルの拡張子を指定すれば、アプリの内蔵ビューアーでなくOSに関連付けられたビューアーが起動するようになります。
           {getPlatform() === 'windows' && (
             <>
               <br />※ Windowsで exe, bat, cmd などを指定すると危険なプログラムが警告なしに起動するので注意してください。
             </>
           )}
-
         </FieldDescription>
       </FieldGroup>
     </FieldSet>

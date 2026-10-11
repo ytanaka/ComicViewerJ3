@@ -91,7 +91,5 @@ export function ThumbnailCell({ tab, fileIndex, dirEntry }: { tab: TabInfo; file
     </div>
   );
 
-  return (
-    <ItemContextMenu tab={tab} fileIndex={fileIndex} render={cellComponent} />
-  );
+  return <ItemContextMenu tab={tab} fileIndex={fileIndex} render={cellComponent} />;
 }
