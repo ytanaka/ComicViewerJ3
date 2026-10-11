@@ -57,6 +57,8 @@ export function FilePasteConfirmDialog() {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (!show) return;
+
       if (e.key === 's') {
         handleAnswer(mkRes('Skip'));
       } else if (e.key === 'r') {
@@ -70,15 +72,15 @@ export function FilePasteConfirmDialog() {
       }
       e.preventDefault();
     },
-    [handleAnswer, mkRes]
+    [handleAnswer, mkRes, show]
   );
 
   useEffect(() => {
-    document.addEventListener('keydown', e => {
-      if (show) handleKeyDown(e);
-    });
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown, show]);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [handleKeyDown]);
 
   return (
     <AlertDialog
