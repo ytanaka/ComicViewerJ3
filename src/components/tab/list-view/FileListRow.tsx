@@ -16,15 +16,17 @@ function Icon({ dirEntry }: { dirEntry: DirEntry }) {
     </td>
   );
 }
-function Name({ dirEntry }: { dirEntry: DirEntry }) {
-  return <td className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>{dirEntry.name}</td>;
+function Name({ dirEntry, children }: { dirEntry: DirEntry; children: ReactNode }) {
+  return <td className={'box-border flex-1 shrink-0 min-w-0 truncate pl-1 pr-1'}>
+    {dirEntry.name}
+    {children}
+  </td>;
 }
-function FileExt({ dirEntry, children }: { dirEntry: DirEntry; children: ReactNode }) {
+function FileExt({ dirEntry }: { dirEntry: DirEntry; }) {
   const ext = dirEntry.is_dir ? null : getFileExtension(dirEntry.name);
   return (
     <td style={{}} className={'box-border truncate pl-1 pr-1'}>
       {ext}
-      {children}
     </td>
   );
 }
@@ -85,8 +87,8 @@ export function FileListRow({
       {...props}
     >
       <Icon dirEntry={dirEntry} />
-      <Name dirEntry={dirEntry} />
-      <FileExt dirEntry={dirEntry}>{isFocused && <SearchResult tabInfo={tab} />}</FileExt>
+      <Name dirEntry={dirEntry} >{isFocused && <SearchResult tabInfo={tab} />}</Name>
+      <FileExt dirEntry={dirEntry} />
       <Size dirEntry={dirEntry} fileInfo={fileInfo} />
       <Modified fileInfo={fileInfo} />
     </tr>
