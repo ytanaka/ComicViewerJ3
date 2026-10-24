@@ -7,6 +7,9 @@ import { usePreferences } from './preferences';
 import { Dimension } from '@/lib/bindings';
 import { myQueryClient } from '@/lib/query-client';
 
+// ---------------------------------------------------------------------------------------------------------------------
+// 画面にフィットするようにリサイズされた画像
+
 function queryKey_useResizedImage(tabId: TabId, fileId: FileId | undefined, size: Dimension | null) {
   return [...queryKey_tabId(tabId), 'getResizedImg', fileId, size?.width, size?.height];
 }

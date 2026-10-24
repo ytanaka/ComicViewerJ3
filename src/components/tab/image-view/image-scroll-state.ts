@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
+// 画像をマウスでスクロールさせるときの座標
 export interface ImageScrollState {
   dragging: boolean;
   start: ImageScrollStartState;

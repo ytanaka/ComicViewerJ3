@@ -14,14 +14,14 @@ import { Dimension } from '@/lib/bindings';
 import { useImageSize } from '@/services/tab-image-size';
 import { useOriginalImage } from '@/hooks/use-original-image';
 import { ImageViewCell } from './ImageViewCell';
-import { zoomDimension, zoomLevel2ZoomRatio } from '@/lib/tools/image-zoom';
+import { getZoomDimension, zoomLevel2ZoomRatio } from '@/lib/tools/image-zoom';
 import { useImageScrollState } from './image-scroll-state';
 
 export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }) {
   const tab = useTabStore(state => state.getCurrentTab()?.info)!; // このコンポーネントが呼ばれているということは、タブはあるはず
   const focusIndex = useTabStore(state => state.getCurrentTab()?.selection.focusIndex) ?? 0;
   const zoomLevel = useTabStore(state => state.getCurrentTab()?.imageViewMode.zoomLevel) ?? 0;
-  const originalSize = useTabStore(state => state.getCurrentTab()?.imageViewMode.useOriginalSize) ?? false;
+  const useOriginalSize = useTabStore(state => state.getCurrentTab()?.imageViewMode.useOriginalSize) ?? false;
   const showInfo = useTabStore(state => state.getCurrentTab()?.imageViewMode.showInfo === true);
 
   // 画面サイズ管理
@@ -84,7 +84,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   setColumns(1);
   setScrollHandler(null);
 
-  // 画像サイズ取得
+  // 画像の縦横サイズ取得
   const { data: imageSize0 } = useImageSize(tab.id, dirEntries?.[focusIndex]);
   const { data: imageSize1 } = useImageSize(tab.id, dirEntries?.[focusIndex + 1]);
   useImageSize(tab.id, dirEntries?.[focusIndex + 2]);
@@ -96,9 +96,9 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const { data: originalImages } = useOriginalImage(tab.id);
 
   // 画像ファイル取得
-  const zoomedDivSize = zoomDimension(zoomLevel, originalSize ? imageSize0 : divSize);
+  const zoomedDivSize = getZoomDimension(zoomLevel, useOriginalSize ? imageSize0 : divSize);
   function ent(fileIndex: number) {
-    return originalSize ? undefined : dirEntries?.[fileIndex];
+    return useOriginalSize ? undefined : dirEntries?.[fileIndex];
   }
   const { data: img0 } = useResizedImage(tab.id, ent(focusIndex), zoomedDivSize);
   if (img0?.type === 'Fail') {
@@ -115,7 +115,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   function getResizedImage(i: number) {
     const imgs = [img0, img1, img2, img3];
     const imgsx = [undefined, imgx1, imgx2];
-    if (originalSize) return originalImages?.[focusIndex + i];
+    if (useOriginalSize) return originalImages?.[focusIndex + i];
     const result = 0 <= i ? imgs[i] : imgsx[i * -1];
     if (result?.type === 'Ok') return result.filename;
     return undefined;
@@ -176,7 +176,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
     imageSize1,
     dualView,
     zoomLevel,
-    screenSize: originalSize ? imageSize0 : divSize,
+    screenSize: useOriginalSize ? imageSize0 : divSize,
   });
 
   console.debug(
@@ -198,7 +198,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
       list.push(s);
     }
     list.push(
-      `${originalSize ? 'オリジナル画像の' : '画面サイズの'} ${Math.round(zoomLevel2ZoomRatio(zoomLevel) * 100)}%で表示`
+      `${useOriginalSize ? 'オリジナル画像の' : '画面サイズの'} ${Math.round(zoomLevel2ZoomRatio(zoomLevel) * 100)}%で表示`
     );
     list.push(`  → (${styleImgSize0.width} × ${styleImgSize0.height})`);
     if (dualView) list.push(`  → (${styleImgSize1.width} × ${styleImgSize1.height})`);
@@ -238,7 +238,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   );
   const imgViewCell2 = (
     <ImageViewCell
-      key={`${tab.id}/${focusIndex + 2}`}
+      key={`${tab.id}/${focusIndex + 2}/${getResizedImage(2)}`}
       tab={tab}
       originalImage={originalImages?.[focusIndex + 2]}
       resizedImage={getResizedImage(2)}
@@ -247,7 +247,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   );
   const imgViewCell3 = (
     <ImageViewCell
-      key={`${tab.id}/${focusIndex + 3}`}
+      key={`${tab.id}/${focusIndex + 3}/${getResizedImage(3)}`}
       tab={tab}
       originalImage={originalImages?.[focusIndex + 3]}
       resizedImage={getResizedImage(3)}
@@ -256,7 +256,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   );
   const imgViewCellx1 = (
     <ImageViewCell
-      key={`${tab.id}/${focusIndex - 1}`}
+      key={`${tab.id}/${focusIndex - 1}/${getResizedImage(-1)}`}
       tab={tab}
       originalImage={originalImages?.[focusIndex - 1]}
       resizedImage={getResizedImage(-1)}
@@ -265,7 +265,7 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   );
   const imgViewCellx2 = (
     <ImageViewCell
-      key={`${tab.id}/${focusIndex - 2}`}
+      key={`${tab.id}/${focusIndex - 2}/${getResizedImage(-2)}`}
       tab={tab}
       originalImage={originalImages?.[focusIndex - 2]}
       resizedImage={getResizedImage(-2)}

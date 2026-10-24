@@ -3,6 +3,9 @@ import { queryKey_tabId } from './tab';
 import { DirEntry, FileId, handleRustCmdResult, rustcmds, TabId } from '@/lib/bindings-wrapper';
 import { isPictureFileExtension } from '@/lib/tools/string-util';
 
+// ---------------------------------------------------------------------------------------------------------------------
+// 画像ファイルの縦横サイズ
+
 function queryKey_useImageSize(tabId: TabId, fileId: FileId | undefined) {
   return [...queryKey_tabId(tabId), 'getImageSize', fileId];
 }
