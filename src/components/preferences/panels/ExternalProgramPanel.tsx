@@ -28,7 +28,7 @@ export function ExternalProgramPanel() {
     <FieldSet className="flex-1">
       <FieldLegend>外部アプリ起動</FieldLegend>
       <FieldGroup>
-        <FieldDescription>選択したディレクトリやファイルを渡してアプリを起動します</FieldDescription>
+        <FieldDescription>選択中のディレクトリやファイルを渡してアプリを起動します</FieldDescription>
         <Separator />
         <div className="flex m-0">
           <AddButton />
@@ -57,7 +57,7 @@ export function ExternalProgramPanel() {
         <FieldDescription>
           ショートカットキー<Kbd>Ctrl+0</Kbd>～<Kbd>Ctrl+9</Kbd>で起動
         </FieldDescription>
-        <Separator />
+
       </FieldGroup>
     </FieldSet>
   );

@@ -85,7 +85,7 @@ export function FileListPanel() {
         </Field>
         <FieldSeparator />
         <Field>
-          <FieldLabel>ファイル名に含まれる数値で比較</FieldLabel>
+          <FieldLabel>ファイル名に含まれる数値で比較してソートする</FieldLabel>
           <Switch checked={pref?.filename_cmp_by_digit ?? false} onCheckedChange={handleChange_filename_cmp_digit} />
         </Field>
         <FieldDescription>

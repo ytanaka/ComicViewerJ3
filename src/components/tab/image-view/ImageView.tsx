@@ -79,7 +79,8 @@ export function ImageView({ dirEntries }: { dirEntries: DirEntry[] | undefined }
   const setRows = useListScrollHandlerStore(state => state.setRows);
   const setColumns = useListScrollHandlerStore(state => state.setColumns);
   const setScrollHandler = useListScrollHandlerStore(state => state.setScrollHandler);
-  setRows(10);
+  const imageViewPageNum = useUiStore(state => state.imageViewPageNum);
+  setRows(imageViewPageNum);
   setColumns(1);
   setScrollHandler(null);
 

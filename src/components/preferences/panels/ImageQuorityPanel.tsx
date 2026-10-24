@@ -18,6 +18,7 @@ export function ImageQuorityPanel() {
         <Button size="sm" className="font-light" variant="secondary" onClick={() => window.location.reload()}>
           再読み込み
         </Button>
+        してください
       </FieldDescription>
       <FieldGroup>
         <Separator />

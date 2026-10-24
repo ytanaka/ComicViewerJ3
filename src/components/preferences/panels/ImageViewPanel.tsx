@@ -1,4 +1,6 @@
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field';
+import { InputGroup, InputGroupInput } from '@/components/ui/input-group';
+import { Kbd } from '@/components/ui/kbd';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 
@@ -7,6 +9,7 @@ import { useUiStore } from '@/store/ui-store';
 export function ImageViewPanel() {
   const hideMouseCursorWhenFullscreen = useUiStore(state => state.hideMouseCursorWhenFullscreen);
   const changeImageViewModeAtChildDirectory = useUiStore(state => state.changeImageViewModeAtChildDirectory);
+  const imageViewPageNum = useUiStore(state => state.imageViewPageNum);
   const setField = useUiStore(state => state.setField);
 
   return (
@@ -32,6 +35,21 @@ export function ImageViewPanel() {
             checked={hideMouseCursorWhenFullscreen}
             onCheckedChange={b => setField('hideMouseCursorWhenFullscreen', b)}
           />
+        </Field>
+
+        <Separator />
+        <Field>
+          <FieldLabel><Kbd>PageUp</Kbd>,<Kbd>PageDown</Kbd>時の移動量</FieldLabel>
+          <InputGroup className="max-w-40">
+            <InputGroupInput
+              type="number"
+              min={0}
+              max={1000}
+              step={1}
+              onChange={e => setField('imageViewPageNum', Number(e.target.value))}
+              value={imageViewPageNum}
+            />
+          </InputGroup>
         </Field>
       </FieldGroup>
     </FieldSet>

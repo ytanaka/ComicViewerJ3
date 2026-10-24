@@ -56,6 +56,9 @@ export interface UiState {
   // 最大タブ数
   maxTabNum: number;
 
+  // 画像表示中のPageUp移動数
+  imageViewPageNum: number;
+
   // アプリで使用するフォント
   fontFamily: string;
   fontSize: number;
@@ -93,6 +96,7 @@ export const useUiStore = create<UiState_and_Action>()(
       debugPreferenceOn: false,
       preferenceDialogTabId: 'general',
       maxTabNum: 10,
+      imageViewPageNum: 10,
 
       fontFamily: DEFAULT_FONT_FAMILY,
       fontSize: 0,
