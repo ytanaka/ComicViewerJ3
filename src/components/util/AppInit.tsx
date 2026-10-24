@@ -26,10 +26,10 @@ export function AppInit() {
       console.log('<AppInit> getVersion(): ', await getVersion());
 
       const id = await getIdentifier();
-      if (id.endsWith('release')) {
-        APP_NAME = 'ComicViewerJ3';
-      } else {
+      if (id.endsWith('debug')) {
         APP_NAME = 'ComicViewerJ3(DEBUG)';
+      } else {
+        APP_NAME = 'ComicViewerJ3';
       }
 
       APP_VERSION = await getVersion();
