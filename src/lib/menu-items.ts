@@ -178,7 +178,7 @@ export const menuItems = {
   sortByTime: M('更新日時でソート', () => sortCommands.sortFiles('Time'), 'Alt//4', hasTab),
 
   // -------------------- Tab --------------------
-  cloneTab: M('新規タブを開く', tabCommands.cloneCurrentTab, 'Ctrl//T', hasTab),
+  cloneTab: M('新規タブを開く', tabCommands.cloneCurrentTab, 'Ctrl//T'),
   closeCurrentTab: M('現在のタブを閉じる', tabCommands.removeCurrentTab, 'Ctrl//W', hasTab),
 
   nextTab: M('次のタブ', () => tabCommands.setCurrentTabNextPrev(1), 'Ctrl//PageDown', hasTab),
