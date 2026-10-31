@@ -111,17 +111,17 @@ function TabContent() {
   // キー操作
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      // ファイル検索テキスト入力
+      if (!st().getCurrentTab()?.imageViewMode.enable && fileSearchInput_handleKeyDown(e)) {
+        e.preventDefault();
+        return;
+      }
+
       // 遅延が発生していたらイベントを無視
       const delay = performance.now() - e.timeStamp;
       const timeout = useUiStore.getState().timeoutMsEventTimeStamp;
       if (0 < timeout && timeout < delay) {
         console.info('ignore keyboard event');
-        return;
-      }
-
-      // ファイル検索テキスト入力
-      if (!st().getCurrentTab()?.imageViewMode.enable && fileSearchInput_handleKeyDown(e)) {
-        e.preventDefault();
         return;
       }
 
