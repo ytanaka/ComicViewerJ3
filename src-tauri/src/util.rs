@@ -1,17 +1,34 @@
 //! 共通関数など
 
-use std::{fmt::Display, path::Path};
+use std::{fmt::Display, path::Path, sync::atomic::AtomicBool};
+
+pub static LOG_VERBOSE: AtomicBool = AtomicBool::new(false);
+
+/// デバッグ用の詳細ログ
+#[macro_export]
+#[allow(unused_macros)]
+macro_rules! LOGX {
+    ($($arg:tt)*) => {
+        if $crate::util::LOG_VERBOSE.load(std::sync::atomic::Ordering::Relaxed) {
+            log::trace!($($arg)*);
+        }
+    };
+}
 
 /// Rustコマンドの結果をログに出力する
 #[macro_export]
 #[allow(unused_macros)]
 macro_rules! LOG_RESULT {
     ($msg:expr, $block:block) => {{
+        if $crate::util::LOG_VERBOSE.load(std::sync::atomic::Ordering::Relaxed) {
+            log::trace!("start commands::{}", $msg);
+        }
+
         let msg2 = $msg; // ここで代入しないと、$msg に format!("{}", String) を渡せない
         let result = { $block };
         match &result {
-            Ok(_) => log::trace!("commands::{}: Ok", msg2),
-            Err(e) => log::trace!("commands::{}: Err({})", msg2, e),
+            Ok(_) => log::trace!("end   commands::{}: Ok", msg2),
+            Err(e) => log::trace!("end   commands::{}: Err({})", msg2, e),
         }
         result
     }};

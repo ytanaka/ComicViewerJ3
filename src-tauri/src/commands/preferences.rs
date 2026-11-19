@@ -5,7 +5,9 @@ use std::{path::PathBuf, sync::Arc};
 use anyhow::{anyhow, Context};
 use tauri::{AppHandle, Manager, State};
 
-use crate::{state::app_state::AppState, types::AppPreferences, LOG_RESULT};
+use crate::{
+    state::app_state::AppState, types::AppPreferences, util::LOG_VERBOSE, LOGX, LOG_RESULT,
+};
 
 // ---------------------------------------------------------------------------------------------------------------------
 /// 設定JSONファイルのフルパスを取得
@@ -59,6 +61,9 @@ pub(crate) fn load_preferences_impl(
     *pref_mut = pref.clone();
 
     pref.init_default(); // デフォルト値上書き
+
+    LOG_VERBOSE.store(pref.log_verbose, std::sync::atomic::Ordering::Relaxed);
+    LOGX!("load pref: log_verbose = {}", pref.log_verbose);
 
     Ok(pref)
 }
@@ -121,6 +126,9 @@ fn save_preferences_impl(
     state
         .resize_img_command_limitter
         .set_limit(new_pref.resize_image_command_limit);
+
+    LOG_VERBOSE.store(new_pref.log_verbose, std::sync::atomic::Ordering::Relaxed);
+    LOGX!("save pref: log_verbose = {}", new_pref.log_verbose);
 
     Ok(())
 }

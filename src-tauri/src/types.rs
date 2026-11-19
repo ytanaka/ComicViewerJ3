@@ -456,6 +456,9 @@ impl std::fmt::Debug for FileSearchResult {
 #[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 /// Rust側で保持するアプリ設定
 pub struct AppPreferences {
+    /// デバッグ用の詳細ログを出力
+    pub log_verbose: bool,
+
     /// ファイル名検索するときスリープする
     pub debug_filename_search_sleep_ms: i32,
     /// ファイル削除時にスリープする
@@ -488,6 +491,7 @@ pub struct AppPreferences {
 impl Default for AppPreferences {
     fn default() -> Self {
         Self {
+            log_verbose: false,
             debug_filename_search_sleep_ms: 0,
             debug_file_op_sleep_ms: 0,
             filename_cmp: FilenameCmpType::Icu,

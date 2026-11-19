@@ -91,6 +91,8 @@ export type AppConstants = {
 
 /**  Rust側で保持するアプリ設定 */
 export type AppPreferences = {
+	/**  デバッグ用の詳細ログを出力 */
+	log_verbose: boolean,
 	/**  ファイル名検索するときスリープする */
 	debug_filename_search_sleep_ms: number,
 	/**  ファイル削除時にスリープする */

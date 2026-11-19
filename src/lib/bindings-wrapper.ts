@@ -175,6 +175,7 @@ function toFileInfo(from: FileInfoUI): FileInfo {
 export function mkAppPreferencesDefault(): AppPreferences {
   // この関数が呼ばれるのは rustcmds.loadPreferences() がエラーを返した時なので、実際には呼ばれないはず
   return {
+    log_verbose: false,
     debug_filename_search_sleep_ms: 0,
     debug_file_op_sleep_ms: 0,
     filename_sort_strength: 'Identical',

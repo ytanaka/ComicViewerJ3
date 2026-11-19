@@ -4,6 +4,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { Separator } from '@/components/ui/separator';
 import { usePreferences, useSavePreferences } from '@/services/preferences';
 import { useTabStore } from '@/store/tab/store';
+import { Switch } from '@/components/ui/switch';
 
 const sortStrengthItems = [
   { label: 'あいまい', value: 'Primary' },
@@ -36,6 +37,8 @@ export function DebugPanel() {
     const item = sortStrengthItems.find(item => item.value === value);
     return item?.label ?? '選択してください';
   }
+
+  if (!pref) return <></>
 
   return (
     <FieldSet className="flex-1">
@@ -110,6 +113,19 @@ export function DebugPanel() {
           </Select>
           <FieldDescription>日本語ファイル名のひらがな、カタカナ、全角半角などの比較方法</FieldDescription>
         </Field>
+
+        <Separator />
+        <Field>
+          <FieldLabel>詳細ログ出力</FieldLabel>
+          <Switch
+            checked={pref?.log_verbose}
+            onCheckedChange={b => {
+              if (pref) {
+                savePref.mutate({ ...pref, log_verbose: b });
+              }
+            }} />
+        </Field>
+
       </FieldGroup>
     </FieldSet>
   );
