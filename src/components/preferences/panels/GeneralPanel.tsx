@@ -50,7 +50,11 @@ export function GeneralPanel() {
           >
             フォントの表示例です。
             <br />
-            あいうえおABC123.456.789 漢字テスト「日本語Font Sample」
+            |ABC |DEF |GHI.| あいうえお漢字テスト「日本語Font Sample」
+            <br />
+            |123.|456.|789.|
+            <br />
+            |...1|2345|6789|
           </div>
         </Field>
         <Separator />
