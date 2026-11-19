@@ -24,6 +24,8 @@ macro_rules! LOG_VERBOSE {
 #[allow(unused_macros)]
 macro_rules! LOG_RESULT {
     ($msg:expr, $block:block) => {{
+        let t0 = std::time::Instant::now();
+
         if $crate::util::is_write_log_verbose() {
             log::trace!("start commands::{}", $msg);
         }
@@ -31,7 +33,7 @@ macro_rules! LOG_RESULT {
         let msg2 = $msg; // ここで代入しないと、$msg に format!("{}", String) を渡せない
         let result = { $block };
         match &result {
-            Ok(_) => log::trace!("end   commands::{}: Ok", msg2),
+            Ok(_) => log::trace!("end   commands::{}: Ok, {}ms", msg2, t0.elapsed().as_millis()),
             Err(e) => log::trace!("end   commands::{}: Err({})", msg2, e),
         }
         result

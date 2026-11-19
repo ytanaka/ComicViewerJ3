@@ -69,19 +69,17 @@ pub async fn get_thumbnail(
     size: u32,
 ) -> Result<GetThumbnailResult, String> {
     let comment = format!("get_thumbnail({}, {}, {})", tab_id, file_id, size);
-    let mut running = 0;
-    let result = match state.thumbnail_command_limitter.try_acquire() {
-        None => Ok(GetThumbnailResult::Busy),
-        Some(permit) => {
-            running = permit.running;
-            let state2 = state.inner().clone();
-            let result = tauri::async_runtime::spawn_blocking(move || {
-                get_thumbnail_impl(&app, &state2, tab_id, &file_id, &Dimension::new(size, size))
-            });
-            result.await.unwrap()
-        }
-    };
-    LOG_RESULT!(format!("{comment}, running[{running}]"), {
+    LOG_RESULT!(format!("{comment}"), {
+        let result = match state.thumbnail_command_limitter.try_acquire() {
+            None => Ok(GetThumbnailResult::Busy),
+            Some(_) => {
+                let state2 = state.inner().clone();
+                let result = tauri::async_runtime::spawn_blocking(move || {
+                    get_thumbnail_impl(&app, &state2, tab_id, &file_id, &Dimension::new(size, size))
+                });
+                result.await.unwrap()
+            }
+        };
         result.map_err(|e| e.to_full_string())
     })
 }
@@ -198,19 +196,17 @@ pub async fn get_resized_img(
     target_size: Dimension,
 ) -> Result<GetResizedImgResult, String> {
     let comment = format!("get_resized_img({}, {}, {})", tab_id, file_id, target_size);
-    let mut running = 0;
-    let result = match state.resize_img_command_limitter.try_acquire() {
-        None => Ok(GetResizedImgResult::Busy),
-        Some(permit) => {
-            running = permit.running;
-            let state2 = state.inner().clone();
-            let result = tauri::async_runtime::spawn_blocking(move || {
-                get_resized_img_impl(&app, &state2, tab_id, &file_id, &target_size)
-            });
-            result.await.unwrap()
-        }
-    };
-    LOG_RESULT!(format!("{comment}, running[{running}]"), {
+    LOG_RESULT!(format!("{comment}"), {
+        let result = match state.resize_img_command_limitter.try_acquire() {
+            None => Ok(GetResizedImgResult::Busy),
+            Some(_) => {
+                let state2 = state.inner().clone();
+                let result = tauri::async_runtime::spawn_blocking(move || {
+                    get_resized_img_impl(&app, &state2, tab_id, &file_id, &target_size)
+                });
+                result.await.unwrap()
+            }
+        };
         result.map_err(|e| e.to_full_string())
     })
 }
