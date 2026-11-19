@@ -10,7 +10,8 @@ pub static LOG_VERBOSE: AtomicBool = AtomicBool::new(false);
 macro_rules! LOGX {
     ($($arg:tt)*) => {
         if $crate::util::LOG_VERBOSE.load(std::sync::atomic::Ordering::Relaxed) {
-            log::trace!($($arg)*);
+            let s = format!($($arg)*);
+            log::trace!("... {}", s);
         }
     };
 }

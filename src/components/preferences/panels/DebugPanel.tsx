@@ -116,7 +116,7 @@ export function DebugPanel() {
 
         <Separator />
         <Field>
-          <FieldLabel>詳細ログ出力</FieldLabel>
+          <FieldLabel>ログファイルに詳細なログを出力</FieldLabel>
           <Switch
             checked={pref?.log_verbose}
             onCheckedChange={b => {

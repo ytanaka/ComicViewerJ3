@@ -18,6 +18,7 @@ use crate::{
         EVENT_NAME_TASK_CONFIRM,
     },
     util::pathvec_to_str,
+    LOGX,
 };
 
 // =====================================================================================================================
@@ -274,12 +275,26 @@ async fn copy_paths_impl2(
 ) -> anyhow::Result<()> {
     // async fn の再帰呼び出しでエラーになったのでループさせる
     let mut stack: Vec<(PathBuf, PathBuf)> = Vec::new();
-    stack.push((
-        src_path.as_ref().to_path_buf(), // src: ファイル or ディレクトリ
-        dst_dir.as_ref().to_path_buf(),  // dst: 必ずディレクトリ
-    ));
+    fn stack_push(s: &mut Vec<(PathBuf, PathBuf)>, p: (PathBuf, PathBuf)) {
+        LOGX!("copy_paths_impl2: stack_push() <= {:?}, {:?}", p.0, p.1);
+        s.push(p);
+    }
+
+    stack_push(
+        &mut stack,
+        (
+            src_path.as_ref().to_path_buf(), // src: ファイル or ディレクトリ
+            dst_dir.as_ref().to_path_buf(),  // dst: 必ずディレクトリ
+        ),
+    );
 
     while let Some((src_path, dst_dir)) = stack.pop() {
+        LOGX!(
+            "copy_paths_impl2: stack.pop() => {:?}, {:?}",
+            src_path,
+            dst_dir
+        );
+
         let src_name = get_file_name(&src_path)?;
         let mut dst_path = dst_dir.join(&src_name);
 
@@ -303,10 +318,13 @@ async fn copy_paths_impl2(
         ) {
             // ディレクトリをコピー処理したら、その子をループで処理する
             for entry in fs::read_dir(&src_path)? {
-                stack.push((
-                    entry?.path().to_path_buf(), // 例: /a/b/c/d.txt
-                    dst_path.clone(), // 例: /x/y/z/Copy(2)_c (resolve_copy_path_confilct で "c" がすでに存在したためリネームした場合)
-                ))
+                stack_push(
+                    &mut stack,
+                    (
+                        entry?.path().to_path_buf(), // 例: /a/b/c/d.txt
+                        dst_path.clone(), // 例: /x/y/z/Copy(2)_c (resolve_copy_path_confilct で "c" がすでに存在したためリネームした場合)
+                    ),
+                )
             }
         }
     }
@@ -318,7 +336,11 @@ fn check_src_dst_metadata(
     src_path: impl AsRef<Path>,
     dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<()> {
-    let src_meta = src_path.as_ref().metadata()?;
+    // let src_meta = src_path.as_ref().metadata()?;
+    let src_meta = match src_path.as_ref().metadata() {
+        Ok(m) => m,
+        Err(e) => Err(anyhow!("{:?}: {}", src_path.as_ref(), e))?,
+    };
     if let Ok(dst_meta) = dst_path.as_ref().metadata() {
         if dst_meta.is_symlink() {
             return Err(err_cp_symlink(dst_path));
@@ -402,6 +424,12 @@ async fn copy_paths_impl3(
     src_path: impl AsRef<Path>,
     dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<DirOrFile> {
+    LOGX!(
+        "copy_paths_impl3({:?}, {:?})",
+        src_path.as_ref(),
+        dst_path.as_ref()
+    );
+
     let meta = src_path.as_ref().metadata()?;
     let ret = if meta.is_dir() {
         copy_paths_dir(dst_path).await?;
