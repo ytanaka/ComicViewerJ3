@@ -18,7 +18,7 @@ use crate::{
         EVENT_NAME_TASK_CONFIRM,
     },
     util::pathvec_to_str,
-    LOGX,
+    LOG_VERBOSE,
 };
 
 // =====================================================================================================================
@@ -276,7 +276,7 @@ async fn copy_paths_impl2(
     // async fn の再帰呼び出しでエラーになったのでループさせる
     let mut stack: Vec<(PathBuf, PathBuf)> = Vec::new();
     fn stack_push(s: &mut Vec<(PathBuf, PathBuf)>, p: (PathBuf, PathBuf)) {
-        LOGX!("copy_paths_impl2: stack_push() <= {:?}, {:?}", p.0, p.1);
+        LOG_VERBOSE!("copy_paths_impl2: stack_push() <= {:?}, {:?}", p.0, p.1);
         s.push(p);
     }
 
@@ -289,7 +289,7 @@ async fn copy_paths_impl2(
     );
 
     while let Some((src_path, dst_dir)) = stack.pop() {
-        LOGX!(
+        LOG_VERBOSE!(
             "copy_paths_impl2: stack.pop() => {:?}, {:?}",
             src_path,
             dst_dir
@@ -424,7 +424,7 @@ async fn copy_paths_impl3(
     src_path: impl AsRef<Path>,
     dst_path: impl AsRef<Path>,
 ) -> anyhow::Result<DirOrFile> {
-    LOGX!(
+    LOG_VERBOSE!(
         "copy_paths_impl3({:?}, {:?})",
         src_path.as_ref(),
         dst_path.as_ref()

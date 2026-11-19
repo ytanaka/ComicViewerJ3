@@ -2,14 +2,14 @@
 
 use std::{fmt::Display, path::Path, sync::atomic::AtomicBool};
 
-pub static LOG_VERBOSE: AtomicBool = AtomicBool::new(false);
+pub static WRITE_LOG_VERBOSE: AtomicBool = AtomicBool::new(false);
 
 /// デバッグ用の詳細ログ
 #[macro_export]
 #[allow(unused_macros)]
-macro_rules! LOGX {
+macro_rules! LOG_VERBOSE {
     ($($arg:tt)*) => {
-        if $crate::util::LOG_VERBOSE.load(std::sync::atomic::Ordering::Relaxed) {
+        if $crate::util::WRITE_LOG_VERBOSE.load(std::sync::atomic::Ordering::Relaxed) {
             let s = format!($($arg)*);
             log::trace!("... {}", s);
         }
@@ -21,7 +21,7 @@ macro_rules! LOGX {
 #[allow(unused_macros)]
 macro_rules! LOG_RESULT {
     ($msg:expr, $block:block) => {{
-        if $crate::util::LOG_VERBOSE.load(std::sync::atomic::Ordering::Relaxed) {
+        if $crate::util::WRITE_LOG_VERBOSE.load(std::sync::atomic::Ordering::Relaxed) {
             log::trace!("start commands::{}", $msg);
         }
 

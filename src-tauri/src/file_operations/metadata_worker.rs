@@ -12,9 +12,7 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
-    file_operations::file_utils::read_metadata,
-    state::app_state::AppState,
-    types::{Either, FileId, FileMetadata, TabId},
+    LOG_VERBOSE, file_operations::file_utils::read_metadata, state::app_state::AppState, types::{Either, FileId, FileMetadata, TabId},
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -125,12 +123,19 @@ impl PacketExecutor {
             return Ok(false);
         }
 
+        LOG_VERBOSE!("load metadatas: start");
+
         // ファイルIDをファイル名に変換
         let fileids_filenames = self.get_fileids_filenames()?;
+        LOG_VERBOSE!("load metadatas: got filenames: {}", fileids_filenames.len());
+
         // メタデータ読み込み
         let fileids_metadatas = self.read_metadatas(&fileids_filenames)?;
+        LOG_VERBOSE!("load_metadatas: got metadatas");
+
         // メタデータ書き込み
         self.write_metadata(fileids_metadatas)?;
+        LOG_VERBOSE!("load_metadatas: written metadatas");
 
         Ok(true)
     }

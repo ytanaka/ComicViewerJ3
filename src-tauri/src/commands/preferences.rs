@@ -6,7 +6,8 @@ use anyhow::{anyhow, Context};
 use tauri::{AppHandle, Manager, State};
 
 use crate::{
-    state::app_state::AppState, types::AppPreferences, util::LOG_VERBOSE, LOGX, LOG_RESULT,
+    state::app_state::AppState, types::AppPreferences, util::WRITE_LOG_VERBOSE, LOG_RESULT,
+    LOG_VERBOSE,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -62,8 +63,8 @@ pub(crate) fn load_preferences_impl(
 
     pref.init_default(); // デフォルト値上書き
 
-    LOG_VERBOSE.store(pref.log_verbose, std::sync::atomic::Ordering::Relaxed);
-    LOGX!("load pref: log_verbose = {}", pref.log_verbose);
+    WRITE_LOG_VERBOSE.store(pref.log_verbose, std::sync::atomic::Ordering::Relaxed);
+    LOG_VERBOSE!("load pref: log_verbose = {}", pref.log_verbose);
 
     Ok(pref)
 }
@@ -127,8 +128,8 @@ fn save_preferences_impl(
         .resize_img_command_limitter
         .set_limit(new_pref.resize_image_command_limit);
 
-    LOG_VERBOSE.store(new_pref.log_verbose, std::sync::atomic::Ordering::Relaxed);
-    LOGX!("save pref: log_verbose = {}", new_pref.log_verbose);
+    WRITE_LOG_VERBOSE.store(new_pref.log_verbose, std::sync::atomic::Ordering::Relaxed);
+    LOG_VERBOSE!("save pref: log_verbose = {}", new_pref.log_verbose);
 
     Ok(())
 }
