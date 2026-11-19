@@ -22,7 +22,7 @@ use crate::{
     types::{
         CreateTabError, DirEntryUI, Either, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI,
     },
-    util::vec_to_str,
+    util::{is_write_log_verbose, vec_to_str},
     LOG_RESULT,
 };
 
@@ -71,15 +71,19 @@ async fn log_create_tab_result(
     comment: String,
     result: impl Future<Output = anyhow::Result<CreateTabResult>>,
 ) -> Result<Either<CreateTabError, TabInfoUI>, String> {
+    if is_write_log_verbose() {
+        log::trace!("start commands::{}", comment);
+    }
+
     let t0 = Instant::now();
     let result = result.await;
     match &result {
         Err(e) => {
-            log::trace!("commands::{comment}: Err({e})");
+            log::trace!("end   commands::{comment}: Err({e})");
         }
         Ok(r) => match &r.data {
             Either::Left(err) => {
-                log::debug!("commands::{comment}: Ok(msg:{})", err.msg);
+                log::debug!("end   commands::{comment}: Ok(msg:{})", err.msg);
             }
             Either::Right(result) => {
                 let msg = match (result.1, result.2) {
@@ -87,7 +91,7 @@ async fn log_create_tab_result(
                     _ => "[]".to_string(),
                 };
                 log::trace!(
-                    "commands::{comment}: Ok({}, {msg}) total tabs = {}, {}ms",
+                    "end   commands::{comment}: Ok({}, {msg}) total tabs = {}, {}ms",
                     result.0.id,
                     state.tabs.len(),
                     t0.elapsed().as_millis(),
