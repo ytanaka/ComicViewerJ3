@@ -25,7 +25,7 @@ export function CmdFileInfosQueryWrapper({ tab }: { tab: TabInfo }) {
 interface VisibleFileIdsStore {
   tabId: TabId;
   fileIds: FileId[];
-  setFileIndexes: (tabId: TabId, dirEntries: DirEntry[] | undefined, range: ListRange) => void;
+  setFileIndexes: (tabId: TabId, dirEntries: DirEntry[] | undefined, range: ListRange, overscan: boolean) => void;
 }
 
 // ファイル一覧画面で、スクロール範囲に見えているファイルのID一覧を格納する
@@ -33,10 +33,12 @@ export const useVisibleFileIdsStore = create<VisibleFileIdsStore>()(set => ({
   tabId: 0 as TabId,
   fileIds: [],
 
-  setFileIndexes: (tabId: TabId, dirEntries: DirEntry[] | undefined, range: ListRange) => {
+  setFileIndexes: (tabId: TabId, dirEntries: DirEntry[] | undefined, range: ListRange, overscan: boolean) => {
     if (!dirEntries) return;
     const itemNum = Math.max(1, range.endIndex - range.startIndex);
-    const OVER_SCAN = itemNum + 1;
+    // VirtuosoGridのRangeは画面表示範囲よりかなり広いので余分に読む必要はない
+    // TableVirtuosoはほぼ画面表示範囲そのままなので、前後1ページ分を追加で読み込む
+    const OVER_SCAN = overscan ? itemNum + 1 : 1;
     const fileIds: FileId[] = [];
     const s = Math.max(0, range.startIndex - OVER_SCAN);
     const e = Math.min(dirEntries.length - 1, range.endIndex + OVER_SCAN);

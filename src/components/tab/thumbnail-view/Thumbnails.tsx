@@ -115,7 +115,7 @@ export function Thumbnails({ dirEntries }: { dirEntries: DirEntry[] | undefined 
     // ResizeObserver が画面初期表示時に呼ばれないので、ここでも呼んでおく
     updateRowsColumns();
     // ファイル情報読み込み
-    useVisibleFileIdsStore.getState().setFileIndexes(tab.id, dirEntries, range);
+    useVisibleFileIdsStore.getState().setFileIndexes(tab.id, dirEntries, range, false);
   };
 
   if (dirEntries === undefined) {

@@ -29,7 +29,7 @@ export default function FileList({ dirEntries }: { dirEntries: DirEntry[] | unde
     setRows(Math.max(1, range.endIndex - range.startIndex));
     setColumns(1);
     // ファイル情報読み込み
-    useVisibleFileIdsStore.getState().setFileIndexes(tab.id, dirEntries, range);
+    useVisibleFileIdsStore.getState().setFileIndexes(tab.id, dirEntries, range, true);
   };
 
   const fileListHeaderSizes = useUiStore(state => state.fileListHeaderSizes);
