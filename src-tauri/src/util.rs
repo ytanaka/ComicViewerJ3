@@ -1,13 +1,19 @@
 //! 共通関数など
 
-use std::{fmt::Display, path::Path, sync::atomic::AtomicBool};
+use std::{
+    fmt::Display,
+    path::Path,
+    sync::atomic::{AtomicBool, AtomicU64},
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// デバッグ用の詳細ログ
 pub static WRITE_LOG_VERBOSE: AtomicBool = AtomicBool::new(false);
 pub fn is_write_log_verbose() -> bool {
     crate::util::WRITE_LOG_VERBOSE.load(std::sync::atomic::Ordering::Relaxed)
 }
-
-/// デバッグ用の詳細ログ
 #[macro_export]
 #[allow(unused_macros)]
 macro_rules! LOG_VERBOSE {
@@ -18,6 +24,8 @@ macro_rules! LOG_VERBOSE {
         }
     };
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 /// Rustコマンドの結果をログに出力する
 #[macro_export]
@@ -40,6 +48,8 @@ macro_rules! LOG_RESULT {
     }};
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 /// 単体テスト時だけログ出力する
 #[macro_export]
 #[allow(unused_macros)]
@@ -59,6 +69,8 @@ macro_rules! UT_LOG {
     };
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 pub trait ErrorExt {
     fn to_full_string(&self) -> String;
 }
@@ -74,6 +86,8 @@ impl<T: std::error::Error + ?Sized> ErrorExt for T {
         s
     }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 const MAX_VEC_STR: usize = 50;
 
@@ -109,5 +123,49 @@ pub fn parse_bool(s: &str) -> Option<bool> {
         "true" => Some(true),
         "false" => Some(false),
         _ => None,
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// IO処理で忙しいかどうかの判定をする
+/// フォアグラウンドでIO処理をしているとき、バックグラウンドのIO処理を待たせるための仕組み
+
+/// フォアグラウンドでIO処理をした最後の時間
+static IO_BUSY_TIME: AtomicU64 = AtomicU64::new(0);
+
+/// この時間IO処理がないなら余裕があるとみなす
+const IO_BUSY_THRESHOLD_MS: u64 = 50;
+
+fn now_time() -> u64 {
+    match SystemTime::now().duration_since(UNIX_EPOCH) {
+        Err(e) => {
+            log::error!("BUG: system time error: {}", e);
+            0
+        }
+        Ok(t) => t.as_millis() as u64,
+    }
+}
+
+/// フォあるグラウンドでIO処理をするときに呼ぶ
+pub fn set_io_busy() {
+    IO_BUSY_TIME.store(now_time(), std::sync::atomic::Ordering::Relaxed);
+}
+
+fn is_io_busy() -> bool {
+    let t = IO_BUSY_TIME.load(std::sync::atomic::Ordering::Relaxed);
+    let now = now_time();
+    let elapsed = now - t;
+    elapsed < IO_BUSY_THRESHOLD_MS
+}
+
+/// バックグラウンドでIO処理をするとき、フォアグラウンドの処理を邪魔したくないときに呼ぶ
+pub fn await_io_idle(comment: &str) {
+    for cnt in 0..30 {
+        if !is_io_busy() {
+            return;
+        }
+        LOG_VERBOSE!("SLEEP for IO idle ... [{}]({})", comment, cnt);
+        std::thread::sleep(Duration::from_millis(IO_BUSY_THRESHOLD_MS / 2));
     }
 }

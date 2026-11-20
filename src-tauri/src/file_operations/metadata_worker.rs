@@ -12,7 +12,11 @@ use std::{
 use anyhow::anyhow;
 
 use crate::{
-    LOG_VERBOSE, file_operations::file_utils::read_metadata, state::app_state::AppState, types::{Either, FileId, FileMetadata, TabId},
+    file_operations::file_utils::read_metadata,
+    state::app_state::AppState,
+    types::{Either, FileId, FileMetadata, TabId},
+    util::await_io_idle,
+    LOG_VERBOSE,
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -89,6 +93,7 @@ impl PacketExecutor {
         let ret: Vec<_> = filenames
             .iter()
             .map(|(file_id, name)| {
+                await_io_idle("read metadata");
                 let metadata = read_metadata(&self.packet.path, name);
                 (*file_id, metadata)
             })

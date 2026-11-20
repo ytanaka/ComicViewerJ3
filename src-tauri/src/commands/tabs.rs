@@ -12,18 +12,13 @@ use anyhow::anyhow;
 use tauri::{AppHandle, State};
 
 use crate::{
-    commands::fs_util::{self, parse_file_id_str},
-    file_operations::{file_utils, file_watcher::FileWatcher},
-    state::{
+    LOG_RESULT, commands::fs_util::{self, parse_file_id_str}, file_operations::{file_utils, file_watcher::FileWatcher}, state::{
         app_state::AppState,
         tab_info::TabInfo,
         util::{AppContext, EventEmitter},
-    },
-    types::{
+    }, types::{
         CreateTabError, DirEntryUI, Either, FileId, FileInfoUI, SortCondition, TabId, TabInfoUI,
-    },
-    util::{is_write_log_verbose, vec_to_str},
-    LOG_RESULT,
+    }, util::{is_write_log_verbose, set_io_busy, vec_to_str},
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -427,6 +422,7 @@ async fn get_file_infos_impl(
     let mut tab = tab.write().unwrap();
     let mut ret = Vec::new();
     for s in file_ids {
+        set_io_busy();
         let file_id = parse_file_id_str(&s)?;
         tab.load_metadata(file_id)?;
         let file_info = tab.get_file_info(file_id)?;
